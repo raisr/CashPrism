@@ -2,11 +2,29 @@
 
 ## Overview
 
-CashPrism is a desktop application that reads data exports from the personal finance app "FinanzGuru" and makes your own finances analysable on a large screen.
+CashPrism reads data exports from the personal finance app "FinanzGuru" and makes your own finances analysable on a large screen.
+
+Imports are additive: every import adds rows, it never overwrites. Each row gets a fingerprint (a hash over date, amount, currency, account, counterparty and payment reference); a fingerprint that is already known is skipped. The raw contents of every imported file are stored unchanged as well.
+
+One machine hosts the application, every other device on the home network reaches it through a browser. Everything stays local: no cloud, no external account.
+
+See `README.md` for the user-facing description.
 
 ## Tech stack
 
-- tbd
+| Area | Choice |
+|---|---|
+| Runtime | .NET 10 (LTS) |
+| UI | Blazor Web App, render mode `InteractiveServer` |
+| Web server | Kestrel, built in |
+| Database | SQLite via EF Core, `./data/cashprism.db` |
+| Excel | ClosedXML |
+| Auth | One shared password, PBKDF2, cookie authentication |
+| Delivery | Self-contained single-file binary per platform |
+
+The database lives on a local disk only, never on a network share. SQLite locking over SMB is unreliable. This is a decision, not an oversight — do not propose moving it.
+
+**We do not use DDD.** No value objects, no domain events, no aggregates. `Domain` holds plain models and the rules that operate on them.
 
 ## Architecture
 
@@ -14,18 +32,39 @@ CashPrism is a desktop application that reads data exports from the personal fin
 
 | Project | Role | May depend on |
 |---|---|---|
-| `src/CashPrism.Domain` | Entities, value objects, domain events, business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
+| `src/CashPrism.Domain` | Models and business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
 | `src/CashPrism.Application` | Use cases, orchestration, DTOs, **interfaces** for anything external | Domain |
-| `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, repositories, HTTP clients, file system, clock | Application, Domain |
-| `src/CashPrism.Web` | Entry point: endpoints/controllers, DI wiring, configuration, mapping | Application, Domain, and Infrastructure **only** in `Program.cs` for registration |
+| `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, repositories, file system, clock | Application, Domain |
+| `src/CashPrism.Infrastructure.Finanzguru` | ClosedXML parser for the FinanzGuru xlsx. Keeps the ClosedXML dependency out of everything else | Application, Domain |
+| `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
+| `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything — this is the only project allowed to reference the Infrastructure projects |
 | `src/tests/CashPrism.Tests.Unit` | Domain and Application | — |
-| `src/tests/CashPrism.Tests.Integration` | Web and Infrastructure end to end | — |
+| `src/tests/CashPrism.Tests.Integration` | Web, Infrastructure and Shell end to end | — |
+
+The solution file is `src/CashPrism.sln`, so `src/tests` is a plain folder inside the solution root.
+
+```
+src/
+  CashPrism.sln
+  CashPrism.Domain/
+  CashPrism.Application/
+  CashPrism.Infrastructure/
+  CashPrism.Infrastructure.Finanzguru/
+  CashPrism.Web/
+  CashPrism.Shell/
+  tests/
+    CashPrism.Tests.Unit/
+    CashPrism.Tests.Integration/
+```
 
 Consequences worth stating, because they are where it usually goes wrong:
 
 - Infrastructure never gets referenced from Application or Domain. If Application needs the database, it declares an interface and Infrastructure implements it
 - Domain contains no attributes from EF Core or ASP.NET. Persistence details live in configurations under Infrastructure
-- Nothing outside Domain decides what is valid. Guard clauses belong in the entity, not in the controller
+- Nothing outside Domain decides what is valid. Guard clauses belong in the model, not in the controller
+- A second import source becomes a new `CashPrism.Infrastructure.<Name>` project next to the existing one, not a change to the existing parser
+- `Web` is a library, not a host. It never references an Infrastructure project, never reads configuration and has no `Program.cs`. Everything that only makes sense once the process is running belongs in `Shell`
+- `Shell` contains no business logic and no UI. If something there gets interesting enough to test, it is in the wrong project
 
 ## Code style
 
@@ -35,13 +74,26 @@ Consequences worth stating, because they are where it usually goes wrong:
 - File-scoped namespaces, primary constructors for injection, records for DTOs and commands
 - `async`/`await` end to end, pass the `CancellationToken` through — no `.Result`, no `.Wait()`, no `async void` (except event handlers)
 - Constructor dependency injection, no service locator, no `new` on services
-- Log through `ILogger<T>` with structured templates (`logger.LogInformation("Order {OrderId} shipped", id)`) — no `Console.WriteLine`, no string interpolation inside the log template
+- Log through `ILogger<T>` with structured templates (`logger.LogInformation("Order {OrderId} shipped", id)`) — no `Console.WriteLine`, no string interpolation inside the log template. The startup banner in `Shell` is the one allowed exception: it is user-facing output, not logging
 - Configuration through `IOptions<T>`, no magic strings scattered around
 
 ### Patterns we do not use — never suggest them
 
-- <Exceptions as control flow for expected business outcomes — use a result type>
-- <Static helpers holding state, service locator, `DateTime.Now` in domain code>
+- Exceptions as control flow for expected business outcomes — use a result type
+- Static helpers holding state, service locator, `DateTime.Now` in domain code
+- DDD building blocks: value objects, domain events, aggregate roots, repositories-per-aggregate
+
+## Hosting
+
+CashPrism is shipped as one executable that a person double-clicks, so `Shell` carries the concerns a web project normally does not have:
+
+- Bind Kestrel to `0.0.0.0` on a fixed, overridable port. Binding to localhost only would lock out every other device
+- Create `./data` if missing and apply EF Core migrations before serving the first request
+- Print the reachable LAN URL to the console so it can be typed on a phone
+- Open the local browser on start, unless started with a switch that says otherwise
+- Refuse to start a second instance against the same database file
+
+`Web` must stay hostable without `Shell` — that is what the integration tests use.
 
 ## Tests
 
@@ -61,15 +113,15 @@ public sealed class OrderServiceTests            // class under test
 }
 ```
 
-- Test file mirrors the source path: `src/CashPrism.Application/Orders/OrderService.cs` → `test/CashPrism.UnitTests/Application/Orders/OrderServiceTests.cs`
+- Test file mirrors the source path: `src/CashPrism.Application/Orders/OrderService.cs` → `src/tests/CashPrism.Tests.Unit/Application/Orders/OrderServiceTests.cs`
 - Method name reads `Scenario_ExpectedResult` — the method under test is already the nested class, do not repeat it
 - Arrange/Act/Assert, one behaviour per test, no logic in the test itself
 - New or changed logic without a test counts as unfinished, even when nobody asked for one
-- Integration tests run against <Testcontainers | LocalDB>, never against a shared database
+- Integration tests run against a throwaway SQLite database per test run, never against a shared one
 
 ## Security
 
-- No secrets in the repository. User Secrets locally, <Key Vault | environment variables> in production
+- No secrets in the repository. User Secrets locally, environment variables when deployed
 - No concatenated SQL — parameterised queries or LINQ only
 - Validate input server-side, encode output, use anti-forgery tokens on forms
 - Authorise every endpoint explicitly (`[Authorize]` by default, `[AllowAnonymous]` as a justified exception)
@@ -101,6 +153,10 @@ public sealed class OrderServiceTests            // class under test
 
 | Term | Means |
 |---|---|
+| Import run | One processed export file, recorded with the file hash |
+| Raw row | An untouched row from an imported file, stored as JSON |
+| Fingerprint | Hash over date, amount, currency, account, counterparty and payment reference. Decides whether two rows are the same booking |
+| Transaction | A single booking, deduplicated by its fingerprint |
 
 ## Signing AI-generated content
 
