@@ -1,2 +1,11 @@
-# Keep shell scripts LF so they run under bash on every platform
+# Normalise all text files to LF in the repository and on checkout, so the
+# .editorconfig `end_of_line = lf` rule holds on every platform.
+* text=auto eol=lf
+
+# Shell scripts must stay LF to run under bash everywhere.
 *.sh text eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.xlsx binary
+*.db binary
