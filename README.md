@@ -47,7 +47,8 @@ sees the finances. The database sits as a file next to the application.
 
 ## Status
 
-Early development. Nothing runnable yet.
+Early development. Nothing runnable yet. See [ROADMAP.md](ROADMAP.md) for the
+planned phases and [CHANGELOG.md](CHANGELOG.md) for what has landed.
 
 ## License
 

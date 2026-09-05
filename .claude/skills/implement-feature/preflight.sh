@@ -43,6 +43,17 @@ gh pr view "${branch}" --json number,state,isDraft,reviewDecision,url \
   -q '"#\(.number) state=\(.state) draft=\(.isDraft) review=\(.reviewDecision)\n\(.url)"' 2>/dev/null \
   || echo "  none yet"
 
+echo
+echo "=== changelog ==="
+base="$(git merge-base main HEAD 2>/dev/null || echo HEAD)"
+changed="$( { git diff --name-only "${base}...HEAD"; git diff --name-only HEAD; git diff --name-only --cached; } 2>/dev/null | sort -u )"
+if printf '%s\n' "${changed}" | grep -q '^src/' && ! printf '%s\n' "${changed}" | grep -qx 'CHANGELOG.md'; then
+  echo "  !! src/** changed but CHANGELOG.md was not - add an entry under [Unreleased],"
+  echo "     or note in the PR body why it is skipped (see step 4). Warning only, not a gate."
+else
+  echo "  OK"
+fi
+
 run_gate() {
   local label="$1"; shift
   echo
