@@ -38,10 +38,10 @@ The database lives on a local disk only, never on a network share. SQLite lockin
 | `src/CashPrism.Infrastructure.Finanzguru` | ClosedXML parser for the FinanzGuru xlsx. Keeps the ClosedXML dependency out of everything else | Application, Domain |
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything — this is the only project allowed to reference the Infrastructure projects |
-| `src/tests/CashPrism.Tests.Unit` | Domain and Application | — |
-| `src/tests/CashPrism.Tests.Integration` | Web, Infrastructure and Shell end to end | — |
+| `src/Tests/CashPrism.Tests.Unit` | Domain and Application | — |
+| `src/Tests/CashPrism.Tests.Integration` | Web, Infrastructure and Shell end to end | — |
 
-The solution file is `src/CashPrism.slnx`, so `src/tests` is a plain folder inside the solution root.
+The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder inside the solution root.
 
 ```
 src/
@@ -52,7 +52,7 @@ src/
   CashPrism.Infrastructure.Finanzguru/
   CashPrism.Web/
   CashPrism.Shell/
-  tests/
+  Tests/
     CashPrism.Tests.Unit/
     CashPrism.Tests.Integration/
 ```
@@ -113,7 +113,7 @@ public sealed class OrderServiceTests            // class under test
 }
 ```
 
-- Test file mirrors the source path: `src/CashPrism.Application/Orders/OrderService.cs` → `src/tests/CashPrism.Tests.Unit/Application/Orders/OrderServiceTests.cs`
+- Test file mirrors the source path: `src/CashPrism.Application/Orders/OrderService.cs` → `src/Tests/CashPrism.Tests.Unit/Application/Orders/OrderServiceTests.cs`
 - Method name reads `Scenario_ExpectedResult` — the method under test is already the nested class, do not repeat it
 - Arrange/Act/Assert, one behaviour per test, no logic in the test itself
 - New or changed logic without a test counts as unfinished, even when nobody asked for one
