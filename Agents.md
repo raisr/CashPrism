@@ -41,11 +41,11 @@ The database lives on a local disk only, never on a network share. SQLite lockin
 | `src/tests/CashPrism.Tests.Unit` | Domain and Application | — |
 | `src/tests/CashPrism.Tests.Integration` | Web, Infrastructure and Shell end to end | — |
 
-The solution file is `src/CashPrism.sln`, so `src/tests` is a plain folder inside the solution root.
+The solution file is `src/CashPrism.slnx`, so `src/tests` is a plain folder inside the solution root.
 
 ```
 src/
-  CashPrism.sln
+  CashPrism.slnx
   CashPrism.Domain/
   CashPrism.Application/
   CashPrism.Infrastructure/
