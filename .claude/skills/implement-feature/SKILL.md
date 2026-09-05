@@ -8,7 +8,7 @@ description: Drive a CashPrism change end to end - ticket, branch, implementatio
 The lifecycle for any code change in CashPrism. Nothing here is optional and the
 order matters. Paths are relative to the repo root.
 
-Related skills: `create-issue` (step 1), `commit-message` (step 5).
+Related skills: `create-issue` (step 1), `commit-message` (step 6).
 
 ## 1. There must be a ticket
 
@@ -40,7 +40,20 @@ the tooling parses the number back out.
 - Anything that touches more than one file: agree the approach with the user
   before diving in.
 
-## 4. Pre-flight — all gates green
+## 4. Changelog entry
+
+`CHANGELOG.md` in the repo root follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+
+- A user-visible change **requires** an entry under `## [Unreleased]`, in the
+  right category (`Added` / `Changed` / `Deprecated` / `Removed` / `Fixed` /
+  `Security`). Add the category heading if it is not there yet.
+- Write it for a human reading the release notes — what changed and why it
+  matters, not the commit subject and not a `git log` dump.
+- Purely internal work with no user-visible effect (tests, tooling, the skill
+  files, CI, doc-only) may skip the entry. When you skip, say so in one line in
+  the PR body.
+
+## 5. Pre-flight — all gates green
 
 ```bash
 bash .claude/skills/implement-feature/preflight.sh
@@ -56,13 +69,13 @@ linked PR if any, then runs the three gates and exits non-zero unless all pass:
 Then walk the DoD checkboxes yourself — the gates do not cover reference graphs,
 exposed APIs or docs. Only proceed when every box is genuinely true.
 
-## 5. Commit
+## 6. Commit
 
 Invoke `commit-message`. It parses `#<issue>` from the branch, drafts in the
 required format, and commits + pushes after your explicit approval. Repo commits
 carry **no** AI footer.
 
-## 6. Open the PR
+## 7. Open the PR
 
 ```bash
 gh pr create --base main --head <branch> \
@@ -73,8 +86,10 @@ gh pr create --base main --head <branch> \
 ```
 
 Body: **what** changed and **why**, an **Evidence** block with the gate output,
-any **deviation from the ticket's DoD** called out, and `Closes #<issue>`. End
-with the external-system signature, separated by `---`:
+a **Changelog** line naming the `CHANGELOG.md` category the entry went under (or
+`n. a.` with the reason it was skipped, per step 4), any **deviation from the
+ticket's DoD** called out, and `Closes #<issue>`. End with the external-system
+signature, separated by `---`:
 
 ```
 ---
@@ -85,7 +100,7 @@ with the external-system signature, separated by `---`:
 Always `--assignee raisr` (add it afterwards with
 `gh pr edit <n> --add-assignee raisr` if you forgot).
 
-## 7. Review loop
+## 8. Review loop
 
 The user reviews in the PR and comments there, then tells you to look. For each
 round:
@@ -99,7 +114,7 @@ Address every point, re-run pre-flight, commit (`commit-message`), push. Reply o
 the PR with the commit that resolved each point, signed with the same `---`
 block.
 
-## 8. Done
+## 9. Done
 
 The work is finished only when **the user accepts / merges the PR** — not when
 the gates pass. After merge:
@@ -120,4 +135,4 @@ git checkout main && git pull && git branch -d <branch>
 - `preflight.sh` runs three full `dotnet` invocations (~30-60 s cold). That is
   expected, not a hang.
 - `gh pr view <branch>` only finds the PR while the branch exists locally and on
-  the remote; after step 8 use `gh pr view <number>`.
+  the remote; after step 9 use `gh pr view <number>`.
