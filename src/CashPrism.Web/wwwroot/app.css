@@ -1,0 +1,43 @@
+/* Deliberately minimal. Picking a styling approach is an M6 decision. */
+
+:root {
+  color-scheme: light dark;
+  --border: color-mix(in srgb, currentColor 20%, transparent);
+  --muted: color-mix(in srgb, currentColor 60%, transparent);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.app-version {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.app-main {
+  padding: 1.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}

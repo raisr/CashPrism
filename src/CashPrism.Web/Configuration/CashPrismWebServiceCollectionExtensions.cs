@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CashPrism.Web;
+namespace CashPrism.Web.Configuration;
 
 /// <summary>
 /// Registers the CashPrism web layer (Blazor components, auth UI, routing) with
@@ -9,11 +9,14 @@ namespace CashPrism.Web;
 public static class CashPrismWebServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds the services required by the CashPrism web UI.
+    /// Adds the services required by the CashPrism web UI. Interactivity is
+    /// global: every component renders with the interactive server render mode.
     /// </summary>
     public static IServiceCollection AddCashPrismWeb(this IServiceCollection services)
     {
-        // Wiring is added as the web layer grows (Razor components, auth, ...).
+        services.AddRazorComponents()
+            .AddInteractiveServerComponents();
+
         return services;
     }
 }

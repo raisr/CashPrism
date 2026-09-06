@@ -1,4 +1,4 @@
-using CashPrism.Web;
+using CashPrism.Web.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
