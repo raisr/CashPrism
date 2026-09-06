@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CashPrism.Web;
+namespace CashPrism.Web.Configuration;
 
 /// <summary>
 /// Registers the CashPrism web layer (Blazor components, auth UI, routing) with

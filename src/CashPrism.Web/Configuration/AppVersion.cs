@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace CashPrism.Web;
+namespace CashPrism.Web.Configuration;
 
 /// <summary>
 /// The product version displayed in the UI, taken from the informational version

@@ -72,6 +72,10 @@ Consequences worth stating, because they are where it usually goes wrong:
 - Keep `<Nullable>enable</Nullable>` and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` switched on
 - Everything written into this repository is **English**: identifiers, comments, XML docs, commit messages, documentation
 - File-scoped namespaces, primary constructors for injection, records for DTOs and commands
+- **The namespace always follows the directory structure.** A file in
+  `src/CashPrism.Web/Configuration/` is in `CashPrism.Web.Configuration`, with no
+  exception for extension classes or anything else. `dotnet format` enforces it
+  (`IDE0130`), so a mismatch fails the gate rather than surviving in review
 - `async`/`await` end to end, pass the `CancellationToken` through — no `.Result`, no `.Wait()`, no `async void` (except event handlers)
 - Constructor dependency injection, no service locator, no `new` on services
 - Log through `ILogger<T>` with structured templates (`logger.LogInformation("Order {OrderId} shipped", id)`) — no `Console.WriteLine`, no string interpolation inside the log template. The startup banner in `Shell` is the one allowed exception: it is user-facing output, not logging

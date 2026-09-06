@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 
-namespace CashPrism.Web;
+namespace CashPrism.Web.Configuration;
 
 /// <summary>
 /// Maps the CashPrism web endpoints (Blazor root component, static assets) onto
