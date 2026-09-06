@@ -6,7 +6,7 @@ namespace CashPrism.Shell.Hosting;
 /// <summary>
 /// The lines printed once the server listens. This is user-facing console
 /// output, not logging — the documented exception to the <c>ILogger&lt;T&gt;</c>
-/// rule in <c>AGENTS.md</c>: someone reads an address off this screen to type it
+/// rule in <c>Agents.md</c>: someone reads an address off this screen to type it
 /// into a phone.
 /// </summary>
 public static class StartBanner

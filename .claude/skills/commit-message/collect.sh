@@ -5,7 +5,7 @@
 #
 # Usage: .claude/skills/commit-message/collect.sh
 #
-# Ticket parsing follows the branch convention in AGENTS.md:
+# Ticket parsing follows the branch convention in Agents.md:
 #   feature/<ticket>-<desc>  or  fix/<ticket>-<desc>
 # where <ticket> is either a bare number (42) or PREFIX-number (PROJ-42).
 set -euo pipefail

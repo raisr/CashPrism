@@ -1,4 +1,4 @@
-# AGENTS.md
+# Agents.md
 
 ## Overview
 
@@ -155,7 +155,7 @@ public sealed class OrderServiceTests            // class under test
 - **When something is unclear, ask instead of guessing. No answer beats a bad answer.** This outranks every other rule here
 - Keep changes small and reviewable, no unrequested refactoring of surrounding code
 - Prefer the boring solution; introduce a pattern only where it earns its complexity
-- If `AGENTS.local.md` exists next to this file, read it as well and let it win on conflicts. It carries personal and machine-specific settings, is git-ignored, and is never required for anyone else to work on this repository
+- If `Agents.local.md` exists next to this file, read it as well and let it win on conflicts. It carries personal and machine-specific settings, is git-ignored, and is never required for anyone else to work on this repository
 
 ## Domain terms
 

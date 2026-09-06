@@ -65,7 +65,7 @@ Rules:
 - **Keep it simple.** No estimates, no assignees, no labels beyond the type, no
   milestone unless the user asks.
 - The trailing signature block is required — a GitHub issue is an external system
-  (`AGENTS.md` → "Signing AI-generated content"). Use today's date, `YYYY-MM-DD`.
+  (`Agents.md` → "Signing AI-generated content"). Use today's date, `YYYY-MM-DD`.
 
 ## 3. Present and wait
 

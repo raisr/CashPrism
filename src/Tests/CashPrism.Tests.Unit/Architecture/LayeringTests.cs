@@ -4,7 +4,7 @@ using System.Reflection;
 namespace CashPrism.Tests.Unit.Architecture;
 
 /// <summary>
-/// Guards the onion dependency rule from AGENTS.md: the inner layers must not
+/// Guards the onion dependency rule from Agents.md: the inner layers must not
 /// take a dependency on infrastructure concerns. These tests have real teeth
 /// once the layers hold code; today they lock the direction in from the start.
 /// </summary>

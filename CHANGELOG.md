@@ -12,7 +12,7 @@ releases and the minor version is bumped for every notable change.
 ### Added
 
 - Solution structure under `src/` following the onion architecture from
-  `AGENTS.md`: Domain, Application, Infrastructure, Infrastructure.Finanzguru,
+  `Agents.md`: Domain, Application, Infrastructure, Infrastructure.Finanzguru,
   Web, Shell, and the Unit and Integration test projects.
 - `Web` exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` so it stays hostable
   without `Shell`; `Shell` is the composition root.
