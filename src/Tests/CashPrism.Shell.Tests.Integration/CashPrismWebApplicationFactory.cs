@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Program = CashPrism.Shell.Program;
 
-namespace CashPrism.Tests.Integration.Shell;
+namespace CashPrism.Shell.Tests.Integration;
 
 /// <summary>
 /// Hosts the composition root for the integration tests. It overrides the two

@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace CashPrism.Tests.Unit.Architecture;
+namespace CashPrism.Architecture.Tests;
 
 /// <summary>
 /// Guards the onion dependency rule from Agents.md: the inner layers must not

@@ -1,7 +1,7 @@
 using System.Net;
 using CashPrism.Shell.Hosting;
 
-namespace CashPrism.Tests.Integration.Shell.Hosting;
+namespace CashPrism.Shell.Tests.Integration.Hosting;
 
 /// <summary>
 /// The banner is the only instruction a person gets when they double-click the

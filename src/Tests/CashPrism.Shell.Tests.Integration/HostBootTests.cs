@@ -1,7 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-namespace CashPrism.Tests.Integration.Shell;
+namespace CashPrism.Shell.Tests.Integration;
 
 /// <summary>
 /// End-to-end smoke test for the composition root: the host must build and serve
