@@ -72,6 +72,10 @@ Consequences worth stating, because they are where it usually goes wrong:
 - Keep `<Nullable>enable</Nullable>` and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` switched on
 - Everything written into this repository is **English**: identifiers, comments, XML docs, commit messages, documentation
 - File-scoped namespaces, primary constructors for injection, records for DTOs and commands
+- **No top-level statements.** The entry point is an ordinary `Program` class with an
+  explicit `Main`, in a namespace like every other type. The composition root is the one
+  place a newcomer reads first — it deserves a name, an XML doc and a file that looks like
+  the rest of the codebase
 - **The namespace always follows the directory structure.** A file in
   `src/CashPrism.Web/Configuration/` is in `CashPrism.Web.Configuration`, with no
   exception for extension classes or anything else. `dotnet format` enforces it
