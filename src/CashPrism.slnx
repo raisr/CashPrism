@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/Tests/">
-    <Project Path="Tests/CashPrism.Tests.Integration/CashPrism.Tests.Integration.csproj" />
-    <Project Path="Tests/CashPrism.Tests.Unit/CashPrism.Tests.Unit.csproj" />
+    <Project Path="Tests/CashPrism.Architecture.Tests/CashPrism.Architecture.Tests.csproj" />
+    <Project Path="Tests/CashPrism.Shell.Tests.Integration/CashPrism.Shell.Tests.Integration.csproj" />
   </Folder>
   <Project Path="CashPrism.Application/CashPrism.Application.csproj" />
   <Project Path="CashPrism.Domain/CashPrism.Domain.csproj" />

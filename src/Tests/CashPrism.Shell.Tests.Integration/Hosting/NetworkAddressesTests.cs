@@ -1,7 +1,7 @@
 using System.Net;
 using CashPrism.Shell.Hosting;
 
-namespace CashPrism.Tests.Integration.Shell.Hosting;
+namespace CashPrism.Shell.Tests.Integration.Hosting;
 
 /// <summary>
 /// The banner may only advertise addresses another device in the home network

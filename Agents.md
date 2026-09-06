@@ -38,8 +38,8 @@ The database lives on a local disk only, never on a network share. SQLite lockin
 | `src/CashPrism.Infrastructure.Finanzguru` | ClosedXML parser for the FinanzGuru xlsx. Keeps the ClosedXML dependency out of everything else | Application, Domain |
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything — this is the only project allowed to reference the Infrastructure projects |
-| `src/Tests/CashPrism.Tests.Unit` | Domain and Application | — |
-| `src/Tests/CashPrism.Tests.Integration` | Web, Infrastructure and Shell end to end | — |
+| `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which | — |
+| `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included | — |
 
 The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder inside the solution root.
 
@@ -53,8 +53,8 @@ src/
   CashPrism.Web/
   CashPrism.Shell/
   Tests/
-    CashPrism.Tests.Unit/
-    CashPrism.Tests.Integration/
+    CashPrism.Architecture.Tests/
+    CashPrism.Shell.Tests.Integration/
 ```
 
 Consequences worth stating, because they are where it usually goes wrong:
@@ -105,6 +105,17 @@ CashPrism is shipped as one executable that a person double-clicks, so `Shell` c
 
 ## Tests
 
+**A test project belongs to exactly one production project and is named
+`<Project>.Tests.Unit` or `<Project>.Tests.Integration`.** It lives under
+`src/Tests/`, and folder, `.csproj`, assembly name and root namespace all carry
+that same name. A project only gets a test project once it actually has tests —
+no empty projects on stock.
+
+The one exception is **`CashPrism.Architecture.Tests`**: tests that assert
+solution-wide rules, such as which project may reference which. They belong to
+no single project, so they carry no `.Unit`/`.Integration` suffix. Do not add a
+second exception without a ticket that argues for it.
+
 **Structure: one test class per class under test, one nested class per method under test.**
 
 ```csharp
@@ -121,7 +132,7 @@ public sealed class OrderServiceTests            // class under test
 }
 ```
 
-- Test file mirrors the source path: `src/CashPrism.Application/Orders/OrderService.cs` → `src/Tests/CashPrism.Tests.Unit/Application/Orders/OrderServiceTests.cs`
+- Test file mirrors the source path *inside its project*: `src/CashPrism.Application/Orders/OrderService.cs` → `src/Tests/CashPrism.Application.Tests.Unit/Orders/OrderServiceTests.cs`. The project name already says which project is under test, so it is not repeated as a folder
 - Method name reads `Scenario_ExpectedResult` — the method under test is already the nested class, do not repeat it
 - Arrange/Act/Assert, one behaviour per test, no logic in the test itself
 - New or changed logic without a test counts as unfinished, even when nobody asked for one

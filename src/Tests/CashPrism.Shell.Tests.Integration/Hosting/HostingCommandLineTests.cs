@@ -1,7 +1,7 @@
 using CashPrism.Shell.Hosting;
 using Microsoft.Extensions.Configuration;
 
-namespace CashPrism.Tests.Integration.Shell.Hosting;
+namespace CashPrism.Shell.Tests.Integration.Hosting;
 
 /// <summary>
 /// The command-line provider silently mis-parses a valueless flag, so the two
