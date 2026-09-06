@@ -433,3 +433,6 @@ FodyWeavers.xsd
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# CashPrism data directory (database and stored import files)
+data/
