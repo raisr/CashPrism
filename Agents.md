@@ -127,6 +127,23 @@ public sealed class OrderServiceTests            // class under test
 - New or changed logic without a test counts as unfinished, even when nobody asked for one
 - Integration tests run against a throwaway SQLite database per test run, never against a shared one
 
+## Documentation
+
+Three files, three roles. Keep them apart:
+
+| File | Role |
+|---|---|
+| `README.md` | First contact: what CashPrism is, why it exists, that imports are additive, clone and run, status, licence |
+| `docs/` | Explanation and reference: how it works and why it was built that way. [`docs/README.md`](docs/README.md) is the index, one line per document |
+| `Agents.md` | Binding rules and conventions. **It prescribes, it does not describe** — explanatory prose belongs in `docs/`, and this file links to it |
+
+**Documentation is part of the change.** When a change makes a document in
+`docs/`, the `README.md` or this file wrong, incomplete or misleading, updating it
+belongs in the same branch and the same pull request — not into a follow-up
+ticket. A pull request that leaves documentation contradicting the code is not
+done. Conversely, no documentation is written for something that does not exist
+yet.
+
 ## Security
 
 - No secrets in the repository. User Secrets locally, environment variables when deployed
