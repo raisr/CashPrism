@@ -49,7 +49,7 @@ Rules:
 - **Body:** one `-` bullet per logical change. Concise and technical. No trailing
   punctuation on any bullet.
 - Nothing else: no explanations, no emojis, no `Co-Authored-By`, no session URL,
-  no extra sections. `AGENTS.md` is explicit that AI attribution does not belong
+  no extra sections. `Agents.md` is explicit that AI attribution does not belong
   in repo commits — the Git history is the provenance.
 
 Everything in the message is English (repo rule).
@@ -85,4 +85,4 @@ Report the short hash and the push result.
   suffix. That is expected, not a parsing failure.
 - The ticket regex accepts a bare number (`42`) or a prefixed key (`PROJ-42`);
   it requires a `-` and a description after the ticket, matching the
-  `feature/<ticket>-<short-description>` convention in `AGENTS.md`.
+  `feature/<ticket>-<short-description>` convention in `Agents.md`.

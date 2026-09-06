@@ -1,6 +1,5 @@
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace CashPrism.Tests.Integration.Shell;
 
@@ -11,8 +10,8 @@ namespace CashPrism.Tests.Integration.Shell;
 /// </summary>
 public sealed class HostBootTests
 {
-    public sealed class Startup(WebApplicationFactory<Program> factory)
-        : IClassFixture<WebApplicationFactory<Program>>
+    public sealed class Startup(CashPrismWebApplicationFactory factory)
+        : IClassFixture<CashPrismWebApplicationFactory>
     {
         private async Task<string> GetStartPageAsync()
         {
@@ -73,6 +72,14 @@ public sealed class HostBootTests
             using var response = await client.GetAsync("_content/CashPrism.Web/app.css");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public void Creates_The_Configured_Data_Directory()
+        {
+            using var client = factory.CreateClient();
+
+            Assert.True(Directory.Exists(factory.DataDirectory));
         }
     }
 }

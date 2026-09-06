@@ -1,4 +1,4 @@
-# AGENTS.md
+# Agents.md
 
 ## Overview
 
@@ -72,6 +72,10 @@ Consequences worth stating, because they are where it usually goes wrong:
 - Keep `<Nullable>enable</Nullable>` and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` switched on
 - Everything written into this repository is **English**: identifiers, comments, XML docs, commit messages, documentation
 - File-scoped namespaces, primary constructors for injection, records for DTOs and commands
+- **No top-level statements.** The entry point is an ordinary `Program` class with an
+  explicit `Main`, in a namespace like every other type. The composition root is the one
+  place a newcomer reads first — it deserves a name, an XML doc and a file that looks like
+  the rest of the codebase
 - **The namespace always follows the directory structure.** A file in
   `src/CashPrism.Web/Configuration/` is in `CashPrism.Web.Configuration`, with no
   exception for extension classes or anything else. `dotnet format` enforces it
@@ -151,7 +155,7 @@ public sealed class OrderServiceTests            // class under test
 - **When something is unclear, ask instead of guessing. No answer beats a bad answer.** This outranks every other rule here
 - Keep changes small and reviewable, no unrequested refactoring of surrounding code
 - Prefer the boring solution; introduce a pattern only where it earns its complexity
-- If `AGENTS.local.md` exists next to this file, read it as well and let it win on conflicts. It carries personal and machine-specific settings, is git-ignored, and is never required for anyone else to work on this repository
+- If `Agents.local.md` exists next to this file, read it as well and let it win on conflicts. It carries personal and machine-specific settings, is git-ignored, and is never required for anyone else to work on this repository
 
 ## Domain terms
 

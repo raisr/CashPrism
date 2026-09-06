@@ -30,9 +30,9 @@ the tooling parses the number back out.
 
 ## 3. Implement in small, reviewable steps
 
-- Respect the onion rule from `AGENTS.md`: the dependency arrow points inward,
+- Respect the onion rule from `Agents.md`: the dependency arrow points inward,
   Infrastructure is referenced only by `Shell`, validation lives in `Domain`.
-- New or changed logic without a test counts as unfinished (`AGENTS.md`). Test
+- New or changed logic without a test counts as unfinished (`Agents.md`). Test
   layout mirrors the source path; one test class per class under test, one
   nested class per method. See existing tests under `src/Tests/`.
 - Keep the working tree reviewable — no stray files, no reformatted files you
