@@ -20,5 +20,9 @@ releases and the minor version is bumped for every notable change.
   a host-boot integration test.
 - `ROADMAP.md` with the planned phases M1 through M7.
 - This changelog.
+- Start page at `/`, rendered by Blazor with the interactive server render mode.
+  It shows the application version and a marker that switches from `Prerendered`
+  to `Interactive` as soon as the browser's connection to the server is live —
+  visible proof that the whole chain works.
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main

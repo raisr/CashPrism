@@ -1,0 +1,30 @@
+@page "/"
+
+<PageTitle>CashPrism</PageTitle>
+
+<h1>CashPrism</h1>
+
+<p>
+  Render mode: <span class="badge">@circuitState</span>
+</p>
+
+@code {
+    private const string Prerendered = "Prerendered";
+    private const string Interactive = "Interactive";
+
+    // Server-rendered the badge reads "Prerendered"; once the SignalR circuit is
+    // up the first interactive render flips it to "Interactive". That is the
+    // visible proof that the wiring works end to end.
+    private string circuitState = Prerendered;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        circuitState = Interactive;
+        StateHasChanged();
+    }
+}
