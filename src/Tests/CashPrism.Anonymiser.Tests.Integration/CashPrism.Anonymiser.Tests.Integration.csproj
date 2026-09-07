@@ -16,18 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--
-      This project asserts solution-wide layering rules, so it needs every
-      assembly in the reference graph loadable for reflection — not just the
-      ones its own code calls into.
-    -->
     <ProjectReference Include="..\..\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
-    <ProjectReference Include="..\..\CashPrism.Application\CashPrism.Application.csproj" />
-    <ProjectReference Include="..\..\CashPrism.Domain\CashPrism.Domain.csproj" />
-    <ProjectReference Include="..\..\CashPrism.Infrastructure\CashPrism.Infrastructure.csproj" />
     <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
-    <ProjectReference Include="..\..\CashPrism.Shell\CashPrism.Shell.csproj" />
-    <ProjectReference Include="..\..\CashPrism.Web\CashPrism.Web.csproj" />
   </ItemGroup>
 
 </Project>

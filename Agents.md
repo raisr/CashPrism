@@ -37,10 +37,15 @@ The database lives on a local disk only, never on a network share. SQLite lockin
 | `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, repositories, file system, clock | Application, Domain |
 | `src/CashPrism.Infrastructure.Finanzguru` | ClosedXML parser for the FinanzGuru xlsx. Keeps the ClosedXML dependency out of everything else | Application, Domain |
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
-| `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything — this is the only project allowed to reference the Infrastructure projects |
+| `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
+| `src/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real FinanzGuru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
 | `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which | — |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook | — |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included | — |
+| `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk | — |
+| `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository | — |
+
+`Shell` and `Anonymiser` are the only two projects allowed to reference an Infrastructure project — both are composition roots, so both are allowed to wire concrete infrastructure to a use case. `CashPrism.Architecture.Tests` fails the build if a project outside that set takes such a dependency.
 
 The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder inside the solution root.
 
@@ -53,10 +58,13 @@ src/
   CashPrism.Infrastructure.Finanzguru/
   CashPrism.Web/
   CashPrism.Shell/
+  CashPrism.Anonymiser/
   Tests/
     CashPrism.Architecture.Tests/
     CashPrism.Infrastructure.Finanzguru.Tests.Unit/
     CashPrism.Shell.Tests.Integration/
+    CashPrism.Anonymiser.Tests.Unit/
+    CashPrism.Anonymiser.Tests.Integration/
 ```
 
 Consequences worth stating, because they are where it usually goes wrong:
@@ -67,6 +75,7 @@ Consequences worth stating, because they are where it usually goes wrong:
 - A second import source becomes a new `CashPrism.Infrastructure.<Name>` project next to the existing one, not a change to the existing parser
 - `Web` is a library, not a host. It never references an Infrastructure project, never reads configuration and has no `Program.cs`. Everything that only makes sense once the process is running belongs in `Shell`
 - `Shell` contains no business logic and no UI. If something there gets interesting enough to test, it is in the wrong project
+- `Anonymiser` is a development tool, not part of the shipped application. It never references ClosedXML — an `.xlsx` is a zip it takes apart and puts back together itself, so a real FinanzGuru export stays recognisable as one
 
 ## Code style
 

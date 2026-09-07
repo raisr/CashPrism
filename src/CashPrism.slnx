@@ -1,9 +1,12 @@
 <Solution>
   <Folder Name="/Tests/">
+    <Project Path="Tests/CashPrism.Anonymiser.Tests.Integration/CashPrism.Anonymiser.Tests.Integration.csproj" />
+    <Project Path="Tests/CashPrism.Anonymiser.Tests.Unit/CashPrism.Anonymiser.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Architecture.Tests/CashPrism.Architecture.Tests.csproj" />
     <Project Path="Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit/CashPrism.Infrastructure.Finanzguru.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Shell.Tests.Integration/CashPrism.Shell.Tests.Integration.csproj" />
   </Folder>
+  <Project Path="CashPrism.Anonymiser/CashPrism.Anonymiser.csproj" />
   <Project Path="CashPrism.Application/CashPrism.Application.csproj" />
   <Project Path="CashPrism.Domain/CashPrism.Domain.csproj" />
   <Project Path="CashPrism.Infrastructure.Finanzguru/CashPrism.Infrastructure.Finanzguru.csproj" />
