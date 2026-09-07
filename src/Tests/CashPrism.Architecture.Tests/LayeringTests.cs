@@ -17,7 +17,7 @@ public sealed class LayeringTests
         "ClosedXML",
     ];
 
-    private static IEnumerable<string> ReferencedAssemblyNames(string assemblyName)
+    internal static IEnumerable<string> ReferencedAssemblyNames(string assemblyName)
         => Assembly.Load(assemblyName)
             .GetReferencedAssemblies()
             .Select(a => a.Name!)

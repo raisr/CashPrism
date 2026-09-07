@@ -33,5 +33,16 @@ releases and the minor version is bumped for every notable change.
   It shows the application version and a marker that switches from `Prerendered`
   to `Interactive` as soon as the browser's connection to the server is live —
   visible proof that the whole chain works.
+- The FinanzGuru column mapping, in `CashPrism.Infrastructure.Finanzguru`:
+  resolves a header row to its known columns by name, never by position, and
+  fails loudly on a column that is missing, duplicated or unrecognised.
+- `CashPrism.Anonymiser`, a standalone console tool that takes a real
+  FinanzGuru export apart and puts it back together without changing a single
+  value: `CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory>
+  [--force]`. Every zip entry is copied through unchanged; a worksheet using
+  shared strings, or a header row with a missing, duplicated or unrecognised
+  column, aborts with a message naming the reason instead of guessing. This is
+  the first of two tickets — replacing the values with anonymised placeholders
+  follows.
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main
