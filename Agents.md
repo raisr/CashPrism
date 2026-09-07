@@ -39,6 +39,7 @@ The database lives on a local disk only, never on a network share. SQLite lockin
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything — this is the only project allowed to reference the Infrastructure projects |
 | `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which | — |
+| `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook | — |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included | — |
 
 The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder inside the solution root.
@@ -54,6 +55,7 @@ src/
   CashPrism.Shell/
   Tests/
     CashPrism.Architecture.Tests/
+    CashPrism.Infrastructure.Finanzguru.Tests.Unit/
     CashPrism.Shell.Tests.Integration/
 ```
 
