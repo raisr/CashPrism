@@ -21,6 +21,11 @@ CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory> [--force
 The output file is the input name with `-anonymised` inserted before the
 extension, e.g. `export.xlsx` → `export-anonymised.xlsx`.
 
+Every input file of one run shares its value dictionaries (see below): the
+same counterparty keeps the same placeholder whether it appears in one file or
+in two overlapping exports. All input files are read and validated before any
+output is written, since the dictionaries have to see every file first.
+
 ## Why it does not use ClosedXML
 
 An `.xlsx` is a zip archive. ClosedXML would rewrite the whole workbook on the
@@ -32,21 +37,92 @@ inline strings, the only string form FinanzGuru actually emits, would then stay
 invisible in every test built from an anonymised fixture and surface for the
 first time on a real import.
 
-The tool therefore copies every zip entry through unchanged, byte for byte.
-Only the worksheet part is read first — to resolve its header against the same
-`FinanzguruColumnMap` the real parser uses, and to check that it does not use
-shared strings, which this tool does not support.
+The tool therefore copies every zip entry through unchanged, byte for byte,
+except the one worksheet part it rewrites. Even there, only the text inside a
+replaced cell changes — every other byte, including the cells of every kept
+column, is untouched.
 
-## What this version does — and does not — do
+## What gets replaced
 
-This first version proves the round trip: an input file comes out unchanged,
-byte for byte, entry for entry. It aborts rather than guesses when:
+| Col | Header | Rule |
+|---|---|---|
+| A | `Buchungstag` | kept |
+| B | `Referenzkonto` | replaced, shape-preserving |
+| C | `Name Referenzkonto` | replaced → `Account 01` |
+| D | `Betrag` | kept |
+| E | `Kontostand` | kept |
+| F | `Waehrung` | kept |
+| G | `Beguenstigter/Auftraggeber` | replaced → `Counterparty 001` |
+| H | `IBAN Beguenstigter/Auftraggeber` | replaced, shape-preserving |
+| I | `Verwendungszweck` | replaced → `Reference 0001` |
+| J | `E-Ref` | kept (empty throughout) |
+| K | `Mandatsreferenz` | replaced |
+| L | `Glaeubiger-ID` | replaced |
+| M–N | `Analyse-Hauptkategorie`, `-Unterkategorie` | kept |
+| O–P | `Analyse-Vertrag`, `-Vertragsturnus` | kept |
+| Q | `Analyse-Vertrags-ID` | replaced |
+| R–U | `-Umbuchung`, `-Vom frei verfuegbaren Einkommen ausgeschlossen`, `-Umsatzart`, `-Betrag` | kept |
+| V–Y | `Analyse-Woche`, `-Monat`, `-Quartal`, `-Jahr` | kept |
+| Z | `Buchungs-ID` | replaced |
+| AA | `Referenz-Original-ID` | replaced through the same dictionary as `Buchungs-ID` |
+| AB | `Split-Typ` | kept |
+| AC | `Tags` | replaced |
 
-- the worksheet uses shared strings instead of inline strings,
-- the header row is missing a known column, carries one more than once, or
-  carries a column the mapping does not know,
-- the output file already exists and `--force` was not given.
+Categories are kept because without them the file is nothing but parser feed —
+an anonymised export still has to exercise the rest of the application.
+`Buchungs-ID` and `Referenz-Original-ID` are harmless in themselves but
+identify real bookings at FinanzGuru, and replacing them costs nothing.
 
-No value is replaced yet. Assigning anonymised placeholders — sequential,
-shape-preserving, consistent across a run — is the next step in `ROADMAP.md`'s
-M2 phase.
+## How a value is replaced
+
+Every replaced column draws from one of a handful of dictionaries, each built
+once per run from every input file:
+
+- `Referenzkonto` and `IBAN Beguenstigter/Auftraggeber` share one dictionary,
+  so an own IBAN that also shows up as a counterparty IBAN gets the same
+  replacement in both places — a transfer between two of the owner's own
+  accounts stays recognisable as one.
+- `Name Referenzkonto` and `Beguenstigter/Auftraggeber` share a second
+  dictionary the same way.
+- `Buchungs-ID` and `Referenz-Original-ID` share a third: a split booking's
+  back-reference still points at the same (now anonymised) row.
+- `Verwendungszweck`, `Mandatsreferenz`, `Glaeubiger-ID`, `Analyse-Vertrags-ID`
+  and `Tags` each get their own dictionary.
+
+A dictionary assigns its placeholders in two steps: every distinct value it
+will ever hold is collected first, then sorted ordinally, then numbered in
+that order. Nothing here depends on which row a value happened to sit in, or
+on the order two exports place their rows in — the same input always produces
+the same output, with no salt and nothing to keep secret. The `Referenzkonto`
+/ `Name Referenzkonto` values are collected and numbered before everything
+else, so the owner's own few accounts always claim the lowest numbers even
+when a hundred counterparties would otherwise sort ahead of them.
+
+`Referenzkonto` and `IBAN Beguenstigter/Auftraggeber` are shape-preserving: a
+value that looks like an IBAN becomes an IBAN-shaped value of the same length,
+and a value that looks like an email address — the PayPal rows put one in this
+column — becomes `account-01@example.invalid`. Anything else keeps its length
+with a numeric placeholder in it, honest about not knowing its shape rather
+than guessing one.
+
+## The self-check
+
+After writing a file, the tool reads it straight back and checks, column by
+column, that none of a replaced column's original values are still in there
+anywhere in the output. If one is, the run aborts and **deletes the file it
+just wrote** — a file with forgotten cleartext looks exactly like a finished
+one otherwise, and this is the only mechanism that turns "we replaced it" into
+a checked fact rather than a claim.
+
+## What this version does not do
+
+- **Generated IBANs and creditor-style identifiers carry no valid check
+  digit.** Deliberate: a valid one would tempt a future check-digit validation
+  into trusting the placeholder as bookable data, and any such validation
+  added later should reject this data as what it is — anonymised, not real.
+- **No `--scale`, no `--max-rows`.** One run anonymises what it is given; a
+  future ticket may add ways to shrink or synthesise a larger fixture.
+- **No protection against re-identification from the retained columns.**
+  Dates, amounts, balances and categories stay as they are; anyone reading the
+  file still sees how the household spends. The tool removes identities, not
+  information.

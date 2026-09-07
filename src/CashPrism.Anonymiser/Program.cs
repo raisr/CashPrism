@@ -16,7 +16,7 @@ public sealed class Program
     }
 
     /// <summary>
-    /// Parses the command line and round-trips every input file in order.
+    /// Parses the command line and anonymises every input file in one run.
     /// Stops at the first failure and returns a non-zero exit code; every
     /// failure prints one readable line to stderr, never a stack trace.
     /// </summary>
@@ -32,20 +32,19 @@ public sealed class Program
         }
 
         var options = commandLine.Options!;
+        var result = XlsxAnonymiserRun.Run(options.InputFiles, options.OutputDirectory, options.Force);
 
-        foreach (var inputFile in options.InputFiles)
+        foreach (var fileResult in result.FileResults)
         {
-            var result = XlsxRoundTrip.Run(inputFile, options.OutputDirectory, options.Force);
-
-            if (!result.IsSuccess)
-            {
-                Console.Error.WriteLine(result.ErrorMessage);
-
-                return 1;
-            }
-
             Console.WriteLine(
-                $"{inputFile} -> {result.OutputPath}: {result.RowsRead} rows read, {result.RowsWritten} rows written.");
+                $"{fileResult.InputPath} -> {fileResult.OutputPath}: {fileResult.RowsRead} rows read, {fileResult.RowsWritten} rows written.");
+        }
+
+        if (!result.IsSuccess)
+        {
+            Console.Error.WriteLine(result.ErrorMessage);
+
+            return 1;
         }
 
         return 0;
