@@ -36,5 +36,36 @@ public sealed class ProgramTests
 
             Assert.NotEqual(0, exitCode);
         }
+
+        [Fact]
+        public void A_Non_Positive_Scale_Aborts_With_A_Non_Zero_Exit_Code()
+        {
+            var inputPath = Path.Combine(_root, "export.xlsx");
+            File.WriteAllBytes(inputPath, XlsxTestWorkbook.Build(FinanzguruColumns.All, []));
+
+            var outputDirectory = Path.Combine(_root, "out");
+
+            var exitCode = CashPrism.Anonymiser.Program.Main([inputPath, "--out", outputDirectory, "--scale", "0"]);
+
+            Assert.NotEqual(0, exitCode);
+        }
+
+        [Fact]
+        public void MaxRows_Flows_Through_To_The_Output_File()
+        {
+            static Dictionary<string, string> Row(string bookingDate)
+                => new() { [FinanzguruColumns.BookingDate] = bookingDate };
+
+            var inputPath = Path.Combine(_root, "export.xlsx");
+            File.WriteAllBytes(
+                inputPath,
+                XlsxTestWorkbook.Build(FinanzguruColumns.All, [Row("01.03.2026"), Row("02.03.2026"), Row("03.03.2026")]));
+
+            var outputDirectory = Path.Combine(_root, "out");
+
+            var exitCode = CashPrism.Anonymiser.Program.Main([inputPath, "--out", outputDirectory, "--max-rows", "1"]);
+
+            Assert.Equal(0, exitCode);
+        }
     }
 }

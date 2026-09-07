@@ -20,7 +20,10 @@ public static class XlsxAnonymiserRun
     /// input up front, before any file is read, so a run that would fail on its
     /// last file fails before touching the first.
     /// </param>
-    public static XlsxAnonymiserRunResult Run(IReadOnlyList<string> inputPaths, string outputDirectory, bool force)
+    /// <param name="scale">The factor <c>Betrag</c> and <c>Kontostand</c> are scaled by together. <c>1.0</c> is a no-op.</param>
+    /// <param name="maxRows">The number of newest data rows to keep per file, or <see langword="null"/> to keep every row.</param>
+    public static XlsxAnonymiserRunResult Run(
+        IReadOnlyList<string> inputPaths, string outputDirectory, bool force, decimal scale, int? maxRows)
     {
         ArgumentNullException.ThrowIfNull(inputPaths);
         ArgumentNullException.ThrowIfNull(outputDirectory);
@@ -45,7 +48,7 @@ public static class XlsxAnonymiserRun
 
         foreach (var inputPath in inputPaths)
         {
-            var read = XlsxWorksheetReader.Read(inputPath);
+            var read = XlsxWorksheetReader.Read(inputPath, maxRows);
 
             if (!read.IsSuccess)
             {
@@ -67,7 +70,7 @@ public static class XlsxAnonymiserRun
                 File.Delete(outputPath);
             }
 
-            var newWorksheetXml = WorksheetAnonymiser.Rewrite(read.WorksheetXml!, read.ColumnLetters!, dictionaries);
+            var newWorksheetXml = WorksheetAnonymiser.Rewrite(read.WorksheetXml!, read.ColumnLetters!, dictionaries, scale);
             var write = XlsxAnonymiserWriter.Write(inputPath, outputPath, read.WorksheetEntryName!, newWorksheetXml);
 
             if (!write.IsSuccess)
@@ -88,7 +91,7 @@ public static class XlsxAnonymiserRun
                         + "original value. The incomplete output was deleted.");
             }
 
-            fileResults.Add(new XlsxAnonymiserResult(inputPath, outputPath, read.DataRowCount, read.DataRowCount));
+            fileResults.Add(new XlsxAnonymiserResult(inputPath, outputPath, read.DataRowCount, read.RetainedRowCount));
         }
 
         return XlsxAnonymiserRunResult.Success(fileResults);

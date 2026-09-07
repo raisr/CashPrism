@@ -32,7 +32,8 @@ public sealed class Program
         }
 
         var options = commandLine.Options!;
-        var result = XlsxAnonymiserRun.Run(options.InputFiles, options.OutputDirectory, options.Force);
+        var result = XlsxAnonymiserRun.Run(
+            options.InputFiles, options.OutputDirectory, options.Force, options.Scale, options.MaxRows);
 
         foreach (var fileResult in result.FileResults)
         {

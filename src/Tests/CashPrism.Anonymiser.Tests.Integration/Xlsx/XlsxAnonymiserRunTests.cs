@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 using CashPrism.Anonymiser.Anonymisation;
 using CashPrism.Anonymiser.Tests.Integration.Fixtures;
 using CashPrism.Anonymiser.Xlsx;
@@ -27,7 +28,7 @@ public sealed class XlsxAnonymiserRunTests
         {
             var inputPath = WriteInput(BuildValidWorkbook());
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
 
             Assert.True(result.IsSuccess);
 
@@ -50,7 +51,7 @@ public sealed class XlsxAnonymiserRunTests
         {
             var inputPath = WriteInput(BuildValidWorkbook());
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
 
             var inputXml = ReadWorksheetXml(inputPath);
             var outputXml = ReadWorksheetXml(result.FileResults[0].OutputPath);
@@ -71,7 +72,7 @@ public sealed class XlsxAnonymiserRunTests
         {
             var inputPath = WriteInput(BuildValidWorkbook());
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
             var values = ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.Counterparty);
 
             Assert.Equal(["Counterparty 01", "Counterparty 02"], values.OrderBy(v => v, StringComparer.Ordinal));
@@ -90,7 +91,7 @@ public sealed class XlsxAnonymiserRunTests
                 FinanzguruColumns.All,
                 [Row("Bakery", "01.03.2026"), Row("Bakery", "02.03.2026"), Row("Landlord", "03.03.2026")]));
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
             var values = ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.Counterparty);
 
             Assert.Equal(2, values.Distinct(StringComparer.Ordinal).Count());
@@ -122,7 +123,7 @@ public sealed class XlsxAnonymiserRunTests
                 FinanzguruColumns.All,
                 [Row("01.03.2026", ownIban, null), Row("02.03.2026", ownIban, ownIban)]));
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
 
             var referenceValues = ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.AccountReference);
             var counterpartyIbanValues = ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.CounterpartyIban);
@@ -138,7 +139,7 @@ public sealed class XlsxAnonymiserRunTests
                 FinanzguruColumns.All,
                 [new Dictionary<string, string> { [FinanzguruColumns.BookingDate] = "01.03.2026" }]));
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
 
             Assert.True(result.IsSuccess);
             Assert.Empty(ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.Counterparty));
@@ -156,7 +157,7 @@ public sealed class XlsxAnonymiserRunTests
             var inputPath = WriteInput(XlsxTestWorkbook.Build(
                 FinanzguruColumns.All, [Row("01.03.2026", "payer@example.com")]));
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
             var values = ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.CounterpartyIban);
 
             Assert.Matches("^account-[0-9]{2}@example\\.invalid$", values.Single());
@@ -176,7 +177,7 @@ public sealed class XlsxAnonymiserRunTests
             var secondInput = WriteInput(
                 XlsxTestWorkbook.Build(FinanzguruColumns.All, [Row("Bakery", "02.03.2026")]), "b.xlsx");
 
-            var result = XlsxAnonymiserRun.Run([firstInput, secondInput], _outputDirectory, force: false);
+            var result = Anonymise([firstInput, secondInput], _outputDirectory, force: false);
 
             Assert.True(result.IsSuccess);
 
@@ -201,8 +202,8 @@ public sealed class XlsxAnonymiserRunTests
             var reversedInput = WriteInput(
                 XlsxTestWorkbook.Build(FinanzguruColumns.All, [.. rows.Reverse()]), "reversed.xlsx");
 
-            var forwardResult = XlsxAnonymiserRun.Run([forwardInput], _outputDirectory, force: false);
-            var reversedResult = XlsxAnonymiserRun.Run([reversedInput], _outputDirectory, force: false);
+            var forwardResult = Anonymise([forwardInput], _outputDirectory, force: false);
+            var reversedResult = Anonymise([reversedInput], _outputDirectory, force: false);
 
             var forwardByCounterparty = ReadColumnValues(forwardResult.FileResults[0].OutputPath, FinanzguruColumns.Counterparty);
             var reversedByCounterparty = ReadColumnValues(reversedResult.FileResults[0].OutputPath, FinanzguruColumns.Counterparty);
@@ -216,10 +217,10 @@ public sealed class XlsxAnonymiserRunTests
         {
             var inputPath = WriteInput(BuildValidWorkbook());
 
-            var first = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var first = Anonymise([inputPath], _outputDirectory, force: false);
             var firstBytes = ReadAllBytes(first.FileResults[0].OutputPath);
 
-            var second = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: true);
+            var second = Anonymise([inputPath], _outputDirectory, force: true);
             var secondBytes = ReadAllBytes(second.FileResults[0].OutputPath);
 
             Assert.Equal(firstBytes, secondBytes);
@@ -242,7 +243,7 @@ public sealed class XlsxAnonymiserRunTests
             var inputPath = WriteInput(XlsxTestWorkbook.Build(
                 FinanzguruColumns.All, [Row("01.03.2026", "AAA"), Row("02.03.2026", "Mandate 02")]));
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
 
             Assert.False(result.IsSuccess);
             Assert.Contains(FinanzguruColumns.MandateReference, result.ErrorMessage);
@@ -255,7 +256,7 @@ public sealed class XlsxAnonymiserRunTests
             var headerNames = FinanzguruColumns.All.Where(c => c != FinanzguruColumns.Tags).ToArray();
             var inputPath = WriteInput(XlsxTestWorkbook.Build(headerNames, []));
 
-            var result = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
 
             Assert.False(result.IsSuccess);
             Assert.Contains(FinanzguruColumns.Tags, result.ErrorMessage);
@@ -266,10 +267,10 @@ public sealed class XlsxAnonymiserRunTests
         {
             var inputPath = WriteInput(BuildValidWorkbook());
 
-            var first = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var first = Anonymise([inputPath], _outputDirectory, force: false);
             Assert.True(first.IsSuccess);
 
-            var second = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false);
+            var second = Anonymise([inputPath], _outputDirectory, force: false);
 
             Assert.False(second.IsSuccess);
             Assert.Contains("already exists", second.ErrorMessage, StringComparison.OrdinalIgnoreCase);
@@ -280,12 +281,168 @@ public sealed class XlsxAnonymiserRunTests
         {
             var inputPath = WriteInput(BuildValidWorkbook());
 
-            Assert.True(XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: false).IsSuccess);
+            Assert.True(Anonymise([inputPath], _outputDirectory, force: false).IsSuccess);
 
-            var second = XlsxAnonymiserRun.Run([inputPath], _outputDirectory, force: true);
+            var second = Anonymise([inputPath], _outputDirectory, force: true);
 
             Assert.True(second.IsSuccess);
         }
+
+        [Fact]
+        public void Without_Scale_Amounts_Are_Unchanged()
+        {
+            var inputPath = WriteInput(XlsxTestWorkbook.Build(
+                FinanzguruColumns.All, [MoneyRow("01.03.2026", "-10.00", "200.00")]));
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
+
+            Assert.Equal(["-10.00"], ReadMoneyValues(result.FileResults[0].OutputPath, FinanzguruColumns.Amount));
+            Assert.Equal(["200.00"], ReadMoneyValues(result.FileResults[0].OutputPath, FinanzguruColumns.Balance));
+        }
+
+        [Fact]
+        public void Scale_Halves_Betrag_And_Kontostand_In_Every_Row_Rounded_To_Two_Decimals()
+        {
+            var inputPath = WriteInput(XlsxTestWorkbook.Build(
+                FinanzguruColumns.All,
+                [MoneyRow("01.03.2026", "-10.01", "200.00"), MoneyRow("02.03.2026", "5.00", "190.00")]));
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, scale: 0.5m);
+
+            Assert.Equal(["-5.01", "2.50"], ReadMoneyValues(result.FileResults[0].OutputPath, FinanzguruColumns.Amount));
+            Assert.Equal(["100.00", "95.00"], ReadMoneyValues(result.FileResults[0].OutputPath, FinanzguruColumns.Balance));
+        }
+
+        [Fact]
+        public void Scale_Touches_Only_Betrag_And_Kontostand()
+        {
+            var inputPath = WriteInput(XlsxTestWorkbook.Build(
+                FinanzguruColumns.All, [MoneyRow("01.03.2026", "-10.00", "200.00")]));
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, scale: 0.5m);
+
+            var inputXml = ReadWorksheetXml(inputPath);
+            var outputXml = ReadWorksheetXml(result.FileResults[0].OutputPath);
+
+            var columnLetters = InlineStringCells.ResolveColumnLetters(inputXml);
+            var replacedLetters = AnonymisationDictionaries.ReplacedColumns
+                .Select(column => columnLetters[column])
+                .ToHashSet(StringComparer.Ordinal);
+            var moneyLetters = new HashSet<string>(
+                [columnLetters[FinanzguruColumns.Amount], columnLetters[FinanzguruColumns.Balance]], StringComparer.Ordinal);
+
+            var normalisedInput = NumericCells.Rewrite(
+                InlineStringCells.Rewrite(inputXml, replacedLetters, (_, _) => "X"), moneyLetters, _ => 0m);
+            var normalisedOutput = NumericCells.Rewrite(
+                InlineStringCells.Rewrite(outputXml, replacedLetters, (_, _) => "X"), moneyLetters, _ => 0m);
+
+            Assert.Equal(normalisedInput, normalisedOutput);
+        }
+
+        [Fact]
+        public void MaxRows_Writes_The_Header_Plus_The_First_N_Data_Rows()
+        {
+            static Dictionary<string, string> Row(string counterparty, string bookingDate) => new()
+            {
+                [FinanzguruColumns.Counterparty] = counterparty,
+                [FinanzguruColumns.BookingDate] = bookingDate,
+            };
+
+            var inputPath = WriteInput(XlsxTestWorkbook.Build(
+                FinanzguruColumns.All,
+                [
+                    Row("A", "01.03.2026"), Row("B", "02.03.2026"), Row("C", "03.03.2026"),
+                    Row("D", "04.03.2026"), Row("E", "05.03.2026"),
+                ]));
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, maxRows: 3);
+
+            Assert.Equal(5, result.FileResults[0].RowsRead);
+            Assert.Equal(3, result.FileResults[0].RowsWritten);
+            Assert.Equal(3, ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.Counterparty).Count);
+        }
+
+        [Fact]
+        public void MaxRows_Larger_Than_The_Data_Rows_Writes_Every_Row_And_Does_Not_Fail()
+        {
+            var inputPath = WriteInput(BuildValidWorkbook());
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, maxRows: 100);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(2, result.FileResults[0].RowsRead);
+            Assert.Equal(2, result.FileResults[0].RowsWritten);
+        }
+
+        [Fact]
+        public void MaxRows_Keeps_Placeholder_Numbers_Dense()
+        {
+            static Dictionary<string, string> Row(string counterparty, string bookingDate) => new()
+            {
+                [FinanzguruColumns.Counterparty] = counterparty,
+                [FinanzguruColumns.BookingDate] = bookingDate,
+            };
+
+            // File order is newest first, so the two rows --max-rows 2 keeps are
+            // "Landlord" and "Cinema" — neither is first alphabetically among all
+            // five. A dictionary built from the whole file would give them gappy
+            // numbers; one built from only the retained rows gives "01" and "02".
+            var inputPath = WriteInput(XlsxTestWorkbook.Build(
+                FinanzguruColumns.All,
+                [
+                    Row("Landlord", "01.03.2026"), Row("Cinema", "02.03.2026"), Row("Bakery", "03.03.2026"),
+                    Row("Gym", "04.03.2026"), Row("Pharmacy", "05.03.2026"),
+                ]));
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, maxRows: 2);
+
+            var values = ReadColumnValues(result.FileResults[0].OutputPath, FinanzguruColumns.Counterparty);
+
+            Assert.Equal(["Counterparty 01", "Counterparty 02"], values.OrderBy(v => v, StringComparer.Ordinal));
+        }
+
+        [Fact]
+        public void MaxRows_And_Scale_Combine_With_Force()
+        {
+            var inputPath = WriteInput(XlsxTestWorkbook.Build(
+                FinanzguruColumns.All,
+                [
+                    MoneyRow("01.03.2026", "-10.00", "200.00"), MoneyRow("02.03.2026", "5.00", "190.00"),
+                    MoneyRow("03.03.2026", "3.00", "193.00"),
+                ]));
+
+            Assert.True(Anonymise([inputPath], _outputDirectory, force: false, scale: 0.5m, maxRows: 2).IsSuccess);
+
+            var second = Anonymise([inputPath], _outputDirectory, force: true, scale: 0.5m, maxRows: 2);
+
+            Assert.True(second.IsSuccess);
+            Assert.Equal(2, second.FileResults[0].RowsWritten);
+            Assert.Equal(["-5.00", "2.50"], ReadMoneyValues(second.FileResults[0].OutputPath, FinanzguruColumns.Amount));
+        }
+
+        private static Dictionary<string, string> MoneyRow(string bookingDate, string amount, string balance) => new()
+        {
+            [FinanzguruColumns.BookingDate] = bookingDate,
+            [FinanzguruColumns.Amount] = amount,
+            [FinanzguruColumns.Balance] = balance,
+        };
+
+        private static List<string> ReadMoneyValues(string xlsxPath, string columnName)
+        {
+            var worksheetXml = ReadWorksheetXml(xlsxPath);
+            var letter = InlineStringCells.ResolveColumnLetters(worksheetXml)[columnName];
+            var pattern = new Regex($"""<c r="{letter}[0-9]+"[^>]*><v>(?<value>[^<]*)</v></c>""");
+
+            return [.. pattern.Matches(worksheetXml).Select(match => match.Groups["value"].Value)];
+        }
+
+        /// <summary>
+        /// <see cref="XlsxAnonymiserRun.Run"/> with the two new switches
+        /// defaulted, so every test that predates them stays unchanged.
+        /// </summary>
+        private static XlsxAnonymiserRunResult Anonymise(
+            IReadOnlyList<string> inputPaths, string outputDirectory, bool force, decimal scale = 1.0m, int? maxRows = null)
+            => XlsxAnonymiserRun.Run(inputPaths, outputDirectory, force, scale, maxRows);
 
         private static byte[] BuildValidWorkbook()
         {

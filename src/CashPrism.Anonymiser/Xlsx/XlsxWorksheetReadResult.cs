@@ -13,7 +13,13 @@ namespace CashPrism.Anonymiser.Xlsx;
 /// replaced columns, keyed by <see cref="Infrastructure.Finanzguru.FinanzguruColumns"/>
 /// name. <see langword="null"/> on failure.
 /// </param>
-/// <param name="DataRowCount">The rows below the header. Zero on failure.</param>
+/// <param name="DataRowCount">The rows the input file carried below its header. Zero on failure.</param>
+/// <param name="RetainedRowCount">
+/// The rows kept after applying <c>--max-rows</c> — equal to
+/// <paramref name="DataRowCount"/> when no limit was given or it exceeded the
+/// file. <see cref="WorksheetXml"/> already reflects this count. Zero on
+/// failure.
+/// </param>
 /// <param name="ErrorMessage">The one line to print on stderr. <see langword="null"/> on success.</param>
 public sealed record XlsxWorksheetReadResult(
     string? WorksheetEntryName,
@@ -21,6 +27,7 @@ public sealed record XlsxWorksheetReadResult(
     IReadOnlyDictionary<string, string>? ColumnLetters,
     IReadOnlyDictionary<string, IReadOnlyList<string>>? ValuesByColumn,
     int DataRowCount,
+    int RetainedRowCount,
     string? ErrorMessage)
 {
     /// <summary>Whether the file was read successfully.</summary>
@@ -32,9 +39,10 @@ public sealed record XlsxWorksheetReadResult(
         string worksheetXml,
         IReadOnlyDictionary<string, string> columnLetters,
         IReadOnlyDictionary<string, IReadOnlyList<string>> valuesByColumn,
-        int dataRowCount)
-        => new(worksheetEntryName, worksheetXml, columnLetters, valuesByColumn, dataRowCount, null);
+        int dataRowCount,
+        int retainedRowCount)
+        => new(worksheetEntryName, worksheetXml, columnLetters, valuesByColumn, dataRowCount, retainedRowCount, null);
 
     /// <summary>Wraps the one-line reason reading failed.</summary>
-    public static XlsxWorksheetReadResult Failure(string errorMessage) => new(null, null, null, null, 0, errorMessage);
+    public static XlsxWorksheetReadResult Failure(string errorMessage) => new(null, null, null, null, 0, 0, errorMessage);
 }
