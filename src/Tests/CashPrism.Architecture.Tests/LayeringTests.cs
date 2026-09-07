@@ -1,5 +1,7 @@
+using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 
 namespace CashPrism.Architecture.Tests;
 
@@ -17,11 +19,25 @@ public sealed class LayeringTests
         "ClosedXML",
     ];
 
+    /// <summary>
+    /// Reads the <c>AssemblyRef</c> table straight from the project DLL's bytes
+    /// via <see cref="PEReader"/>/<see cref="MetadataReader"/>. Deliberately not
+    /// <c>Assembly.Load</c>: that loads the DLL as executable code just to read
+    /// its metadata, which an application-control policy (WDAC / Smart App
+    /// Control) can deny for a freshly built, unsigned local DLL.
+    /// </summary>
     internal static IEnumerable<string> ReferencedAssemblyNames(string assemblyName)
-        => Assembly.Load(assemblyName)
-            .GetReferencedAssemblies()
-            .Select(a => a.Name!)
-            .Where(n => n.Length > 0);
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, $"{assemblyName}.dll");
+        using var stream = File.OpenRead(path);
+        using var peReader = new PEReader(stream);
+        var metadataReader = peReader.GetMetadataReader();
+
+        return metadataReader.AssemblyReferences
+            .Select(handle => metadataReader.GetString(metadataReader.GetAssemblyReference(handle).Name))
+            .Where(n => n.Length > 0)
+            .ToArray();
+    }
 
     public sealed class Domain
     {
