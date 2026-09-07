@@ -37,12 +37,22 @@ releases and the minor version is bumped for every notable change.
   resolves a header row to its known columns by name, never by position, and
   fails loudly on a column that is missing, duplicated or unrecognised.
 - `CashPrism.Anonymiser`, a standalone console tool that takes a real
-  FinanzGuru export apart and puts it back together without changing a single
-  value: `CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory>
-  [--force]`. Every zip entry is copied through unchanged; a worksheet using
-  shared strings, or a header row with a missing, duplicated or unrecognised
-  column, aborts with a message naming the reason instead of guessing. This is
-  the first of two tickets — replacing the values with anonymised placeholders
-  follows.
+  FinanzGuru export apart and puts it back together: `CashPrism.Anonymiser
+  <input.xlsx> [<input2.xlsx> …] --out <directory> [--force]`. Every zip entry
+  is copied through unchanged; a worksheet using shared strings, or a header
+  row with a missing, duplicated or unrecognised column, aborts with a message
+  naming the reason instead of guessing.
+- The anonymiser now replaces the columns that identify people and accounts —
+  `Referenzkonto`, `Name Referenzkonto`, `Beguenstigter/Auftraggeber`,
+  `IBAN Beguenstigter/Auftraggeber`, `Verwendungszweck`, `Mandatsreferenz`,
+  `Glaeubiger-ID`, `Analyse-Vertrags-ID`, `Buchungs-ID`, `Referenz-Original-ID`
+  and `Tags` — with sequential placeholders such as `Counterparty 001` or
+  `Account 01`, consistent across every input file of one run: the same
+  original value always yields the same replacement, an IBAN stays IBAN-shaped
+  and an email address stays email-shaped, and an own account reappearing as a
+  counterparty keeps the same placeholder in both roles. Every other column is
+  kept byte-identical. A self-check reads the written file back and aborts,
+  deleting the incomplete output, if a replaced column still carries an
+  original value. See [`docs/anonymiser.md`](docs/anonymiser.md).
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main
