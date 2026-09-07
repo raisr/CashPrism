@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using CashPrism.Infrastructure.Finanzguru;
@@ -6,11 +7,14 @@ namespace CashPrism.Anonymiser.Tests.Integration.Fixtures;
 
 /// <summary>
 /// Builds a minimal, hand-written <c>.xlsx</c> in memory: inline strings
-/// throughout, an otherwise-empty <c>sharedStrings.xml</c>, and the custom
-/// <c>numFmt 164</c> date format on <see cref="FinanzguruColumns.BookingDate"/> —
-/// the same quirks <c>docs/finanzguru-export.md</c> records for a real export.
-/// No binary fixture enters the repository; every byte the round-trip test
-/// compares against is produced here, in code.
+/// throughout, an otherwise-empty <c>sharedStrings.xml</c>, and two numeric
+/// formats — <c>numFmt 164</c> (<c>dd.MM.yyyy</c>) on
+/// <see cref="FinanzguruColumns.BookingDate"/> and the built-in
+/// <c>#,##0.00</c> on <see cref="FinanzguruColumns.Amount"/> and
+/// <see cref="FinanzguruColumns.Balance"/> — the same quirks
+/// <c>docs/finanzguru-export.md</c> records for a real export. No binary
+/// fixture enters the repository; every byte the round-trip test compares
+/// against is produced here, in code.
 /// </summary>
 internal static class XlsxTestWorkbook
 {
@@ -94,6 +98,10 @@ internal static class XlsxTestWorkbook
                 {
                     AppendDateCell(builder, column, rowNumber, value);
                 }
+                else if (headerNames[column] is FinanzguruColumns.Amount or FinanzguruColumns.Balance)
+                {
+                    AppendMoneyCell(builder, column, rowNumber, value);
+                }
                 else
                 {
                     AppendStringCell(builder, column, rowNumber, value, useSharedStrings, sharedStrings);
@@ -143,6 +151,14 @@ internal static class XlsxTestWorkbook
         var serial = date.DayNumber - ExcelEpoch.DayNumber;
 
         builder.Append($"<c r=\"{reference}\" s=\"1\"><v>{serial}</v></c>");
+    }
+
+    private static void AppendMoneyCell(StringBuilder builder, int columnIndex, int rowNumber, string value)
+    {
+        var reference = $"{ColumnLetters(columnIndex)}{rowNumber}";
+        var amount = decimal.Parse(value, CultureInfo.InvariantCulture);
+
+        builder.Append($"<c r=\"{reference}\" s=\"2\"><v>{amount.ToString("0.00", CultureInfo.InvariantCulture)}</v></c>");
     }
 
     private static string BuildSharedStringsXml(IReadOnlyList<string> sharedStrings)
@@ -230,9 +246,10 @@ internal static class XlsxTestWorkbook
         + "<fills count=\"1\"><fill/></fills>"
         + "<borders count=\"1\"><border/></borders>"
         + "<cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs>"
-        + "<cellXfs count=\"2\">"
+        + "<cellXfs count=\"3\">"
         + "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>"
         + "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" applyNumberFormat=\"1\"/>"
+        + "<xf numFmtId=\"4\" fontId=\"0\" fillId=\"0\" borderId=\"0\" applyNumberFormat=\"1\"/>"
         + "</cellXfs>"
         + "</styleSheet>";
 }

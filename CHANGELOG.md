@@ -54,5 +54,12 @@ releases and the minor version is bumped for every notable change.
   kept byte-identical. A self-check reads the written file back and aborts,
   deleting the incomplete output, if a replaced column still carries an
   original value. See [`docs/anonymiser.md`](docs/anonymiser.md).
+- The anonymiser gained `--scale <factor>` and `--max-rows <n>`: `--scale`
+  multiplies `Betrag` and `Kontostand` together by a factor, rounded to two
+  decimals, to hide the absolute level of a shared fixture; `--max-rows` keeps
+  only the newest `n` data rows per file, applied before the replacement so
+  placeholder numbers stay dense. Neither is a privacy safeguard — see
+  [`docs/anonymiser.md`](docs/anonymiser.md) for what they do not protect
+  against.
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main

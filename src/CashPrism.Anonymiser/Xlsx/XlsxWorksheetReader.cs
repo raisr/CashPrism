@@ -14,7 +14,13 @@ namespace CashPrism.Anonymiser.Xlsx;
 public static class XlsxWorksheetReader
 {
     /// <summary>Reads and validates <paramref name="inputPath"/>.</summary>
-    public static XlsxWorksheetReadResult Read(string inputPath)
+    /// <param name="maxRows">
+    /// The number of newest data rows to keep, or <see langword="null"/> to
+    /// keep every row. Applied before <see cref="ValuesByColumn"/> is
+    /// collected, so a value that only occurred in a dropped row never claims
+    /// a dictionary entry.
+    /// </param>
+    public static XlsxWorksheetReadResult Read(string inputPath, int? maxRows)
     {
         ArgumentNullException.ThrowIfNull(inputPath);
 
@@ -60,14 +66,16 @@ public static class XlsxWorksheetReader
                 return XlsxWorksheetReadResult.Failure($"{inputPath}: {validation.ErrorMessage}");
             }
 
+            var (limitedXml, retainedRowCount) = WorksheetRowLimiter.Limit(worksheetXml, maxRows, validation.DataRowCount);
+
             // Validation already guarantees every known column, replaced ones
             // included, resolves to exactly one header cell — so every lookup
             // below is guaranteed to find what it looks for.
-            var columnLetters = InlineStringCells.ResolveColumnLetters(worksheetXml);
+            var columnLetters = InlineStringCells.ResolveColumnLetters(limitedXml);
             var replacedLetters = AnonymisationDictionaries.ReplacedColumns
                 .Select(column => columnLetters[column])
                 .ToHashSet(StringComparer.Ordinal);
-            var valuesByLetter = InlineStringCells.CollectValues(worksheetXml, replacedLetters);
+            var valuesByLetter = InlineStringCells.CollectValues(limitedXml, replacedLetters);
 
             var valuesByColumn = AnonymisationDictionaries.ReplacedColumns.ToDictionary(
                 column => column,
@@ -75,7 +83,7 @@ public static class XlsxWorksheetReader
                 StringComparer.Ordinal);
 
             return XlsxWorksheetReadResult.Success(
-                worksheetEntryName, worksheetXml, columnLetters, valuesByColumn, validation.DataRowCount);
+                worksheetEntryName, limitedXml, columnLetters, valuesByColumn, validation.DataRowCount, retainedRowCount);
         }
     }
 }

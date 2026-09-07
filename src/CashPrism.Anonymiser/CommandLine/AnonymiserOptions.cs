@@ -17,7 +17,17 @@ namespace CashPrism.Anonymiser.CommandLine;
 /// Whether an existing output file may be overwritten. Defaults to
 /// <see langword="false"/>: a tool of this kind must not overwrite unasked.
 /// </param>
+/// <param name="Scale">
+/// The factor <c>Betrag</c> and <c>Kontostand</c> are multiplied by together,
+/// rounded to two decimals. Defaults to <c>1.0</c> — unchanged.
+/// </param>
+/// <param name="MaxRows">
+/// The number of newest data rows to keep, applied before the replacement so
+/// placeholder numbers stay dense. <see langword="null"/> keeps every row.
+/// </param>
 public sealed record AnonymiserOptions(
     IReadOnlyList<string> InputFiles,
     string OutputDirectory,
-    bool Force);
+    bool Force,
+    decimal Scale,
+    int? MaxRows);

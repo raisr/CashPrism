@@ -9,7 +9,8 @@ depends on it.
 ## Command line
 
 ```
-CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory> [--force]
+CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory>
+    [--force] [--scale <factor>] [--max-rows <n>]
 ```
 
 - One or more input files, in any order relative to the options.
@@ -17,6 +18,16 @@ CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory> [--force
   never be written next to the real one by accident.
 - `--force` allows overwriting an existing output file. Without it, an
   existing file aborts the run.
+- `--scale <factor>` multiplies `Betrag` and `Kontostand` together by
+  `<factor>`, rounded to two decimals. Defaults to `1.0` — unchanged. A
+  factor that is not a positive number aborts the run.
+- `--max-rows <n>` keeps only the newest `n` data rows per file — a plain
+  prefix, since the export's row order is already newest first. Without it,
+  every row is kept. The limit is applied before the replacement, so
+  placeholder numbers stay dense instead of leaving gaps for values that only
+  occurred in a dropped row.
+
+Both switches combine freely with each other and with `--force`.
 
 The output file is the input name with `-anonymised` inserted before the
 extension, e.g. `export.xlsx` → `export-anonymised.xlsx`.
@@ -49,8 +60,8 @@ column, is untouched.
 | A | `Buchungstag` | kept |
 | B | `Referenzkonto` | replaced, shape-preserving |
 | C | `Name Referenzkonto` | replaced → `Account 01` |
-| D | `Betrag` | kept |
-| E | `Kontostand` | kept |
+| D | `Betrag` | kept, optionally scaled via `--scale` |
+| E | `Kontostand` | kept, optionally scaled via `--scale` |
 | F | `Waehrung` | kept |
 | G | `Beguenstigter/Auftraggeber` | replaced → `Counterparty 001` |
 | H | `IBAN Beguenstigter/Auftraggeber` | replaced, shape-preserving |
@@ -120,9 +131,17 @@ a checked fact rather than a claim.
   digit.** Deliberate: a valid one would tempt a future check-digit validation
   into trusting the placeholder as bookable data, and any such validation
   added later should reject this data as what it is — anonymised, not real.
-- **No `--scale`, no `--max-rows`.** One run anonymises what it is given; a
-  future ticket may add ways to shrink or synthesise a larger fixture.
 - **No protection against re-identification from the retained columns.**
   Dates, amounts, balances and categories stay as they are; anyone reading the
   file still sees how the household spends. The tool removes identities, not
   information.
+- **`--scale` is cosmetic, not a safeguard.** A constant factor hides the
+  absolute level but leaves every relation intact — rent against income, loan
+  against savings still divide out to the same ratios they did in the real
+  file.
+- **`--max-rows` is not coverage.** "The newest `n` rows" is a plain prefix,
+  not a sample. In the measured export (see
+  [finanzguru-export.md](finanzguru-export.md)) the 3 split rows and the 52
+  rows with a time component sit scattered through six years of history; a
+  small prefix will most likely contain neither. A fixture that needs those
+  cases needs a coverage-preserving selection, which this tool does not do.
