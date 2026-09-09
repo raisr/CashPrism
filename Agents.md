@@ -30,42 +30,11 @@ The database lives on a local disk only, never on a network share. SQLite lockin
 
 **Onion architecture. The dependency arrow always points inwards, never outwards.**
 
-| Project | Role | May depend on |
-|---|---|---|
-| `src/CashPrism.Domain` | Models and business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
-| `src/CashPrism.Application` | Use cases, orchestration, DTOs, **interfaces** for anything external | Domain |
-| `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, repositories, file system, clock | Application, Domain |
-| `src/CashPrism.Infrastructure.Finanzguru` | ClosedXML parser for the FinanzGuru xlsx. Keeps the ClosedXML dependency out of everything else | Application, Domain |
-| `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
-| `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
-| `src/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real FinanzGuru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
-| `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which | — |
-| `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook | — |
-| `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included | — |
-| `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk | — |
-| `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository | — |
+For the projects that exist today, the directory layout and why the solution is
+cut this way, see [`docs/architecture.md`](docs/architecture.md). The rules below
+bind regardless of how many projects that document ends up listing.
 
 `Shell` and `Anonymiser` are the only two projects allowed to reference an Infrastructure project — both are composition roots, so both are allowed to wire concrete infrastructure to a use case. `CashPrism.Architecture.Tests` fails the build if a project outside that set takes such a dependency.
-
-The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder inside the solution root.
-
-```
-src/
-  CashPrism.slnx
-  CashPrism.Domain/
-  CashPrism.Application/
-  CashPrism.Infrastructure/
-  CashPrism.Infrastructure.Finanzguru/
-  CashPrism.Web/
-  CashPrism.Shell/
-  CashPrism.Anonymiser/
-  Tests/
-    CashPrism.Architecture.Tests/
-    CashPrism.Infrastructure.Finanzguru.Tests.Unit/
-    CashPrism.Shell.Tests.Integration/
-    CashPrism.Anonymiser.Tests.Unit/
-    CashPrism.Anonymiser.Tests.Integration/
-```
 
 Consequences worth stating, because they are where it usually goes wrong:
 
