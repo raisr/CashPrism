@@ -18,7 +18,7 @@ releases and the minor version is bumped for every notable change.
   without `Shell`; `Shell` is the composition root.
 - Architecture test that fails if the layer dependency rules are violated, and
   a host-boot integration test.
-- `ROADMAP.md` with the planned phases M1 through M7.
+- `ROADMAP.md` with the planned phases M1 through M6.
 - This changelog.
 - Hosting basics: the application listens on every network interface on port
   `5080`, so any device in the household reaches it, and prints the addresses it
@@ -61,5 +61,18 @@ releases and the minor version is bumped for every notable change.
   placeholder numbers stay dense. Neither is a privacy safeguard — see
   [`docs/anonymiser.md`](docs/anonymiser.md) for what they do not protect
   against.
+
+### Changed
+
+- The import rules were corrected against two real FinanzGuru exports taken one
+  day apart. A booking is now identified by its FinanzGuru `Buchungs-ID` instead
+  of a hash over its fields — that hash collapsed 46 groups of distinct bookings
+  and dropped 52 of them in a single 6,324-row export. Because bookings are
+  enriched between exports, a re-imported booking now overwrites the stored
+  transaction with the later state instead of adding a second row, and raw rows
+  are kept only when new or changed since the last import; the `.xlsx` file
+  itself is no longer stored. No import code exists yet — this is the
+  specification the import milestone is built to. See
+  [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main

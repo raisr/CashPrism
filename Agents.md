@@ -4,7 +4,7 @@
 
 CashPrism reads data exports from the personal finance app "FinanzGuru" and makes your own finances analysable on a large screen.
 
-Imports are additive: every import adds rows, it never overwrites. Each row gets a fingerprint (a hash over date, amount, currency, account, counterparty and payment reference); a fingerprint that is already known is skipped. The raw contents of every imported file are stored unchanged as well.
+Imports are additive for the raw data and projective for the result. A booking is identified by its FinanzGuru `Buchungs-ID`, never by a hash over its fields: the same booking is enriched between exports, so a re-import overwrites the stored `Transaction` with the later state instead of adding a second row. "Later" is the export date parsed from the sheet name (`YYYYMMDD_Export_Alle_Buchungen`), falling back to the more recent import run when that name cannot be parsed. Of the raw rows, only those new or changed since the last import are kept, and the `.xlsx` file itself is not stored. The measurements these rules rest on are in [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
 
 One machine hosts the application, every other device on the home network reaches it through a browser. Everything stays local: no cloud, no external account.
 
@@ -49,6 +49,7 @@ Consequences worth stating, because they are where it usually goes wrong:
 ## Code style
 
 - `.editorconfig` in the repository root is binding and overrules any differing opinion
+- **The SOLID principles are mandatory, not aspirational** — single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion. A change that violates one may be rejected in review even when it compiles and the tests pass
 - Keep `<Nullable>enable</Nullable>` and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` switched on
 - Everything written into this repository is **English**: identifiers, comments, XML docs, commit messages, documentation
 - File-scoped namespaces, primary constructors for injection, records for DTOs and commands
@@ -124,7 +125,7 @@ Three files, three roles. Keep them apart:
 
 | File | Role |
 |---|---|
-| `README.md` | First contact: what CashPrism is, why it exists, that imports are additive, clone and run, status, licence |
+| `README.md` | First contact: what CashPrism is, why it exists, how imports accumulate, clone and run, status, licence |
 | `docs/` | Explanation and reference: how it works and why it was built that way. [`docs/README.md`](docs/README.md) is the index, one line per document |
 | `Agents.md` | Binding rules and conventions. **It prescribes, it does not describe** — explanatory prose belongs in `docs/`, and this file links to it |
 
@@ -170,9 +171,9 @@ yet.
 | Term | Means |
 |---|---|
 | Import run | One processed export file, recorded with the file hash |
-| Raw row | An untouched row from an imported file, stored as JSON |
-| Fingerprint | Hash over date, amount, currency, account, counterparty and payment reference. Decides whether two rows are the same booking |
-| Transaction | A single booking, deduplicated by its fingerprint |
+| Raw row | A row from an imported file, stored verbatim as JSON — kept only when it is new or has changed since the last import |
+| Fingerprint | The FinanzGuru `Buchungs-ID` (column Z): 40 hex characters, unique per booking and stable across exports. It identifies a booking. The field-hash it replaced collapsed 46 groups of distinct bookings and dropped 52 of them in a single 6,324-row export |
+| Transaction | A single booking, keyed by its fingerprint. A projection of the latest export that carries the booking — overwritten on re-import, not an immutable record |
 
 ## Signing AI-generated content
 

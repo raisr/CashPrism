@@ -3,14 +3,15 @@
 What a FinanzGuru "Alle Buchungen" export actually looks like, and which of its
 properties CashPrism is allowed to rely on.
 
-Everything below was measured on one real export: a single file of 6,324 data
-rows covering six years and seven accounts. One file is a thin sample, so the
-counts are evidence, not a specification — where a number is quoted it says what
-was observed, not what FinanzGuru guarantees. Nothing here is derived from
-FinanzGuru documentation; there is none.
+Everything below was measured on two real exports taken one day apart: 6,324 and
+6,327 data rows, covering six years and seven accounts. Two files that close
+together are still a thin sample, so the counts are evidence, not a specification
+— where a number is quoted it says what was observed, not what FinanzGuru
+guarantees. Nothing here is derived from FinanzGuru documentation; there is none.
 
-No values from that export are reproduced here. Where a value's shape matters,
-it is described as a pattern.
+Single-file counts are from the earlier export unless the text says otherwise. No
+values from either export are reproduced here. Where a value's shape matters, it
+is described as a pattern.
 
 ## The workbook
 
@@ -66,7 +67,7 @@ value.
 | W | `Analyse-Monat` | inline string | 6,324 | The month, shaped `YYYY-MM`. |
 | X | `Analyse-Quartal` | inline string | 6,324 | The quarter, shaped `YYYY-Qn`. |
 | Y | `Analyse-Jahr` | number, no format | 6,324 | The year. The odd one out: the three columns above it are text, this one is a bare number and reads back as `2025.0`. |
-| Z | `Buchungs-ID` | inline string | 6,324 | FinanzGuru's identifier of the booking: 40 lower-case hexadecimal characters. Distinct in every row of the measured export. |
+| Z | `Buchungs-ID` | inline string | 6,324 | FinanzGuru's identifier of the booking: 40 lower-case hexadecimal characters. Distinct in every row, and stable across the two exports — see [What two exports one day apart reveal](#what-two-exports-one-day-apart-reveal). |
 | AA | `Referenz-Original-ID` | inline string | 2 | The `Buchungs-ID` a split part points back to. See [Split bookings](#split-bookings). |
 | AB | `Split-Typ` | inline string | 3 | The role a row plays in a split booking. See [Split bookings](#split-bookings). |
 | AC | `Tags` | inline string | 38 | The free-text tags a person put on the booking. |
@@ -121,9 +122,11 @@ A booking split into parts appears as several rows, tied together by two columns
 - `Referenz-Original-ID` holds the `Buchungs-ID` of the `Original` row, on the
   parts that point back at it.
 
-In the measured export this occurs exactly once — three rows, one per role, two
+In each measured export this occurs exactly once — three rows, one per role, two
 of which carry the back-reference. That is enough to know the mechanism and far
 too little to know its edge cases. Both columns are empty on every ordinary row.
+The effect on an importer is in [A split booking is double counting waiting to
+happen](#a-split-booking-is-double-counting-waiting-to-happen).
 
 ### `Kontostand` is not a running balance
 
@@ -143,6 +146,78 @@ Sorting by date helps on some accounts and not at all on others, and no account
 comes close to holding. The column can be shown as what the export claims, but
 nothing may be **derived** from it: not a balance history, not a plausibility
 check on `Betrag`, not a way to detect missing rows.
+
+## What two exports one day apart reveal
+
+The first export was taken again the next day. Comparing the two booking by
+booking is what tells apart what is stable from what is not, and it drives the
+import rules in [`../Agents.md`](../Agents.md#overview).
+
+### `Buchungs-ID` is the only stable identity
+
+Every one of the 6,324 rows in the earlier export carries a distinct
+`Buchungs-ID`, and every one of them reappears under the same `Buchungs-ID` in
+the later export. The later file has three more rows — three bookings added, none
+removed, none renumbered.
+
+Nothing else in the export identifies a booking. A fingerprint over date, amount,
+currency, account, counterparty and payment reference — the fields a bank
+statement is usually deduplicated on — collapses **46 groups** of genuinely
+distinct bookings in a single file and silently drops **52** of them. They are
+mostly card payments made on the same day to the same merchant for the same
+amount: identical on all six fields, distinct only in `Kontostand` and in the
+booking reference. The same count came out of both exports.
+
+### Bookings are enriched after the fact
+
+Of the 6,324 bookings present in both exports, **four** differ between the two
+files. The columns that moved:
+
+| Column | Bookings changed |
+|---|---|
+| `Beguenstigter/Auftraggeber` | 4 |
+| `IBAN Beguenstigter/Auftraggeber` | 4 |
+| `Verwendungszweck` | 4 |
+| `Analyse-Hauptkategorie` | 4 |
+| `Analyse-Unterkategorie` | 4 |
+
+`Buchungstag` and `Betrag` did not move on any of them. The same `Buchungs-ID`
+therefore describes a slightly different row from one export to the next, so a
+stored booking is the latest known state, not a fixed record. On a re-import the
+later export wins; "later" is the date in the sheet name, and the more recent
+import run only when that date cannot be read.
+
+### The four `Analyse-` period columns are a function of `Buchungstag`
+
+`Analyse-Monat`, `Analyse-Quartal` and `Analyse-Jahr` reproduce exactly from
+`Buchungstag` — no mismatch in any of the 12,651 rows across both files.
+`Analyse-Woche` is a Sunday-anchored week count (week 1 is 1 January to the first
+Saturday, a new week every Sunday); it reproduces about 99 % of rows, and the
+remainder is FinanzGuru's own inconsistent labelling of the days around New Year,
+where late December is variously tagged `YYYY-01`, `YYYY-52` or `YYYY-53`.
+
+None of the four carries anything `Buchungstag` does not. A change-detection diff
+between two exports can ignore them: they cannot move unless `Buchungstag` moves.
+
+### A split booking is double counting waiting to happen
+
+Each export contains exactly one [split booking](#split-bookings): an `Original`
+row plus a `Teilbuchung` and a `Restbetrag` row, and the two parts' `Betrag` add
+up to the `Original` `Betrag` to the cent. Any sum over the `Betrag` column
+counts that booking twice. One split in 6,324 rows makes the effect tiny here,
+but an importer that treats every row as a booking over-counts both the
+transaction count and every amount total by the split rows — the factor is one
+extra full copy of each split booking.
+
+### Storing every raw row is expensive and buys nothing
+
+Serialised as a JSON object of all 29 columns, one row is **912 bytes**. A full
+daily import is 5.5 MB of raw rows; a year of them is about **2 GB** to describe
+roughly 7,400 bookings. Keeping only the rows that are new or changed since the
+last import costs 6,324 rows once and then a handful per day — 7 on the measured
+second day — for single-digit MB a year, and loses nothing, because an unchanged
+row is byte-identical to the one already stored. The `.xlsx` file itself, about
+1.2 MB per export, is not kept either.
 
 ## What CashPrism does with this
 
