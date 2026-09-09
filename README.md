@@ -19,20 +19,17 @@ Your data stays with you. No cloud, no account, no signing up anywhere.
 - Shows transactions, categories and trends you can search and filter
 - Runs on Windows, Linux and macOS without an installer
 
-## Imports are additive
+## Imports accumulate
 
-Every import adds, it never overwrites.
+Every import adds to your history instead of replacing it, so you can export and
+import every month and keep years of bookings even though a single export only
+covers a time window.
 
-Each row gets a fingerprint — a hash over date, amount, currency, account,
-counterparty and payment reference. If CashPrism already knows the fingerprint,
-the row is skipped. The raw contents of every imported file are stored unchanged
-as well.
-
-The result: you can export and import every month. Your history grows, even
-though a single export only covers a time window.
-
-The price for this: if you correct something in FinanzGuru, the correction
-arrives as an additional row rather than as a change to the existing one.
+A booking is matched across exports by the identifier FinanzGuru gives it, so
+re-importing the same export changes nothing. If a booking was edited in
+FinanzGuru between two exports — a corrected counterparty, a re-assigned
+category — CashPrism takes the newer version rather than keeping both. Only rows
+that are new or changed are stored; the export file itself is not kept.
 
 ## Running it
 

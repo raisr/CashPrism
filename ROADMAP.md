@@ -26,15 +26,24 @@ safe to share.
   payment reference, account name and IBAN replaced; amounts optionally scaled;
   file structure kept 1:1.
 - The FinanzGuru column mapping lands in `CashPrism.Infrastructure.Finanzguru`
-  and is reused by the real parser in M5.
+  and is reused by the real parser in M3.
 
-## M3 — Persistence
+## M3 — Import end to end
+
+Upload a FinanzGuru export, store it deduplicated, and see the result as data.
 
 - EF Core + SQLite at `./data/cashprism.db`; migrations applied on startup
   before the first request is served.
-- `Domain` models: Transaction, ImportRun, RawRow, and the fingerprint rule.
 - Single-instance guard: refuse to start a second process against the same
   database file.
+- `Domain` models: Transaction, ImportRun, RawRow, with the identity rule — a
+  booking is keyed by its FinanzGuru `Buchungs-ID`.
+- ClosedXML parser for the FinanzGuru `.xlsx`, isolated in
+  `CashPrism.Infrastructure.Finanzguru`.
+- Import use case in `Application`: a `Transaction` is a projection overwritten
+  by the later export; raw rows are kept only when new or changed; the `.xlsx`
+  itself is not stored.
+- Upload UI and a list of past import runs.
 
 ## M4 — Auth
 
@@ -43,21 +52,13 @@ safe to share.
   the repository.
 - `[Authorize]` is the default; `[AllowAnonymous]` is the justified exception.
 
-## M5 — Import
-
-- ClosedXML parser for the FinanzGuru `.xlsx`, isolated in
-  `CashPrism.Infrastructure.Finanzguru`.
-- Import use case in `Application`: additive, deduplicated by fingerprint, raw
-  rows and the file hash stored unchanged.
-- Upload UI and a list of past import runs.
-
-## M6 — Analysis UI
+## M5 — Analysis UI
 
 - Transaction list with search and filter.
 - Categories.
 - Trends and charts.
 
-## M7 — Delivery
+## M6 — Delivery
 
 - Self-contained single-file binary per platform (Windows, Linux, macOS).
 - A repeatable release process, including cutting a `CHANGELOG.md` version at
