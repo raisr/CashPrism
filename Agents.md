@@ -12,15 +12,10 @@ See `README.md` for the user-facing description.
 
 ## Tech stack
 
-| Area | Choice |
-|---|---|
-| Runtime | .NET 10 (LTS) |
-| UI | Blazor Web App, render mode `InteractiveServer` |
-| Web server | Kestrel, built in |
-| Database | SQLite via EF Core, `./data/cashprism.db` |
-| Excel | ClosedXML |
-| Auth | One shared password, PBKDF2, cookie authentication |
-| Delivery | Self-contained single-file binary per platform |
+For what CashPrism is built on — runtime, UI, web server, database, Excel
+library, auth and delivery format — and why each piece was picked, see
+[`docs/tech-stack.md`](docs/tech-stack.md). The two rules below bind whatever
+that document ends up listing.
 
 The database lives on a local disk only, never on a network share. SQLite locking over SMB is unreliable. This is a decision, not an oversight — do not propose moving it.
 
