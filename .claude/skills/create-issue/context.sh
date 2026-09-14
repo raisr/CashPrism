@@ -1,40 +1,48 @@
 #!/usr/bin/env bash
-# Gathers the context needed to draft a new issue in the CashPrism schema:
-#   - that gh is authenticated and which repo it will file against
+# Gathers the context needed to draft a new ticket:
+#   - that the forge CLI is authenticated, and which project it will file against
 #   - the conventional-commit type labels that exist (title prefix == label)
-#   - open issues, so a near-duplicate can be spotted before filing
+#   - the open tickets, so a near-duplicate can be spotted before filing
 #
-# Usage: .claude/skills/create-issue/context.sh
+# Usage: bash .claude/skills/create-issue/context.sh
+#
+# Everything forge-specific goes through .devkit/forge.sh, so this script is
+# the same on GitHub and on GitLab.
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-echo "=== auth ==="
-gh auth status 2>&1 | sed -n '1,4p'
+# shellcheck source=/dev/null
+. .devkit/config.sh
+# shellcheck source=/dev/null
+[ -f .devkit/local.sh ] && . .devkit/local.sh
+# shellcheck source=/dev/null
+. .devkit/forge.sh
+
+echo "FORGE: $(forge_name)"
+echo "WORKFLOW: ${DEVKIT_WORKFLOW}"
 
 echo
-echo "=== repo ==="
-gh repo view --json nameWithOwner,url -q '.nameWithOwner + "  " + .url'
+echo "=== auth and project ==="
+forge_check
 
 echo
-echo "=== type labels (use one as --label AND as the title prefix) ==="
-have=""
-for t in feat fix refactor docs chore; do
-  if gh label list --json name -q '.[].name' | grep -qx "$t"; then
-    echo "  $t"
-    have="$have $t"
-  fi
-done
+echo "=== type labels (one is both the --label and the title prefix) ==="
+existing="$(forge_labels_list || true)"
 missing=""
 for t in feat fix refactor docs chore; do
-  case " $have " in *" $t "*) ;; *) missing="$missing $t";; esac
+  if printf '%s\n' "${existing}" | grep -qx "${t}"; then
+    echo "  ${t}"
+  else
+    missing="${missing} ${t}"
+  fi
 done
-if [ -n "$missing" ]; then
-  echo "  MISSING:$missing"
-  echo "  create with: gh label create <name> --color <hex> --description \"conventional commit: <name>\""
+if [ -n "${missing}" ]; then
+  echo "  MISSING:${missing}"
+  echo "  create one with: forge_label_create <name> <hex colour> <description>"
+  echo "  (source .devkit/forge.sh first)"
 fi
 
 echo
-echo "=== open issues (dedup check) ==="
-gh issue list --state open --json number,title,labels \
-  -q '.[] | "  #\(.number) [\(.labels | map(.name) | join(","))] \(.title)"'
+echo "=== open tickets (duplicate check) ==="
+forge_issue_list_open
