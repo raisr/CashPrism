@@ -1,138 +1,144 @@
 ---
 name: implement-feature
-description: Drive a CashPrism change end to end - ticket, branch, implementation in small steps, the build/test/format gates, commit and PR, then the review loop. Use when asked to "implement", "build a feature", "work on issue #N", "fix a bug", "start on the ticket", or "pick up" a piece of work.
+description: Drive a change end to end - ticket, branch, implementation in small steps, the gates, commit, request and the review loop. Use when asked to "implement", "build a feature", "work on issue #N", "fix a bug", "start on the ticket", or "pick up" a piece of work.
 ---
 
 # implement-feature
 
-The lifecycle for any code change in CashPrism. Nothing here is optional and the
-order matters. Paths are relative to the repo root.
+The lifecycle of a code change in this repository. Nothing here is optional
+and the order matters.
 
-Related skills: `create-issue` (step 1), `commit-message` (step 6).
+How much of it applies is decided by `DEVKIT_WORKFLOW` in `.devkit/config.sh`:
 
-## 1. There must be a ticket
+- **`full`** — all nine steps.
+- **`light`** — steps 3, 5 and 6 only: implement, gates, commit. No ticket, no
+  request, no review loop.
 
-Every change needs a GitHub issue first. If there is none, invoke `create-issue`
-and get it filed before writing code. If the user pointed at an existing issue,
-read it in full now — the **Acceptance criteria / Definition of Done** is the
-contract you are fulfilling.
-
-## 2. Branch from an up-to-date main
+Read it first:
 
 ```bash
-git checkout main && git pull
-git checkout -b feature/<issue>-<slug>   # fix/<issue>-<slug> for a fix ticket
+. .devkit/config.sh && echo "${DEVKIT_WORKFLOW} / ${DEVKIT_FORGE} / ${DEVKIT_MAIN_BRANCH}"
 ```
 
-Slug: lowercase words from the title joined by `-`. Only `feature/` and `fix/`
-prefixes — a `chore`/`docs`/`refactor` ticket still gets `feature/<issue>-…` so
-the tooling parses the number back out.
+Related skills: `create-issue` (step 1), `commit-message` (step 6).
+Paths are relative to the repository root.
+
+**The instruction that started this covers the whole run** (`core.git`): the
+branch, the request, the replies in the review round and deleting the branch
+afterwards happen without asking again. The one step that still stops is the
+commit message in step 6, and only while `DEVKIT_COMMIT_APPROVAL` is `ask`.
+Stopping anywhere else means something is genuinely unclear — say what, rather
+than asking for permission to carry on.
+
+## 1. There must be a ticket — `full` only
+
+Every change needs one. If there is none, invoke `create-issue` and get it
+filed before writing code. If the user pointed at an existing ticket, read it
+in full now — the **Acceptance criteria / Definition of Done** is the contract
+being fulfilled.
+
+## 2. Branch — `full` only
+
+```bash
+git checkout "${DEVKIT_MAIN_BRANCH}" && git pull
+git checkout -b feature/<ticket>-<slug>     # fix/<ticket>-<slug> for a fix
+```
+
+Only `feature/` and `fix/`, so the tooling parses the number back out. See
+`forge.branches`.
+
+Under `light`, work on a branch anyway when the change is more than a moment,
+but nothing forces a name.
 
 ## 3. Implement in small, reviewable steps
 
-- Respect the onion rule from `Agents.md`: the dependency arrow points inward,
-  Infrastructure is referenced only by `Shell`, validation lives in `Domain`.
-- New or changed logic without a test counts as unfinished (`Agents.md`). Test
-  layout mirrors the source path; one test class per class under test, one
-  nested class per method. See existing tests under `src/Tests/`.
+- The rules bind in both modes. `AGENTS.core.md`, the stack rules, the forge
+  rules, and the project `AGENTS.md` on top — including its *Deviations* table.
+- **New or changed logic without a test counts as unfinished** (`core.tests`),
+  even under `light`, even when nobody asked.
+- Anything touching more than one file: agree the approach with the user before
+  diving in (`core.working-style`).
 - Keep the working tree reviewable — no stray files, no reformatted files you
   never touched.
-- Anything that touches more than one file: agree the approach with the user
-  before diving in.
+- Documentation is part of the change (`core.docs`). A change that leaves
+  `docs/`, the `README.md` or `AGENTS.md` contradicting the code is not done.
 
-## 4. Changelog entry
+## 4. Changelog — `full` only
 
-`CHANGELOG.md` in the repo root follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+See `forge.changelog`. A user-visible change needs an entry under
+`## [Unreleased]` in the right category. Purely internal work may skip it —
+and when it is skipped, one line in the request body says why.
 
-- A user-visible change **requires** an entry under `## [Unreleased]`, in the
-  right category (`Added` / `Changed` / `Deprecated` / `Removed` / `Fixed` /
-  `Security`). Add the category heading if it is not there yet.
-- Write it for a human reading the release notes — what changed and why it
-  matters, not the commit subject and not a `git log` dump.
-- Purely internal work with no user-visible effect (tests, tooling, the skill
-  files, CI, doc-only) may skip the entry. When you skip, say so in one line in
-  the PR body.
-
-## 5. Pre-flight — all gates green
+## 5. Gates — both modes
 
 ```bash
-bash .claude/skills/implement-feature/preflight.sh
+bash .devkit/gates.sh
 ```
 
-Confirms you are on a ticket branch, prints the ticket's Definition of Done, the
-linked PR if any, then runs the three gates and exits non-zero unless all pass:
+All green before anything is committed. Not afterwards, not in CI only.
 
-- `dotnet build src/CashPrism.slnx` → 0 warnings, 0 errors
-- `dotnet test src/CashPrism.slnx` → green
-- `dotnet format src/CashPrism.slnx --verify-no-changes` → clean
+Under `full`, then walk the Definition of Done yourself, box by box. The gates
+do not cover reference graphs, exposed APIs or documentation. Proceed only when
+every box is genuinely true — and where one is not, say which and why rather
+than quietly leaving it.
 
-Then walk the DoD checkboxes yourself — the gates do not cover reference graphs,
-exposed APIs or docs. Only proceed when every box is genuinely true.
+## 6. Commit — both modes
 
-## 6. Commit
+Invoke `commit-message`. It reads the workflow and approval modes, parses the
+ticket out of the branch, drafts in the required format, and commits and
+pushes. Under `DEVKIT_COMMIT_APPROVAL=ask` it stops for a yes first — the only
+stop in this lifecycle. Repo commits carry no AI footer.
 
-Invoke `commit-message`. It parses `#<issue>` from the branch, drafts in the
-required format, and commits + pushes after your explicit approval. Repo commits
-carry **no** AI footer.
-
-## 7. Open the PR
+## 7. Open the request — `full` only
 
 ```bash
-gh pr create --base main --head <branch> \
-  --title "<type>: <summary> (#<issue>)" \
-  --label <type> \
-  --assignee raisr \
-  --body-file /tmp/pr-body.md
+. .devkit/config.sh && . .devkit/forge.sh
+forge_pr_create "${DEVKIT_MAIN_BRANCH}" "<branch>" \
+  "<type>: <summary> (#<issue>)" "<type>" "${DEVKIT_ASSIGNEE}" /path/to/body.md
 ```
 
-Body: **what** changed and **why**, an **Evidence** block with the gate output,
-a **Changelog** line naming the `CHANGELOG.md` category the entry went under (or
-`n. a.` with the reason it was skipped, per step 4), any **deviation from the
-ticket's DoD** called out, and `Closes #<issue>`. End with the external-system
-signature, separated by `---`:
+The body follows `forge.requests`: what and why, an **Evidence** block with the
+gate output, a **Changelog** line naming the category or `n. a.` with the
+reason, any deviation from the Definition of Done, `Closes #<issue>`, and the
+signature from `core.signature`.
 
-```
----
-🤖 *Claude was here. No hands, but opinions.*
-*<YYYY-MM-DD>*
-```
+Never call `gh` or `glab` directly.
 
-Always `--assignee raisr` (add it afterwards with
-`gh pr edit <n> --add-assignee raisr` if you forgot).
+## 8. Review loop — `full` only
 
-## 8. Review loop
-
-The user reviews in the PR and comments there, then tells you to look. For each
-round:
+The user reviews in the request and comments there, then says to look:
 
 ```bash
-gh pr view <n> --json comments,reviews -q '.comments[].body, (.reviews[] | "\(.state): \(.body)")'
-gh api repos/raisr/CashPrism/pulls/<n>/comments -q '.[] | "\(.path):\(.line)  \(.body)"'   # line comments
+. .devkit/config.sh && . .devkit/forge.sh
+forge_pr_comments <n>
+forge_pr_line_comments <n>
 ```
 
-Address every point, re-run pre-flight, commit (`commit-message`), push. Reply on
-the PR with the commit that resolved each point, signed with the same `---`
-block.
+Address **every** point, re-run the gates, commit through `commit-message`,
+push. Reply on the request naming the commit that resolved each point, signed
+with the same block. Nothing is waved away silently; where you disagree, say so
+in the reply.
 
-## 9. Done
+## 9. Done — `full` only
 
-The work is finished only when **the user accepts / merges the PR** — not when
-the gates pass. After merge:
+The work is finished when **the user accepts or merges the request** — not when
+the gates pass. After the merge:
 
 ```bash
-git checkout main && git pull && git branch -d <branch>
+git checkout "${DEVKIT_MAIN_BRANCH}" && git pull && git branch -d <branch>
 ```
 
 ## Gotchas
 
-- `dotnet test` exits non-zero when a test project has **no** tests. A new test
-  project needs at least one real test, not a placeholder.
 - Windows is case-insensitive: never `rm` a path that differs from another only
   in case (`src/tests` vs `src/Tests`) — you will delete the wrong one. Use
-  `git mv` via a temp name and restore from the index if it bites.
-- The repo has `core.autocrlf`; `git` prints `LF will be replaced by CRLF`
-  warnings on staging. Harmless. `.gitattributes` normalises to LF in the repo.
-- `preflight.sh` runs three full `dotnet` invocations (~30-60 s cold). That is
-  expected, not a hang.
-- `gh pr view <branch>` only finds the PR while the branch exists locally and on
-  the remote; after step 9 use `gh pr view <number>`.
+  `git mv` through a temporary name.
+- With `core.autocrlf`, `git` prints `LF will be replaced by CRLF` on staging.
+  Harmless; `.gitattributes` normalises to LF in the repository.
+- `gates.sh` runs the real build and test. A cold run takes tens of seconds.
+  That is expected, not a hang.
+- `forge_pr_view <branch>` only finds the request while the branch exists
+  locally and on the remote. After step 9, use the number.
+- Switching `DEVKIT_WORKFLOW` mid-change is not a way past a failing step.
+  Changing the mode is a decision about the repository, taken by the user, not
+  a workaround.
