@@ -29,7 +29,7 @@ makes your own finances analysable on a large screen.
 Imports are additive for the raw data and projective for the result. A booking
 is identified by its FinanzGuru `Buchungs-ID`, never by a hash over its fields:
 the same booking is enriched between exports, so a re-import overwrites the
-stored `Transaction` with the later state instead of adding a second row.
+stored `Booking` with the later state instead of adding a second row.
 "Later" is the export date parsed from the sheet name
 (`YYYYMMDD_Export_Alle_Buchungen`), falling back to the more recent import run
 when that name cannot be parsed. Of the raw rows, only those new or changed
@@ -108,7 +108,7 @@ use.
 | Import run | One processed export file, recorded with the file hash |
 | Raw row | A row from an imported file, stored verbatim as JSON — kept only when it is new or has changed since the last import |
 | Fingerprint | The FinanzGuru `Buchungs-ID` (column Z): 40 hex characters, unique per booking and stable across exports. It identifies a booking. The field-hash it replaced collapsed 46 groups of distinct bookings and dropped 52 of them in a single 6,324-row export |
-| Transaction | A single booking, keyed by its fingerprint. A projection of the latest export that carries the booking — overwritten on re-import, not an immutable record |
+| Booking | A single booking, keyed by its fingerprint. A projection of the latest export that carries the booking — overwritten on re-import, not an immutable record |
 
 ## Deviations from the shared rules
 

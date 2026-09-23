@@ -36,11 +36,11 @@ Upload a FinanzGuru export, store it deduplicated, and see the result as data.
   before the first request is served.
 - Single-instance guard: refuse to start a second process against the same
   database file.
-- `Domain` models: Transaction, ImportRun, RawRow, with the identity rule — a
+- `Domain` models: Booking, ImportRun, RawRow, with the identity rule — a
   booking is keyed by its FinanzGuru `Buchungs-ID`.
 - ClosedXML parser for the FinanzGuru `.xlsx`, isolated in
   `CashPrism.Infrastructure.Finanzguru`.
-- Import use case in `Application`: a `Transaction` is a projection overwritten
+- Import use case in `Application`: a `Booking` is a projection overwritten
   by the later export; raw rows are kept only when new or changed; the `.xlsx`
   itself is not stored.
 - Upload UI and a list of past import runs.
@@ -54,7 +54,7 @@ Upload a FinanzGuru export, store it deduplicated, and see the result as data.
 
 ## M5 — Analysis UI
 
-- Transaction list with search and filter.
+- Booking list with search and filter.
 - Categories.
 - Trends and charts.
 

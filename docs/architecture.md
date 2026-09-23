@@ -32,6 +32,7 @@ concrete infrastructure to a use case.
 | Project | Covers |
 |---|---|
 | `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which |
+| `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
@@ -51,6 +52,7 @@ src/
   CashPrism.Anonymiser/
   Tests/
     CashPrism.Architecture.Tests/
+    CashPrism.Domain.Tests.Unit/
     CashPrism.Infrastructure.Finanzguru.Tests.Unit/
     CashPrism.Shell.Tests.Integration/
     CashPrism.Anonymiser.Tests.Unit/
