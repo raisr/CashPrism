@@ -1,3 +1,4 @@
+using System.Globalization;
 using CashPrism.Shell.Hosting;
 using CashPrism.Web.Configuration;
 using Microsoft.AspNetCore.Connections;
@@ -22,6 +23,8 @@ public sealed class Program
     /// </summary>
     public static int Main(string[] args)
     {
+        ApplyUiCulture();
+
         var hostArgs = HostingCommandLine.Expand(args);
 
         var builder = WebApplication.CreateBuilder(hostArgs);
@@ -89,5 +92,25 @@ public sealed class Program
         }
 
         return 0;
+    }
+
+    /// <summary>
+    /// Pins the process to German. The UI is written in German (see
+    /// <c>Agents.md</c>), so the culture is a decision the host takes rather than
+    /// something inherited from whichever machine the executable was
+    /// double-clicked on — an English Windows would otherwise format amounts and
+    /// dates one way while the labels next to them read another.
+    /// </summary>
+    /// <remarks>
+    /// Setting the defaults for every thread is what a Blazor Server circuit
+    /// needs: it outlives the request that created it, so per-request
+    /// localisation middleware would not reach it.
+    /// </remarks>
+    private static void ApplyUiCulture()
+    {
+        var culture = new CultureInfo("de-DE");
+
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
     }
 }

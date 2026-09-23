@@ -1,21 +1,25 @@
 @page "/"
+@inject IStringLocalizer<Strings> text
 
+@* "CashPrism" is a product name, not a translatable string, so it stays a
+   literal here and in the layout. Everything a reader could translate comes
+   from Strings.resx. *@
 <PageTitle>CashPrism</PageTitle>
 
 <h1>CashPrism</h1>
 
 <p>
-  Render mode: <span class="badge">@circuitState</span>
+  @text["RenderModeLabel"]: <span class="badge">@renderState</span>
 </p>
 
 @code {
-    private const string Prerendered = "Prerendered";
-    private const string Interactive = "Interactive";
+    // Server-rendered the badge reads the prerendered wording; once the SignalR
+    // circuit is up the first interactive render flips it. That is the visible
+    // proof that the wiring works end to end.
+    private string? renderState;
 
-    // Server-rendered the badge reads "Prerendered"; once the SignalR circuit is
-    // up the first interactive render flips it to "Interactive". That is the
-    // visible proof that the wiring works end to end.
-    private string circuitState = Prerendered;
+    protected override void OnInitialized()
+        => renderState = text["RenderModePrerendered"];
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -24,7 +28,7 @@
             return;
         }
 
-        circuitState = Interactive;
+        renderState = text["RenderModeInteractive"];
         StateHasChanged();
     }
 }

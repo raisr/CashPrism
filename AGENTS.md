@@ -101,6 +101,27 @@ carries the concerns a web project normally does not have:
 `Web` must stay hostable without `Shell` — that is what the integration tests
 use.
 
+## Language of the user interface
+
+The UI is **German**. FinanzGuru, the only source CashPrism reads, is sold in
+German-speaking markets only, so every person this application has is a German
+reader. Internationalisation is nonetheless in place from the first screen — it
+is cheap now and expensive to retrofit.
+
+- **No translatable text as a literal in markup or code.** Every user-visible
+  string comes from `IStringLocalizer<Strings>`, backed by
+  `src/CashPrism.Web/Resources/Strings.resx`. Product names — "CashPrism" — are
+  not translatable and stay literals.
+- **Keys are English, values are German.** Everything else in the repository
+  stays English: identifiers, comments, XML docs, tests, commits. The deviation
+  from `core.language` is limited to resource values and recorded below.
+- **The resource file is neutral.** `Strings.resx` is what ships; there is no
+  English sibling to keep in step. A second language is a new
+  `Strings.<culture>.resx` and nothing else.
+- **The culture is set by the host, never inherited.** `Shell` pins `de-DE`, so
+  an English Windows cannot format amounts and dates one way while the labels
+  beside them read another. `Web` never reads it from configuration.
+
 ## Domain terms
 
 | Term | Means |
@@ -118,4 +139,4 @@ Every row was decided once and is recorded in `devkit.lock.json`, so
 
 | Rule | Deviation | Why |
 |---|---|---|
-| — | none yet | — |
+| `core.language` | User-visible UI text is German: the values in `Strings.resx` are German, and so is what the application renders | FinanzGuru is sold in German-speaking markets only, so the UI's only audience reads German. Everything else stays English — keys, identifiers, comments, XML docs, tests, commits, tickets and this file |
