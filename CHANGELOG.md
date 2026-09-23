@@ -30,8 +30,8 @@ releases and the minor version is bumped for every notable change.
   purpose: a self-signed certificate would mean a warning on every phone and
   tablet in the house.
 - Start page at `/`, rendered by Blazor with the interactive server render mode.
-  It shows the application version and a marker that switches from `Prerendered`
-  to `Interactive` as soon as the browser's connection to the server is live —
+  It shows the application version and a marker that switches from `Vorgerendert`
+  to `Interaktiv` as soon as the browser's connection to the server is live —
   visible proof that the whole chain works.
 - The FinanzGuru column mapping, in `CashPrism.Infrastructure.Finanzguru`:
   resolves a header row to its known columns by name, never by position, and
@@ -64,12 +64,19 @@ releases and the minor version is bumped for every notable change.
 
 ### Changed
 
+- The user interface is now German. FinanzGuru is only available in
+  German-speaking markets, so the one audience CashPrism has reads German — the
+  start page says `Rendermodus: Vorgerendert`, the page declares itself as
+  German, and the application runs with German number and date formats instead of
+  whatever the machine it was started on happens to use. Text comes from a
+  resource file rather than from the markup, so a further language later is a new
+  resource file and not a rewrite.
 - The import rules were corrected against two real FinanzGuru exports taken one
   day apart. A booking is now identified by its FinanzGuru `Buchungs-ID` instead
   of a hash over its fields — that hash collapsed 46 groups of distinct bookings
   and dropped 52 of them in a single 6,324-row export. Because bookings are
   enriched between exports, a re-imported booking now overwrites the stored
-  transaction with the later state instead of adding a second row, and raw rows
+  booking with the later state instead of adding a second row, and raw rows
   are kept only when new or changed since the last import; the `.xlsx` file
   itself is no longer stored. No import code exists yet — this is the
   specification the import milestone is built to. See

@@ -1,6 +1,8 @@
 @* The root component: the whole HTML document is rendered by Blazor. *@
 <!DOCTYPE html>
-<html lang="en">
+@* The language comes from the culture the host set, so the document never claims
+   a language the UI is not written in. *@
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 
 <head>
   <meta charset="utf-8" />

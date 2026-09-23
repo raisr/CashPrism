@@ -43,7 +43,24 @@ public sealed class HostBootTests
         {
             var html = await GetStartPageAsync();
 
-            Assert.Contains("Prerendered", html);
+            Assert.Contains("Vorgerendert", html);
+        }
+
+        [Fact]
+        public async Task Start_Page_Declares_The_Language_Its_Text_Is_Written_In()
+        {
+            var html = await GetStartPageAsync();
+
+            Assert.Contains("lang=\"de\"", html, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task Start_Page_Takes_Its_Text_From_The_Resources_Not_From_The_Markup()
+        {
+            var html = await GetStartPageAsync();
+
+            Assert.Contains("Rendermodus", html);
+            Assert.DoesNotContain("Render mode", html);
         }
 
         [Fact]
