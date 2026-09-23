@@ -54,6 +54,12 @@ The database lives on a local disk only, never on a network share. SQLite
 locking over SMB is unreliable. This is a decision, not an oversight — do not
 propose moving it.
 
+**Money is stored as whole cents in an integer column, never as `decimal`.**
+SQLite has no decimal type, so EF Core keeps a `decimal` as text, and text
+compares lexicographically: `ORDER BY` and `SUM` over an amount then return
+nonsense. The models keep `decimal`; the conversion belongs to the persistence
+configuration. An amount finer than a cent is refused rather than rounded.
+
 ## Architecture
 
 For the projects that exist today, the directory layout and why the solution is

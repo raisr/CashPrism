@@ -34,6 +34,7 @@ concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which |
 | `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
+| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema against a throwaway SQLite file: round trips, keys, cascade, and that amounts are stored as cents |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
 | `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository |
@@ -54,6 +55,7 @@ src/
     CashPrism.Architecture.Tests/
     CashPrism.Domain.Tests.Unit/
     CashPrism.Infrastructure.Finanzguru.Tests.Unit/
+    CashPrism.Infrastructure.Tests.Integration/
     CashPrism.Shell.Tests.Integration/
     CashPrism.Anonymiser.Tests.Unit/
     CashPrism.Anonymiser.Tests.Integration/
@@ -89,6 +91,18 @@ inside the solution root, not a solution folder that has to be kept in sync.
   is a second composition root with its own entry point, and it never references
   ClosedXML — an `.xlsx` is a zip it takes apart and puts back together itself,
   so a real FinanzGuru export stays recognisable as one.
+- **The migrations live with the schema they describe.** They sit in
+  `CashPrism.Infrastructure/Persistence/Migrations`, next to the context and the
+  entity configurations, and an `IDesignTimeDbContextFactory` lets
+  `dotnet ef migrations add` read the model from that project alone. The
+  alternative — pointing the tools at `Shell` — would make the composition root a
+  build-time dependency of the schema. `dotnet-ef` is pinned in
+  `.config/dotnet-tools.json`, so `dotnet tool restore` gives everyone the same
+  version instead of whatever is installed globally.
+- **The host migrates through an interface.** `Shell` calls
+  `IDatabaseMigrator`, declared in `Application`, before the server starts
+  listening. It therefore knows that the database has to be brought up to date,
+  but not what the database is.
 - **`CashPrism.Architecture.Tests` enforces the reference graph.** The rules
   above are not a gentleman's agreement: the build fails if a project outside
   `Shell` and `Anonymiser` takes a dependency on an Infrastructure project.

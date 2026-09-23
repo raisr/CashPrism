@@ -10,7 +10,7 @@ on a local disk only, no DDD — are binding and live in
 | Runtime | .NET 10 (LTS) | Long-term support, and the only runtime the project targets. Set once in `src/Directory.Build.props` |
 | UI | Blazor Web App, render mode `InteractiveServer` | One language for server and browser. The state lives on the hosting machine, so the phone in the kitchen renders the same session without a separate API |
 | Web server | Kestrel, built in | Already part of ASP.NET Core. A reverse proxy would be one more thing to install on a home machine for no gain |
-| Database | SQLite via EF Core, `./data/cashprism.db` | A single file next to the executable, no server to run. EF Core because the migrations run on startup |
+| Database | SQLite via EF Core, `./data/cashprism.db` | A single file next to the executable, no server to run. EF Core because the migrations run on startup. Amounts are stored as whole cents in an integer column — SQLite has no decimal type, and a decimal kept as text sorts and sums wrongly |
 | Excel | ClosedXML | Reads `.xlsx` without Excel installed. It stays inside `CashPrism.Infrastructure.Finanzguru` so nothing else depends on it |
 | Auth | One shared password, PBKDF2, cookie authentication | The household shares one login; there are no user accounts to manage. PBKDF2 comes from the BCL, so no extra dependency |
 | Language | German UI, `IStringLocalizer` against a neutral-German `Strings.resx`; the culture is pinned to `de-DE` by `Shell` | FinanzGuru only exists in German-speaking markets, so the UI's audience reads German. The localisation path is in place from the first screen because retrofitting it means touching every component. English keys keep the code in one language — see [`Agents.md`](../Agents.md#language-of-the-user-interface) |
@@ -22,7 +22,9 @@ The table above is the decided stack, not a report of finished work. In the
 source tree today:
 
 - .NET 10, Kestrel and Blazor are in place, and `CashPrism.Shell` hosts the app
-- ClosedXML and `Microsoft.EntityFrameworkCore.Sqlite` are referenced
+- ClosedXML is referenced; EF Core with SQLite is in place — the database, its
+  three tables and the startup migration all exist, and nothing writes to them
+  yet
 - The start page reads its text from `Strings.resx` and the process runs as
   `de-DE`; MudBlazor's own strings are not localised yet, because MudBlazor is
   not referenced yet

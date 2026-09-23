@@ -1,8 +1,9 @@
 using System.Globalization;
+using CashPrism.Application.Persistence;
+using CashPrism.Infrastructure.Configuration;
 using CashPrism.Shell.Hosting;
 using CashPrism.Web.Configuration;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.Extensions.Options;
 
 namespace CashPrism.Shell;
 
@@ -13,6 +14,13 @@ namespace CashPrism.Shell;
 /// </summary>
 public sealed class Program
 {
+    /// <summary>
+    /// The database file, inside the data directory. The README promises it sits
+    /// next to the application, so the name is fixed rather than configurable —
+    /// what a person may move is the directory.
+    /// </summary>
+    private const string DatabaseFileName = "cashprism.db";
+
     private Program()
     {
     }
@@ -21,7 +29,7 @@ public sealed class Program
     /// Builds and runs the host. Returns a non-zero exit code when the
     /// configured port is already taken.
     /// </summary>
-    public static int Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         ApplyUiCulture();
 
@@ -41,29 +49,38 @@ public sealed class Program
         // unhandled-exception output.
         builder.Logging.AddFilter("Microsoft.Extensions.Hosting.Internal.Host", LogLevel.None);
 
-        // Kestrel is configured before the container exists, so the port is read
-        // straight from configuration here. Everything after Build() uses
-        // IOptions.
-        var port = builder.Configuration.GetValue(
-            $"{HostingOptions.SectionName}:{nameof(HostingOptions.Port)}",
-            new HostingOptions().Port);
+        // Kestrel and the database are configured before the container exists, so
+        // the settings are bound straight from configuration here. Everything after
+        // Build() uses IOptions.
+        var hosting = builder.Configuration.GetSection(HostingOptions.SectionName).Get<HostingOptions>()
+            ?? new HostingOptions();
 
         // Every device in the house reaches this, so binding to loopback is not
         // an option. HTTP only and on purpose: a self-signed certificate means a
         // warning on every phone and tablet. The consequence to carry into the
         // shared password is that credentials travel the home network
         // unencrypted.
-        builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+        builder.WebHost.UseUrls($"http://0.0.0.0:{hosting.Port}");
+
+        var dataDirectory = hosting.ResolveDataDirectory();
+
+        // Before the database is opened, not after: SQLite will not create a file
+        // in a directory that does not exist.
+        Directory.CreateDirectory(dataDirectory);
 
         builder.Services.AddCashPrismWeb();
+        builder.Services.AddCashPrismPersistence(Path.Combine(dataDirectory, DatabaseFileName));
 
         var app = builder.Build();
 
         app.MapCashPrismWeb();
 
-        var hosting = app.Services.GetRequiredService<IOptions<HostingOptions>>().Value;
-
-        Directory.CreateDirectory(hosting.ResolveDataDirectory());
+        // The schema is brought up to date before the server listens, so no request
+        // can arrive at a database this build does not fit.
+        await using (var scope = app.Services.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<IDatabaseMigrator>().MigrateAsync();
+        }
 
         // Only once the server actually listens is the address worth printing.
         app.Lifetime.ApplicationStarted.Register(() =>
@@ -78,7 +95,7 @@ public sealed class Program
 
         try
         {
-            app.Run();
+            await app.RunAsync();
         }
         catch (IOException exception) when (exception.InnerException is AddressInUseException)
         {

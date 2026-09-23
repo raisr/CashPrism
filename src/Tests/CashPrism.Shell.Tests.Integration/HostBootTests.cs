@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 
 namespace CashPrism.Shell.Tests.Integration;
 
@@ -97,6 +98,28 @@ public sealed class HostBootTests
             using var client = factory.CreateClient();
 
             Assert.True(Directory.Exists(factory.DataDirectory));
+        }
+
+        [Fact]
+        public async Task Serves_The_First_Request_From_An_Already_Migrated_Database()
+        {
+            using var client = factory.CreateClient();
+
+            // The request comes first on purpose: if the schema were applied later
+            // than this, the assertions below would still pass while a real user hit
+            // an empty database.
+            using var response = await client.GetAsync("/");
+
+            var databaseFile = Path.Combine(factory.DataDirectory, "cashprism.db");
+            Assert.True(File.Exists(databaseFile), $"{databaseFile} was not created.");
+
+            await using var connection = new SqliteConnection($"Data Source={databaseFile}");
+            await connection.OpenAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText =
+                "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name IN ('Bookings', 'ImportRuns', 'RawRows')";
+
+            Assert.Equal(3L, await command.ExecuteScalarAsync());
         }
     }
 }
