@@ -241,3 +241,11 @@ Three rules follow from that:
 The mapping takes the header row as a plain list of strings and returns the
 name-to-index assignment. It reads no file and mentions no ClosedXML type, so it
 is usable from a tool that takes no spreadsheet dependency at all.
+
+The German yes/no columns are translated in the same project, by
+`FinanzguruFlag`, and translated strictly: a value that is neither word fails and
+names the column and the row instead of defaulting to `false`. `ja`/`nein` is a
+property of this export rather than of a booking, so the models keep plain
+booleans and never see the words. Defaulting would be the expensive kind of
+wrong — `Analyse-Umbuchung` alone decides for 916 of 6,327 rows whether they
+count as income and spending at all.
