@@ -10,7 +10,7 @@ public sealed class BookingTests
     private static Booking Create(
         string fingerprint = AFingerprint,
         DateTime? bookedOn = null,
-        decimal amount = -12.34m,
+        long amountInCents = -1234,
         string currency = "EUR",
         string counterparty = "A shop",
         SplitRole splitRole = SplitRole.None,
@@ -18,7 +18,7 @@ public sealed class BookingTests
         => new(
             fingerprint,
             bookedOn ?? new DateTime(2026, 3, 14, 0, 0, 0, DateTimeKind.Unspecified),
-            amount,
+            amountInCents,
             currency,
             accountReference: "DE02120300000000202051",
             accountName: "Current account",
@@ -74,8 +74,8 @@ public sealed class BookingTests
         [Fact]
         public void Says_Yes_When_The_Fingerprints_Match_Although_The_Other_Fields_Differ()
         {
-            var stored = Create(counterparty: "UNKNOWN", amount: -12.34m);
-            var reimported = Create(counterparty: "A shop, enriched later", amount: -12.34m);
+            var stored = Create(counterparty: "UNKNOWN", amountInCents: -1234);
+            var reimported = Create(counterparty: "A shop, enriched later", amountInCents: -1234);
 
             Assert.True(stored.IsSameBookingAs(reimported));
         }

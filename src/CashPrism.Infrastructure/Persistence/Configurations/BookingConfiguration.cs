@@ -30,6 +30,7 @@ public sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.HasKey(booking => booking.Fingerprint);
 
         builder.Property(booking => booking.BookedOn);
+        builder.Property(booking => booking.AmountInCents);
         builder.Property(booking => booking.Currency);
         builder.Property(booking => booking.AccountReference);
         builder.Property(booking => booking.AccountName);
@@ -39,9 +40,6 @@ public sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(booking => booking.Category);
         builder.Property(booking => booking.SubCategory);
         builder.Property(booking => booking.IsTransfer);
-
-        builder.Property(booking => booking.Amount)
-            .HasConversion<MoneyConverter>();
 
         // Stored as its name, not its number: a database someone opens in a SQLite
         // browser should be readable, and the numeric values of the enum are not a

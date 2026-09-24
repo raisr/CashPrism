@@ -61,13 +61,12 @@ releases and the minor version is bumped for every notable change.
   placeholder numbers stay dense. Neither is a privacy safeguard — see
   [`docs/anonymiser.md`](docs/anonymiser.md) for what they do not protect
   against.
-
 - The application now keeps a database. On start it creates `./data/cashprism.db`
   if it is missing and brings it up to the schema the build expects, before the
   first page is served — so an update that changes the schema needs no migration
   step from the person running it. There is nothing in the database yet: the
-  import that fills it comes next. Amounts are stored as whole cents, which is
-  what makes sorting and totalling them reliable on SQLite.
+  import that fills it comes next. Amounts are held as whole cents, which is what
+  makes sorting and totalling them reliable.
 
 ### Changed
 

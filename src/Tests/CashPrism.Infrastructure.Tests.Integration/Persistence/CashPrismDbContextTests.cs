@@ -11,13 +11,13 @@ public sealed class CashPrismDbContextTests
 
     private static Booking CreateBooking(
         string fingerprint = AFingerprint,
-        decimal amount = -63.17m,
+        long amountInCents = -6317,
         SplitRole splitRole = SplitRole.None,
         string? originalFingerprint = null)
         => new(
             fingerprint,
             new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified),
-            amount,
+            amountInCents,
             currency: "EUR",
             accountReference: "DE02120300000000202051",
             accountName: "Girokonto",
@@ -58,7 +58,7 @@ public sealed class CashPrismDbContextTests
 
             Assert.Equal(written.Fingerprint, read.Fingerprint);
             Assert.Equal(written.BookedOn, read.BookedOn);
-            Assert.Equal(written.Amount, read.Amount);
+            Assert.Equal(written.AmountInCents, read.AmountInCents);
             Assert.Equal(written.Currency, read.Currency);
             Assert.Equal(written.AccountReference, read.AccountReference);
             Assert.Equal(written.AccountName, read.AccountName);
@@ -101,7 +101,7 @@ public sealed class CashPrismDbContextTests
             }
 
             await using var second = database.CreateContext();
-            second.Bookings.Add(CreateBooking(amount: -1m));
+            second.Bookings.Add(CreateBooking(amountInCents: -100));
 
             await Assert.ThrowsAsync<DbUpdateException>(() => second.SaveChangesAsync());
         }
@@ -131,62 +131,48 @@ public sealed class CashPrismDbContextTests
     public sealed class Amounts
     {
         [Theory]
-        [InlineData(-63.17)]
-        [InlineData(3240.00)]
+        [InlineData(-6317)]
+        [InlineData(324000)]
         [InlineData(0)]
-        [InlineData(-0.01)]
-        public async Task Survive_The_Round_Trip_To_The_Cent(decimal amount)
+        [InlineData(-1)]
+        public async Task Come_Back_As_The_Same_Number_Of_Cents(long amountInCents)
         {
             await using var database = await ThrowawayDatabase.CreateAsync();
 
             await using (var context = database.CreateContext())
             {
-                context.Bookings.Add(CreateBooking(amount: amount));
+                context.Bookings.Add(CreateBooking(amountInCents: amountInCents));
                 await context.SaveChangesAsync();
             }
 
             await using var reading = database.CreateContext();
             var read = await reading.Bookings.SingleAsync();
 
-            Assert.Equal(amount, read.Amount);
+            Assert.Equal(amountInCents, read.AmountInCents);
         }
 
         [Fact]
-        public async Task Are_Stored_As_Whole_Cents_So_Sorting_And_Summing_Work()
+        public async Task Sit_In_An_Integer_Column()
         {
             await using var database = await ThrowawayDatabase.CreateAsync();
 
             await using (var context = database.CreateContext())
             {
-                context.Bookings.Add(CreateBooking(amount: -63.17m));
+                context.Bookings.Add(CreateBooking(amountInCents: -6317));
                 await context.SaveChangesAsync();
             }
 
             await using var connection = database.CreateConnection();
             await connection.OpenAsync();
             await using var command = connection.CreateCommand();
-            command.CommandText = "SELECT typeof(Amount), Amount FROM Bookings";
+            command.CommandText = "SELECT typeof(AmountInCents), AmountInCents FROM Bookings";
             await using var reader = await command.ExecuteReaderAsync();
             await reader.ReadAsync();
 
+            // A fractional type would land here as TEXT, and text compares
+            // lexicographically — which is what the next test would catch.
             Assert.Equal("integer", reader.GetString(0));
             Assert.Equal(-6317, reader.GetInt64(1));
-        }
-
-        [Fact]
-        public async Task Are_Refused_Rather_Than_Rounded_When_They_Are_Finer_Than_A_Cent()
-        {
-            await using var database = await ThrowawayDatabase.CreateAsync();
-
-            await using var context = database.CreateContext();
-            context.Bookings.Add(CreateBooking(amount: -63.175m));
-
-            // EF wraps whatever the conversion throws, so the reason has to be read
-            // from the inner exception — which is the point of asserting it here: a
-            // third decimal place must not reach the database as a rounded value.
-            var failure = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-
-            Assert.Contains("more precision than cents", failure.InnerException?.Message);
         }
 
         [Fact]
@@ -196,18 +182,35 @@ public sealed class CashPrismDbContextTests
 
             await using (var context = database.CreateContext())
             {
-                context.Bookings.Add(CreateBooking(fingerprint: AFingerprint, amount: -9m));
-                context.Bookings.Add(CreateBooking(fingerprint: AnotherFingerprint, amount: -100m));
+                context.Bookings.Add(CreateBooking(fingerprint: AFingerprint, amountInCents: -900));
+                context.Bookings.Add(CreateBooking(fingerprint: AnotherFingerprint, amountInCents: -10000));
                 await context.SaveChangesAsync();
             }
 
             await using var reading = database.CreateContext();
             var amounts = await reading.Bookings
-                .OrderBy(booking => booking.Amount)
-                .Select(booking => booking.Amount)
+                .OrderBy(booking => booking.AmountInCents)
+                .Select(booking => booking.AmountInCents)
                 .ToListAsync();
 
-            Assert.Equal([-100m, -9m], amounts);
+            Assert.Equal([-10000L, -900L], amounts);
+        }
+
+        [Fact]
+        public async Task Add_Up_In_The_Database()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+
+            await using (var context = database.CreateContext())
+            {
+                context.Bookings.Add(CreateBooking(fingerprint: AFingerprint, amountInCents: -6317));
+                context.Bookings.Add(CreateBooking(fingerprint: AnotherFingerprint, amountInCents: 324000));
+                await context.SaveChangesAsync();
+            }
+
+            await using var reading = database.CreateContext();
+
+            Assert.Equal(317683L, await reading.Bookings.SumAsync(booking => booking.AmountInCents));
         }
     }
 

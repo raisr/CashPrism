@@ -17,7 +17,7 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                 {
                     Fingerprint = table.Column<string>(type: "TEXT", nullable: false),
                     BookedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Amount = table.Column<long>(type: "INTEGER", nullable: false),
+                    AmountInCents = table.Column<long>(type: "INTEGER", nullable: false),
                     Currency = table.Column<string>(type: "TEXT", nullable: false),
                     AccountReference = table.Column<string>(type: "TEXT", nullable: false),
                     AccountName = table.Column<string>(type: "TEXT", nullable: false),

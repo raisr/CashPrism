@@ -30,7 +30,7 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("Amount")
+                    b.Property<long>("AmountInCents")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("BookedOn")

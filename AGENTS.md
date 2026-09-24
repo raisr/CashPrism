@@ -54,11 +54,14 @@ The database lives on a local disk only, never on a network share. SQLite
 locking over SMB is unreliable. This is a decision, not an oversight — do not
 propose moving it.
 
-**Money is stored as whole cents in an integer column, never as `decimal`.**
-SQLite has no decimal type, so EF Core keeps a `decimal` as text, and text
-compares lexicographically: `ORDER BY` and `SUM` over an amount then return
-nonsense. The models keep `decimal`; the conversion belongs to the persistence
-configuration. An amount finer than a cent is refused rather than rounded.
+**Money is whole cents in a `long`, everywhere — model, database, use cases.**
+A fractional type buys nothing here and costs twice: SQLite has no decimal type,
+so EF Core keeps a `decimal` as text, and text compares lexicographically, which
+makes `ORDER BY` and `SUM` over an amount return nonsense. The unit belongs in the
+name (`AmountInCents`), because a bare `Amount` leaves every reader guessing.
+Formatting for a person is the only place the number is divided, and that belongs
+to the UI. The scale assumes a currency with two decimal places, which is what a
+FinanzGuru export carries.
 
 ## Architecture
 

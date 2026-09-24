@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CashPrism.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CashPrismDbContext))]
-    [Migration("20260923203050_InitialSchema")]
+    [Migration("20260924160305_InitialSchema")]
     partial class InitialSchema
     {
         /// <inheritdoc />
@@ -33,7 +33,7 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("Amount")
+                    b.Property<long>("AmountInCents")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("BookedOn")
