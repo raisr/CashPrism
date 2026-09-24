@@ -37,7 +37,13 @@ public sealed class Booking
     /// stores on some rows, so that dropping it stays a decision taken where
     /// bookings are compared rather than silently here.
     /// </param>
-    /// <param name="amount">The signed amount: negative for spending, positive for income.</param>
+    /// <param name="amountInCents">
+    /// The signed amount in whole cents: negative for spending, positive for income.
+    /// Cents rather than a fractional type because that is what money is — an amount
+    /// of the smallest unit the currency has — and because the number then survives
+    /// storage, sorting and totalling untouched. The unit is in the name so no reader
+    /// has to guess it.
+    /// </param>
     /// <param name="currency">The ISO 4217 code the amount is in. Required.</param>
     /// <param name="accountReference">
     /// The account the booking belongs to — an IBAN, or the handle a provider
@@ -72,7 +78,7 @@ public sealed class Booking
     public Booking(
         string fingerprint,
         DateTime bookedOn,
-        decimal amount,
+        long amountInCents,
         string currency,
         string accountReference,
         string accountName,
@@ -113,7 +119,7 @@ public sealed class Booking
 
         Fingerprint = fingerprint;
         BookedOn = bookedOn;
-        Amount = amount;
+        AmountInCents = amountInCents;
         Currency = currency;
         AccountReference = accountReference;
         AccountName = accountName;
@@ -133,8 +139,8 @@ public sealed class Booking
     /// <summary>The date the booking was posted, time component included where the export carries one.</summary>
     public DateTime BookedOn { get; }
 
-    /// <summary>The signed amount: negative for spending, positive for income.</summary>
-    public decimal Amount { get; }
+    /// <summary>The signed amount in whole cents: negative for spending, positive for income.</summary>
+    public long AmountInCents { get; }
 
     /// <summary>The ISO 4217 code the amount is in.</summary>
     public string Currency { get; }

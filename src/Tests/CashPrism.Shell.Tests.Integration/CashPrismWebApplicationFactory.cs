@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Program = CashPrism.Shell.Program;
@@ -35,7 +36,17 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
     {
         base.Dispose(disposing);
 
-        if (disposing && Directory.Exists(DataDirectory))
+        if (!disposing)
+        {
+            return;
+        }
+
+        // Disposing the host closes the contexts, but Microsoft.Data.Sqlite keeps
+        // the connection in a pool and the pool keeps the file handle. Without
+        // this the directory below cannot be deleted on Windows.
+        SqliteConnection.ClearAllPools();
+
+        if (Directory.Exists(DataDirectory))
         {
             Directory.Delete(DataDirectory, recursive: true);
         }
