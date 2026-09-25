@@ -1,5 +1,5 @@
-using CashPrism.Anonymiser.Tests.Integration.Fixtures;
 using CashPrism.Infrastructure.Finanzguru;
+using CashPrism.TestSupport.Xlsx;
 
 namespace CashPrism.Anonymiser.Tests.Integration;
 

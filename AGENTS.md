@@ -97,6 +97,24 @@ Consequences worth stating, because they are where it usually goes wrong:
   together itself, so a real FinanzGuru export stays recognisable as one. This
   is about the fidelity of the output, not about containing a dependency.
 
+## Test projects
+
+`dotnet.tests` names one project that carries no `.Unit`/`.Integration` suffix:
+`CashPrism.Architecture.Tests`, which asserts solution-wide rules. This
+repository has a second, and it is the only one:
+
+**`src/Tests/CashPrism.TestSupport` holds fixtures shared between test
+projects.** It contains no tests, is not a test project — no test SDK, no
+runner, so `dotnet test` skips it rather than failing on an assembly without
+tests — and no production project may reference it.
+`CashPrism.Architecture.Tests` fails the build otherwise.
+
+- **A fixture belongs there once at least two test projects use it, and not
+  before.** One user is not a shared fixture; it is a fixture that lives next to
+  its test. Moving it early costs every reader a project hop for nothing.
+- **Nothing else moves in with it.** A helper only one project needs stays in
+  that project, however tempting the shared home looks.
+
 ## Hosting
 
 CashPrism is shipped as one executable that a person double-clicks, so `Shell`
@@ -160,3 +178,4 @@ Every row was decided once and is recorded in `devkit.lock.json`, so
 | Rule | Deviation | Why |
 |---|---|---|
 | `core.language` | User-visible UI text is German: the values in `Strings.resx` are German, and so is what the application renders | FinanzGuru is sold in German-speaking markets only, so the UI's only audience reads German. Everything else stays English — keys, identifiers, comments, XML docs, tests, commits, tickets and this file |
+| `dotnet.tests` | A second project under `src/Tests/` carries no `.Unit`/`.Integration` suffix and belongs to no production project: `CashPrism.TestSupport`, described under [Test projects](#test-projects) | `XlsxTestWorkbook` builds a FinanzGuru-shaped workbook in code. The anonymiser's round-trip tests need it and the export reader's tests need the same thing, so the alternatives are a second copy or a binary fixture in the repository. The rule itself asks for a ticket arguing the case; that is issue #26 |

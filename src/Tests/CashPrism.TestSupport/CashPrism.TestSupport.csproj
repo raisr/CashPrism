@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!--
+    Deliberately not a test project: no Microsoft.NET.Test.Sdk, no runner, no
+    tests of its own. `dotnet test` therefore skips it instead of failing on an
+    assembly that contains none.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
+  </ItemGroup>
+
+</Project>

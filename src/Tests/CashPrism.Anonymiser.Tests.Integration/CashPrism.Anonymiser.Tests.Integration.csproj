@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
     <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
+    <ProjectReference Include="..\CashPrism.TestSupport\CashPrism.TestSupport.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using CashPrism.Infrastructure.Finanzguru;
 
-namespace CashPrism.Anonymiser.Tests.Integration.Fixtures;
+namespace CashPrism.TestSupport.Xlsx;
 
 /// <summary>
 /// Builds a minimal, hand-written <c>.xlsx</c> in memory: inline strings
@@ -13,10 +13,10 @@ namespace CashPrism.Anonymiser.Tests.Integration.Fixtures;
 /// <c>#,##0.00</c> on <see cref="FinanzguruColumns.Amount"/> and
 /// <see cref="FinanzguruColumns.Balance"/> — the same quirks
 /// <c>docs/finanzguru-export.md</c> records for a real export. No binary
-/// fixture enters the repository; every byte the round-trip test compares
-/// against is produced here, in code.
+/// fixture enters the repository; every byte a test reads is produced here, in
+/// code.
 /// </summary>
-internal static class XlsxTestWorkbook
+public static class XlsxTestWorkbook
 {
     private const string SpreadsheetNamespace = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
     private const string RelationshipsNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
