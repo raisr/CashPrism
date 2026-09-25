@@ -67,6 +67,15 @@ releases and the minor version is bumped for every notable change.
   step from the person running it. There is nothing in the database yet: the
   import that fills it comes next. Amounts are held as whole cents, which is what
   makes sorting and totalling them reliable.
+- The application now has an interface to hang pages on: a navigation drawer
+  with Übersicht, Buchungen and Import, a bar across the top naming the page you
+  are on, and a light and a dark appearance that follow the setting of the
+  machine you look at it from until you flip the switch in that bar. On a phone
+  the drawer folds away behind the menu button, so the same screens work in the
+  kitchen and at the desk. Nothing is fetched from the internet — no web font,
+  no CDN — so it looks the same on a machine with no connection at all. The
+  three pages are still empty; the import and the booking list fill them next.
+  See [`docs/ui.md`](docs/ui.md).
 
 ### Changed
 

@@ -1,43 +1,41 @@
-/* Deliberately minimal. Picking a styling approach is an M6 decision. */
+/* MudBlazor supplies the reset, the palette and the component styles. What is
+   left here is the handful of rules for the application's own shell — nothing
+   that a theme token could express instead. */
 
-:root {
-  color-scheme: light dark;
-  --border: color-mix(in srgb, currentColor 20%, transparent);
-  --muted: color-mix(in srgb, currentColor 60%, transparent);
+.app-bar-title {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
-}
-
-.app-header {
+.app-brand {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
 }
 
-.app-name {
-  font-size: 1.25rem;
-  font-weight: 600;
+.app-brand-version {
+  color: var(--mud-palette-text-secondary);
 }
 
-.app-version {
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.app-main {
+/* The layout hands the page an unpadded content area; this is where the padding
+   comes back for every page that wants the ordinary single-column frame. */
+.page-frame {
   padding: 1.5rem;
+  max-width: 1400px;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.875rem;
+.page-frame-head {
+  margin-bottom: 1.5rem;
+}
+
+/* Focus is moved here after navigating. It is a programmatic target, not
+   something the person tabbed to, so it gets no focus ring. */
+.page-frame-head h1:focus {
+  outline: none;
+}
+
+@media (max-width: 599px) {
+  .page-frame {
+    padding: 1rem;
+  }
 }

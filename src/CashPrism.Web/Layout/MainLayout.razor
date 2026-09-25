@@ -1,10 +1,88 @@
 @inherits LayoutComponentBase
+@implements IDisposable
+@inject IStringLocalizer<Strings> text
+@inject NavigationManager navigation
 
-<header class="app-header">
-  <span class="app-name">CashPrism</span>
-  <span class="app-version">@AppVersion.Current</span>
-</header>
+@* The document title is built here rather than in every page: the navigation
+   list already names each destination, so repeating it per page would give the
+   same route two labels that can drift apart. *@
+<PageTitle>@DocumentTitle</PageTitle>
 
-<main class="app-main">
-  @Body
-</main>
+<MudThemeProvider Theme="CashPrismTheme.Instance"
+                  @bind-IsDarkMode="isDarkMode"
+                  ObserveSystemDarkModeChange="@(!themeChosenByUser)" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+  @* The drawer is not clipped by the app bar, so it runs the full height and
+     carries the product name; the app bar beside it names the current page. *@
+  <MudAppBar Elevation="0" Color="Color.Surface" Class="border-b border-solid mud-border-lines-default">
+    <MudIconButton Icon="@Icons.Material.Outlined.Menu"
+                   Color="Color.Inherit"
+                   Edge="Edge.Start"
+                   aria-label="@text["NavigationToggle"]"
+                   OnClick="ToggleDrawer" />
+    <MudText Typo="Typo.subtitle2" Class="app-bar-title">@CurrentTitle</MudText>
+    <MudSpacer />
+    <MudIconButton Icon="@(isDarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode)"
+                   Color="Color.Inherit"
+                   aria-label="@text["ThemeToggle"]"
+                   OnClick="ToggleTheme" />
+  </MudAppBar>
+
+  <MudDrawer @bind-Open="drawerOpen"
+             Variant="DrawerVariant.Responsive"
+             Breakpoint="Breakpoint.Md"
+             Elevation="0"
+             Class="border-r border-solid mud-border-lines-default">
+    <MudDrawerHeader Class="app-brand">
+      <MudText Typo="Typo.h6" Class="app-brand-name">CashPrism</MudText>
+      <MudText Typo="Typo.caption" Class="app-brand-version">@AppVersion.Current</MudText>
+    </MudDrawerHeader>
+    <NavMenu />
+  </MudDrawer>
+
+  @* MudMainContent contributes only the offset that keeps content clear of the
+     fixed app bar — no padding of its own. A page frames itself, which leaves
+     room for one that wants a second column — a list of accounts beside the
+     content — without the layout having to change. *@
+  <MudMainContent Class="app-content">
+    @Body
+  </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool drawerOpen = true;
+    private bool isDarkMode;
+    private bool themeChosenByUser;
+
+    private NavigationItem? Current
+        => NavigationItems.Match(navigation.ToBaseRelativePath(navigation.Uri));
+
+    private string CurrentTitle => Current is { } item ? text[item.TitleKey] : string.Empty;
+
+    private string DocumentTitle => Current is { } item ? $"CashPrism — {text[item.TitleKey]}" : "CashPrism";
+
+    protected override void OnInitialized()
+        => navigation.LocationChanged += OnLocationChanged;
+
+    // The app bar reads the route, so it has to re-render when the route changes.
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+        => StateHasChanged();
+
+    private void ToggleDrawer() => drawerOpen = !drawerOpen;
+
+    private void ToggleTheme()
+    {
+        isDarkMode = !isDarkMode;
+
+        // From here on the person has said which theme they want, so the system
+        // preference stops overriding the choice for the rest of the session.
+        themeChosenByUser = true;
+    }
+
+    public void Dispose()
+        => navigation.LocationChanged -= OnLocationChanged;
+}

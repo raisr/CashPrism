@@ -88,6 +88,10 @@ Consequences worth stating, because they are where it usually goes wrong:
   only makes sense once the process is running belongs in `Shell`.
 - `Shell` contains no business logic and no UI. If something there gets
   interesting enough to test, it is in the wrong project.
+- The component library is a detail of `Web`. No other project references it —
+  not `Shell`, which starts the process without knowing how a page is drawn,
+  and nothing inside the onion. `CashPrism.Architecture.Tests` fails the build
+  otherwise.
 - `Anonymiser` is a development tool, not part of the shipped application. It
   never references ClosedXML — an `.xlsx` is a zip it takes apart and puts back
   together itself, so a real FinanzGuru export stays recognisable as one. This
@@ -127,6 +131,13 @@ is cheap now and expensive to retrofit.
 - **The resource file is neutral.** `Strings.resx` is what ships; there is no
   English sibling to keep in step. A second language is a new
   `Strings.<culture>.resx` and nothing else.
+- **The component library reads the same resource file.** MudBlazor ships its
+  own English text; a `MudLocalizer` feeds it from `Strings.resx` under
+  MudBlazor's own keys, which are written with an underscore
+  (`MudDataGrid_Filter`). A key the file does not carry **must** report itself
+  as not found, so MudBlazor falls back to its English default — a localiser
+  that answers for every key renders raw identifiers in the UI. Leaving a key
+  out is therefore a decision, not a defect; answering wrongly is a defect.
 - **The culture is set by the host, never inherited.** `Shell` pins `de-DE`, so
   an English Windows cannot format amounts and dates one way while the labels
   beside them read another. `Web` never reads it from configuration.

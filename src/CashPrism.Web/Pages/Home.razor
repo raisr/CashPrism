@@ -1,21 +1,21 @@
 @page "/"
 @inject IStringLocalizer<Strings> text
 
-@* "CashPrism" is a product name, not a translatable string, so it stays a
-   literal here and in the layout. Everything a reader could translate comes
-   from Strings.resx. *@
-<PageTitle>CashPrism</PageTitle>
+<PageFrame Title="@text["NavOverview"]" Lead="@text["OverviewLead"]">
+  <MudPaper Elevation="0" Outlined="true" Class="pa-6">
+    <MudText Typo="Typo.body1">@text["OverviewEmpty"]</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">@text["OverviewEmptyHint"]</MudText>
+  </MudPaper>
 
-<h1>CashPrism</h1>
-
-<p>
-  @text["RenderModeLabel"]: <span class="badge">@renderState</span>
-</p>
+  @* Server-rendered the badge reads the prerendered wording; once the SignalR
+     circuit is up the first interactive render flips it. That is the visible
+     proof that the wiring works end to end. *@
+  <MudText Typo="Typo.caption" Color="Color.Secondary" Class="d-block mt-4">
+    @text["RenderModeLabel"]: @renderState
+  </MudText>
+</PageFrame>
 
 @code {
-    // Server-rendered the badge reads the prerendered wording; once the SignalR
-    // circuit is up the first interactive render flips it. That is the visible
-    // proof that the wiring works end to end.
     private string? renderState;
 
     protected override void OnInitialized()

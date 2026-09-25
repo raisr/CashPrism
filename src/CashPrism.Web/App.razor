@@ -8,6 +8,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <base href="/" />
+  @* Both files come out of the MudBlazor package's static web assets and are
+     served by this application. MudBlazor's own getting-started page links
+     Roboto from fonts.googleapis.com instead; CashPrism does not, because
+     everything stays local and the machine may have no internet at all. The
+     font stack is set on the theme. *@
+  <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
   <link rel="stylesheet" href="_content/CashPrism.Web/app.css" />
   <HeadOutlet @rendermode="InteractiveServer" />
 </head>
@@ -15,6 +21,7 @@
 <body>
   <Routes @rendermode="InteractiveServer" />
   <script src="_framework/blazor.web.js"></script>
+  <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
 
 </html>
