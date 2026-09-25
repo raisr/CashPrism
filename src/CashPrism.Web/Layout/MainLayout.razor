@@ -24,7 +24,9 @@
                    Edge="Edge.Start"
                    aria-label="@text["NavigationToggle"]"
                    OnClick="ToggleDrawer" />
-    <MudText Typo="Typo.subtitle2" Class="app-bar-title">@CurrentTitle</MudText>
+    @* Small, muted and spaced out: this says where you are, the page's own
+       heading says what you are looking at. *@
+    <span class="app-bar-title">@CurrentTitle</span>
     <MudSpacer />
     <MudIconButton Icon="@(isDarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode)"
                    Color="Color.Inherit"
@@ -37,9 +39,11 @@
              Breakpoint="Breakpoint.Md"
              Elevation="0"
              Class="border-r border-solid mud-border-lines-default">
+    @* "CashPrism" is a product name, so it stays a literal. The second half
+       carries the accent — the prism is what splits the light. *@
     <MudDrawerHeader Class="app-brand">
-      <MudText Typo="Typo.h6" Class="app-brand-name">CashPrism</MudText>
-      <MudText Typo="Typo.caption" Class="app-brand-version">@AppVersion.Current</MudText>
+      <span class="app-brand-name">Cash<span class="app-brand-accent">Prism</span></span>
+      <span class="app-brand-version">@AppVersion.Current</span>
     </MudDrawerHeader>
     <NavMenu />
   </MudDrawer>

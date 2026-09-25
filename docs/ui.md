@@ -11,9 +11,20 @@ One layout, three regions:
 
 | Region | Holds |
 |---|---|
-| Drawer, left | The product name with its version, and the destinations |
-| App bar, top | The current page's name, the drawer toggle, the light/dark switch |
+| Drawer, left | The wordmark with its version, and the destinations |
+| App bar, top | A section label, the drawer toggle, the light/dark switch |
 | Content | Whatever the page renders — with no padding of its own |
+
+Two of those earn a sentence:
+
+- **The wordmark is two-tone**: `Cash` in the text colour, `Prism` in the
+  accent. It is the one place the product name appears, so it is also the one
+  place a mark is needed.
+- **The app bar says where you are, not what you are looking at.** It carries
+  the section in small, spaced, muted capitals; the page's own `h1` carries the
+  heading. They read as two different things because they are set as two
+  different things — a bar repeating the heading at heading size would look
+  like a mistake.
 
 The drawer is not clipped by the app bar: it runs the full height and carries
 the brand, and the app bar sits beside it. Below the `Md` breakpoint the drawer
@@ -51,9 +62,15 @@ Both palettes live in `Theme/CashPrismTheme.cs` and are held as one static
 instance — the theme is a constant of the product, and only the light/dark
 switch changes at runtime.
 
-- **The ground is tinted, the surfaces are white.** Cards read as raised without
-  a shadow, which is what keeps the dark palette legible: a shadow in dark mode
-  costs contrast and buys nothing.
+- **Separation comes from lines, not from tint or shadow.** The ground is barely
+  off-white, the surfaces are white, and one pixel of `#e3e5ea` sits between
+  them. That is what lets the dark palette be a straight inversion rather than a
+  second design: a shadow in dark mode costs contrast and buys nothing.
+- **The accent is `#3c4ba6`, and it appears as a surface exactly once** — behind
+  the active destination in the drawer. That tint is mixed from the palette in
+  the stylesheet (`--cp-accent-soft`, `color-mix` at 12 % over the surface)
+  rather than pinned per theme, so it follows light and dark without a second
+  definition.
 - **Money gets a colour, but the colour never carries the meaning.** The minus
   in front of the amount does that; green and red only reinforce it. Both
   palettes therefore pick a green and a red that stay distinguishable in
@@ -63,6 +80,11 @@ switch changes at runtime.
   request CashPrism must not make, because everything stays local and the
   machine may have no connection at all. Setting `Typography.Default` is enough:
   it is the only entry that carries a family of its own.
+- **Figures get a monospace stack of their own**, `--cp-font-mono` in the
+  stylesheet, for anything that has to line up in a column — amounts, dates, a
+  fingerprint. It lives in CSS rather than in the theme because `MudTheme` has
+  no slot for a second family and nothing in C# reads it. Today only the version
+  beside the wordmark uses it; the booking list is what it is there for.
 
 The switch in the app bar follows the operating system's setting until it is
 used; from then on the choice stands for the rest of the session. It is not

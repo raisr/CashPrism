@@ -34,16 +34,18 @@ public static class CashPrismTheme
 
     private static MudTheme Build() => new()
     {
+        // Light: near-white ground, white surfaces, and one pixel of line
+        // between them. Separation comes from the lines, not from a tint —
+        // which is what keeps the dark palette a straight inversion instead of
+        // a second design.
         PaletteLight = new PaletteLight
         {
-            Primary = "#3f5fd0",
+            Primary = "#3c4ba6",
             PrimaryContrastText = "#ffffff",
             Secondary = "#6b7180",
 
-            // The content sits on a tinted ground so white cards read as raised
-            // without a shadow; shadows cost contrast in dark mode.
-            Background = "#f3f5fa",
-            BackgroundGray = "#e9edf5",
+            Background = "#fbfbfc",
+            BackgroundGray = "#f4f5f8",
             Surface = "#ffffff",
             DrawerBackground = "#ffffff",
             DrawerText = "#16181d",
@@ -62,11 +64,12 @@ public static class CashPrismTheme
             LinesInputs = "#ccd1db",
 
             // Money: a credit is green, a debit red. Colour only reinforces the
-            // sign — the minus in front of the amount is what carries it.
+            // sign — the minus in front of the amount is what carries it, so
+            // both stay legible in greyscale.
             Success = "#1f6b4a",
             Error = "#9c3b2e",
             Warning = "#8a5a12",
-            Info = "#3f5fd0",
+            Info = "#3c4ba6",
         },
         PaletteDark = new PaletteDark
         {
@@ -75,7 +78,7 @@ public static class CashPrismTheme
             Secondary = "#9aa1b1",
 
             Background = "#101218",
-            BackgroundGray = "#0b0d12",
+            BackgroundGray = "#1e222b",
             Surface = "#171a21",
             DrawerBackground = "#171a21",
             DrawerText = "#e7e9ee",
@@ -104,11 +107,29 @@ public static class CashPrismTheme
             // entries inherit from it, so this one assignment removes Roboto
             // everywhere.
             Default = new DefaultTypography { FontFamily = SystemFontStack },
+
+            // A page heading sits just above the text it introduces rather than
+            // shouting over it: this is a screen full of figures, not an
+            // article.
+            H5 = new H5Typography
+            {
+                FontSize = "1.25rem",
+                FontWeight = "600",
+                LineHeight = "1.3",
+                LetterSpacing = "-0.01em",
+            },
+            H6 = new H6Typography
+            {
+                FontSize = "1rem",
+                FontWeight = "600",
+                LineHeight = "1.4",
+                LetterSpacing = "-0.01em",
+            },
         },
         LayoutProperties = new LayoutProperties
         {
-            DefaultBorderRadius = "8px",
-            DrawerWidthLeft = "240px",
+            DefaultBorderRadius = "6px",
+            AppbarHeight = "56px",
         },
     };
 }
