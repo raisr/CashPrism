@@ -1,43 +1,101 @@
-/* Deliberately minimal. Picking a styling approach is an M6 decision. */
+/* MudBlazor supplies the reset, the palette and the component styles. What is
+   left here is the handful of rules for the application's own shell, plus the
+   two tokens the theme has no slot for. */
 
 :root {
-  color-scheme: light dark;
-  --border: color-mix(in srgb, currentColor 20%, transparent);
-  --muted: color-mix(in srgb, currentColor 60%, transparent);
+  /* Figures that have to line up in a column — amounts, dates, a fingerprint.
+     Every family here is already on the machine, for the same reason the sans
+     stack is a system one: nothing is fetched from the internet. */
+  --cp-font-mono: ui-monospace, "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+
+  /* The accent at reading strength, for a surface rather than a letterform.
+     Mixed from the palette instead of pinned, so it follows the light and the
+     dark theme without a second definition. */
+  --cp-accent-soft: color-mix(in srgb, var(--mud-palette-primary) 12%, var(--mud-palette-surface));
 }
 
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
-}
+/* ---------- the brand ---------- */
 
-.app-header {
+.app-brand {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  gap: 0.5rem;
 }
 
-.app-name {
-  font-size: 1.25rem;
+.app-brand-name {
+  font-size: 1.125rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--mud-palette-text-primary);
+}
+
+/* The prism is what splits the light, so it is the half that carries colour. */
+.app-brand-accent {
+  color: var(--mud-palette-primary);
+}
+
+.app-brand-version {
+  font-family: var(--cp-font-mono);
+  font-size: 0.6875rem;
+  color: var(--mud-palette-text-secondary);
+}
+
+/* ---------- the app bar ---------- */
+
+/* Says where you are, not what you are looking at — the page's own heading
+   does that. Small and spaced out so the two do not compete. */
+.app-bar-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mud-palette-text-secondary);
+}
+
+/* ---------- the drawer ---------- */
+
+.app-nav .mud-nav-link {
+  padding-block: 0.4375rem;
+  font-size: 0.875rem;
+}
+
+/* The active destination is a tinted pill, not a grey one: it is the only
+   place in the shell where the accent appears as a surface. The selector
+   carries the extra class because MudBlazor's own rule is this specific — it
+   is matched, not beaten with !important. */
+.mud-navmenu.app-nav .mud-nav-link.active:not(.mud-nav-link-disabled) {
+  background-color: var(--cp-accent-soft);
   font-weight: 600;
 }
 
-.app-version {
-  color: var(--muted);
-  font-size: 0.875rem;
+.mud-navmenu.app-nav .mud-nav-link.active:not(.mud-nav-link-disabled) .mud-icon-root {
+  color: var(--mud-palette-primary);
 }
 
-.app-main {
+/* ---------- the page frame ---------- */
+
+/* The layout hands the page an unpadded content area; this is where the padding
+   comes back for every page that wants the ordinary single-column frame. */
+.page-frame {
   padding: 1.5rem;
+  max-width: 1400px;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-size: 0.875rem;
+.page-frame-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Focus is moved here after navigating. It is a programmatic target, not
+   something the person tabbed to, so it gets no focus ring. */
+.page-frame-head h1:focus {
+  outline: none;
+}
+
+@media (max-width: 599px) {
+  .page-frame {
+    padding: 1rem;
+  }
 }

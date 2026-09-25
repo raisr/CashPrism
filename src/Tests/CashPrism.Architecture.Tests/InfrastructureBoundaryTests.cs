@@ -11,19 +11,8 @@ public sealed class InfrastructureBoundaryTests
 {
     private static readonly string[] CompositionRoots = ["CashPrism.Shell", "CashPrism.Anonymiser"];
 
-    private static readonly string[] AllProjectAssemblyNames =
-    [
-        "CashPrism.Domain",
-        "CashPrism.Application",
-        "CashPrism.Infrastructure",
-        "CashPrism.Infrastructure.Finanzguru",
-        "CashPrism.Web",
-        "CashPrism.Shell",
-        "CashPrism.Anonymiser",
-    ];
-
     public static IEnumerable<object[]> NonCompositionRoots()
-        => AllProjectAssemblyNames.Except(CompositionRoots).Select(name => new object[] { name });
+        => ProjectAssemblies.AllExcept(CompositionRoots);
 
     [Theory]
     [MemberData(nameof(NonCompositionRoots))]

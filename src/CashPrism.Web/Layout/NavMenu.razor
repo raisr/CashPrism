@@ -1,0 +1,14 @@
+@inject IStringLocalizer<Strings> text
+
+@* The drawer's destinations. The list comes from NavigationItems so the label
+   here and the one in the app bar can never disagree. *@
+<MudNavMenu Rounded="true" Class="app-nav">
+  @foreach (var item in NavigationItems.All)
+  {
+    <MudNavLink Href="@item.Href"
+                Icon="@item.Icon"
+                Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+      @text[item.TitleKey]
+    </MudNavLink>
+  }
+</MudNavMenu>

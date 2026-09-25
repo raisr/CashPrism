@@ -1,0 +1,31 @@
+@* The frame every page sits in: the padding, the heading and the lead line.
+   It lives here rather than in each page so a page that wants the raw content
+   area — a list beside a detail pane, say — simply does not use it. *@
+
+<div class="page-frame">
+  <header class="page-frame-head">
+    @* Routes.razor moves focus to the h1 after navigating, so the heading has
+       to be a real h1 and not just look like one. *@
+    <MudText Typo="Typo.h5" HtmlTag="h1" tabindex="-1">@Title</MudText>
+    @if (!string.IsNullOrWhiteSpace(Lead))
+    {
+      <MudText Typo="Typo.body2" Color="Color.Secondary">@Lead</MudText>
+    }
+  </header>
+
+  @ChildContent
+</div>
+
+@code {
+    /// <summary>The page's heading, already localised.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>One line under the heading saying what the page is for.</summary>
+    [Parameter]
+    public string? Lead { get; set; }
+
+    /// <summary>The page's content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

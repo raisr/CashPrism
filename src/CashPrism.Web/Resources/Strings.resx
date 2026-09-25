@@ -75,4 +75,121 @@
     <value>Interaktiv</value>
     <comment>The marker's value once the browser's connection to the server is up.</comment>
   </data>
+  <data name="NavOverview" xml:space="preserve">
+    <value>Übersicht</value>
+    <comment>Drawer label and page heading of the start page.</comment>
+  </data>
+  <data name="NavBookings" xml:space="preserve">
+    <value>Buchungen</value>
+    <comment>Drawer label and page heading of the booking list.</comment>
+  </data>
+  <data name="NavImport" xml:space="preserve">
+    <value>Import</value>
+    <comment>Drawer label and page heading of the upload page.</comment>
+  </data>
+  <data name="NavigationToggle" xml:space="preserve">
+    <value>Navigation ein- oder ausblenden</value>
+    <comment>Accessible name of the button that opens and closes the drawer.</comment>
+  </data>
+  <data name="ThemeToggle" xml:space="preserve">
+    <value>Zwischen hellem und dunklem Design wechseln</value>
+    <comment>Accessible name of the light/dark switch in the app bar.</comment>
+  </data>
+  <data name="OverviewLead" xml:space="preserve">
+    <value>Was zuletzt importiert wurde und was die Daten hergeben.</value>
+    <comment>One line under the heading of the start page.</comment>
+  </data>
+  <data name="OverviewEmpty" xml:space="preserve">
+    <value>Noch nichts importiert.</value>
+    <comment>Shown on the start page while the database holds no bookings.</comment>
+  </data>
+  <data name="OverviewEmptyHint" xml:space="preserve">
+    <value>Lade einen FinanzGuru-Export hoch, um anzufangen.</value>
+    <comment>Second line under OverviewEmpty, pointing at the upload page.</comment>
+  </data>
+  <data name="BookingsLead" xml:space="preserve">
+    <value>Alle Buchungen aus den importierten Exporten.</value>
+    <comment>One line under the heading of the booking list.</comment>
+  </data>
+  <data name="BookingsEmpty" xml:space="preserve">
+    <value>Es gibt noch keine Buchungen.</value>
+    <comment>Shown on the booking list while the database holds no bookings.</comment>
+  </data>
+  <data name="ImportLead" xml:space="preserve">
+    <value>FinanzGuru-Export einlesen.</value>
+    <comment>One line under the heading of the upload page.</comment>
+  </data>
+  <data name="ImportEmpty" xml:space="preserve">
+    <value>Der Upload ist noch nicht gebaut.</value>
+    <comment>Placeholder on the upload page until the upload itself exists.</comment>
+  </data>
+  <!--
+    From here on: MudBlazor's own strings. The keys are MudBlazor's, written
+    with an underscore, and ResourceMudLocalizer feeds them from this file.
+    Anything left out keeps MudBlazor's English default rather than rendering
+    the key, so this list may stay as short as the components in use.
+  -->
+  <data name="MudDataGrid_Clear" xml:space="preserve">
+    <value>Zurücksetzen</value>
+  </data>
+  <data name="MudDataGrid_Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="MudDataGrid_Loading" xml:space="preserve">
+    <value>Wird geladen …</value>
+  </data>
+  <data name="MudDataGrid_Sort" xml:space="preserve">
+    <value>Sortieren</value>
+  </data>
+  <data name="MudDataGrid_Unsort" xml:space="preserve">
+    <value>Sortierung aufheben</value>
+  </data>
+  <data name="MudDataGridPager_AllItems" xml:space="preserve">
+    <value>Alle</value>
+  </data>
+  <data name="MudDataGridPager_FirstPage" xml:space="preserve">
+    <value>Erste Seite</value>
+  </data>
+  <data name="MudDataGridPager_InfoFormat" xml:space="preserve">
+    <value>{0}–{1} von {2}</value>
+  </data>
+  <data name="MudDataGridPager_LastPage" xml:space="preserve">
+    <value>Letzte Seite</value>
+  </data>
+  <data name="MudDataGridPager_NextPage" xml:space="preserve">
+    <value>Nächste Seite</value>
+  </data>
+  <data name="MudDataGridPager_PreviousPage" xml:space="preserve">
+    <value>Vorherige Seite</value>
+  </data>
+  <data name="MudDataGridPager_RowsPerPage" xml:space="preserve">
+    <value>Zeilen pro Seite:</value>
+  </data>
+  <data name="MudDialog_Close" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="MudFileUpload_Button" xml:space="preserve">
+    <value>Datei auswählen</value>
+  </data>
+  <data name="MudFileUpload_DragAndDrop" xml:space="preserve">
+    <value>Datei hierher ziehen oder klicken, um sie auszuwählen</value>
+  </data>
+  <data name="MudInput_Clear" xml:space="preserve">
+    <value>Leeren</value>
+  </data>
+  <data name="MudTable_Loading" xml:space="preserve">
+    <value>Wird geladen …</value>
+  </data>
+  <data name="MudTablePager_FirstPage" xml:space="preserve">
+    <value>Erste Seite</value>
+  </data>
+  <data name="MudTablePager_LastPage" xml:space="preserve">
+    <value>Letzte Seite</value>
+  </data>
+  <data name="MudTablePager_NextPage" xml:space="preserve">
+    <value>Nächste Seite</value>
+  </data>
+  <data name="MudTablePager_PreviousPage" xml:space="preserve">
+    <value>Vorherige Seite</value>
+  </data>
 </root>

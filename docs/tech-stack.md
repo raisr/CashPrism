@@ -9,6 +9,7 @@ on a local disk only, no DDD — are binding and live in
 |---|---|---|
 | Runtime | .NET 10 (LTS) | Long-term support, and the only runtime the project targets. Set once in `src/Directory.Build.props` |
 | UI | Blazor Web App, render mode `InteractiveServer` | One language for server and browser. The state lives on the hosting machine, so the phone in the kitchen renders the same session without a separate API |
+| UI components | MudBlazor | Layout, navigation, theming and the data components a booking list needs, without writing them. It targets `net10.0` and depends on nothing but `Microsoft.AspNetCore.Components`, `.Web` and `Microsoft.Extensions.Localization`. Its own English strings are fed from `Strings.resx`, and its default Roboto is replaced by a system font stack so no page asks an external host for anything — see [ui.md](ui.md) |
 | Web server | Kestrel, built in | Already part of ASP.NET Core. A reverse proxy would be one more thing to install on a home machine for no gain |
 | Database | SQLite via EF Core, `./data/cashprism.db` | A single file next to the executable, no server to run. EF Core because the migrations run on startup. Amounts are whole cents in a `long`, all the way through — SQLite has no decimal type, and a decimal kept as text sorts and sums wrongly |
 | Excel | ClosedXML | Reads `.xlsx` without Excel installed. It stays inside `CashPrism.Infrastructure.Finanzguru` so nothing else depends on it |
@@ -25,9 +26,12 @@ source tree today:
 - ClosedXML is referenced; EF Core with SQLite is in place — the database, its
   three tables and the startup migration all exist, and nothing writes to them
   yet
-- The start page reads its text from `Strings.resx` and the process runs as
-  `de-DE`; MudBlazor's own strings are not localised yet, because MudBlazor is
-  not referenced yet
+- The interface has its shell: a navigation drawer, an app bar, two themes, and
+  the three routes the navigation reaches — all still empty of data. See
+  [ui.md](ui.md)
+- Every string the UI renders comes from `Strings.resx` and the process runs as
+  `de-DE`, MudBlazor's own strings included; anything left out of the resource
+  file keeps MudBlazor's English
 - Authentication is not built yet
 - Delivery is still "run it from the source tree" — see
   [hosting.md](hosting.md) for the ways to start it

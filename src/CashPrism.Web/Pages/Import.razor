@@ -1,0 +1,10 @@
+@page "/import"
+@inject IStringLocalizer<Strings> text
+
+@* The upload itself is not part of the baseline — this route exists so the
+   navigation has somewhere to go. *@
+<PageFrame Title="@text["NavImport"]" Lead="@text["ImportLead"]">
+  <MudPaper Elevation="0" Outlined="true" Class="pa-6">
+    <MudText Typo="Typo.body1">@text["ImportEmpty"]</MudText>
+  </MudPaper>
+</PageFrame>

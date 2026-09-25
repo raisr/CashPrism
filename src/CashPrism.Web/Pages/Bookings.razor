@@ -1,0 +1,10 @@
+@page "/bookings"
+@inject IStringLocalizer<Strings> text
+
+@* The list itself is not part of the baseline — this route exists so the
+   navigation has somewhere to go and the layout can be judged at both widths. *@
+<PageFrame Title="@text["NavBookings"]" Lead="@text["BookingsLead"]">
+  <MudPaper Elevation="0" Outlined="true" Class="pa-6">
+    <MudText Typo="Typo.body1">@text["BookingsEmpty"]</MudText>
+  </MudPaper>
+</PageFrame>

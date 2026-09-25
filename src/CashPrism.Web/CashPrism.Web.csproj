@@ -5,6 +5,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Pinned to the exact version: the component library decides how every
+         screen looks, so an unattended minor bump is a visual change nobody
+         reviewed. -->
+    <PackageReference Include="MudBlazor" Version="[9.9.0]" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CashPrism.Application\CashPrism.Application.csproj" />
     <ProjectReference Include="..\CashPrism.Domain\CashPrism.Domain.csproj" />
   </ItemGroup>
