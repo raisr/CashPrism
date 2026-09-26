@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
     <ProjectReference Include="..\..\CashPrism.Web\CashPrism.Web.csproj" />
     <ProjectReference Include="..\..\CashPrism.Shell\CashPrism.Shell.csproj" />
+    <ProjectReference Include="..\CashPrism.TestSupport\CashPrism.TestSupport.csproj" />
   </ItemGroup>
 
 </Project>

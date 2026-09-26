@@ -37,7 +37,7 @@ concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader and the import source against a workbook built in code — no binary fixture in the repository |
 | `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, and that amounts are stored as cents |
-| `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included |
+| `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included, and the import through the objects the host actually wires |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
 | `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository |
 
@@ -45,7 +45,8 @@ concrete infrastructure to a use case.
 project: it holds fixtures that more than one test project needs, contains no
 tests of its own, and carries neither the test SDK nor a runner, so `dotnet
 test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
-FinanzGuru-shaped `.xlsx` in memory. No production project may reference it, and
+FinanzGuru-shaped `.xlsx` in memory, and `FinanzguruTestRow`, which fills one
+data row of it. No production project may reference it, and
 `CashPrism.Architecture.Tests` fails the build if one does. When a fixture
 belongs there is a rule rather than a description, and it is in
 [`../AGENTS.md`](../AGENTS.md#test-projects).

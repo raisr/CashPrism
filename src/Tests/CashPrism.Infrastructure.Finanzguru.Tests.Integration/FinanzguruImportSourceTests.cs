@@ -19,32 +19,10 @@ public sealed class FinanzguruImportSourceTests
         return await new FinanzguruImportSource().ReadAsync(stream, ARunId);
     }
 
-    /// <summary>
-    /// A data row carrying a value in every column the projection reads, so a
-    /// test only states the value it is actually about.
-    /// </summary>
     private static Dictionary<string, string> Row(
-        string bookingId = "0f4c3a1b2d5e6f708192a3b4c5d6e7f809a1b2c3",
-        string amount = "-63.17",
-        string isInternalTransfer = "nein",
-        string splitType = "",
-        string originalReferenceId = "")
-        => new(StringComparer.Ordinal)
-        {
-            [FinanzguruColumns.BookingDate] = "12.03.2026",
-            [FinanzguruColumns.Amount] = amount,
-            [FinanzguruColumns.Balance] = "3240.00",
-            [FinanzguruColumns.Currency] = "EUR",
-            [FinanzguruColumns.AccountReference] = "DE02120300000000202051",
-            [FinanzguruColumns.AccountName] = "Girokonto",
-            [FinanzguruColumns.Counterparty] = "Supermarkt",
-            [FinanzguruColumns.MainCategory] = "Lebensmittel",
-            [FinanzguruColumns.SubCategory] = "Supermarkt",
-            [FinanzguruColumns.IsInternalTransfer] = isInternalTransfer,
-            [FinanzguruColumns.SplitType] = splitType,
-            [FinanzguruColumns.OriginalReferenceId] = originalReferenceId,
-            [FinanzguruColumns.BookingId] = bookingId,
-        };
+        string bookingId = FinanzguruTestRow.AFingerprint,
+        string isInternalTransfer = FinanzguruFlag.No)
+        => FinanzguruTestRow.Create(bookingId, isInternalTransfer: isInternalTransfer);
 
     public sealed class ReadAsync
     {
