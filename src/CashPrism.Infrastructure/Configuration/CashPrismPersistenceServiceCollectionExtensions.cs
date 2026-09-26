@@ -1,5 +1,8 @@
+using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
+using CashPrism.Application.Time;
 using CashPrism.Infrastructure.Persistence;
+using CashPrism.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,6 +35,8 @@ public static class CashPrismPersistenceServiceCollectionExtensions
             options.UseSqlite($"Data Source={databaseFilePath}"));
 
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
+        services.AddScoped<IImportStore, ImportStore>();
+        services.AddSingleton<IClock, SystemClock>();
 
         return services;
     }
