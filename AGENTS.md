@@ -76,10 +76,16 @@ repository, and this is where it is written down: a second external source
 becomes a new `CashPrism.Infrastructure.<Name>` project next to the existing
 one, not a change to the existing parser.
 
-`Shell` and `Anonymiser` are the only two projects allowed to reference an
-Infrastructure project — both are composition roots.
-`CashPrism.Architecture.Tests` fails the build if a project outside that set
-takes such a dependency.
+`Shell` and `Anonymiser` are the only two **production** projects allowed to
+reference an Infrastructure project — both are composition roots.
+`CashPrism.Architecture.Tests` fails the build if a production project outside
+that set takes such a dependency.
+
+**The rule does not bind test projects.** A test project may reference whatever
+it has to in order to assert something, an Infrastructure project included: it
+wires nothing for a use case to run on, it checks what the wiring does. That is
+how a test covering the seam between two Infrastructure projects is written at
+all, and `ProjectAssemblies` therefore lists only the production assemblies.
 
 Consequences worth stating, because they are where it usually goes wrong:
 

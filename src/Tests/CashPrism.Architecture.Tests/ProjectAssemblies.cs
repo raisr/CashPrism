@@ -1,10 +1,16 @@
 namespace CashPrism.Architecture.Tests;
 
 /// <summary>
-/// The assemblies the solution's own projects build into. Several rules here
-/// read "every project except …", so the list is kept in one place rather than
-/// restated per rule.
+/// The assemblies the solution's <b>production</b> projects build into. Several
+/// rules here read "every project except …", so the list is kept in one place
+/// rather than restated per rule.
 /// </summary>
+/// <remarks>
+/// Test projects are deliberately absent, and their absence is the rule rather
+/// than an omission: a test may reference whatever it has to in order to assert
+/// something, an Infrastructure project included, because it wires nothing for a
+/// use case to run on. See <c>Agents.md</c>.
+/// </remarks>
 internal static class ProjectAssemblies
 {
     /// <summary>Every project assembly, in dependency order.</summary>
