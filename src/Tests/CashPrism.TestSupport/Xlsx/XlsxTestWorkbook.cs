@@ -23,7 +23,21 @@ public static class XlsxTestWorkbook
     private const string DocumentRelationshipsNamespace =
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
-    private static readonly DateOnly ExcelEpoch = new(1899, 12, 30);
+    /// <summary>
+    /// The worksheet name a built workbook carries unless a test asks for
+    /// another. Shaped like a real export's, so the export date reads back.
+    /// </summary>
+    public const string DefaultSheetName = "20260907_Export_Alle_Buchungen";
+
+    /// <summary>
+    /// The shape a <see cref="FinanzguruColumns.BookingDate"/> value may take to
+    /// ask for a time component. A plain <c>dd.MM.yyyy</c> writes a whole-day
+    /// serial; this one writes a fractional serial, which is what the PayPal
+    /// rows of a real export carry.
+    /// </summary>
+    public const string DateTimeValueFormat = "dd.MM.yyyy HH:mm:ss";
+
+    private static readonly DateTime ExcelEpoch = new(1899, 12, 30, 0, 0, 0, DateTimeKind.Unspecified);
     private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
 
     /// <summary>
@@ -34,13 +48,27 @@ public static class XlsxTestWorkbook
     /// entirely, matching how FinanzGuru itself leaves a booking's unused
     /// columns blank.
     /// </summary>
+    /// <param name="headerNames">The header row, one entry per column, in sheet order.</param>
+    /// <param name="dataRows">The data rows, each mapping a header name to its text value.</param>
+    /// <param name="useSharedStrings">
+    /// Whether to put strings in <c>sharedStrings.xml</c> instead of inline.
+    /// A real export stores them inline, so the default matches it; the shared
+    /// variant exists to prove a reader copes with both.
+    /// </param>
+    /// <param name="sheetName">
+    /// The worksheet name. A real export shapes it
+    /// <c>YYYYMMDD_Export_Alle_Buchungen</c> and the export date is read back
+    /// out of it, so a test that cares about that date sets this.
+    /// </param>
     public static byte[] Build(
         IReadOnlyList<string> headerNames,
         IReadOnlyList<IReadOnlyDictionary<string, string>> dataRows,
-        bool useSharedStrings = false)
+        bool useSharedStrings = false,
+        string sheetName = DefaultSheetName)
     {
         ArgumentNullException.ThrowIfNull(headerNames);
         ArgumentNullException.ThrowIfNull(dataRows);
+        ArgumentNullException.ThrowIfNull(sheetName);
 
         var sharedStrings = new List<string>();
         var worksheetXml = BuildWorksheetXml(headerNames, dataRows, useSharedStrings, sharedStrings);
@@ -51,7 +79,7 @@ public static class XlsxTestWorkbook
         {
             WriteEntry(archive, "[Content_Types].xml", ContentTypesXml);
             WriteEntry(archive, "_rels/.rels", PackageRelationshipsXml);
-            WriteEntry(archive, "xl/workbook.xml", WorkbookXml);
+            WriteEntry(archive, "xl/workbook.xml", BuildWorkbookXml(sheetName));
             WriteEntry(archive, "xl/_rels/workbook.xml.rels", WorkbookRelationshipsXml);
             WriteEntry(archive, "xl/styles.xml", StylesXml);
             WriteEntry(archive, "xl/sharedStrings.xml", BuildSharedStringsXml(sharedStrings));
@@ -94,13 +122,19 @@ public static class XlsxTestWorkbook
                     continue;
                 }
 
-                if (headerNames[column] == FinanzguruColumns.BookingDate)
+                // A value the typed column cannot hold falls through to a text
+                // cell rather than throwing. That is what a real export looks
+                // like when it goes wrong, and a reader has to be testable
+                // against it.
+                if (headerNames[column] == FinanzguruColumns.BookingDate
+                    && TryToDateTime(value, out var moment))
                 {
-                    AppendDateCell(builder, column, rowNumber, value);
+                    AppendDateCell(builder, column, rowNumber, moment);
                 }
-                else if (headerNames[column] is FinanzguruColumns.Amount or FinanzguruColumns.Balance)
+                else if (headerNames[column] is FinanzguruColumns.Amount or FinanzguruColumns.Balance
+                    && decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var money))
                 {
-                    AppendMoneyCell(builder, column, rowNumber, value);
+                    AppendMoneyCell(builder, column, rowNumber, money);
                 }
                 else
                 {
@@ -144,21 +178,47 @@ public static class XlsxTestWorkbook
         }
     }
 
-    private static void AppendDateCell(StringBuilder builder, int columnIndex, int rowNumber, string value)
+    private static void AppendDateCell(StringBuilder builder, int columnIndex, int rowNumber, DateTime value)
     {
         var reference = $"{ColumnLetters(columnIndex)}{rowNumber}";
-        var date = DateOnly.ParseExact(value, "dd.MM.yyyy");
-        var serial = date.DayNumber - ExcelEpoch.DayNumber;
+        var serial = (value - ExcelEpoch).TotalDays;
 
-        builder.Append($"<c r=\"{reference}\" s=\"1\"><v>{serial}</v></c>");
+        // A whole day is written without a fractional part, the way a real
+        // export writes all but its PayPal rows.
+        var text = serial == Math.Floor(serial)
+            ? ((long)serial).ToString(CultureInfo.InvariantCulture)
+            : serial.ToString("R", CultureInfo.InvariantCulture);
+
+        builder.Append($"<c r=\"{reference}\" s=\"1\"><v>{text}</v></c>");
     }
 
-    private static void AppendMoneyCell(StringBuilder builder, int columnIndex, int rowNumber, string value)
+    private static bool TryToDateTime(string value, out DateTime moment)
+    {
+        if (DateTime.TryParseExact(
+                value,
+                DateTimeValueFormat,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out moment))
+        {
+            return true;
+        }
+
+        if (DateOnly.TryParseExact(value, "dd.MM.yyyy", out var date))
+        {
+            moment = date.ToDateTime(TimeOnly.MinValue);
+            return true;
+        }
+
+        moment = default;
+        return false;
+    }
+
+    private static void AppendMoneyCell(StringBuilder builder, int columnIndex, int rowNumber, decimal value)
     {
         var reference = $"{ColumnLetters(columnIndex)}{rowNumber}";
-        var amount = decimal.Parse(value, CultureInfo.InvariantCulture);
 
-        builder.Append($"<c r=\"{reference}\" s=\"2\"><v>{amount.ToString("0.00", CultureInfo.InvariantCulture)}</v></c>");
+        builder.Append($"<c r=\"{reference}\" s=\"2\"><v>{value.ToString("0.00", CultureInfo.InvariantCulture)}</v></c>");
     }
 
     private static string BuildSharedStringsXml(IReadOnlyList<string> sharedStrings)
@@ -224,10 +284,10 @@ public static class XlsxTestWorkbook
         + $"<Relationship Id=\"rId1\" Type=\"{DocumentRelationshipsNamespace}/officeDocument\" Target=\"xl/workbook.xml\"/>"
         + "</Relationships>";
 
-    private static string WorkbookXml =>
+    private static string BuildWorkbookXml(string sheetName) =>
         $"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + $"<workbook xmlns=\"{SpreadsheetNamespace}\" xmlns:r=\"{DocumentRelationshipsNamespace}\">"
-        + "<sheets><sheet name=\"20260907_Export_Alle_Buchungen\" sheetId=\"1\" r:id=\"rId1\"/></sheets>"
+        + $"<sheets><sheet name=\"{XmlEscape(sheetName)}\" sheetId=\"1\" r:id=\"rId1\"/></sheets>"
         + "</workbook>";
 
     private static string WorkbookRelationshipsXml =>
