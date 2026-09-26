@@ -67,6 +67,11 @@ public sealed class Booking
     /// The fingerprint of the booking this one is a part of, or <c>null</c> when
     /// it is not a part.
     /// </param>
+    /// <param name="sourceImportRunId">
+    /// The run whose export this state of the booking came from. It is what makes
+    /// a re-import able to tell whether the file in front of it is older than what
+    /// is already stored — see <see cref="Imports.ImportRun.IsLaterThan"/>.
+    /// </param>
     /// <exception cref="ArgumentException">
     /// A required value is missing, or <paramref name="splitRole"/> says the
     /// booking is a part while <paramref name="originalFingerprint"/> does not
@@ -89,7 +94,8 @@ public sealed class Booking
         string subCategory,
         bool isTransfer,
         SplitRole splitRole,
-        string? originalFingerprint)
+        string? originalFingerprint,
+        Guid sourceImportRunId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fingerprint);
         ArgumentException.ThrowIfNullOrWhiteSpace(currency);
@@ -100,6 +106,13 @@ public sealed class Booking
         ArgumentNullException.ThrowIfNull(paymentReference);
         ArgumentNullException.ThrowIfNull(category);
         ArgumentNullException.ThrowIfNull(subCategory);
+
+        if (sourceImportRunId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "A booking needs the import run its state came from.",
+                nameof(sourceImportRunId));
+        }
 
         if (!Enum.IsDefined(splitRole))
         {
@@ -131,6 +144,7 @@ public sealed class Booking
         IsTransfer = isTransfer;
         SplitRole = splitRole;
         OriginalFingerprint = originalFingerprint;
+        SourceImportRunId = sourceImportRunId;
     }
 
     /// <summary>The FinanzGuru <c>Buchungs-ID</c>: the identity of the booking.</summary>
@@ -174,6 +188,9 @@ public sealed class Booking
 
     /// <summary>The fingerprint of the booking this one is a part of, or <c>null</c>.</summary>
     public string? OriginalFingerprint { get; }
+
+    /// <summary>The run whose export this state of the booking came from.</summary>
+    public Guid SourceImportRunId { get; }
 
     /// <summary>
     /// Whether the booking is a part of a split booking, and its amount therefore

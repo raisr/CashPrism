@@ -9,11 +9,14 @@ public sealed class CashPrismDbContextTests
     private const string AFingerprint = "0f4c3a1b2d5e6f708192a3b4c5d6e7f809a1b2c3";
     private const string AnotherFingerprint = "1a2b3c4d5e6f708192a3b4c5d6e7f809a1b2c3d4";
 
+    private static readonly Guid ARunId = Guid.Parse("8f3b1c2d-4e5f-4a6b-8c9d-0e1f2a3b4c5d");
+
     private static Booking CreateBooking(
         string fingerprint = AFingerprint,
         long amountInCents = -6317,
         SplitRole splitRole = SplitRole.None,
-        string? originalFingerprint = null)
+        string? originalFingerprint = null,
+        Guid? sourceImportRunId = null)
         => new(
             fingerprint,
             new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified),
@@ -28,7 +31,8 @@ public sealed class CashPrismDbContextTests
             subCategory: "Supermarkt",
             isTransfer: false,
             splitRole,
-            originalFingerprint);
+            originalFingerprint,
+            sourceImportRunId ?? ARunId);
 
     private static ImportRun CreateRun(Guid id, DateOnly? exportedOn = null)
         => new(
@@ -70,6 +74,30 @@ public sealed class CashPrismDbContextTests
             Assert.Equal(written.IsTransfer, read.IsTransfer);
             Assert.Equal(written.SplitRole, read.SplitRole);
             Assert.Equal(written.OriginalFingerprint, read.OriginalFingerprint);
+            Assert.Equal(written.SourceImportRunId, read.SourceImportRunId);
+        }
+
+        [Fact]
+        public async Task Survive_The_Deletion_Of_The_Import_Run_They_Came_From()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+
+            await using (var context = database.CreateContext())
+            {
+                context.ImportRuns.Add(CreateRun(ARunId));
+                context.Bookings.Add(CreateBooking());
+                await context.SaveChangesAsync();
+            }
+
+            await using (var deleting = database.CreateContext())
+            {
+                deleting.ImportRuns.Remove(await deleting.ImportRuns.SingleAsync());
+                await deleting.SaveChangesAsync();
+            }
+
+            await using var reading = database.CreateContext();
+
+            Assert.Equal(ARunId, (await reading.Bookings.SingleAsync()).SourceImportRunId);
         }
 
         [Fact]
@@ -233,6 +261,45 @@ public sealed class CashPrismDbContextTests
 
             Assert.Null(read.ExportedOn);
             Assert.Equal(id, read.Id);
+        }
+
+        [Fact]
+        public async Task Keep_The_Counts_The_Run_Was_Completed_With()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+
+            await using (var context = database.CreateContext())
+            {
+                var run = CreateRun(ARunId);
+                run.Complete(rowsRead: 6324, bookingsInserted: 12, bookingsUpdated: 3, bookingsUnchanged: 6309);
+                context.ImportRuns.Add(run);
+                await context.SaveChangesAsync();
+            }
+
+            await using var reading = database.CreateContext();
+            var read = await reading.ImportRuns.SingleAsync();
+
+            Assert.True(read.IsComplete);
+            Assert.Equal(6324, read.RowsRead);
+            Assert.Equal(12, read.BookingsInserted);
+            Assert.Equal(3, read.BookingsUpdated);
+            Assert.Equal(6309, read.BookingsUnchanged);
+        }
+
+        [Fact]
+        public async Task Come_Back_Incomplete_When_The_Run_Never_Finished()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+
+            await using (var context = database.CreateContext())
+            {
+                context.ImportRuns.Add(CreateRun(ARunId));
+                await context.SaveChangesAsync();
+            }
+
+            await using var reading = database.CreateContext();
+
+            Assert.False((await reading.ImportRuns.SingleAsync()).IsComplete);
         }
 
         [Fact]

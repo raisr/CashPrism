@@ -7,6 +7,8 @@ public sealed class BookingTests
     private const string AFingerprint = "0f4c3a1b2d5e6f708192a3b4c5d6e7f809a1b2c3";
     private const string AnotherFingerprint = "1a2b3c4d5e6f708192a3b4c5d6e7f809a1b2c3d4";
 
+    private static readonly Guid AnImportRunId = Guid.Parse("8f3b1c2d-4e5f-4a6b-8c9d-0e1f2a3b4c5d");
+
     private static Booking Create(
         string fingerprint = AFingerprint,
         DateTime? bookedOn = null,
@@ -14,7 +16,8 @@ public sealed class BookingTests
         string currency = "EUR",
         string counterparty = "A shop",
         SplitRole splitRole = SplitRole.None,
-        string? originalFingerprint = null)
+        string? originalFingerprint = null,
+        Guid? sourceImportRunId = null)
         => new(
             fingerprint,
             bookedOn ?? new DateTime(2026, 3, 14, 0, 0, 0, DateTimeKind.Unspecified),
@@ -29,7 +32,8 @@ public sealed class BookingTests
             subCategory: "Supermarket",
             isTransfer: false,
             splitRole,
-            originalFingerprint);
+            originalFingerprint,
+            sourceImportRunId ?? AnImportRunId);
 
     public sealed class Constructor
     {
@@ -57,6 +61,10 @@ public sealed class BookingTests
 
             Assert.Equal(SplitRole.Original, booking.SplitRole);
         }
+
+        [Fact]
+        public void Refuses_A_Booking_That_Does_Not_Say_Which_Import_It_Came_From()
+            => Assert.Throws<ArgumentException>(() => Create(sourceImportRunId: Guid.Empty));
 
         [Fact]
         public void Keeps_The_Time_Component_The_Export_Carries_On_Some_Rows()

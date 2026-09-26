@@ -5,8 +5,15 @@ namespace CashPrism.Domain.Imports;
 /// re-import can tell which of two states of the same booking is the later one.
 /// </summary>
 /// <remarks>
+/// <para>
 /// The file itself is not kept — about 1.2 MB per export that buys nothing once
 /// the rows are stored. The hash is, so the same file can be recognised.
+/// </para>
+/// <para>
+/// The run is created before its rows are processed, because they reference it,
+/// and its counts are therefore not known yet. <see cref="Complete"/> fills them
+/// in once, at the end — see the remarks there.
+/// </para>
 /// </remarks>
 public sealed class ImportRun
 {
@@ -68,6 +75,57 @@ public sealed class ImportRun
 
     /// <summary>When this run processed the file.</summary>
     public DateTimeOffset ImportedAt { get; }
+
+    /// <summary>How many data rows the export carried. Zero until <see cref="Complete"/> ran.</summary>
+    public int RowsRead { get; private set; }
+
+    /// <summary>How many bookings this run stored for the first time.</summary>
+    public int BookingsInserted { get; private set; }
+
+    /// <summary>How many known bookings this run replaced with a later state.</summary>
+    public int BookingsUpdated { get; private set; }
+
+    /// <summary>How many rows said nothing the stored booking did not already say.</summary>
+    public int BookingsUnchanged { get; private set; }
+
+    /// <summary>Whether <see cref="Complete"/> has run and the counts are final.</summary>
+    public bool IsComplete { get; private set; }
+
+    /// <summary>
+    /// Records what the run did. Called once, after the last row was processed.
+    /// </summary>
+    /// <remarks>
+    /// The counts cannot be passed to the constructor: a raw row references the run
+    /// it came from, so the run has to exist before the first row is stored, and at
+    /// that point nothing is counted yet. The counts sum to no asserted total on
+    /// purpose — a row that is neither inserted, updated nor unchanged is a case
+    /// this model does not know about yet, and an invariant here would only have to
+    /// be relaxed when it turns up.
+    /// </remarks>
+    /// <param name="rowsRead">How many data rows the export carried.</param>
+    /// <param name="bookingsInserted">How many bookings were stored for the first time.</param>
+    /// <param name="bookingsUpdated">How many known bookings were replaced.</param>
+    /// <param name="bookingsUnchanged">How many rows changed nothing.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A count is negative.</exception>
+    /// <exception cref="InvalidOperationException">The run was already completed.</exception>
+    public void Complete(int rowsRead, int bookingsInserted, int bookingsUpdated, int bookingsUnchanged)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(rowsRead);
+        ArgumentOutOfRangeException.ThrowIfNegative(bookingsInserted);
+        ArgumentOutOfRangeException.ThrowIfNegative(bookingsUpdated);
+        ArgumentOutOfRangeException.ThrowIfNegative(bookingsUnchanged);
+
+        if (IsComplete)
+        {
+            throw new InvalidOperationException($"Import run {Id} was already completed.");
+        }
+
+        RowsRead = rowsRead;
+        BookingsInserted = bookingsInserted;
+        BookingsUpdated = bookingsUpdated;
+        BookingsUnchanged = bookingsUnchanged;
+        IsComplete = true;
+    }
 
     /// <summary>
     /// Whether this run carries a later state of a booking than

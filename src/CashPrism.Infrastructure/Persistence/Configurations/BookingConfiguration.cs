@@ -52,6 +52,19 @@ public sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         // a row the export legitimately contains.
         builder.Property(booking => booking.OriginalFingerprint);
 
+        // The run this state of the booking came from, so a re-import can compare
+        // the file in front of it with what is stored. Indexed because the list of
+        // an import's bookings is read by it.
+        //
+        // Deliberately no foreign key to that run, for the same kind of reason as
+        // above: a booking is a projection that has to outlive the run it last came
+        // from. A cascade would delete bookings along with an import run, and a
+        // restrict would refuse to delete the run at all — the column records
+        // where the state came from, not who owns it.
+        builder.Property(booking => booking.SourceImportRunId);
+
+        builder.HasIndex(booking => booking.SourceImportRunId);
+
         builder.Ignore(booking => booking.IsSplitPart);
     }
 }
