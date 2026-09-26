@@ -281,3 +281,42 @@ than rounding away.
 Measured against both real exports, the reader reads every row, finds no unknown
 column, converts every amount without a single failure, and finds the time
 component on exactly the 52 rows this document counts.
+
+### What the import does
+
+`Importer`, in `CashPrism.Application`, is what turns a read file into stored
+data. It never sees a German column name: `FinanzguruImportSource` reads the
+file, projects each row onto a `Booking` and renders the row as the JSON a raw
+row holds, and hands both on.
+
+- **The projection keeps 14 of the 29 columns.** The four `Analyse-` period
+  columns reproduce from `Buchungstag` and are dropped; the rest stays in the
+  raw row for the day it is needed. `Split-Typ` is translated from `Original` /
+  `Teilbuchung` / `Restbetrag` into a role, as strictly as `FinanzguruFlag`
+  translates the yes/no columns, and an empty cell is the ordinary case rather
+  than an error.
+- **The raw JSON is rendered deterministically** — the export's own column order
+  first, unknown columns after it, no indentation. The stored text is compared
+  byte for byte to decide whether a booking changed, so a serialiser that
+  reordered its keys would make every unchanged row look changed and store the
+  whole export again on every import.
+- **Three outcomes, none of them an exception.** The file is imported; or its
+  hash matches an earlier run and it is reported as already imported, having
+  written nothing; or it could not be read and every reason is named at once.
+  A file that repeats a `Buchungs-ID` is refused as well — it was distinct in
+  every one of 6,324 measured rows, so a repeat breaks the assumption identity
+  rests on.
+- **A stored booking is replaced only by a later export.** Which of two runs is
+  later is decided by the export date from the sheet name, falling back to the
+  import time where a name carried none. An older file changes nothing, and its
+  rows are not kept either — a raw row is the fallback for what the stored
+  projection leaves out, and a row describing a state that is not stored is not
+  that.
+- **The work is cut into batches of 1,000 bookings.** Each batch looks up only
+  the stored states it needs and lets go of them again, because an export always
+  carries the owner's complete history and that history only grows. The change
+  tracker never holds a whole file, which is where an ORM stops being quick.
+
+What an import did is recorded on the run itself: the file name, its hash, the
+sheet name, the export date, and how many rows were read, inserted, updated and
+left alone.
