@@ -33,6 +33,7 @@
     { "path": ".devkit/forge.sh", "from": "forges/github/forge.sh", "mode": "managed", "hash": "2df800d5946c9355908d60de2459741aeff741f0" }
   ],
   "deviations": [
-    { "slug": "core.language", "against": "85fe0f9", "decided": "2026-09-23", "note": "User-visible UI text is German; keys, identifiers, comments, docs, tests and commits stay English. Recorded in the Deviations table of AGENTS.md." }
+    { "slug": "core.language", "against": "85fe0f9", "decided": "2026-09-23", "note": "User-visible UI text is German; keys, identifiers, comments, docs, tests and commits stay English. Recorded in the Deviations table of AGENTS.md." },
+    { "slug": "dotnet.tests", "against": "85fe0f9", "decided": "2026-09-25", "note": "CashPrism.TestSupport is a second project without a .Unit/.Integration suffix that belongs to no production project. It holds fixtures used by at least two test projects and contains no tests. Recorded in the Deviations table of AGENTS.md." }
   ]
 }

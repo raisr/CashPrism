@@ -1,9 +1,9 @@
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 using CashPrism.Anonymiser.Anonymisation;
-using CashPrism.Anonymiser.Tests.Integration.Fixtures;
 using CashPrism.Anonymiser.Xlsx;
 using CashPrism.Infrastructure.Finanzguru;
+using CashPrism.TestSupport.Xlsx;
 
 namespace CashPrism.Anonymiser.Tests.Integration.Xlsx;
 
