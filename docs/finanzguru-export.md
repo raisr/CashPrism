@@ -249,3 +249,35 @@ property of this export rather than of a booking, so the models keep plain
 booleans and never see the words. Defaulting would be the expensive kind of
 wrong — `Analyse-Umbuchung` alone decides for 916 of 6,327 rows whether they
 count as income and spending at all.
+
+`FinanzguruAmount` does the same job for the two money columns. They are
+ordinary numeric cells and only the format makes them read as money, so
+something has to turn the number into the whole cents CashPrism holds money in;
+the conversion goes through `decimal`, because the nearest `double` to an amount
+like 1234.56 times 100 lands just beside the whole cent. It is strict for the
+same reason `FinanzguruFlag` is: both measured exports carry exactly two decimal
+places everywhere, and a third one is a change worth being told about rather
+than rounding away.
+
+### What the reader does
+
+`FinanzguruExportReader` puts those pieces together:
+
+- **The worksheet is taken by position.** The name changes with every export, so
+  it cannot select anything — but it is parsed, by `FinanzguruSheetName`, because
+  it is the only place the export says when it was taken. A name that does not
+  match `YYYYMMDD_Export_Alle_Buchungen` is reported rather than guessed at: the
+  date decides which version of a booking wins on a re-import, and guessing would
+  let a stale export overwrite a newer booking.
+- **Three columns come out typed**, because handing them on as text would mean
+  taking a decision and hiding it: `Buchungstag` as a `DateTime` with the time
+  component kept, `Betrag` and `Kontostand` as whole cents.
+- **Everything else comes out as text**, invariant and lossless, which is what a
+  stored raw row is built from. The three typed columns appear there too, so the
+  record of what the row said stays complete.
+- **Reading only.** No deduplication, no persistence, no booking. What a row
+  means is the import's decision.
+
+Measured against both real exports, the reader reads every row, finds no unknown
+column, converts every amount without a single failure, and finds the time
+component on exactly the 52 rows this document counts.

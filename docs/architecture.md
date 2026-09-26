@@ -34,6 +34,7 @@ concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which |
 | `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
+| `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader against a workbook built in code — no binary fixture in the repository |
 | `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema against a throwaway SQLite file: round trips, keys, cascade, and that amounts are stored as cents |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
@@ -64,6 +65,7 @@ src/
     CashPrism.Architecture.Tests/
     CashPrism.Domain.Tests.Unit/
     CashPrism.Infrastructure.Finanzguru.Tests.Unit/
+    CashPrism.Infrastructure.Finanzguru.Tests.Integration/
     CashPrism.Infrastructure.Tests.Integration/
     CashPrism.Shell.Tests.Integration/
     CashPrism.Anonymiser.Tests.Unit/
