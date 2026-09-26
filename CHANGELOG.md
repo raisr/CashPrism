@@ -77,6 +77,18 @@ releases and the minor version is bumped for every notable change.
   three pages are still empty; the import and the booking list fill them next.
   See [`docs/ui.md`](docs/ui.md).
 
+- A FinanzGuru export can now be imported. Handing CashPrism a file stores the
+  bookings it describes and records what the import did: how many rows were
+  read, how many bookings were new, how many were replaced by a newer state and
+  how many said nothing that was not already known. Uploading the same file
+  twice is not an error — it is recognised by its content and reported as
+  already imported, having changed nothing. Because FinanzGuru enriches a
+  booking after the fact, a later export replaces what is stored, while an
+  older one cannot undo a newer one. Only rows that are new or changed are
+  kept, so importing daily does not grow the database with copies of what it
+  already holds. There is no page to upload a file on yet; that comes next. See
+  [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
+
 ### Changed
 
 - The user interface is now German. FinanzGuru is only available in

@@ -25,6 +25,11 @@ public sealed class ImportRunConfiguration : IEntityTypeConfiguration<ImportRun>
         builder.Property(run => run.SheetName);
         builder.Property(run => run.ExportedOn);
         builder.Property(run => run.ImportedAt);
+        builder.Property(run => run.RowsRead);
+        builder.Property(run => run.BookingsInserted);
+        builder.Property(run => run.BookingsUpdated);
+        builder.Property(run => run.BookingsUnchanged);
+        builder.Property(run => run.IsComplete);
 
         // The hash exists to recognise a file that has been imported before, so it
         // is indexed. Not unique: importing the same file twice is something a

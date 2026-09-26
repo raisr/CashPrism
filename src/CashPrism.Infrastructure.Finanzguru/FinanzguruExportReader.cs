@@ -116,7 +116,7 @@ public sealed class FinanzguruExportReader
         }
 
         return FinanzguruExportReadResult.Success(
-            new FinanzguruExport(exportedOn, rows, columnMap.UnknownColumns));
+            new FinanzguruExport(worksheet.Name, exportedOn, rows, columnMap.UnknownColumns));
     }
 
     private static FinanzguruColumnMapResult? ResolveColumns(

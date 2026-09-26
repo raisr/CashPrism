@@ -38,6 +38,51 @@ public sealed class ImportRunTests
         }
     }
 
+    public sealed class Complete
+    {
+        [Fact]
+        public void Leaves_The_Counts_At_Zero_Until_It_Ran()
+        {
+            var run = Create(exportedOn: null);
+
+            Assert.False(run.IsComplete);
+            Assert.Equal(0, run.RowsRead);
+        }
+
+        [Fact]
+        public void Records_What_The_Run_Did()
+        {
+            var run = Create(exportedOn: null);
+
+            run.Complete(rowsRead: 6324, bookingsInserted: 12, bookingsUpdated: 3, bookingsUnchanged: 6309);
+
+            Assert.True(run.IsComplete);
+            Assert.Equal(6324, run.RowsRead);
+            Assert.Equal(12, run.BookingsInserted);
+            Assert.Equal(3, run.BookingsUpdated);
+            Assert.Equal(6309, run.BookingsUnchanged);
+        }
+
+        [Fact]
+        public void Refuses_A_Negative_Count()
+        {
+            var run = Create(exportedOn: null);
+
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => run.Complete(rowsRead: 1, bookingsInserted: -1, bookingsUpdated: 0, bookingsUnchanged: 0));
+        }
+
+        [Fact]
+        public void Refuses_To_Run_Twice()
+        {
+            var run = Create(exportedOn: null);
+            run.Complete(rowsRead: 1, bookingsInserted: 1, bookingsUpdated: 0, bookingsUnchanged: 0);
+
+            Assert.Throws<InvalidOperationException>(
+                () => run.Complete(rowsRead: 2, bookingsInserted: 2, bookingsUpdated: 0, bookingsUnchanged: 0));
+        }
+    }
+
     public sealed class IsLaterThan
     {
         [Fact]

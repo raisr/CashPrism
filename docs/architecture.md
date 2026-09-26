@@ -17,8 +17,8 @@ centre.
 |---|---|---|
 | `src/CashPrism.Domain` | Models and business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
 | `src/CashPrism.Application` | Use cases, orchestration, DTOs, **interfaces** for anything external | Domain |
-| `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, repositories, file system, clock | Application, Domain |
-| `src/CashPrism.Infrastructure.Finanzguru` | ClosedXML parser for the FinanzGuru xlsx. Keeps the ClosedXML dependency out of everything else | Application, Domain |
+| `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, the import store, migrations, clock | Application, Domain |
+| `src/CashPrism.Infrastructure.Finanzguru` | Reads the FinanzGuru xlsx with ClosedXML and projects its rows onto bookings. Keeps both the ClosedXML dependency and the German column names out of everything else | Application, Domain |
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
 | `src/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real FinanzGuru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
@@ -32,10 +32,11 @@ concrete infrastructure to a use case.
 | Project | Covers |
 |---|---|
 | `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which |
+| `src/Tests/CashPrism.Application.Tests.Unit` | The use cases against test doubles: what an import inserts, updates, leaves alone and refuses |
 | `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
-| `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader against a workbook built in code — no binary fixture in the repository |
-| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema against a throwaway SQLite file: round trips, keys, cascade, and that amounts are stored as cents |
+| `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader and the import source against a workbook built in code — no binary fixture in the repository |
+| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, and that amounts are stored as cents |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
 | `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository |
@@ -63,6 +64,7 @@ src/
   CashPrism.Anonymiser/
   Tests/
     CashPrism.Architecture.Tests/
+    CashPrism.Application.Tests.Unit/
     CashPrism.Domain.Tests.Unit/
     CashPrism.Infrastructure.Finanzguru.Tests.Unit/
     CashPrism.Infrastructure.Finanzguru.Tests.Integration/

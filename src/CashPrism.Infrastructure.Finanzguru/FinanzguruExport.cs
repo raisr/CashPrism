@@ -4,6 +4,11 @@ namespace CashPrism.Infrastructure.Finanzguru;
 /// A FinanzGuru export that was read successfully: when it was taken, what it
 /// said, and which columns this version of CashPrism does not know about.
 /// </summary>
+/// <param name="SheetName">
+/// The worksheet's name, verbatim. Kept alongside the date read out of it,
+/// because what is stored about an import is what the file said, not what we
+/// managed to parse from it.
+/// </param>
 /// <param name="ExportedOn">
 /// The date the export was taken, read from the worksheet name. It decides which
 /// version of a booking wins on a re-import.
@@ -15,6 +20,7 @@ namespace CashPrism.Infrastructure.Finanzguru;
 /// what the column means is the caller's decision, not this reader's.
 /// </param>
 public sealed record FinanzguruExport(
+    string SheetName,
     DateOnly ExportedOn,
     IReadOnlyList<FinanzguruExportRow> Rows,
     IReadOnlyList<string> UnknownColumns);

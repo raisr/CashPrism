@@ -1,6 +1,8 @@
 using System.Globalization;
+using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
 using CashPrism.Infrastructure.Configuration;
+using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.Shell.Hosting;
 using CashPrism.Web.Configuration;
 using Microsoft.AspNetCore.Connections;
@@ -70,6 +72,13 @@ public sealed class Program
 
         builder.Services.AddCashPrismWeb();
         builder.Services.AddCashPrismPersistence(Path.Combine(dataDirectory, DatabaseFileName));
+
+        // Which external format an import reads is a decision of the composition
+        // root, so it is wired here rather than behind an extension method in the
+        // reader's own project — that would cost it a dependency on the container
+        // to save two lines. A second source replaces the first of these two.
+        builder.Services.AddScoped<IImportSource, FinanzguruImportSource>();
+        builder.Services.AddScoped<Importer>();
 
         var app = builder.Build();
 
