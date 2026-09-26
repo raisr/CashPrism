@@ -1,10 +1,149 @@
 @page "/import"
+@using CashPrism.Application.Imports
+@using CashPrism.Web.Imports
+@using Microsoft.Extensions.Logging
 @inject IStringLocalizer<Strings> text
+@inject Importer importer
+@inject ILogger<Import> log
 
-@* The upload itself is not part of the baseline — this route exists so the
-   navigation has somewhere to go. *@
 <PageFrame Title="@text["NavImport"]" Lead="@text["ImportLead"]">
   <MudPaper Elevation="0" Outlined="true" Class="pa-6">
-    <MudText Typo="Typo.body1">@text["ImportEmpty"]</MudText>
+    <MudStack Spacing="4">
+      @* MudBlazor's own MaxFileSize is deliberately not set: it rejects the file
+         with a validation message of its own, in English, and the page would
+         then have no chance to say what the limit is. The size is checked in
+         OnFilePickedAsync instead. *@
+      @* d-inline-block: the upload renders its content in a block that would
+         otherwise stretch the button across the whole card. *@
+      <MudFileUpload T="IBrowserFile"
+                     FilesChanged="OnFilePickedAsync"
+                     Accept=".xlsx"
+                     Disabled="@running"
+                     Class="d-inline-block">
+        <CustomContent Context="picker">
+          <MudButton Variant="Variant.Filled"
+                     Color="Color.Primary"
+                     StartIcon="@Icons.Material.Filled.UploadFile"
+                     Disabled="@running"
+                     OnClick="@(() => picker.OpenFilePickerAsync())">
+            @text["ImportPick"]
+          </MudButton>
+        </CustomContent>
+      </MudFileUpload>
+
+      <MudText Typo="Typo.body2" Color="Color.Secondary">@text["ImportHint"]</MudText>
+
+      @if (running)
+      {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+          <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+          <MudText Typo="Typo.body2">@text["ImportRunning"]</MudText>
+        </MudStack>
+      }
+      else if (message is not null)
+      {
+        <MudAlert Severity="@ToMudSeverity(message.Severity)" Variant="Variant.Outlined" Dense="true">
+          <MudText Typo="Typo.body1">@message.Headline</MudText>
+          @if (message.Details.Count > 0)
+          {
+            <ul class="import-details">
+              @foreach (var detail in message.Details)
+              {
+                <li>@detail</li>
+              }
+            </ul>
+          }
+        </MudAlert>
+      }
+    </MudStack>
   </MudPaper>
 </PageFrame>
+
+@code {
+    private bool running;
+    private ImportFeedbackMessage? message;
+
+    private async Task OnFilePickedAsync(IBrowserFile? file)
+    {
+        // Guards the double click the component itself does not: the picker
+        // stays clickable for the moment between the file arriving and the
+        // first render that disables it.
+        if (file is null || running)
+        {
+            return;
+        }
+
+        if (file.Size > ImportFeedback.MaxUploadBytes)
+        {
+            message = ImportFeedback.TooLarge(file.Size, text);
+
+            return;
+        }
+
+        running = true;
+        message = null;
+
+        try
+        {
+            message = await ImportAsync(file);
+        }
+        finally
+        {
+            running = false;
+        }
+    }
+
+    private async Task<ImportFeedbackMessage> ImportAsync(IBrowserFile file)
+    {
+        using var buffer = new MemoryStream();
+
+        try
+        {
+            await using var upload = file.OpenReadStream(ImportFeedback.MaxUploadBytes);
+
+            // Buffered rather than handed on: the import hashes the file before
+            // reading it as a spreadsheet, and the stream a browser upload
+            // arrives on cannot rewind.
+            await upload.CopyToAsync(buffer);
+        }
+        catch (IOException exception)
+        {
+            // The connection dropped mid-upload, or the browser sent more than
+            // it announced. Neither is something the person can act on beyond
+            // trying again, so it is one line rather than a stack trace.
+            log.LogWarning(exception, "Reading the uploaded file failed");
+
+            return ImportFeedback.Unreadable(text);
+        }
+
+        buffer.Position = 0;
+
+        // Task.Run, deliberately, and not the pattern AGENTS.dotnet.md rules
+        // out: this is not synchronous work dressed up as asynchronous. Reading
+        // a workbook is CPU-bound and ClosedXML offers nothing asynchronous, so
+        // on Blazor Server it would occupy the circuit's thread for the whole
+        // import — about 1.4 s for the measured export (issue #23) — and the
+        // page would take no input at all while the spinner turned.
+        var result = await Task.Run(() => importer.ImportAsync(buffer, file.Name));
+
+        if (result.Outcome is ImportOutcome.Failed)
+        {
+            // The page cannot show these — they are English, and this UI is
+            // German (issue #55). The console the application already runs in
+            // is where they go until they can be translated.
+            log.LogWarning(
+                "Import of {FileName} was refused: {Reasons}",
+                file.Name,
+                string.Join(" | ", result.Errors));
+        }
+
+        return ImportFeedback.Describe(result, text);
+    }
+
+    private static Severity ToMudSeverity(ImportFeedbackSeverity severity) => severity switch
+    {
+        ImportFeedbackSeverity.Success => Severity.Success,
+        ImportFeedbackSeverity.Info => Severity.Info,
+        _ => Severity.Error,
+    };
+}

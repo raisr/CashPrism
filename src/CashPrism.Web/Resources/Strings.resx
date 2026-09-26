@@ -119,9 +119,57 @@
     <value>FinanzGuru-Export einlesen.</value>
     <comment>One line under the heading of the upload page.</comment>
   </data>
-  <data name="ImportEmpty" xml:space="preserve">
-    <value>Der Upload ist noch nicht gebaut.</value>
-    <comment>Placeholder on the upload page until the upload itself exists.</comment>
+  <data name="ImportPick" xml:space="preserve">
+    <value>Export auswählen</value>
+    <comment>Label of the button that opens the file picker on the upload page.</comment>
+  </data>
+  <data name="ImportHint" xml:space="preserve">
+    <value>Eine .xlsx-Datei aus FinanzGuru, Export „Alle Buchungen“.</value>
+    <comment>One line under the file picker saying which file is expected.</comment>
+  </data>
+  <data name="ImportRunning" xml:space="preserve">
+    <value>Import läuft …</value>
+    <comment>Shown while the file is being read and stored.</comment>
+  </data>
+  <data name="ImportSucceeded" xml:space="preserve">
+    <value>Import abgeschlossen.</value>
+    <comment>Headline after a file was read and its rows applied.</comment>
+  </data>
+  <data name="ImportAlreadyImported" xml:space="preserve">
+    <value>Diese Datei wurde bereits importiert – es hat sich nichts geändert.</value>
+    <comment>Headline when the file hash matches an earlier run. Not an error.</comment>
+  </data>
+  <data name="ImportFailed" xml:space="preserve">
+    <value>Die Datei wurde nicht importiert.</value>
+    <comment>Headline when the file could not be read. The reasons follow as details.</comment>
+  </data>
+  <data name="ImportUnreadable" xml:space="preserve">
+    <value>Die Datei konnte nicht gelesen werden.</value>
+    <comment>Headline when reading the upload itself failed, before the import ran.</comment>
+  </data>
+  <data name="ImportTooLarge" xml:space="preserve">
+    <value>Die Datei ist {0} MB groß. Mehr als {1} MB werden nicht eingelesen.</value>
+    <comment>{0} is the file's size in MB, {1} the limit in MB.</comment>
+  </data>
+  <data name="ImportCountRowsRead" xml:space="preserve">
+    <value>{0} Zeilen gelesen</value>
+    <comment>{0} is the number of data rows the file carried.</comment>
+  </data>
+  <data name="ImportCountInserted" xml:space="preserve">
+    <value>{0} Buchungen neu</value>
+    <comment>{0} is the number of bookings stored for the first time.</comment>
+  </data>
+  <data name="ImportCountUpdated" xml:space="preserve">
+    <value>{0} Buchungen aktualisiert</value>
+    <comment>{0} is the number of stored bookings replaced by a later state.</comment>
+  </data>
+  <data name="ImportCountUnchanged" xml:space="preserve">
+    <value>{0} Buchungen unverändert</value>
+    <comment>{0} is the number of rows that changed nothing.</comment>
+  </data>
+  <data name="ImportUnknownColumns" xml:space="preserve">
+    <value>Unbekannte Spalten im Export: {0}</value>
+    <comment>{0} is a comma-separated list of header names CashPrism does not know.</comment>
   </data>
   <!--
     From here on: MudBlazor's own strings. The keys are MudBlazor's, written
