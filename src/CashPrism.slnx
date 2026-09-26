@@ -2,6 +2,7 @@
   <Folder Name="/Tests/">
     <Project Path="Tests/CashPrism.Anonymiser.Tests.Integration/CashPrism.Anonymiser.Tests.Integration.csproj" />
     <Project Path="Tests/CashPrism.Anonymiser.Tests.Unit/CashPrism.Anonymiser.Tests.Unit.csproj" />
+    <Project Path="Tests/CashPrism.Application.Tests.Unit/CashPrism.Application.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Architecture.Tests/CashPrism.Architecture.Tests.csproj" />
     <Project Path="Tests/CashPrism.Domain.Tests.Unit/CashPrism.Domain.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration/CashPrism.Infrastructure.Finanzguru.Tests.Integration.csproj" />
