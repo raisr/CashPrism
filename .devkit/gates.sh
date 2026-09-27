@@ -19,18 +19,32 @@ gate_build()  { dotnet build  "${SLN}" --nologo -warnaserror; }
 gate_test()   { dotnet test   "${SLN}" --nologo; }
 gate_format() { dotnet format "${SLN}" --verify-no-changes; }
 
+# THIRD-PARTY-NOTICES.md is generated from CashPrism.Shell's actual publish
+# output (see .devkit/generate-third-party-notices.cs), so a package change
+# that leaves it stale must fail the same way an unformatted file does.
+gate_notices() {
+  local generated
+  generated="$(mktemp)"
+  dotnet run .devkit/generate-third-party-notices.cs -- "${generated}" \
+    && diff -u THIRD-PARTY-NOTICES.md "${generated}"
+  local status=$?
+  rm -f "${generated}"
+  return "${status}"
+}
+
 # Expectation per gate, printed when a gate fails.
 gate_expectation() {
   case "$1" in
-    build)  echo "0 warnings, 0 errors" ;;
-    test)   echo "all tests green" ;;
-    format) echo "no formatting changes needed" ;;
+    build)   echo "0 warnings, 0 errors" ;;
+    test)    echo "all tests green" ;;
+    format)  echo "no formatting changes needed" ;;
+    notices) echo "THIRD-PARTY-NOTICES.md matches the generated output" ;;
   esac
 }
 
 # --- runner, do not edit below unless you know why ---------------------------
 
-GATES="build test format"
+GATES="build test format notices"
 
 run_one() {
   local name="$1" log
