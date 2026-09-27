@@ -25,7 +25,7 @@ gate_format() { dotnet format "${SLN}" --verify-no-changes; }
 gate_notices() {
   local generated
   generated="$(mktemp)"
-  dotnet run .devkit/generate-third-party-notices.cs -- "${generated}" \
+  dotnet run --file .devkit/generate-third-party-notices.cs -- --output "${generated}" \
     && diff -u THIRD-PARTY-NOTICES.md "${generated}"
   local status=$?
   rm -f "${generated}"

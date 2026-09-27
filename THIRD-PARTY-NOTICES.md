@@ -3,7 +3,8 @@
 CashPrism is built with the following third-party packages. Each is used
 under its own licence, reproduced here as that licence requires. This file is
 generated — see `.devkit/generate-third-party-notices.cs` — and ships next to
-the executable produced by `dotnet publish`.
+the executable produced by `dotnet publish`. Publishing `CashPrism.Shell`
+regenerates it automatically whenever a package changed.
 
 | Package | Version | Licence | Copyright |
 |---|---|---|---|

@@ -10,19 +10,28 @@ using System.Text.Json;
 // publishes.
 //
 // A PackageReference scan cannot tell shipped packages from build-time-only
-// ones: Microsoft.EntityFrameworkCore.Design alone pulls in Roslyn and MSBuild
-// packages that never leave the build machine. `dotnet publish`'s own
-// deps.json is the ground truth for what ends up next to the executable, so
-// this reads that instead of the project files. `nuget-license` (pinned in
-// .config/dotnet-tools.json) supplies the licence and copyright metadata for
-// the packages deps.json names.
+// ones, and neither can a plain `dotnet build`'s own deps.json: measured,
+// `dotnet build` names 38 packages for CashPrism.Shell and `dotnet publish`
+// 20 — the extra 18 are Microsoft.EntityFrameworkCore.Design's own Roslyn and
+// MSBuild dependency chain, which `build` keeps around but a publish trims.
+// Only `dotnet publish`'s deps.json is the ground truth for what a build
+// actually ships, so this always publishes to a scratch directory and reads
+// that. `nuget-license` (pinned in .config/dotnet-tools.json) supplies the
+// licence and copyright metadata for the packages deps.json names.
 //
-// Usage: dotnet run .devkit/generate-third-party-notices.cs [<output file>]
+// Usage: dotnet run --file .devkit/generate-third-party-notices.cs [--output <path>]
 //
-// With no argument, overwrites THIRD-PARTY-NOTICES.md at the repository root
-// — the maintenance command to run after a package changes. `gates.sh` passes
-// a temporary path instead, to check the committed file is still current
-// without touching it.
+// --output defaults to THIRD-PARTY-NOTICES.md at the repository root, i.e.
+// this overwrites the real, committed file — the maintenance command to run
+// by hand, and what CashPrism.Shell.csproj's own pre-publish target does
+// automatically whenever a package changed. `gates.sh` passes a temporary
+// path instead, to check the committed file is still current without
+// touching it.
+//
+// The internal publish passes -p:GeneratingThirdPartyNotices=true, which the
+// pre-publish target's own Condition checks: without it, that publish would
+// build Shell again, which would fire the pre-publish target again, which
+// would publish again — forever.
 
 internal static class Program
 {
@@ -31,8 +40,10 @@ internal static class Program
 
     private static int Main(string[] args)
     {
+        var outputArg = ParseArgs(args);
+
         var repoRoot = Run("git", "rev-parse --show-toplevel").Trim();
-        var outputPath = args.Length > 0 ? Path.GetFullPath(args[0]) : Path.Combine(repoRoot, NoticesFileName);
+        var outputPath = outputArg is null ? Path.Combine(repoRoot, NoticesFileName) : Path.GetFullPath(outputArg);
         Directory.SetCurrentDirectory(repoRoot);
 
         Run("dotnet", "tool restore");
@@ -40,11 +51,11 @@ internal static class Program
         var publishDir = Directory.CreateTempSubdirectory("cashprism-notices-");
         try
         {
-            Run("dotnet", $"publish \"{ShellProject}\" -c Release -o \"{publishDir.FullName}\" --nologo");
+            Run(
+                "dotnet",
+                $"publish \"{ShellProject}\" -c Release -o \"{publishDir.FullName}\" --nologo -p:GeneratingThirdPartyNotices=true");
+            var depsJsonPath = Path.Combine(publishDir.FullName, "CashPrism.Shell.deps.json");
 
-            var depsJsonPath = Directory
-                .EnumerateFiles(publishDir.FullName, "*.deps.json")
-                .Single();
             var shipped = ReadShippedPackages(depsJsonPath);
 
             var metadata = ReadLicenseMetadata();
@@ -69,6 +80,24 @@ internal static class Program
         {
             publishDir.Delete(recursive: true);
         }
+    }
+
+    private static string? ParseArgs(string[] args)
+    {
+        string? output = null;
+        for (var i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--output":
+                    output = args[++i];
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown argument: {args[i]}");
+            }
+        }
+
+        return output;
     }
 
     private static IReadOnlyList<(string Id, string Version)> ReadShippedPackages(string depsJsonPath)
@@ -132,7 +161,8 @@ internal static class Program
         builder.AppendLine("CashPrism is built with the following third-party packages. Each is used");
         builder.AppendLine("under its own licence, reproduced here as that licence requires. This file is");
         builder.AppendLine("generated — see `.devkit/generate-third-party-notices.cs` — and ships next to");
-        builder.AppendLine("the executable produced by `dotnet publish`.");
+        builder.AppendLine("the executable produced by `dotnet publish`. Publishing `CashPrism.Shell`");
+        builder.AppendLine("regenerates it automatically whenever a package changed.");
         builder.AppendLine();
         builder.AppendLine("| Package | Version | Licence | Copyright |");
         builder.AppendLine("|---|---|---|---|");

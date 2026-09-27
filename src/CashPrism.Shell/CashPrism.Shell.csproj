@@ -32,4 +32,38 @@
     <Content Include="..\..\THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!--
+    Keeps THIRD-PARTY-NOTICES.md current as a side effect of publishing, so a
+    package change is visible as a git diff before the build that would ship
+    it. Hooked to Publish rather than Build: Build also fires for an IDE's own
+    background design-time builds, and this was tried and measured: every one
+    of those fired the target, and because Exec's working directory is this
+    project's own (see the file-option note below), each one launched the
+    actual CashPrism.Shell application instead of the generator. It kept
+    retrying to bind the same port every few seconds, forever, until killed by
+    hand. Publish is only ever an explicit, deliberate action, so hooking
+    there doesn't have that problem. Inputs/Outputs make this a no-op on top;
+    $(ProjectAssetsFile)'s own timestamp only moves when a restore actually
+    changed something.
+
+    The Exec command's "run" call needs its explicit file option, not a bare
+    path, and that is not a style choice: Exec's working directory is this
+    project's own, which has its own .csproj, so a bare quoted path is
+    ambiguous between the file and the ambient project, and resolves to the
+    project. The explicit option is unambiguous regardless of the working
+    directory.
+
+    The Condition breaks a second recursion: the generator publishes this same
+    project to read its deps.json, and that publish would fire this target
+    again without the guard property the generator passes on that inner
+    publish.
+  -->
+  <Target Name="RegenerateThirdPartyNotices"
+          BeforeTargets="Publish"
+          Condition="'$(GeneratingThirdPartyNotices)' != 'true'"
+          Inputs="$(ProjectAssetsFile)"
+          Outputs="$(MSBuildThisFileDirectory)..\..\THIRD-PARTY-NOTICES.md">
+    <Exec Command="dotnet run --file &quot;$(MSBuildThisFileDirectory)../../.devkit/generate-third-party-notices.cs&quot;" />
+  </Target>
+
 </Project>
