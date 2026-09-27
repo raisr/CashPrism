@@ -1,6 +1,6 @@
 # The anonymiser
 
-`CashPrism.Anonymiser` is a standalone console tool: it turns a real FinanzGuru
+`CashPrism.Anonymiser` is a standalone console tool: it turns a real Finanzguru
 export into one that is safe to share — as an issue attachment, in this
 repository's own fixtures, wherever a real export must not go. It is a
 development tool, not part of the shipped application; nothing in `Shell`
@@ -41,10 +41,10 @@ output is written, since the dictionaries have to see every file first.
 
 An `.xlsx` is a zip archive. ClosedXML would rewrite the whole workbook on the
 way through — inline strings become shared strings, the per-row stylesheet a
-real FinanzGuru export carries (see
+real Finanzguru export carries (see
 [finanzguru-export.md](finanzguru-export.md)) disappears — and the result no
-longer resembles what FinanzGuru itself produces. A parser bug in reading
-inline strings, the only string form FinanzGuru actually emits, would then stay
+longer resembles what Finanzguru itself produces. A parser bug in reading
+inline strings, the only string form Finanzguru actually emits, would then stay
 invisible in every test built from an anonymised fixture and surface for the
 first time on a real import.
 
@@ -82,7 +82,7 @@ column, is untouched.
 Categories are kept because without them the file is nothing but parser feed —
 an anonymised export still has to exercise the rest of the application.
 `Buchungs-ID` and `Referenz-Original-ID` are harmless in themselves but
-identify real bookings at FinanzGuru, and replacing them costs nothing.
+identify real bookings at Finanzguru, and replacing them costs nothing.
 
 ## How a value is replaced
 

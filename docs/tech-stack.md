@@ -14,7 +14,7 @@ on a local disk only, no DDD — are binding and live in
 | Database | SQLite via EF Core, `./data/cashprism.db` | A single file next to the executable, no server to run. EF Core because the migrations run on startup. Amounts are whole cents in a `long`, all the way through — SQLite has no decimal type, and a decimal kept as text sorts and sums wrongly |
 | Excel | ClosedXML | Reads `.xlsx` without Excel installed. It stays inside `CashPrism.Infrastructure.Finanzguru` so nothing else depends on it |
 | Auth | One shared password, PBKDF2, cookie authentication | The household shares one login; there are no user accounts to manage. PBKDF2 comes from the BCL, so no extra dependency |
-| Language | German UI, `IStringLocalizer` against a neutral-German `Strings.resx`; the culture is pinned to `de-DE` by `Shell` | FinanzGuru only exists in German-speaking markets, so the UI's audience reads German. The localisation path is in place from the first screen because retrofitting it means touching every component. English keys keep the code in one language — see [`Agents.md`](../Agents.md#language-of-the-user-interface) |
+| Language | German UI, `IStringLocalizer` against a neutral-German `Strings.resx`; the culture is pinned to `de-DE` by `Shell` | Finanzguru only exists in German-speaking markets, so the UI's audience reads German. The localisation path is in place from the first screen because retrofitting it means touching every component. English keys keep the code in one language — see [`Agents.md`](../Agents.md#language-of-the-user-interface) |
 | Delivery | Self-contained single-file binary per platform | The person running CashPrism double-clicks it. No installer, no runtime to install, no Docker |
 
 ## What already exists

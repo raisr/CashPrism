@@ -33,11 +33,11 @@ releases and the minor version is bumped for every notable change.
   It shows the application version and a marker that switches from `Vorgerendert`
   to `Interaktiv` as soon as the browser's connection to the server is live —
   visible proof that the whole chain works.
-- The FinanzGuru column mapping, in `CashPrism.Infrastructure.Finanzguru`:
+- The Finanzguru column mapping, in `CashPrism.Infrastructure.Finanzguru`:
   resolves a header row to its known columns by name, never by position, and
   fails loudly on a column that is missing, duplicated or unrecognised.
 - `CashPrism.Anonymiser`, a standalone console tool that takes a real
-  FinanzGuru export apart and puts it back together: `CashPrism.Anonymiser
+  Finanzguru export apart and puts it back together: `CashPrism.Anonymiser
   <input.xlsx> [<input2.xlsx> …] --out <directory> [--force]`. Every zip entry
   is copied through unchanged; a worksheet using shared strings, or a header
   row with a missing, duplicated or unrecognised column, aborts with a message
@@ -77,37 +77,37 @@ releases and the minor version is bumped for every notable change.
   overview and the booking list are still empty; the booking list fills next.
   See [`docs/ui.md`](docs/ui.md).
 
-- A FinanzGuru export can now be imported. Handing CashPrism a file stores the
+- A Finanzguru export can now be imported. Handing CashPrism a file stores the
   bookings it describes and records what the import did: how many rows were
   read, how many bookings were new, how many were replaced by a newer state and
   how many said nothing that was not already known. Uploading the same file
   twice is not an error — it is recognised by its content and reported as
-  already imported, having changed nothing. Because FinanzGuru enriches a
+  already imported, having changed nothing. Because Finanzguru enriches a
   booking after the fact, a later export replaces what is stored, while an
   older one cannot undo a newer one. Only rows that are new or changed are
   kept, so importing daily does not grow the database with copies of what it
   already holds. See [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
-- The Import page now takes a file. Pick a FinanzGuru `.xlsx` and it is read
+- The Import page now takes a file. Pick a Finanzguru `.xlsx` and it is read
   and stored on the spot, with the result underneath: how many rows the file
   carried, how many bookings were new, how many were updated and how many said
   nothing new. A file the export gained a column in is imported anyway and the
-  column is named, so a change to FinanzGuru's format is visible instead of
-  silent. A file that is not a FinanzGuru export is refused, and one larger
+  column is named, so a change to Finanzguru's format is visible instead of
+  silent. A file that is not a Finanzguru export is refused, and one larger
   than 64 MB is not read at all — roughly fifty times the size of a real
   export. Why a file was refused is currently written to the console rather
   than onto the page, because those messages are not translated yet.
 
 ### Changed
 
-- The user interface is now German. FinanzGuru is only available in
+- The user interface is now German. Finanzguru is only available in
   German-speaking markets, so the one audience CashPrism has reads German — the
   start page says `Rendermodus: Vorgerendert`, the page declares itself as
   German, and the application runs with German number and date formats instead of
   whatever the machine it was started on happens to use. Text comes from a
   resource file rather than from the markup, so a further language later is a new
   resource file and not a rewrite.
-- The import rules were corrected against two real FinanzGuru exports taken one
-  day apart. A booking is now identified by its FinanzGuru `Buchungs-ID` instead
+- The import rules were corrected against two real Finanzguru exports taken one
+  day apart. A booking is now identified by its Finanzguru `Buchungs-ID` instead
   of a hash over its fields — that hash collapsed 46 groups of distinct bookings
   and dropped 52 of them in a single 6,324-row export. Because bookings are
   enriched between exports, a re-imported booking now overwrites the stored

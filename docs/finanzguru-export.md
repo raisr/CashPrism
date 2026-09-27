@@ -1,13 +1,13 @@
-# The FinanzGuru export
+# The Finanzguru export
 
-What a FinanzGuru "Alle Buchungen" export actually looks like, and which of its
+What a Finanzguru "Alle Buchungen" export actually looks like, and which of its
 properties CashPrism is allowed to rely on.
 
 Everything below was measured on two real exports taken one day apart: 6,324 and
 6,327 data rows, covering six years and seven accounts. Two files that close
 together are still a thin sample, so the counts are evidence, not a specification
-— where a number is quoted it says what was observed, not what FinanzGuru
-guarantees. Nothing here is derived from FinanzGuru documentation; there is none.
+— where a number is quoted it says what was observed, not what Finanzguru
+guarantees. Nothing here is derived from Finanzguru documentation; there is none.
 
 Single-file counts are from the earlier export unless the text says otherwise. No
 values from either export are reproduced here. Where a value's shape matters, it
@@ -44,7 +44,7 @@ value.
 |---|---|---|---|---|
 | A | `Buchungstag` | number, format `dd.MM.yyyy` | 6,324 | The date the booking was posted. See [Dates are not always whole days](#dates-are-not-always-whole-days). |
 | B | `Referenzkonto` | inline string | 6,324 | The account the booking belongs to. Usually an IBAN, but a provider account is identified by its own handle instead. |
-| C | `Name Referenzkonto` | inline string | 6,324 | The display name that account carries in FinanzGuru. Free text, chosen by the account owner. |
+| C | `Name Referenzkonto` | inline string | 6,324 | The display name that account carries in Finanzguru. Free text, chosen by the account owner. |
 | D | `Betrag` | number, format `#,##0.00` | 6,324 | The signed booking amount: negative for spending, positive for income. Two decimal places throughout. |
 | E | `Kontostand` | number, format `#,##0.00` | 6,324 | The balance reported for the booking. See [Kontostand is not a running balance](#kontostand-is-not-a-running-balance). |
 | F | `Waehrung` | inline string | 6,324 | ISO 4217 currency code. Only one value occurred in the measured export, so a reader must not assume a single currency. |
@@ -54,20 +54,20 @@ value.
 | J | `E-Ref` | — | 0 | The SEPA end-to-end reference. **Empty in every single row.** The column exists, it just never carries anything. |
 | K | `Mandatsreferenz` | inline string | 1,945 | The SEPA mandate reference. Filled on direct debits, empty otherwise. |
 | L | `Glaeubiger-ID` | inline string | 1,945 | The creditor identifier. Filled on exactly the same rows as `Mandatsreferenz`. |
-| M | `Analyse-Hauptkategorie` | inline string | 6,324 | FinanzGuru's top-level category. A closed catalogue from FinanzGuru's point of view, free text from ours. |
-| N | `Analyse-Unterkategorie` | inline string | 6,324 | FinanzGuru's sub-category. Same caveat. |
+| M | `Analyse-Hauptkategorie` | inline string | 6,324 | Finanzguru's top-level category. A closed catalogue from Finanzguru's point of view, free text from ours. |
+| N | `Analyse-Unterkategorie` | inline string | 6,324 | Finanzguru's sub-category. Same caveat. |
 | O | `Analyse-Vertrag` | inline string | 6,324 | Whether the booking belongs to a recognised contract. German yes/no words, not a boolean. |
 | P | `Analyse-Vertragsturnus` | inline string | 1,257 | How often that contract recurs, as a German interval word. Filled only where `Analyse-Vertrag` says yes. |
-| Q | `Analyse-Vertrags-ID` | inline string | 1,257 | FinanzGuru's contract identifier: 32 lower-case hexadecimal characters, a UUID without its dashes. Filled on the same rows as `Analyse-Vertragsturnus`. |
+| Q | `Analyse-Vertrags-ID` | inline string | 1,257 | Finanzguru's contract identifier: 32 lower-case hexadecimal characters, a UUID without its dashes. Filled on the same rows as `Analyse-Vertragsturnus`. |
 | R | `Analyse-Umbuchung` | inline string | 6,324 | Whether the booking is a transfer between two of the owner's own accounts. German yes/no words. |
-| S | `Analyse-Vom frei verfuegbaren Einkommen ausgeschlossen` | inline string | 6,324 | Whether FinanzGuru leaves the booking out of the freely disposable income. German yes/no words. The longest header in the file at 54 characters. |
+| S | `Analyse-Vom frei verfuegbaren Einkommen ausgeschlossen` | inline string | 6,324 | Whether Finanzguru leaves the booking out of the freely disposable income. German yes/no words. The longest header in the file at 54 characters. |
 | T | `Analyse-Umsatzart` | inline string | 6,265 | How the booking was paid, as a German word from a small closed set — seven values occurred. Blank in 59 rows, which are every row of one single account. |
 | U | `Analyse-Betrag` | inline string | 6,324 | Whether the row counts as income or as spending. A German word, redundant with the sign of `Betrag`. |
 | V | `Analyse-Woche` | inline string | 6,324 | The calendar week, shaped `YYYY-WW`. |
 | W | `Analyse-Monat` | inline string | 6,324 | The month, shaped `YYYY-MM`. |
 | X | `Analyse-Quartal` | inline string | 6,324 | The quarter, shaped `YYYY-Qn`. |
 | Y | `Analyse-Jahr` | number, no format | 6,324 | The year. The odd one out: the three columns above it are text, this one is a bare number and reads back as `2025.0`. |
-| Z | `Buchungs-ID` | inline string | 6,324 | FinanzGuru's identifier of the booking: 40 lower-case hexadecimal characters. Distinct in every row, and stable across the two exports — see [What two exports one day apart reveal](#what-two-exports-one-day-apart-reveal). |
+| Z | `Buchungs-ID` | inline string | 6,324 | Finanzguru's identifier of the booking: 40 lower-case hexadecimal characters. Distinct in every row, and stable across the two exports — see [What two exports one day apart reveal](#what-two-exports-one-day-apart-reveal). |
 | AA | `Referenz-Original-ID` | inline string | 2 | The `Buchungs-ID` a split part points back to. See [Split bookings](#split-bookings). |
 | AB | `Split-Typ` | inline string | 3 | The role a row plays in a split booking. See [Split bookings](#split-bookings). |
 | AC | `Tags` | inline string | 38 | The free-text tags a person put on the booking. |
@@ -90,7 +90,7 @@ distinct shapes:
 | A short opaque code | 59 |
 
 The email addresses are the PayPal rows: for those bookings the payment provider
-identifies the other party by their account address, and FinanzGuru puts it in
+identifies the other party by their account address, and Finanzguru puts it in
 the IBAN column unchanged. Anything that validates this column as an IBAN, or
 masks it assuming an IBAN, has to cope with all four.
 
@@ -193,7 +193,7 @@ import run only when that date cannot be read.
 `Buchungstag` — no mismatch in any of the 12,651 rows across both files.
 `Analyse-Woche` is a Sunday-anchored week count (week 1 is 1 January to the first
 Saturday, a new week every Sunday); it reproduces about 99 % of rows, and the
-remainder is FinanzGuru's own inconsistent labelling of the days around New Year,
+remainder is Finanzguru's own inconsistent labelling of the days around New Year,
 where late December is variously tagged `YYYY-01`, `YYYY-52` or `YYYY-53`.
 
 None of the four carries anything `Buchungstag` does not. A change-detection diff

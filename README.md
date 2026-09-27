@@ -1,20 +1,20 @@
 # CashPrism
 
-Your FinanzGuru data on a big screen.
+Your Finanzguru data on a big screen.
 
 ## Why
 
-FinanzGuru runs on your phone. Small screen, little visible at once, and you get
-the analyses FinanzGuru decided to give you.
+Finanzguru runs on your phone. Small screen, little visible at once, and you get
+the analyses Finanzguru decided to give you.
 
-CashPrism reads FinanzGuru's data exports and turns them into something you can
+CashPrism reads Finanzguru's data exports and turns them into something you can
 analyse yourself — on a real monitor, with your own filters and charts.
 
 Your data stays with you. No cloud, no account, no signing up anywhere.
 
 ## What it does
 
-- Reads FinanzGuru exports (`.xlsx`)
+- Reads Finanzguru exports (`.xlsx`)
 - Accumulates them over time instead of replacing them
 - Shows transactions, categories and trends you can search and filter
 - Runs on Windows, Linux and macOS without an installer
@@ -25,9 +25,9 @@ Every import adds to your history instead of replacing it, so you can export and
 import every month and keep years of bookings even though a single export only
 covers a time window.
 
-A booking is matched across exports by the identifier FinanzGuru gives it, so
+A booking is matched across exports by the identifier Finanzguru gives it, so
 re-importing the same export changes nothing. If a booking was edited in
-FinanzGuru between two exports — a corrected counterparty, a re-assigned
+Finanzguru between two exports — a corrected counterparty, a re-assigned
 category — CashPrism takes the newer version rather than keeping both. Only rows
 that are new or changed are stored; the export file itself is not kept.
 
@@ -80,7 +80,7 @@ settings that make it stick: see [docs/hosting.md](docs/hosting.md).
 
 ## Status
 
-Early development. You can upload a FinanzGuru export and it is stored, but
+Early development. You can upload a Finanzguru export and it is stored, but
 there is nothing to look at afterwards yet and no password. See
 [ROADMAP.md](ROADMAP.md) for the planned phases and
 [CHANGELOG.md](CHANGELOG.md) for what has landed.
@@ -88,3 +88,9 @@ there is nothing to look at afterwards yet and no password. See
 ## License
 
 MIT
+
+## Trademark notice
+
+Finanzguru is a registered trademark of dwins GmbH. CashPrism is an
+independent project with no connection to dwins GmbH; it reads Finanzguru's
+data exports because that is what the application is for.

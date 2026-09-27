@@ -18,10 +18,10 @@ centre.
 | `src/CashPrism.Domain` | Models and business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
 | `src/CashPrism.Application` | Use cases, orchestration, DTOs, **interfaces** for anything external | Domain |
 | `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, the import store, migrations, clock | Application, Domain |
-| `src/CashPrism.Infrastructure.Finanzguru` | Reads the FinanzGuru xlsx with ClosedXML and projects its rows onto bookings. Keeps both the ClosedXML dependency and the German column names out of everything else | Application, Domain |
+| `src/CashPrism.Infrastructure.Finanzguru` | Reads the Finanzguru xlsx with ClosedXML and projects its rows onto bookings. Keeps both the ClosedXML dependency and the German column names out of everything else | Application, Domain |
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
-| `src/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real FinanzGuru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
+| `src/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real Finanzguru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
 
 `Shell` and `Anonymiser` are the only two projects that reference an
 Infrastructure project — both are composition roots, so both are allowed to wire
@@ -45,7 +45,7 @@ concrete infrastructure to a use case.
 project: it holds fixtures that more than one test project needs, contains no
 tests of its own, and carries neither the test SDK nor a runner, so `dotnet
 test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
-FinanzGuru-shaped `.xlsx` in memory, and `FinanzguruTestRow`, which fills one
+Finanzguru-shaped `.xlsx` in memory, and `FinanzguruTestRow`, which fills one
 data row of it. No production project may reference it, and
 `CashPrism.Architecture.Tests` fails the build if one does. When a fixture
 belongs there is a rule rather than a description, and it is in
@@ -92,8 +92,8 @@ inside the solution root, not a solution folder that has to be kept in sync.
   around.
 - **A second import source is a new project, not an edit.** Each parser gets its
   own `CashPrism.Infrastructure.<Name>` project so a heavy dependency like
-  ClosedXML stays contained. Adding FinanzGuru's successor does not touch the
-  FinanzGuru parser.
+  ClosedXML stays contained. Adding Finanzguru's successor does not touch the
+  Finanzguru parser.
 - **`Web` is a library, not a host.** It has no `Program.cs`, reads no
   configuration and never references an Infrastructure project. Everything that
   only makes sense once the process is running — Kestrel, the port, migrations,
@@ -105,7 +105,7 @@ inside the solution root, not a solution folder that has to be kept in sync.
 - **`Anonymiser` is a development tool, not part of the shipped application.** It
   is a second composition root with its own entry point, and it never references
   ClosedXML — an `.xlsx` is a zip it takes apart and puts back together itself,
-  so a real FinanzGuru export stays recognisable as one.
+  so a real Finanzguru export stays recognisable as one.
 - **The migrations live with the schema they describe.** They sit in
   `CashPrism.Infrastructure/Persistence/Migrations`, next to the context and the
   entity configurations, and an `IDesignTimeDbContextFactory` lets
