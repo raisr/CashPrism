@@ -23,11 +23,11 @@ does not exist.
 
 ## Overview
 
-CashPrism reads data exports from the personal finance app "FinanzGuru" and
+CashPrism reads data exports from the personal finance app "Finanzguru" and
 makes your own finances analysable on a large screen.
 
 Imports are additive for the raw data and projective for the result. A booking
-is identified by its FinanzGuru `Buchungs-ID`, never by a hash over its fields:
+is identified by its Finanzguru `Buchungs-ID`, never by a hash over its fields:
 the same booking is enriched between exports, so a re-import overwrites the
 stored `Booking` with the later state instead of adding a second row.
 "Later" is the export date parsed from the sheet name
@@ -36,6 +36,13 @@ when that name cannot be parsed. Of the raw rows, only those new or changed
 since the last import are kept, and the `.xlsx` file itself is not stored. The
 measurements these rules rest on are in
 [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
+
+## Trademark
+
+Finanzguru is a registered trademark of dwins GmbH, unrelated to this project.
+The spelling is `Finanzguru` — capital F, lower-case g — everywhere in prose;
+the identifiers already have it right. No Finanzguru logo or other figurative
+mark is ever used, here or in any built artifact.
 
 One machine hosts the application, every other device on the home network
 reaches it through a browser. Everything stays local: no cloud, no external
@@ -61,7 +68,7 @@ makes `ORDER BY` and `SUM` over an amount return nonsense. The unit belongs in t
 name (`AmountInCents`), because a bare `Amount` leaves every reader guessing.
 Formatting for a person is the only place the number is divided, and that belongs
 to the UI. The scale assumes a currency with two decimal places, which is what a
-FinanzGuru export carries.
+Finanzguru export carries.
 
 ## Architecture
 
@@ -100,7 +107,7 @@ Consequences worth stating, because they are where it usually goes wrong:
   otherwise.
 - `Anonymiser` is a development tool, not part of the shipped application. It
   never references ClosedXML — an `.xlsx` is a zip it takes apart and puts back
-  together itself, so a real FinanzGuru export stays recognisable as one. This
+  together itself, so a real Finanzguru export stays recognisable as one. This
   is about the fidelity of the output, not about containing a dependency.
 
 ## Test projects
@@ -140,7 +147,7 @@ use.
 
 ## Language of the user interface
 
-The UI is **German**. FinanzGuru, the only source CashPrism reads, is sold in
+The UI is **German**. Finanzguru, the only source CashPrism reads, is sold in
 German-speaking markets only, so every person this application has is a German
 reader. Internationalisation is nonetheless in place from the first screen — it
 is cheap now and expensive to retrofit.
@@ -172,7 +179,7 @@ is cheap now and expensive to retrofit.
 |---|---|
 | Import run | One processed export file, recorded with the file hash |
 | Raw row | A row from an imported file, stored verbatim as JSON — kept only when it is new or has changed since the last import |
-| Fingerprint | The FinanzGuru `Buchungs-ID` (column Z): 40 hex characters, unique per booking and stable across exports. It identifies a booking. The field-hash it replaced collapsed 46 groups of distinct bookings and dropped 52 of them in a single 6,324-row export |
+| Fingerprint | The Finanzguru `Buchungs-ID` (column Z): 40 hex characters, unique per booking and stable across exports. It identifies a booking. The field-hash it replaced collapsed 46 groups of distinct bookings and dropped 52 of them in a single 6,324-row export |
 | Booking | A single booking, keyed by its fingerprint. A projection of the latest export that carries the booking — overwritten on re-import, not an immutable record |
 
 ## Deviations from the shared rules
@@ -183,5 +190,5 @@ Every row was decided once and is recorded in `devkit.lock.json`, so
 
 | Rule | Deviation | Why |
 |---|---|---|
-| `core.language` | User-visible UI text is German: the values in `Strings.resx` are German, and so is what the application renders | FinanzGuru is sold in German-speaking markets only, so the UI's only audience reads German. Everything else stays English — keys, identifiers, comments, XML docs, tests, commits, tickets and this file |
-| `dotnet.tests` | A second project under `src/Tests/` carries no `.Unit`/`.Integration` suffix and belongs to no production project: `CashPrism.TestSupport`, described under [Test projects](#test-projects) | `XlsxTestWorkbook` builds a FinanzGuru-shaped workbook in code. The anonymiser's round-trip tests need it and the export reader's tests need the same thing, so the alternatives are a second copy or a binary fixture in the repository. The rule itself asks for a ticket arguing the case; that is issue #26 |
+| `core.language` | User-visible UI text is German: the values in `Strings.resx` are German, and so is what the application renders | Finanzguru is sold in German-speaking markets only, so the UI's only audience reads German. Everything else stays English — keys, identifiers, comments, XML docs, tests, commits, tickets and this file |
+| `dotnet.tests` | A second project under `src/Tests/` carries no `.Unit`/`.Integration` suffix and belongs to no production project: `CashPrism.TestSupport`, described under [Test projects](#test-projects) | `XlsxTestWorkbook` builds a Finanzguru-shaped workbook in code. The anonymiser's round-trip tests need it and the export reader's tests need the same thing, so the alternatives are a second copy or a binary fixture in the repository. The rule itself asks for a ticket arguing the case; that is issue #26 |

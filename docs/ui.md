@@ -102,7 +102,7 @@ The Import page is the only page that does work rather than showing it, and
 four of its decisions are not visible in what it renders.
 
 **The read limit is set, and set by CashPrism.** `IBrowserFile.OpenReadStream`
-allows 512 KB unless told otherwise and throws above it — no FinanzGuru export
+allows 512 KB unless told otherwise and throws above it — no Finanzguru export
 has ever fit in that, the measured ones being 1.15 MB. The page passes 64 MB,
 far above the largest export anyone is likely to have. MudBlazor's own
 `MaxFileSize` would also reject an oversized file, but with a message of its
