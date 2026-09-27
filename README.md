@@ -80,8 +80,9 @@ settings that make it stick: see [docs/hosting.md](docs/hosting.md).
 
 ## Status
 
-Early development. It reads a FinanzGuru export and stores it, but there is no
-page to upload one on yet, nothing to look at afterwards, and no password. See [ROADMAP.md](ROADMAP.md) for the planned phases and
+Early development. You can upload a FinanzGuru export and it is stored, but
+there is nothing to look at afterwards yet and no password. See
+[ROADMAP.md](ROADMAP.md) for the planned phases and
 [CHANGELOG.md](CHANGELOG.md) for what has landed.
 
 ## License

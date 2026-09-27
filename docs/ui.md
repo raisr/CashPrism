@@ -96,6 +96,41 @@ CSS and JavaScript are served by the application itself out of the package's
 static web assets, and the only `url(` in that stylesheet is an inline
 `data:` image.
 
+## The upload page
+
+The Import page is the only page that does work rather than showing it, and
+four of its decisions are not visible in what it renders.
+
+**The read limit is set, and set by CashPrism.** `IBrowserFile.OpenReadStream`
+allows 512 KB unless told otherwise and throws above it — no FinanzGuru export
+has ever fit in that, the measured ones being 1.15 MB. The page passes 64 MB,
+far above the largest export anyone is likely to have. MudBlazor's own
+`MaxFileSize` would also reject an oversized file, but with a message of its
+own in English, so the size is checked in the page instead and the limit is
+named in German.
+
+**The import runs off the circuit's thread.** ClosedXML has no asynchronous
+API and reading a workbook is CPU-bound — about 1.4 s for the measured export.
+On Blazor Server that would occupy the thread the circuit renders on, and the
+page would accept no input at all while the spinner turned. The page therefore
+hands the import to `Task.Run`. That is deliberately not the pattern
+`AGENTS.dotnet.md` rules out: nothing here is synchronous work dressed up as
+asynchronous, it is blocking work moved out of the render path.
+
+**What is running outlives the page.** An import keeps going when the page it
+was started from is left, so what is in flight is held in a service that lives
+for as long as the browser stays connected, not in the component. Coming back
+to the page therefore shows the import still running, or the result of one that
+finished while it was away — and a second import cannot be started on top of
+the first. An overlay covers the page while it runs, so the navigation is out
+of reach rather than merely ineffective.
+
+**Why a file was refused is not on the page.** The reasons are built where the
+failure is found — in the export reader and the import use case — and are
+therefore English sentences, which this UI may not show. They go to the log,
+and the page says only what it can say in German. Issue #55 is what turns them
+into something translatable.
+
 ## MudBlazor's own strings
 
 The component library ships its user-visible text — dialog buttons, the table

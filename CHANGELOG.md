@@ -74,7 +74,7 @@ releases and the minor version is bumped for every notable change.
   the drawer folds away behind the menu button, so the same screens work in the
   kitchen and at the desk. Nothing is fetched from the internet — no web font,
   no CDN — so it looks the same on a machine with no connection at all. The
-  three pages are still empty; the import and the booking list fill them next.
+  overview and the booking list are still empty; the booking list fills next.
   See [`docs/ui.md`](docs/ui.md).
 
 - A FinanzGuru export can now be imported. Handing CashPrism a file stores the
@@ -86,8 +86,16 @@ releases and the minor version is bumped for every notable change.
   booking after the fact, a later export replaces what is stored, while an
   older one cannot undo a newer one. Only rows that are new or changed are
   kept, so importing daily does not grow the database with copies of what it
-  already holds. There is no page to upload a file on yet; that comes next. See
-  [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
+  already holds. See [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
+- The Import page now takes a file. Pick a FinanzGuru `.xlsx` and it is read
+  and stored on the spot, with the result underneath: how many rows the file
+  carried, how many bookings were new, how many were updated and how many said
+  nothing new. A file the export gained a column in is imported anyway and the
+  column is named, so a change to FinanzGuru's format is visible instead of
+  silent. A file that is not a FinanzGuru export is refused, and one larger
+  than 64 MB is not read at all — roughly fifty times the size of a real
+  export. Why a file was refused is currently written to the console rather
+  than onto the page, because those messages are not translated yet.
 
 ### Changed
 

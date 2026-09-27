@@ -1,3 +1,4 @@
+using CashPrism.Web.Imports;
 using CashPrism.Web.Localisation;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -30,6 +31,11 @@ public static class CashPrismWebServiceCollectionExtensions
         // MudBlazor asks this for its own strings and falls back to its English
         // defaults wherever the resource file stays silent.
         services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
+
+        // Per circuit, not per page: an import outlives the page it was started
+        // from, so what is running has to be remembered somewhere that survives
+        // navigating away and back.
+        services.AddScoped<ImportActivity>();
 
         services.AddRazorComponents()
             .AddInteractiveServerComponents();
