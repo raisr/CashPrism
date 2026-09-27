@@ -99,7 +99,7 @@ static web assets, and the only `url(` in that stylesheet is an inline
 ## The upload page
 
 The Import page is the only page that does work rather than showing it, and
-three of its decisions are not visible in what it renders.
+four of its decisions are not visible in what it renders.
 
 **The read limit is set, and set by CashPrism.** `IBrowserFile.OpenReadStream`
 allows 512 KB unless told otherwise and throws above it — no FinanzGuru export
@@ -116,6 +116,14 @@ page would accept no input at all while the spinner turned. The page therefore
 hands the import to `Task.Run`. That is deliberately not the pattern
 `AGENTS.dotnet.md` rules out: nothing here is synchronous work dressed up as
 asynchronous, it is blocking work moved out of the render path.
+
+**What is running outlives the page.** An import keeps going when the page it
+was started from is left, so what is in flight is held in a service that lives
+for as long as the browser stays connected, not in the component. Coming back
+to the page therefore shows the import still running, or the result of one that
+finished while it was away — and a second import cannot be started on top of
+the first. An overlay covers the page while it runs, so the navigation is out
+of reach rather than merely ineffective.
 
 **Why a file was refused is not on the page.** The reasons are built where the
 failure is found — in the export reader and the import use case — and are

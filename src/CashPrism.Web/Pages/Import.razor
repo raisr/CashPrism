@@ -2,8 +2,10 @@
 @using CashPrism.Application.Imports
 @using CashPrism.Web.Imports
 @using Microsoft.Extensions.Logging
+@implements IDisposable
 @inject IStringLocalizer<Strings> text
 @inject Importer importer
+@inject ImportActivity activity
 @inject ILogger<Import> log
 
 <PageFrame Title="@text["NavImport"]" Lead="@text["ImportLead"]">
@@ -12,19 +14,20 @@
       @* MudBlazor's own MaxFileSize is deliberately not set: it rejects the file
          with a validation message of its own, in English, and the page would
          then have no chance to say what the limit is. The size is checked in
-         OnFilePickedAsync instead. *@
-      @* d-inline-block: the upload renders its content in a block that would
+         OnFilePickedAsync instead.
+
+         d-inline-block: the upload renders its content in a block that would
          otherwise stretch the button across the whole card. *@
       <MudFileUpload T="IBrowserFile"
                      FilesChanged="OnFilePickedAsync"
                      Accept=".xlsx"
-                     Disabled="@running"
+                     Disabled="@activity.IsRunning"
                      Class="d-inline-block">
         <CustomContent Context="picker">
           <MudButton Variant="Variant.Filled"
                      Color="Color.Primary"
                      StartIcon="@Icons.Material.Filled.UploadFile"
-                     Disabled="@running"
+                     Disabled="@activity.IsRunning"
                      OnClick="@(() => picker.OpenFilePickerAsync())">
             @text["ImportPick"]
           </MudButton>
@@ -33,14 +36,7 @@
 
       <MudText Typo="Typo.body2" Color="Color.Secondary">@text["ImportHint"]</MudText>
 
-      @if (running)
-      {
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-          <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-          <MudText Typo="Typo.body2">@text["ImportRunning"]</MudText>
-        </MudStack>
-      }
-      else if (message is not null)
+      @if (!activity.IsRunning && activity.Result is { } message)
       {
         <MudAlert Severity="@ToMudSeverity(message.Severity)" Variant="Variant.Outlined" Dense="true">
           <MudText Typo="Typo.body1">@message.Headline</MudText>
@@ -59,38 +55,47 @@
   </MudPaper>
 </PageFrame>
 
+@* Over the whole page rather than beside the button: an import is not something
+   to work around while it runs, and a spinner inside the card would leave the
+   navigation clickable — which is how a second import used to get started on
+   top of the first. *@
+<MudOverlay Visible="@activity.IsRunning" DarkBackground="true" ZIndex="9999">
+  <MudStack AlignItems="AlignItems.Center" Spacing="4">
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    <MudText Typo="Typo.body1" Color="Color.Surface">@text["ImportRunning"]</MudText>
+  </MudStack>
+</MudOverlay>
+
 @code {
-    private bool running;
-    private ImportFeedbackMessage? message;
+    protected override void OnInitialized() => activity.Changed += OnActivityChanged;
+
+    /// <inheritdoc />
+    public void Dispose() => activity.Changed -= OnActivityChanged;
+
+    /// <summary>
+    /// The import raises this from the thread it ran on, so the render has to be
+    /// marshalled back onto the circuit's.
+    /// </summary>
+    private void OnActivityChanged() => _ = InvokeAsync(StateHasChanged);
 
     private async Task OnFilePickedAsync(IBrowserFile? file)
     {
-        // Guards the double click the component itself does not: the picker
-        // stays clickable for the moment between the file arriving and the
-        // first render that disables it.
-        if (file is null || running)
+        if (file is null)
         {
             return;
         }
 
         if (file.Size > ImportFeedback.MaxUploadBytes)
         {
-            message = ImportFeedback.TooLarge(file.Size, text);
+            activity.Report(ImportFeedback.TooLarge(file.Size, text));
 
             return;
         }
 
-        running = true;
-        message = null;
-
-        try
-        {
-            message = await ImportAsync(file);
-        }
-        finally
-        {
-            running = false;
-        }
+        // RunAsync refuses while one is in flight. The button is disabled then,
+        // so this is the case the button cannot cover: a file picked in a second
+        // browser tab on the same circuit.
+        await activity.RunAsync(() => ImportAsync(file));
     }
 
     private async Task<ImportFeedbackMessage> ImportAsync(IBrowserFile file)
