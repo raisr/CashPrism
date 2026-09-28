@@ -28,8 +28,9 @@ public sealed class Program
     }
 
     /// <summary>
-    /// Builds and runs the host. Returns a non-zero exit code when the
-    /// configured port is already taken.
+    /// Builds and runs the host. Returns a non-zero exit code when the database
+    /// is already in use by another instance, or the configured port is already
+    /// taken.
     /// </summary>
     public static async Task<int> Main(string[] args)
     {
@@ -70,8 +71,10 @@ public sealed class Program
         // in a directory that does not exist.
         Directory.CreateDirectory(dataDirectory);
 
+        var databaseFile = Path.Combine(dataDirectory, DatabaseFileName);
+
         builder.Services.AddCashPrismWeb();
-        builder.Services.AddCashPrismPersistence(Path.Combine(dataDirectory, DatabaseFileName));
+        builder.Services.AddCashPrismPersistence(databaseFile);
 
         // Which external format an import reads is a decision of the composition
         // root, so it is wired here rather than behind an extension method in the
@@ -83,6 +86,23 @@ public sealed class Program
         var app = builder.Build();
 
         app.MapCashPrismWeb();
+
+        // Taken after the host is built and before the database is opened:
+        // everything above only reads configuration, and the migration below is
+        // the first line that writes to the file. The guard is held for as long
+        // as this method runs, which is as long as the server serves.
+        using var singleInstance = SingleInstanceGuard.TryAcquire(databaseFile);
+
+        if (singleInstance is null)
+        {
+            // A stack trace in a window opened by a double-click helps nobody.
+            Console.Error.WriteLine(
+                $"CashPrism cannot start: another instance is already using {databaseFile}.");
+            Console.Error.WriteLine(
+                "Stop the other instance and try again.");
+
+            return 1;
+        }
 
         // The schema is brought up to date before the server listens, so no request
         // can arrive at a database this build does not fit.

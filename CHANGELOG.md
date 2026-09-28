@@ -103,6 +103,12 @@ releases and the minor version is bumped for every notable change.
   publish output rather than typed by hand, and ships next to the executable
   that `dotnet publish` produces. Where a package declares no copyright notice
   at all, the file says so instead of guessing one from its author list.
+- Only one CashPrism at a time may use a database. Starting a second one
+  against the same data directory stops with a line naming the database file
+  instead of two processes writing to it — SQLite tolerates that badly enough to
+  lose data. Two instances on two data directories are unaffected, and the
+  database is free again the moment the owning process ends, a crash included.
+  See [`docs/hosting.md`](docs/hosting.md).
 
 ### Changed
 
