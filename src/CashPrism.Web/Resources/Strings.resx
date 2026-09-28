@@ -115,6 +115,34 @@
     <value>Es gibt noch keine Buchungen.</value>
     <comment>Shown on the booking list while the database holds no bookings.</comment>
   </data>
+  <data name="BookingsEmptyHint" xml:space="preserve">
+    <value>Lade einen FinanzGuru-Export hoch, um anzufangen.</value>
+    <comment>Second line under BookingsEmpty, pointing at the upload page.</comment>
+  </data>
+  <data name="BookingsColumnDate" xml:space="preserve">
+    <value>Datum</value>
+    <comment>Booking list column: the date the booking was posted.</comment>
+  </data>
+  <data name="BookingsColumnAccount" xml:space="preserve">
+    <value>Konto</value>
+    <comment>Booking list column: the account the booking belongs to.</comment>
+  </data>
+  <data name="BookingsColumnCounterparty" xml:space="preserve">
+    <value>Gegenseite</value>
+    <comment>Booking list column: the other party of the booking.</comment>
+  </data>
+  <data name="BookingsColumnReference" xml:space="preserve">
+    <value>Verwendungszweck</value>
+    <comment>Booking list column: the payment reference.</comment>
+  </data>
+  <data name="BookingsColumnCategory" xml:space="preserve">
+    <value>Kategorie</value>
+    <comment>Booking list column: FinanzGuru's top-level category.</comment>
+  </data>
+  <data name="BookingsColumnAmount" xml:space="preserve">
+    <value>Betrag</value>
+    <comment>Booking list column: the signed amount.</comment>
+  </data>
   <data name="ImportLead" xml:space="preserve">
     <value>FinanzGuru-Export einlesen.</value>
     <comment>One line under the heading of the upload page.</comment>
@@ -199,7 +227,8 @@
     <value>Erste Seite</value>
   </data>
   <data name="MudDataGridPager_InfoFormat" xml:space="preserve">
-    <value>{0}–{1} von {2}</value>
+    <value>{0:N0}–{1:N0} von {2:N0}</value>
+    <comment>The booking list formats this line itself, so the placeholders carry .NET numeric specifiers. MudBlazor substitutes pre-formatted strings and ignores them.</comment>
   </data>
   <data name="MudDataGridPager_LastPage" xml:space="preserve">
     <value>Letzte Seite</value>

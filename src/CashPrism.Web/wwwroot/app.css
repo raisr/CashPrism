@@ -99,3 +99,42 @@
     padding: 1rem;
   }
 }
+
+/* ---------- the booking list ---------- */
+
+/* What the monospace stack was put in for: a column of dates and a column of
+   amounts that line up digit under digit. tabular-nums keeps them aligned in
+   the stacks whose digits are not all the same width.
+
+   The selector carries MudBlazor's own classes because it has to out-specify
+   `.mud-table-root .mud-table-body .mud-table-cell`, which sets the body font
+   on every cell of every table. The second half reaches the MudText inside the
+   amount cell, which brings its own typography class along. */
+.mud-table-root .mud-table-body .mud-table-cell.cp-figure,
+.mud-table-cell.cp-figure .mud-typography {
+  font-family: var(--cp-font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The amount is read by its last digit, so it is set against the right edge. */
+.cp-amount {
+  text-align: right;
+}
+
+/* A payment reference is whatever the bank sent — sometimes a word, sometimes a
+   hundred characters of reference numbers. Clamped so one row cannot push the
+   amount off the screen; the whole text stays in the cell's title. */
+.cp-reference {
+  display: block;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+  .cp-reference {
+    max-width: 10rem;
+  }
+}

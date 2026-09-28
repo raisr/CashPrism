@@ -83,8 +83,8 @@ switch changes at runtime.
 - **Figures get a monospace stack of their own**, `--cp-font-mono` in the
   stylesheet, for anything that has to line up in a column — amounts, dates, a
   fingerprint. It lives in CSS rather than in the theme because `MudTheme` has
-  no slot for a second family and nothing in C# reads it. Today only the version
-  beside the wordmark uses it; the booking list is what it is there for.
+  no slot for a second family and nothing in C# reads it. The booking list is
+  what it was put there for, and the version beside the wordmark uses it too.
 
 The switch in the app bar follows the operating system's setting until it is
 used; from then on the choice stands for the rest of the session. It is not
@@ -95,6 +95,57 @@ Nothing in the interface loads from an external host. The component library's
 CSS and JavaScript are served by the application itself out of the package's
 static web assets, and the only `url(` in that stylesheet is an inline
 `data:` image.
+
+## The booking list
+
+The Buchungen page is the first screen with real data behind it, and the
+measured export puts 6,327 bookings over six years and seven accounts in front
+of it. Five decisions follow from that number.
+
+**The database does the sorting and the paging, not the browser.** The page
+asks `IBookingReader` for one page at a time — a slice, a column and a
+direction — and MudBlazor's `ServerData` is what carries the question. On
+Blazor Server every rendered row is also a row pushed down the circuit, so the
+alternative would mean sending six thousand of them to show twenty-five. A page
+flip measures about 40 ms end to end on the machine that hosts it, a sort about
+25 ms.
+
+**The order always has a second key.** Hundreds of bookings share a date, and
+SQLite is free to return equally-ranked rows in whatever order suits it. Without
+a tiebreaker the same query can answer differently twice, which is how a pager
+shows one booking on two pages and another on none. `BookingReader` therefore
+appends the fingerprint to every ordering.
+
+**Pages, not an infinite scroll.** MudBlazor can virtualise a grid and fetch
+windows as the reader scrolls. A pager was chosen instead: it needs no fixed
+grid height to be kept in step across a phone and a large screen, and its
+buttons and its "rows per page" are text the resource file already carries. The
+sizes offered are 25, 50 and 100 — MudBlazor's "all" entry is left out, because
+it asks for every booking at once and that is exactly the render the
+server-side paging exists to avoid.
+
+**The pager writes its own info line.** `MudDataGridPager` formats the three
+counts it shows with a culture of its own, so a German page came out reading
+`1–25 von 6,327` — an English thousands separator beside amounts set with a
+German one. The page therefore formats that sentence itself, out of the same
+`MudDataGridPager_InfoFormat` resource, and hands the pager a finished line
+rather than a template. The resource keeps its numeric placeholders for that
+reason, and `PagerInfoFormatTests` is what stops someone taking them out again.
+
+**A column can be sorted, not filtered.** With `ServerData` a filter is a
+question for the query rather than something the grid answers by itself, so a
+filter menu would look like a feature and do nothing. Filtering and searching
+are their own work, and deliberately not part of this screen yet.
+
+The amount is the only column that is more than the stored value written out.
+`Bookings/BookingFormat.cs` always writes a sign and two decimals and puts the
+booking's own ISO currency code behind the number — the code and not a symbol,
+because the symbol of the machine's culture would be a lie about a booking in
+another currency. The sign is what says credit or debit; the green and the red
+only reinforce it, which is the rule the theme is built on.
+
+An empty database gets the message and a button to the upload page rather than
+a table of nothing with a pager counting to zero.
 
 ## The upload page
 

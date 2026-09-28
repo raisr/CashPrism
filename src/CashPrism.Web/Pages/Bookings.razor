@@ -1,10 +1,152 @@
 @page "/bookings"
+@using CashPrism.Application.Bookings
+@using CashPrism.Domain.Bookings
+@using CashPrism.Web.Bookings
 @inject IStringLocalizer<Strings> text
+@inject IBookingReader reader
 
-@* The list itself is not part of the baseline — this route exists so the
-   navigation has somewhere to go and the layout can be judged at both widths. *@
 <PageFrame Title="@text["NavBookings"]" Lead="@text["BookingsLead"]">
-  <MudPaper Elevation="0" Outlined="true" Class="pa-6">
-    <MudText Typo="Typo.body1">@text["BookingsEmpty"]</MudText>
-  </MudPaper>
+  @if (isEmpty)
+  {
+    @* An empty table with a pager reading "0–0 of 0" says nothing a person can
+       act on. While nothing is stored the page says so and points at the one
+       screen that changes it. *@
+    <MudPaper Elevation="0" Outlined="true" Class="pa-6">
+      <MudText Typo="Typo.body1">@text["BookingsEmpty"]</MudText>
+      <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">@text["BookingsEmptyHint"]</MudText>
+      <MudButton Href="/import"
+                 Variant="Variant.Filled"
+                 Color="Color.Primary"
+                 StartIcon="@Icons.Material.Filled.UploadFile"
+                 Class="mt-4">
+        @text["NavImport"]
+      </MudButton>
+    </MudPaper>
+  }
+  else
+  {
+    @* Filterable is off on purpose: with ServerData the grid hands filters to
+       the query rather than applying them itself, so a filter menu nothing
+       implements would look like a feature and do nothing. Filters are a
+       non-goal of issue #34. *@
+    <MudDataGrid T="Booking"
+                 ServerData="LoadAsync"
+                 Elevation="0"
+                 Outlined="true"
+                 Dense="true"
+                 Hover="true"
+                 Filterable="false"
+                 SortMode="SortMode.Single">
+      <Columns>
+        <PropertyColumn T="Booking" TProperty="DateTime" Property="b => b.BookedOn" Title="@text["BookingsColumnDate"]" CellClass="cp-figure">
+          <CellTemplate>@BookingFormat.Date(context.Item.BookedOn)</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn T="Booking" TProperty="string" Property="b => b.AccountName" Title="@text["BookingsColumnAccount"]" />
+        <PropertyColumn T="Booking" TProperty="string" Property="b => b.Counterparty" Title="@text["BookingsColumnCounterparty"]" />
+        <PropertyColumn T="Booking" TProperty="string" Property="b => b.PaymentReference" Title="@text["BookingsColumnReference"]">
+          @* A bank fills this with whatever it likes, so the column is clamped
+             and the whole text stays available on hover. *@
+          <CellTemplate>
+            <span class="cp-reference" title="@context.Item.PaymentReference">@context.Item.PaymentReference</span>
+          </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn T="Booking" TProperty="string" Property="b => b.Category" Title="@text["BookingsColumnCategory"]" />
+        @* Sorted by the stored cents and shown as a formatted amount: sorting on
+           the rendered string would order -9,00 after -10,00. *@
+        <PropertyColumn T="Booking" TProperty="long" Property="b => b.AmountInCents" Title="@text["BookingsColumnAmount"]"
+                        HeaderStyle="text-align: right" CellClass="cp-figure cp-amount">
+          <CellTemplate>
+            <MudText Typo="Typo.body2" Color="@ColourOf(context.Item.AmountInCents)">
+              @BookingFormat.Amount(context.Item.AmountInCents, context.Item.Currency)
+            </MudText>
+          </CellTemplate>
+        </PropertyColumn>
+      </Columns>
+      <PagerContent>
+        <MudDataGridPager T="Booking" PageSizeOptions="PageSizes" InfoFormat="@PagerInfo" />
+      </PagerContent>
+    </MudDataGrid>
+  }
 </PageFrame>
+
+@code {
+    /// <summary>
+    /// The pages a person can pick. Deliberately without MudBlazor's "all"
+    /// entry: it asks for every booking at once, which on Blazor Server means
+    /// rendering six thousand rows into one circuit.
+    /// </summary>
+    private static readonly int[] PageSizes = [25, 50, 100];
+
+    private bool isEmpty;
+
+    private int firstOnPage;
+    private int lastOnPage;
+    private int totalCount;
+
+    /// <summary>
+    /// The pager's info line, already written out rather than left as a
+    /// template. MudBlazor formats the three counts itself and with a culture
+    /// of its own, which puts an English thousands separator — <c>6,327</c> —
+    /// into a German page. Handing it a finished sentence is what keeps the
+    /// separators the ones the rest of the screen uses; there is no placeholder
+    /// left in it for MudBlazor to fill.
+    /// </summary>
+    private string PagerInfo => string.Format(
+        CultureInfo.CurrentCulture,
+        text["MudDataGridPager_InfoFormat"],
+        firstOnPage,
+        lastOnPage,
+        totalCount);
+
+    protected override async Task OnInitializedAsync()
+        => isEmpty = await reader.CountAsync() == 0;
+
+    private async Task<GridData<Booking>> LoadAsync(GridState<Booking> state, CancellationToken cancellationToken)
+    {
+        var sort = state.SortDefinitions.FirstOrDefault();
+
+        var request = new BookingPageRequest(
+            Skip: state.Page * state.PageSize,
+            // Clamped rather than rejected: the page size travels from the
+            // browser, and a value the model refuses would take the circuit down
+            // instead of showing a list.
+            Take: Math.Clamp(state.PageSize, 1, BookingPageRequest.MaxTake),
+            SortBy: ColumnOf(sort?.SortBy),
+            Descending: sort?.Descending ?? true);
+
+        var page = await reader.ReadPageAsync(request, cancellationToken);
+
+        totalCount = page.TotalCount;
+        firstOnPage = page.Bookings.Count == 0 ? 0 : request.Skip + 1;
+        lastOnPage = request.Skip + page.Bookings.Count;
+
+        // The grid renders itself when this returns, not the page around it, so
+        // the pager would otherwise keep the info line of the page before.
+        await InvokeAsync(StateHasChanged);
+
+        return new GridData<Booking> { Items = page.Bookings, TotalItems = page.TotalCount };
+    }
+
+    /// <summary>
+    /// The column MudBlazor names, as the reader knows it. The grid reports a
+    /// sort as the property name of the column that was clicked, and the columns
+    /// above are the only ones there are — anything else is the unsorted state
+    /// and means the default order.
+    /// </summary>
+    private static BookingSortColumn ColumnOf(string? sortBy)
+        => Enum.TryParse<BookingSortColumn>(sortBy, out var column) && Enum.IsDefined(column)
+            ? column
+            : BookingSortColumn.BookedOn;
+
+    /// <summary>
+    /// Green for a credit, red for a debit — and neither for a booking of
+    /// nothing. The colour only reinforces the sign the amount already carries
+    /// (see <c>docs/ui.md</c>).
+    /// </summary>
+    private static Color ColourOf(long amountInCents) => amountInCents switch
+    {
+        < 0 => Color.Error,
+        > 0 => Color.Success,
+        _ => Color.Default,
+    };
+}
