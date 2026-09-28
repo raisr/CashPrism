@@ -97,7 +97,8 @@ data exports because that is what the application is for.
 
 ## Third-party notices
 
-CashPrism is built with other people's open-source packages. Their licences
-and copyright notices are listed in
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which also ships next to the
-executable produced by `dotnet publish`.
+CashPrism is built with other people's open-source packages.
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) names each one with its
+licence and copyright notice and reproduces every licence text in full, as
+those licences require. It ships next to the executable produced by
+`dotnet publish`.

@@ -97,9 +97,12 @@ releases and the minor version is bumped for every notable change.
   export. Why a file was refused is currently written to the console rather
   than onto the page, because those messages are not translated yet.
 - `THIRD-PARTY-NOTICES.md` lists the name, version, licence and copyright of
-  every package the published build actually ships, generated from
-  `CashPrism.Shell`'s own publish output rather than typed by hand. It ships
-  next to the executable that `dotnet publish` produces.
+  every package the published build actually ships, and reproduces the full
+  text of every licence it names — which is what MIT and Apache-2.0 actually
+  ask a distributor to pass on. It is generated from `CashPrism.Shell`'s own
+  publish output rather than typed by hand, and ships next to the executable
+  that `dotnet publish` produces. Where a package declares no copyright notice
+  at all, the file says so instead of guessing one from its author list.
 
 ### Changed
 

@@ -1,0 +1,25 @@
+{
+  "comment": [
+    "Copyright notices for packages whose nuspec declares none, and which ship no",
+    "licence file inside the package either. MIT requires the copyright notice to",
+    "travel with the software, so leaving the row empty would not discharge the",
+    "obligation - but neither would inventing one from the <authors> field.",
+    "Every entry below is copied verbatim from the licence file in the project's",
+    "own repository, named in 'source'. Maintained by hand; the generator fails",
+    "when an entry names a package CashPrism.Shell no longer ships."
+  ],
+  "copyright": {
+    "ClosedXML": {
+      "notice": "Copyright (c) 2016 ClosedXML",
+      "source": "https://github.com/ClosedXML/ClosedXML/blob/develop/LICENSE"
+    },
+    "ClosedXML.Parser": {
+      "notice": "Copyright (c) 2023, Jan Havlíček",
+      "source": "https://github.com/ClosedXML/ClosedXML.Parser/blob/main/LICENSE.txt"
+    },
+    "ExcelNumberFormat": {
+      "notice": "Copyright (c) 2017 andersnm",
+      "source": "https://github.com/andersnm/ExcelNumberFormat/blob/master/LICENSE"
+    }
+  }
+}

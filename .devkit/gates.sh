@@ -2,7 +2,7 @@
 # The gates that must be green before a commit. Project-owned: devkit-sync
 # never overwrites this file, so adjust the commands to fit the repository.
 #
-# Usage:  bash .devkit/gates.sh [build|test|format|all]
+# Usage:  bash .devkit/gates.sh [build|test|format|notices|all]
 #         (no argument means all)
 set -uo pipefail
 

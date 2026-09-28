@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 // Regenerates THIRD-PARTY-NOTICES.md from what CashPrism.Shell actually
 // publishes.
@@ -19,61 +19,140 @@ using System.Text.Json;
 // that. `nuget-license` (pinned in .config/dotnet-tools.json) supplies the
 // licence and copyright metadata for the packages deps.json names.
 //
+// The publish below deliberately passes nothing that could change the resolved
+// package graph — no runtime identifier, no --self-contained. The shape of the
+// shipped build lives in CashPrism.Shell.csproj, so this publish resolves
+// whatever the release publish resolves and cannot drift from it by carrying
+// its own flags. ReadShippedPackages backs that up: it rejects any deps.json
+// library type it was not written for, so making the project self-contained
+// fails here — loudly — instead of silently leaving the .NET runtime's own
+// licence out of a file that claims to be complete.
+//
+// The licence texts themselves are committed under .devkit/licenses/, one file
+// per SPDX identifier, named exactly as nuget-license reports it. They are the
+// canonical texts and are not edited, with one exception: MIT.txt carries a
+// placeholder where the canonical template puts the copyright line, because one
+// text covers many packages and each package's own notice sits in the table
+// above it. A shipped package under a licence with no file there fails rather
+// than producing a notices file that claims to reproduce a licence it does not
+// carry.
+//
 // Usage: dotnet run --file .devkit/generate-third-party-notices.cs [--output <path>]
 //
-// --output defaults to THIRD-PARTY-NOTICES.md at the repository root, i.e.
-// this overwrites the real, committed file — the maintenance command to run
-// by hand, and what CashPrism.Shell.csproj's own pre-publish target does
-// automatically whenever a package changed. `gates.sh` passes a temporary
-// path instead, to check the committed file is still current without
-// touching it.
-//
-// The internal publish passes -p:GeneratingThirdPartyNotices=true, which the
-// pre-publish target's own Condition checks: without it, that publish would
-// build Shell again, which would fire the pre-publish target again, which
-// would publish again — forever.
+// --output defaults to THIRD-PARTY-NOTICES.md at the repository root, i.e. this
+// overwrites the real, committed file — the maintenance command to run by hand
+// after a package change. `gates.sh` passes a temporary path instead, to check
+// the committed file is still current without touching it.
 
 internal static class Program
 {
     private const string ShellProject = "src/CashPrism.Shell/CashPrism.Shell.csproj";
     private const string NoticesFileName = "THIRD-PARTY-NOTICES.md";
+    private const string OverridesFileName = ".devkit/third-party-notices.overrides.json";
+    private const string LicenseTextDirectory = ".devkit/licenses";
+    private const string NotDeclared = "— not declared by the package";
 
-    private static int Main(string[] args)
+    private static async Task<int> Main(string[] args)
     {
-        var outputArg = ParseArgs(args);
+        // A maintenance command that fails says why in one line. A stack trace
+        // through an async pipeline buries the sentence that names the problem.
+        try
+        {
+            return await GenerateAsync(args);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or IOException)
+        {
+            Console.Error.WriteLine(exception.Message);
+            return 1;
+        }
+    }
 
-        var repoRoot = Run("git", "rev-parse --show-toplevel").Trim();
+    private static async Task<int> GenerateAsync(string[] args)
+    {
+        if (!TryParseArgs(args, out var outputArg, out var argumentError))
+        {
+            Console.Error.WriteLine(argumentError);
+            return 1;
+        }
+
+        var repoRoot = (await RunAsync("git", "rev-parse", "--show-toplevel")).Trim();
         var outputPath = outputArg is null ? Path.Combine(repoRoot, NoticesFileName) : Path.GetFullPath(outputArg);
         Directory.SetCurrentDirectory(repoRoot);
 
-        Run("dotnet", "tool restore");
+        await RunAsync("dotnet", "tool", "restore");
 
         var publishDir = Directory.CreateTempSubdirectory("cashprism-notices-");
         try
         {
-            Run(
-                "dotnet",
-                $"publish \"{ShellProject}\" -c Release -o \"{publishDir.FullName}\" --nologo -p:GeneratingThirdPartyNotices=true");
-            var depsJsonPath = Path.Combine(publishDir.FullName, "CashPrism.Shell.deps.json");
+            await RunAsync("dotnet", "publish", ShellProject, "-c", "Release", "-o", publishDir.FullName, "--nologo");
 
-            var shipped = ReadShippedPackages(depsJsonPath);
+            var shipped = ReadShippedPackages(Path.Combine(publishDir.FullName, "CashPrism.Shell.deps.json"));
+            var metadata = await ReadLicenseMetadataAsync();
+            var overrides = ReadCopyrightOverrides();
 
-            var metadata = ReadLicenseMetadata();
+            var problems = new List<string>();
 
-            var missing = shipped.Where(id => !metadata.ContainsKey(id)).ToList();
-            if (missing.Count > 0)
+            foreach (var package in shipped.Where(package => !metadata.ContainsKey(package)))
             {
-                Console.Error.WriteLine("No licence metadata for: " + string.Join(", ", missing.Select(m => $"{m.Id} {m.Version}")));
-                return 1;
+                problems.Add($"No licence metadata for {package.Id} {package.Version}.");
+            }
+
+            foreach (var package in shipped.Where(package => metadata.TryGetValue(package, out var notice) && notice.License.Length == 0))
+            {
+                problems.Add(
+                    $"{package.Id} {package.Version} declares no licence. A package whose licence is unknown "
+                    + "cannot be shipped under it: establish the licence and feed it in with nuget-license's "
+                    + "-override option, or drop the package.");
+            }
+
+            foreach (var id in overrides.Keys.Where(id => shipped.All(package => package.Id != id)))
+            {
+                problems.Add($"{OverridesFileName} overrides the copyright of {id}, which CashPrism.Shell does not ship.");
             }
 
             var rows = shipped
-                .Select(id => metadata[id])
-                .OrderBy(p => p.Id, StringComparer.OrdinalIgnoreCase)
+                .Where(metadata.ContainsKey)
+                .Select(package => metadata[package])
+                .Select(notice => notice with
+                {
+                    Copyright = overrides.TryGetValue(notice.Id, out var recovered) ? recovered : notice.Copyright,
+                })
+                .OrderBy(notice => notice.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            File.WriteAllText(outputPath, Render(rows));
-            Console.WriteLine($"Wrote {rows.Count} packages to {outputPath}.");
+            var licenseTexts = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var license in rows.Select(row => row.License).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                var path = LicenseTextPath(license);
+                if (path is null || !File.Exists(path))
+                {
+                    problems.Add(
+                        $"No licence text for '{license}'. Add it as {LicenseTextDirectory}/{license}.txt: the "
+                        + "notices file states that it reproduces every licence it names, and MIT and Apache-2.0 "
+                        + "both require the text to travel with the software.");
+                    continue;
+                }
+
+                licenseTexts[license] = File.ReadAllText(path).ReplaceLineEndings("\n").TrimEnd('\n');
+            }
+
+            if (problems.Count > 0)
+            {
+                problems.ForEach(Console.Error.WriteLine);
+                return 1;
+            }
+
+            // Written through a StreamWriter with an explicit NewLine, because the
+            // default is Environment.NewLine and that is CRLF on Windows, while
+            // .gitattributes normalises every text file to LF. The committed file
+            // would then differ from the generated one on a fresh clone, and the
+            // notices gate would be red with a whole-file diff and no hint why.
+            using (var writer = new StreamWriter(outputPath) { NewLine = "\n" })
+            {
+                Render(writer, rows, licenseTexts);
+            }
+
+            Console.WriteLine($"Wrote {rows.Count} packages and {licenseTexts.Count} licence texts to {outputPath}.");
             return 0;
         }
         finally
@@ -82,121 +161,206 @@ internal static class Program
         }
     }
 
-    private static string? ParseArgs(string[] args)
+    private static bool TryParseArgs(string[] args, out string? output, out string? error)
     {
-        string? output = null;
+        output = null;
+        error = null;
         for (var i = 0; i < args.Length; i++)
         {
             switch (args[i])
             {
                 case "--output":
+                    if (i + 1 == args.Length)
+                    {
+                        error = "--output needs a path.";
+                        return false;
+                    }
+
                     output = args[++i];
                     break;
                 default:
-                    throw new ArgumentException($"Unknown argument: {args[i]}");
+                    error = $"Unknown argument: {args[i]}";
+                    return false;
             }
         }
 
-        return output;
+        return true;
     }
 
-    private static IReadOnlyList<(string Id, string Version)> ReadShippedPackages(string depsJsonPath)
+    // Accepts only the library types a framework-dependent publish produces and
+    // rejects every other one rather than skipping what it does not know: a
+    // self-contained publish adds the runtime pack, and its licence would
+    // otherwise go unnamed with nothing saying so.
+    private static IReadOnlyList<PackageIdentity> ReadShippedPackages(string depsJsonPath)
     {
         using var document = JsonDocument.Parse(File.ReadAllText(depsJsonPath));
-        var libraries = document.RootElement.GetProperty("libraries");
 
-        var packages = new List<(string Id, string Version)>();
-        foreach (var library in libraries.EnumerateObject())
+        var packages = new List<PackageIdentity>();
+        foreach (var library in document.RootElement.GetProperty("libraries").EnumerateObject())
         {
-            if (library.Value.GetProperty("type").GetString() != "package")
+            var type = library.Value.TryGetProperty("type", out var typeProperty) ? typeProperty.GetString() : null;
+            if (type == "project")
             {
                 continue;
             }
 
+            if (type != "package")
+            {
+                throw new InvalidOperationException(
+                    $"deps.json library '{library.Name}' has the unhandled type '{type ?? "(none)"}'. The publish "
+                    + "shape changed; establish what that type ships, and whose licence covers it, before "
+                    + "extending this generator.");
+            }
+
             var separator = library.Name.LastIndexOf('/');
-            packages.Add((library.Name[..separator], library.Name[(separator + 1)..]));
+            if (separator < 0)
+            {
+                throw new InvalidOperationException(
+                    $"deps.json library '{library.Name}' is not in the expected '<id>/<version>' form.");
+            }
+
+            packages.Add(new PackageIdentity(library.Name[..separator], library.Name[(separator + 1)..]));
         }
 
         return packages;
     }
 
-    private static Dictionary<(string Id, string Version), PackageNotice> ReadLicenseMetadata()
+    private static async Task<Dictionary<PackageIdentity, PackageNotice>> ReadLicenseMetadataAsync()
     {
-        var json = Run(
-            "dotnet",
-            $"tool run nuget-license -- -i \"{ShellProject}\" -t -o Json");
+        var json = await RunAsync("dotnet", "tool", "run", "nuget-license", "--", "-i", ShellProject, "-t", "-o", "Json");
 
         using var document = JsonDocument.Parse(json);
 
-        var metadata = new Dictionary<(string Id, string Version), PackageNotice>();
+        var metadata = new Dictionary<PackageIdentity, PackageNotice>();
         foreach (var entry in document.RootElement.EnumerateArray())
         {
-            var id = entry.GetProperty("PackageId").GetString()!;
-            var version = entry.GetProperty("PackageVersion").GetString()!;
-            var license = entry.TryGetProperty("License", out var licenseProperty)
-                ? licenseProperty.GetString() ?? "unknown"
-                : "unknown";
-            var copyright = entry.TryGetProperty("Copyright", out var copyrightProperty)
-                ? copyrightProperty.GetString()
-                : null;
-            var authors = entry.TryGetProperty("Authors", out var authorsProperty)
-                ? authorsProperty.GetString()
-                : null;
+            var identity = new PackageIdentity(
+                entry.GetProperty("PackageId").GetString()!,
+                entry.GetProperty("PackageVersion").GetString()!);
 
-            metadata[(id, version)] = new PackageNotice(
-                id,
-                version,
-                license,
-                copyright ?? (authors is null ? "" : $"Copyright (c) {authors}"));
+            metadata[identity] = new PackageNotice(
+                identity.Id,
+                identity.Version,
+                ReadString(entry, "License") ?? "",
+                ReadString(entry, "Copyright") ?? NotDeclared);
         }
 
         return metadata;
     }
 
-    private static string Render(IReadOnlyList<PackageNotice> rows)
+    // Copyright notices for packages that declare none. Deliberately not derived
+    // from <authors>: a notice assembled out of a field that is not one reads
+    // exactly like a real one, and this file exists to reproduce the real one.
+    private static Dictionary<string, string> ReadCopyrightOverrides()
     {
-        var builder = new StringBuilder();
-        builder.AppendLine("# Third-party notices");
-        builder.AppendLine();
-        builder.AppendLine("CashPrism is built with the following third-party packages. Each is used");
-        builder.AppendLine("under its own licence, reproduced here as that licence requires. This file is");
-        builder.AppendLine("generated — see `.devkit/generate-third-party-notices.cs` — and ships next to");
-        builder.AppendLine("the executable produced by `dotnet publish`. Publishing `CashPrism.Shell`");
-        builder.AppendLine("regenerates it automatically whenever a package changed.");
-        builder.AppendLine();
-        builder.AppendLine("| Package | Version | Licence | Copyright |");
-        builder.AppendLine("|---|---|---|---|");
-        foreach (var row in rows)
-        {
-            builder.AppendLine($"| {row.Id} | {row.Version} | {row.License} | {row.Copyright} |");
-        }
+        using var document = JsonDocument.Parse(File.ReadAllText(OverridesFileName));
 
-        return builder.ToString();
+        return document.RootElement.GetProperty("copyright").EnumerateObject()
+            .ToDictionary(entry => entry.Name, entry => entry.Value.GetProperty("notice").GetString()!);
     }
 
-    private static string Run(string fileName, string arguments)
+    private static string? LicenseTextPath(string license) =>
+        license.Length == 0 || license.AsSpan().IndexOfAny(Path.GetInvalidFileNameChars()) >= 0
+            ? null
+            : Path.Combine(LicenseTextDirectory, license + ".txt");
+
+    private static void Render(
+        TextWriter writer,
+        IReadOnlyList<PackageNotice> rows,
+        IReadOnlyDictionary<string, string> licenseTexts)
     {
-        var startInfo = new ProcessStartInfo(fileName, arguments)
+        writer.WriteLine("# Third-party notices");
+        writer.WriteLine();
+        writer.WriteLine("CashPrism ships the third-party packages listed below. The table names the");
+        writer.WriteLine("licence each one is used under and the copyright notice it carries; the full");
+        writer.WriteLine("text of every licence named is reproduced further down, as those licences");
+        writer.WriteLine("require.");
+        writer.WriteLine();
+        writer.WriteLine("This file is generated — see `.devkit/generate-third-party-notices.cs` — and");
+        writer.WriteLine("ships next to the executable produced by `dotnet publish`. Regenerate it after");
+        writer.WriteLine("a package change; the `notices` gate fails while it is stale.");
+        writer.WriteLine();
+        writer.WriteLine("| Package | Version | Licence | Copyright |");
+        writer.WriteLine("|---|---|---|---|");
+        foreach (var row in rows)
+        {
+            writer.WriteLine($"| {row.Id} | {row.Version} | {row.License} | {Cell(row.Copyright)} |");
+        }
+
+        if (rows.Any(row => row.Copyright == NotDeclared))
+        {
+            writer.WriteLine();
+            writer.WriteLine($"A copyright reading \"{NotDeclared}\" is declared neither in that package's own");
+            writer.WriteLine("metadata nor in a licence file inside it, and no notice for it has been found");
+            writer.WriteLine("elsewhere yet. The gap is deliberate: an approximation a reader cannot tell");
+            writer.WriteLine("apart from a real notice is worse than a missing one. Notices recovered from a");
+            writer.WriteLine($"project's own repository are recorded in `{OverridesFileName}`, each");
+            writer.WriteLine("with the source it was copied from.");
+        }
+
+        writer.WriteLine();
+        writer.WriteLine("## Licence texts");
+
+        foreach (var (license, text) in licenseTexts)
+        {
+            writer.WriteLine();
+            writer.WriteLine($"### {license}");
+            writer.WriteLine();
+            writer.WriteLine($"Applies to every package marked `{license}` in the table above. Each of them");
+            writer.WriteLine("keeps its own copyright notice, as given in that table.");
+            writer.WriteLine();
+            writer.WriteLine("```text");
+            foreach (var line in text.Split('\n'))
+            {
+                writer.WriteLine(line);
+            }
+
+            writer.WriteLine("```");
+        }
+    }
+
+    // A pipe inside a value ends the table cell, so one copyright line carrying
+    // one would silently break the row it sits in.
+    private static string Cell(string value) => value.Replace("|", "\\|");
+
+    private static string? ReadString(JsonElement element, string propertyName) =>
+        element.TryGetProperty(propertyName, out var property) ? property.GetString() : null;
+
+    // Both streams are read concurrently: reading stdout to the end first
+    // deadlocks as soon as the child fills the stderr pipe while this process is
+    // still blocked on stdout.
+    private static async Task<string> RunAsync(string fileName, params string[] arguments)
+    {
+        var startInfo = new ProcessStartInfo(fileName)
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
         };
 
+        foreach (var argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
         using var process = Process.Start(startInfo)!;
-        var stdout = process.StandardOutput.ReadToEnd();
-        var stderr = process.StandardError.ReadToEnd();
-        process.WaitForExit();
+        var stdout = process.StandardOutput.ReadToEndAsync();
+        var stderr = process.StandardError.ReadToEndAsync();
+        await Task.WhenAll(stdout, stderr);
+        await process.WaitForExitAsync();
 
         if (process.ExitCode != 0)
         {
             throw new InvalidOperationException(
-                $"'{fileName} {arguments}' exited with {process.ExitCode}.\n{stdout}\n{stderr}");
+                $"'{fileName} {string.Join(' ', arguments)}' exited with {process.ExitCode}."
+                + $"{Environment.NewLine}{stdout.Result}{Environment.NewLine}{stderr.Result}");
         }
 
-        Console.Error.Write(stderr);
-        return stdout;
+        Console.Error.Write(stderr.Result);
+        return stdout.Result;
     }
+
+    private sealed record PackageIdentity(string Id, string Version);
 
     private sealed record PackageNotice(string Id, string Version, string License, string Copyright);
 }
