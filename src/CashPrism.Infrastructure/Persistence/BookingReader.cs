@@ -1,4 +1,5 @@
 using CashPrism.Application.Bookings;
+using CashPrism.Application.Paging;
 using CashPrism.Domain.Bookings;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,7 +24,7 @@ public sealed class BookingReader : IBookingReader
     }
 
     /// <inheritdoc />
-    public async Task<BookingPage> ReadPageAsync(
+    public async Task<Page<Booking>> ReadPageAsync(
         BookingPageRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -40,7 +41,7 @@ public sealed class BookingReader : IBookingReader
             .Take(request.Take)
             .ToListAsync(cancellationToken);
 
-        return new BookingPage(page, total);
+        return new Page<Booking>(page, total);
     }
 
     /// <inheritdoc />

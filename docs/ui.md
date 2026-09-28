@@ -147,6 +147,43 @@ only reinforce it, which is the rule the theme is built on.
 An empty database gets the message and a button to the upload page rather than
 a table of nothing with a pager counting to zero.
 
+## The list of past imports
+
+The Importverlauf page shows what was read and when: the time of the run, the
+file, the export date taken from the sheet name, the file checksum and the four
+counts the import reported. It is the page that turns an import from a number
+that was on screen once into something you can look back at.
+
+**One order, and no sorting.** A history is read as a history, so the list is
+fixed newest first. Making the columns sortable would only make it harder to
+see what happened last.
+
+**The order is made here, not by the database.** This is the one place a reader
+in CashPrism does not let SQLite order its rows. `ImportedAt` is a
+`DateTimeOffset`, and SQLite has no type that orders one: EF Core refuses to
+translate the `ORDER BY` rather than return a wrong order, and no expression
+over the property translates either. `ImportRunReader` therefore reads the runs
+and orders them in memory. What makes that affordable is the size of the set —
+one row per imported file, written one import at a time, against six thousand
+bookings in a single export. Storing the instant in a form SQLite can order is
+a change to the schema and to the rows already in it, and this reader is where
+it would pay off first.
+
+**The checksum is shortened.** A SHA-256 written as hex is 64 characters, which
+no column can carry beside seven others. The first twelve are enough to tell
+two runs apart and to match one against a hash from elsewhere; the whole value
+is the cell's title, so nothing is actually hidden.
+
+**A run without an export date says so.** The date comes from the sheet name,
+and a name this version cannot read a date out of leaves the field empty — the
+column then reads `unbekannt` rather than showing a blank cell that could just
+as well be a rendering fault.
+
+Importing the same file twice records no second run: the import recognises the
+file by its hash and stops before a run exists (see
+[`finanzguru-export.md`](finanzguru-export.md)). The list shows what happened,
+and nothing happened.
+
 ## The upload page
 
 The Import page is the only page that does work rather than showing it, and

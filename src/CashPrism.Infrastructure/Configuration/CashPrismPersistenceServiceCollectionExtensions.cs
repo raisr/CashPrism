@@ -38,6 +38,7 @@ public static class CashPrismPersistenceServiceCollectionExtensions
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IImportStore, ImportStore>();
         services.AddScoped<IBookingReader, BookingReader>();
+        services.AddScoped<IImportRunReader, ImportRunReader>();
         services.AddSingleton<IClock, SystemClock>();
 
         return services;
