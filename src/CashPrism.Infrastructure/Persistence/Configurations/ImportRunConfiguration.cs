@@ -24,7 +24,20 @@ public sealed class ImportRunConfiguration : IEntityTypeConfiguration<ImportRun>
         builder.Property(run => run.FileHash);
         builder.Property(run => run.SheetName);
         builder.Property(run => run.ExportedOn);
-        builder.Property(run => run.ImportedAt);
+        // Stored as a UTC DateTime rather than as the DateTimeOffset the model
+        // carries. SQLite has no type that orders a DateTimeOffset — it writes
+        // one as text with the offset appended, which only compares correctly
+        // while every row carries the same offset, so EF Core refuses to
+        // translate an ORDER BY over it at all. Without this the list of runs
+        // could not ask the database for its own order, and nothing could ever
+        // ask for the runs since a date.
+        //
+        // Nothing is lost by dropping the offset: the only clock that writes
+        // this is UTC, and what comes back says so.
+        builder.Property(run => run.ImportedAt)
+            .HasConversion(
+                run => run.UtcDateTime,
+                stored => new DateTimeOffset(stored, TimeSpan.Zero));
         builder.Property(run => run.RowsRead);
         builder.Property(run => run.BookingsInserted);
         builder.Property(run => run.BookingsUpdated);

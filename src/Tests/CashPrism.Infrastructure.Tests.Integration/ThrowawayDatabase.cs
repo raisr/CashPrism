@@ -1,6 +1,8 @@
 using CashPrism.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CashPrism.Infrastructure.Tests.Integration;
 
@@ -26,10 +28,54 @@ public sealed class ThrowawayDatabase : IAsyncDisposable
 
         Directory.CreateDirectory(Path.GetDirectoryName(database.filePath)!);
 
-        await using var context = database.CreateContext();
-        await context.Database.MigrateAsync();
+        await database.MigrateAsync();
 
         return database;
+    }
+
+    /// <summary>
+    /// Creates the file and applies the migrations up to and including
+    /// <paramref name="upToMigration"/>, leaving the ones after it unapplied.
+    /// That is how a test gets at a database as an earlier version of CashPrism
+    /// left it, which is the only way to assert what a migration does to rows
+    /// that are already there.
+    /// </summary>
+    /// <param name="upToMigration">
+    /// The migration to stop at, by name without its timestamp — for example
+    /// <c>ImportCountsAndBookingSource</c>.
+    /// </param>
+    public static async Task<ThrowawayDatabase> CreateAsync(string upToMigration)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(upToMigration);
+
+        var database = new ThrowawayDatabase();
+
+        Directory.CreateDirectory(Path.GetDirectoryName(database.filePath)!);
+
+        await database.MigrateAsync(upToMigration);
+
+        return database;
+    }
+
+    /// <summary>
+    /// Brings the file up to the schema this build expects, the same way the
+    /// application does on start.
+    /// </summary>
+    /// <param name="upToMigration">
+    /// Where to stop, or <see langword="null"/> for every migration there is.
+    /// </param>
+    public async Task MigrateAsync(string? upToMigration = null)
+    {
+        await using var context = CreateContext();
+
+        if (upToMigration is null)
+        {
+            await context.Database.MigrateAsync();
+
+            return;
+        }
+
+        await context.GetService<IMigrator>().MigrateAsync(upToMigration);
     }
 
     /// <summary>

@@ -30,33 +30,27 @@ public sealed class ImportRunReader : IImportRunReader
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        // Read whole and ordered here rather than by the database, which is the
-        // one thing this reader does that the booking reader does not.
-        // ImportedAt is a DateTimeOffset, and SQLite has no type that orders one:
-        // EF Core refuses to translate the ORDER BY rather than return a wrong
-        // order, and no expression over the property translates either. What
-        // makes that affordable is the size of the set — one row per imported
-        // file, and a person imports a file at a time. Storing the instant in a
-        // form SQLite can order is a change to the schema, and this reader is
-        // where it would pay off first.
-        //
         // Nothing read here is written back, and the tracker would otherwise hold
         // every run of every page a circuit ever looked at.
-        var runs = await context.ImportRuns
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var runs = context.ImportRuns.AsNoTracking();
 
+        var total = await runs.CountAsync(cancellationToken);
+
+        // Ordering by ImportedAt is only translatable because the column stores a
+        // UTC DateTime rather than the DateTimeOffset the model carries — see
+        // ImportRunConfiguration, which is where that is decided and why.
+        //
         // The id is the second key for the same reason the booking list has one:
         // two runs can share an import time, and a tie left unbroken is how a
         // pager shows one run twice and another never.
-        var page = runs
+        var page = await runs
             .OrderByDescending(run => run.ImportedAt)
             .ThenByDescending(run => run.Id)
             .Skip(request.Skip)
             .Take(request.Take)
-            .ToList();
+            .ToListAsync(cancellationToken);
 
-        return new Page<ImportRun>(page, runs.Count);
+        return new Page<ImportRun>(page, total);
     }
 
     /// <inheritdoc />
