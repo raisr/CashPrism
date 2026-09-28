@@ -12,14 +12,20 @@ section of the README.
 | No browser window | `dotnet run --project src/CashPrism.Shell -- --no-browser` |
 | A build you can run without the SDK on the machine | `dotnet publish src/CashPrism.Shell -c Release -o out`, then start `out/CashPrism.Shell` |
 | The settings to stick | The `Hosting` section of `src/CashPrism.Shell/appsettings.json` |
-| Refresh [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) by hand | `dotnet run --file .devkit/generate-third-party-notices.cs` (publishing `CashPrism.Shell` already does this automatically) |
+| Refresh [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) after a package change | `dotnet run --file .devkit/generate-third-party-notices.cs` (the `notices` gate fails while it is stale) |
 
 The switches win over `appsettings.json` and can be used together:
 `-- --port 5099 --no-browser`. Note the bare `--`: it separates the arguments for
 `dotnet run` from the arguments for CashPrism.
 
 A single self-contained executable per platform — the double-click case, without
-any .NET installed — is still on the roadmap.
+any .NET installed — is still on the roadmap. The shape of the published build
+is set in `src/CashPrism.Shell/CashPrism.Shell.csproj`, never on the publish
+command line, so that step is a change to that file. It has to be: a runtime
+identifier or a self-contained switch changes which packages are resolved, and
+[THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) is generated from exactly
+that set. Passing such a flag on the command line would leave the notices
+describing a build nobody distributes.
 
 ## Settings
 
