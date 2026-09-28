@@ -109,6 +109,16 @@ releases and the minor version is bumped for every notable change.
   lose data. Two instances on two data directories are unaffected, and the
   database is free again the moment the owning process ends, a crash included.
   See [`docs/hosting.md`](docs/hosting.md).
+- The Buchungen page now shows the bookings. Date, account, counterparty,
+  payment reference, category and amount, newest first, with every column
+  sortable and pages of 25, 50 or 100 rows. Amounts always carry their sign and
+  two decimals, and a credit and a debit are told apart by that sign before
+  their colour. While nothing is imported the page says so and offers the way to
+  the upload instead of an empty table. Sorting and paging happen in the
+  database rather than in the browser, so the measured export of 6,327 bookings
+  is one screen of rows over the network and not six thousand.
+  The pager counts in German, separators included.
+  See [`docs/ui.md`](docs/ui.md).
 
 ### Changed
 
