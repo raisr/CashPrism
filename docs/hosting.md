@@ -42,6 +42,22 @@ Connections are plain HTTP. A self-signed certificate would mean a security
 warning on every phone and tablet in the house, so CashPrism does not pretend to
 offer encryption it cannot deliver on a home network.
 
+## One instance per database
+
+Only one CashPrism at a time may use a database file. SQLite tolerates
+concurrent writers badly, so a second start against the same data directory
+refuses with one line naming the file rather than joining in and risking the
+data.
+
+The guard is a `cashprism.db.lock` file next to the database, opened exclusively
+and held for as long as the process lives. The database file itself cannot carry
+the lock, because SQLite has to be able to open it. An operating system closes
+the handles of a process that ends, however it ended, so a crash or a pulled
+plug leaves nothing to clean up by hand — the next start simply works.
+
+Two instances against two data directories are fine: give the second one its own
+`Hosting:DataDirectory` and a different `--port`.
+
 ## Why several addresses are printed
 
 More than one line under *From another device* is normal. VPN, Docker and
