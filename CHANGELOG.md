@@ -96,6 +96,10 @@ releases and the minor version is bumped for every notable change.
   than 64 MB is not read at all — roughly fifty times the size of a real
   export. Why a file was refused is currently written to the console rather
   than onto the page, because those messages are not translated yet.
+- `THIRD-PARTY-NOTICES.md` lists the name, version, licence and copyright of
+  every package the published build actually ships, generated from
+  `CashPrism.Shell`'s own publish output rather than typed by hand. It ships
+  next to the executable that `dotnet publish` produces.
 
 ### Changed
 

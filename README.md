@@ -94,3 +94,10 @@ MIT
 Finanzguru is a registered trademark of dwins GmbH. CashPrism is an
 independent project with no connection to dwins GmbH; it reads Finanzguru's
 data exports because that is what the application is for.
+
+## Third-party notices
+
+CashPrism is built with other people's open-source packages. Their licences
+and copyright notices are listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which also ships next to the
+executable produced by `dotnet publish`.
