@@ -63,6 +63,13 @@ public sealed class Program
         // unencrypted.
         builder.WebHost.UseUrls(hosting.ListenUrl());
 
+        // The host does this by itself in Development only. Without it, an
+        // executable started out of a build rather than a publish output looks
+        // for its stylesheets and scripts under a wwwroot that only publish
+        // creates, and serves every one of them empty. A publish output carries
+        // no runtime manifest, so there this changes nothing.
+        builder.WebHost.UseStaticWebAssets();
+
         var dataDirectory = hosting.ResolveDataDirectory();
 
         // Before the database is opened, not after: SQLite will not create a file

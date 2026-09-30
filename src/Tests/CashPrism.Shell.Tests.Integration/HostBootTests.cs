@@ -11,6 +11,18 @@ namespace CashPrism.Shell.Tests.Integration;
 /// </summary>
 public sealed class HostBootTests
 {
+    /// <summary>
+    /// Every static asset the start page loads, with something only that file
+    /// carries. A static asset can answer <c>200 OK</c> with an empty body, so
+    /// the marker is what tells a served file from an empty or a wrong one.
+    /// </summary>
+    public static TheoryData<string, string> StaticAssets() => new()
+    {
+        { "_framework/blazor.web.js", "Blazor-Server-Component-State:" },
+        { "_content/MudBlazor/MudBlazor.min.css", ".mud-appbar{" },
+        { "_content/CashPrism.Web/app.css", ".app-brand" },
+    };
+
     public sealed class Startup(CashPrismWebApplicationFactory factory)
         : IClassFixture<CashPrismWebApplicationFactory>
     {
@@ -72,24 +84,15 @@ public sealed class HostBootTests
             Assert.Contains("_framework/blazor.web.js", html);
         }
 
-        [Fact]
-        public async Task Serves_The_Blazor_Web_Script()
+        [Theory]
+        [MemberData(nameof(StaticAssets), MemberType = typeof(HostBootTests))]
+        public async Task Serves_A_Static_Asset_With_Its_Content(string path, string marker)
         {
             using var client = factory.CreateClient();
 
-            using var response = await client.GetAsync("_framework/blazor.web.js");
+            var body = await client.GetStringAsync(path);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Serves_The_Stylesheet_Of_The_Web_Library()
-        {
-            using var client = factory.CreateClient();
-
-            using var response = await client.GetAsync("_content/CashPrism.Web/app.css");
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains(marker, body, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -120,6 +123,29 @@ public sealed class HostBootTests
                 "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name IN ('Bookings', 'ImportRuns', 'RawRows')";
 
             Assert.Equal(3L, await command.ExecuteScalarAsync());
+        }
+    }
+
+    /// <summary>
+    /// Production is what the executable runs as when it is started out of a
+    /// build rather than from Visual Studio — and where the host, left to
+    /// itself, serves every static asset empty.
+    /// </summary>
+    public sealed class InProduction : IDisposable
+    {
+        private readonly CashPrismWebApplicationFactory factory = new() { EnvironmentName = "Production" };
+
+        public void Dispose() => factory.Dispose();
+
+        [Theory]
+        [MemberData(nameof(StaticAssets), MemberType = typeof(HostBootTests))]
+        public async Task Serves_A_Static_Asset_With_Its_Content(string path, string marker)
+        {
+            using var client = factory.CreateClient();
+
+            var body = await client.GetStringAsync(path);
+
+            Assert.Contains(marker, body, StringComparison.Ordinal);
         }
     }
 }

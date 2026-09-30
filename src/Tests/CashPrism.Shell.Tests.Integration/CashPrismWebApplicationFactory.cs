@@ -24,6 +24,13 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
         "cashprism-tests",
         Guid.NewGuid().ToString("n"));
 
+    /// <summary>
+    /// The environment the host runs in, or <c>null</c> for the Development the
+    /// factory picks by default. Production is what an executable started
+    /// outside Visual Studio runs as.
+    /// </summary>
+    public string? EnvironmentName { get; init; }
+
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureHostConfiguration(configuration => configuration.AddInMemoryCollection(
@@ -32,6 +39,11 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
                 ["Hosting:LaunchBrowser"] = "false",
                 ["Hosting:DataDirectory"] = DataDirectory,
             }));
+
+        if (EnvironmentName is not null)
+        {
+            builder.UseEnvironment(EnvironmentName);
+        }
 
         return base.CreateHost(builder);
     }
