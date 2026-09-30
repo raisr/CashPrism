@@ -72,24 +72,23 @@ public sealed class HostBootTests
             Assert.Contains("_framework/blazor.web.js", html);
         }
 
-        [Fact]
-        public async Task Serves_The_Blazor_Web_Script()
+        /// <summary>
+        /// A static asset can answer <c>200 OK</c> with an empty body — it does
+        /// when the host runs as Production out of a build rather than a publish
+        /// output. So each asset is checked for something only that file carries,
+        /// which fails an empty response and a wrong one alike.
+        /// </summary>
+        [Theory]
+        [InlineData("_framework/blazor.web.js", "Blazor-Server-Component-State:")]
+        [InlineData("_content/MudBlazor/MudBlazor.min.css", ".mud-appbar{")]
+        [InlineData("_content/CashPrism.Web/app.css", ".app-brand")]
+        public async Task Serves_A_Static_Asset_With_Its_Content(string path, string marker)
         {
             using var client = factory.CreateClient();
 
-            using var response = await client.GetAsync("_framework/blazor.web.js");
+            var body = await client.GetStringAsync(path);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Serves_The_Stylesheet_Of_The_Web_Library()
-        {
-            using var client = factory.CreateClient();
-
-            using var response = await client.GetAsync("_content/CashPrism.Web/app.css");
-
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains(marker, body, StringComparison.Ordinal);
         }
 
         [Fact]
