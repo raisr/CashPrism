@@ -279,10 +279,10 @@ public sealed class ImporterTests
         {
             var store = new FakeImportStore();
 
-            var result = await RunImport(store, FakeImportSource.Failing("This is not an export."));
+            var result = await RunImport(store, FakeImportSource.Failing(ImportError.NoWorksheet()));
 
             Assert.Equal(ImportOutcome.Failed, result.Outcome);
-            Assert.Equal(["This is not an export."], result.Errors);
+            Assert.Equal([ImportError.NoWorksheet().Code], result.Errors.Select(error => error.Code));
             Assert.Empty(store.Runs);
             Assert.Empty(store.Bookings);
         }
@@ -305,7 +305,7 @@ public sealed class ImporterTests
                     (AFingerprint, """{"a":2}""")));
 
             Assert.Equal(ImportOutcome.Failed, result.Outcome);
-            Assert.Contains("row 2", result.Errors.Single(), StringComparison.Ordinal);
+            Assert.Equivalent(ImportError.RepeatedBookingId(row: 3, firstRow: 2), result.Errors.Single(), strict: true);
             Assert.Empty(store.Runs);
         }
 

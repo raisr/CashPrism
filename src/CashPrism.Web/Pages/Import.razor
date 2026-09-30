@@ -133,13 +133,13 @@
 
         if (result.Outcome is ImportOutcome.Failed)
         {
-            // The page cannot show these — they are English, and this UI is
-            // German (issue #55). The console the application already runs in
-            // is where they go until they can be translated.
+            // Every reason, untranslated: the page shows only the first
+            // ImportFeedback.MaxShownErrors, in German, and a bug report should
+            // not depend on what the browser happened to show.
             log.LogWarning(
                 "Import of {FileName} was refused: {Reasons}",
                 file.Name,
-                string.Join(" | ", result.Errors));
+                string.Join(" || ", result.Errors));
         }
 
         return ImportFeedback.Describe(result, text);

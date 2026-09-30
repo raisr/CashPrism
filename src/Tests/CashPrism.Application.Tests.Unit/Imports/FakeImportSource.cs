@@ -16,13 +16,13 @@ internal sealed class FakeImportSource : IImportSource
     private readonly DateOnly? exportedOn;
     private readonly (string Fingerprint, string Payload)[] rows;
     private readonly IReadOnlyList<string> unknownColumns;
-    private readonly string? error;
+    private readonly ImportError? error;
 
     private FakeImportSource(
         DateOnly? exportedOn,
         (string Fingerprint, string Payload)[] rows,
         IReadOnlyList<string> unknownColumns,
-        string? error)
+        ImportError? error)
     {
         this.exportedOn = exportedOn;
         this.rows = rows;
@@ -47,7 +47,7 @@ internal sealed class FakeImportSource : IImportSource
         => new(exportedOn, rows, unknownColumns, error: null);
 
     /// <summary>A source whose file cannot be read.</summary>
-    internal static FakeImportSource Failing(string error)
+    internal static FakeImportSource Failing(ImportError error)
         => new(exportedOn: null, rows: [], unknownColumns: [], error);
 
     public Task<ImportSourceResult> ReadAsync(

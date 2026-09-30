@@ -1,4 +1,5 @@
 using System.Text;
+using CashPrism.Application.Imports;
 using CashPrism.TestSupport.Xlsx;
 
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Integration;
@@ -91,7 +92,10 @@ public sealed class FinanzguruImportSourceTests
                 [Row(), Row(bookingId: new string('b', 40), isInternalTransfer: "vielleicht")]);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains("row 3", result.Errors.Single(), StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.NotAFlag(FinanzguruColumns.IsInternalTransfer, 3, "vielleicht", FinanzguruFlag.Yes, FinanzguruFlag.No),
+                result.Errors.Single(),
+                strict: true);
         }
 
         [Fact]

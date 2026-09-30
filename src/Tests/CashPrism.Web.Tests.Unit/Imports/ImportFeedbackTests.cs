@@ -105,21 +105,76 @@ public sealed class ImportFeedbackTests
             Assert.Empty(message.Details);
         }
 
-        /// <summary>
-        /// The reasons are English sentences built where the failure was
-        /// detected, and this UI is German — so they are logged rather than
-        /// shown. Issue #55 is what makes them showable.
-        /// </summary>
         [Fact]
-        public void Refuses_A_File_Without_Putting_English_Reasons_On_The_Page()
+        public void Reports_A_Refused_File_As_An_Error()
         {
-            var result = ImportResult.Failed(["Column 'Tags' is missing.", "Row 4 is not a date."]);
-
-            var message = ImportFeedback.Describe(result, Text());
+            var message = ImportFeedback.Describe(ImportResult.Failed([ImportError.NoWorksheet()]), Text());
 
             Assert.Equal(ImportFeedbackSeverity.Error, message.Severity);
-            Assert.Empty(message.Details);
         }
+
+        [Fact]
+        public void Names_The_Worksheet_Whose_Name_Carries_No_Export_Date()
+        {
+            var result = ImportResult.Failed(
+                [ImportError.SheetNameWithoutExportDate("Tabelle1", "_Export_Alle_Buchungen")]);
+
+            var detail = Assert.Single(ImportFeedback.Describe(result, Text()).Details);
+
+            Assert.Equal(
+                "Das Tabellenblatt heißt „Tabelle1“. Erwartet wird ein Name der Form "
+                + "„JJJJMMTT_Export_Alle_Buchungen“, denn aus ihm wird das Exportdatum gelesen.",
+                detail);
+        }
+
+        [Fact]
+        public void Names_A_Missing_Column()
+        {
+            var result = ImportResult.Failed([ImportError.MissingColumns(["Tags"])]);
+
+            var detail = Assert.Single(ImportFeedback.Describe(result, Text()).Details);
+
+            Assert.Equal("Im Export fehlen diese Spalten: Tags", detail);
+        }
+
+        [Fact]
+        public void Names_The_Column_And_The_Row_Of_A_Bad_Value()
+        {
+            var result = ImportResult.Failed([ImportError.NotAnAmount("Betrag", 4, "zwölf")]);
+
+            var detail = Assert.Single(ImportFeedback.Describe(result, Text()).Details);
+
+            Assert.Equal("Spalte „Betrag“ in Zeile 4 enthält „zwölf“ statt eines Betrags.", detail);
+        }
+
+        /// <summary>
+        /// A broken column fails every row of the export, and the page is no
+        /// place for thousands of lines.
+        /// </summary>
+        [Fact]
+        public void Lists_The_First_Reasons_And_Counts_The_Rest()
+        {
+            var errors = Enumerable
+                .Range(2, ImportFeedback.MaxShownErrors + 5)
+                .Select(row => ImportError.EmptyValue("Waehrung", row))
+                .ToArray();
+
+            var details = ImportFeedback.Describe(ImportResult.Failed(errors), Text()).Details;
+
+            Assert.Equal(ImportFeedback.MaxShownErrors + 1, details.Count);
+            Assert.StartsWith("… und 5 weitere.", details[^1], StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// A code without a translation would render as its resource key. This
+        /// fails for every code that is added without one.
+        /// </summary>
+        [Theory]
+        [MemberData(nameof(ErrorCodes))]
+        public void Takes_Every_Reason_From_The_Resource_File(ImportErrorCode code)
+            => Assert.False(Text()[ImportFeedback.ResourceKey(code)].ResourceNotFound);
+
+        public static TheoryData<ImportErrorCode> ErrorCodes() => new(Enum.GetValues<ImportErrorCode>());
 
         /// <summary>
         /// A key the resource file does not carry comes back as the key itself,
@@ -134,7 +189,7 @@ public sealed class ImportFeedbackTests
                 ("ImportSucceeded", ImportFeedback.Describe(Imported(), Text()).Headline),
                 ("ImportAlreadyImported",
                     ImportFeedback.Describe(ImportResult.AlreadyImported(Guid.NewGuid()), Text()).Headline),
-                ("ImportFailed", ImportFeedback.Describe(ImportResult.Failed(["nope"]), Text()).Headline),
+                ("ImportFailed", ImportFeedback.Describe(ImportResult.Failed([ImportError.NoWorksheet()]), Text()).Headline),
                 ("ImportUnreadable", ImportFeedback.Unreadable(Text()).Headline),
             };
 

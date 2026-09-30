@@ -1,3 +1,4 @@
+using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Unit;
@@ -90,7 +91,7 @@ public sealed class FinanzguruBookingTests
             var result = FinanzguruBooking.Create(Row((FinanzguruColumns.BookingId, " ")), ARunId);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(FinanzguruColumns.BookingId, result.Errors.Single(), StringComparison.Ordinal);
+            Assert.Equivalent(ImportError.EmptyValue(FinanzguruColumns.BookingId, 2), result.Errors.Single(), strict: true);
         }
 
         [Fact]
@@ -117,10 +118,10 @@ public sealed class FinanzguruBookingTests
                 ARunId);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(
-                FinanzguruColumns.IsInternalTransfer,
+            Assert.Equivalent(
+                ImportError.NotAFlag(FinanzguruColumns.IsInternalTransfer, 2, "vielleicht", FinanzguruFlag.Yes, FinanzguruFlag.No),
                 result.Errors.Single(),
-                StringComparison.Ordinal);
+                strict: true);
         }
 
         [Fact]
@@ -129,14 +130,14 @@ public sealed class FinanzguruBookingTests
             var result = FinanzguruBooking.Create(Row((FinanzguruColumns.SplitType, "Teilbuchung")), ARunId);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(
-                FinanzguruColumns.OriginalReferenceId,
+            Assert.Equivalent(
+                ImportError.SplitPartWithoutOriginal(FinanzguruColumns.SplitType, 2, FinanzguruColumns.OriginalReferenceId),
                 result.Errors.Single(),
-                StringComparison.Ordinal);
+                strict: true);
         }
 
         /// <summary>
-        /// One message per problem, so a person fixing an export is told
+        /// One error per problem, so a person fixing an export is told
         /// everything that is wrong with a row rather than the first thing.
         /// </summary>
         [Fact]

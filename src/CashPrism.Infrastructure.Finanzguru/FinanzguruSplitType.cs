@@ -1,3 +1,4 @@
+using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
 namespace CashPrism.Infrastructure.Finanzguru;
@@ -32,7 +33,7 @@ public static class FinanzguruSplitType
     /// surrounding whitespace is ignored and the comparison is case-insensitive.
     /// </summary>
     /// <param name="value">The cell's value, as the export stores it.</param>
-    /// <param name="row">The one-based worksheet row the cell sits in, for the failure message.</param>
+    /// <param name="row">The one-based worksheet row the cell sits in, for the failure.</param>
     /// <returns>A successful result carrying the role, or a failure naming the row.</returns>
     public static FinanzguruSplitTypeResult Parse(string? value, int row)
     {
@@ -59,7 +60,6 @@ public static class FinanzguruSplitType
         }
 
         return FinanzguruSplitTypeResult.Failure(
-            $"Column '{FinanzguruColumns.SplitType}' in row {row} carries '{word}'; "
-            + $"expected '{Original}', '{Part}', '{Remainder}' or nothing.");
+            ImportError.UnknownSplitType(FinanzguruColumns.SplitType, row, word, [Original, Part, Remainder]));
     }
 }

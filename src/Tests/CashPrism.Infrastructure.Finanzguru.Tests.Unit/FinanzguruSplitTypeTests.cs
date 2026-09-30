@@ -1,3 +1,4 @@
+using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Unit;
@@ -35,8 +36,14 @@ public sealed class FinanzguruSplitTypeTests
             var result = FinanzguruSplitType.Parse("Sammelbuchung", row: 17);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains("row 17", result.Error!, StringComparison.Ordinal);
-            Assert.Contains("Sammelbuchung", result.Error!, StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.UnknownSplitType(
+                    FinanzguruColumns.SplitType,
+                    17,
+                    "Sammelbuchung",
+                    [FinanzguruSplitType.Original, FinanzguruSplitType.Part, FinanzguruSplitType.Remainder]),
+                result.Error,
+                strict: true);
         }
     }
 }

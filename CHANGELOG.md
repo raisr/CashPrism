@@ -94,8 +94,10 @@ releases and the minor version is bumped for every notable change.
   column is named, so a change to Finanzguru's format is visible instead of
   silent. A file that is not a Finanzguru export is refused, and one larger
   than 64 MB is not read at all — roughly fifty times the size of a real
-  export. Why a file was refused is currently written to the console rather
-  than onto the page, because those messages are not translated yet.
+  export. A refused file says why, in German, on the page: which column is
+  missing, which row carries a value that is not a date or an amount, or that
+  the worksheet name carries no export date. The first 20 reasons are listed
+  and the rest counted; all of them go to the console as well.
 - `THIRD-PARTY-NOTICES.md` lists the name, version, licence and copyright of
   every package the published build actually ships, and reproduces the full
   text of every licence it names — which is what MIT and Apache-2.0 actually

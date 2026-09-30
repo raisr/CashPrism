@@ -252,6 +252,71 @@
     <comment>{0} is a comma-separated list of header names CashPrism does not know.</comment>
   </data>
   <!--
+    Why a file was refused. One entry per ImportErrorCode, keyed
+    ImportError<Code>; the placeholders follow the argument order of the
+    matching ImportError factory method.
+  -->
+  <data name="ImportErrorNotASpreadsheet" xml:space="preserve">
+    <value>Die Datei lässt sich nicht als Excel-Tabelle öffnen.</value>
+    <comment>The code carries the spreadsheet library's English reason as {0}. It goes to the log and is deliberately not shown.</comment>
+  </data>
+  <data name="ImportErrorNoWorksheet" xml:space="preserve">
+    <value>Die Datei enthält kein Tabellenblatt.</value>
+    <comment>No placeholders.</comment>
+  </data>
+  <data name="ImportErrorSheetNameWithoutExportDate" xml:space="preserve">
+    <value>Das Tabellenblatt heißt „{0}“. Erwartet wird ein Name der Form „JJJJMMTT{1}“, denn aus ihm wird das Exportdatum gelesen.</value>
+    <comment>{0} is the worksheet name, {1} the suffix that has to follow the date.</comment>
+  </data>
+  <data name="ImportErrorMissingColumns" xml:space="preserve">
+    <value>Im Export fehlen diese Spalten: {0}</value>
+    <comment>{0} is a comma-separated list of header names.</comment>
+  </data>
+  <data name="ImportErrorDuplicateColumns" xml:space="preserve">
+    <value>Diese Spalten kommen im Export mehrfach vor: {0}</value>
+    <comment>{0} is a comma-separated list of header names.</comment>
+  </data>
+  <data name="ImportErrorEmptyValue" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} ist leer, muss aber einen Wert haben.</value>
+    <comment>{0} is the column, {1} the worksheet row.</comment>
+  </data>
+  <data name="ImportErrorNotADate" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} enthält „{2}“ statt eines Datums.</value>
+    <comment>{0} is the column, {1} the worksheet row, {2} the cell's value.</comment>
+  </data>
+  <data name="ImportErrorNotAnAmount" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} enthält „{2}“ statt eines Betrags.</value>
+    <comment>{0} is the column, {1} the worksheet row, {2} the cell's value.</comment>
+  </data>
+  <data name="ImportErrorAmountNotWholeCents" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} enthält „{2}“. Ein Betrag hat höchstens zwei Nachkommastellen.</value>
+    <comment>{0} is the column, {1} the worksheet row, {2} the cell's value, written with a decimal point.</comment>
+  </data>
+  <data name="ImportErrorAmountTooLarge" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} enthält „{2}“, das ist zu groß für einen Betrag.</value>
+    <comment>{0} is the column, {1} the worksheet row, {2} the cell's value.</comment>
+  </data>
+  <data name="ImportErrorNotAFlag" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} enthält „{2}“. Erwartet wird „{3}“ oder „{4}“.</value>
+    <comment>{0} is the column, {1} the worksheet row, {2} the cell's value, {3} and {4} the export's words for yes and no.</comment>
+  </data>
+  <data name="ImportErrorUnknownSplitType" xml:space="preserve">
+    <value>Spalte „{0}“ in Zeile {1} enthält „{2}“. Erwartet wird eines von {3} oder nichts.</value>
+    <comment>{0} is the column, {1} the worksheet row, {2} the cell's value, {3} a comma-separated list of the known words.</comment>
+  </data>
+  <data name="ImportErrorSplitPartWithoutOriginal" xml:space="preserve">
+    <value>Zeile {1} ist laut Spalte „{0}“ Teil einer aufgeteilten Buchung, aber „{2}“ nennt keine Ursprungsbuchung.</value>
+    <comment>{0} is the split-type column, {1} the worksheet row, {2} the column that should name the original booking.</comment>
+  </data>
+  <data name="ImportErrorRepeatedBookingId" xml:space="preserve">
+    <value>Zeile {0} trägt dieselbe Buchungs-ID wie Zeile {1}. Eine Buchungs-ID darf nur einmal vorkommen.</value>
+    <comment>{0} is the row that repeats the id, {1} the row that carried it first.</comment>
+  </data>
+  <data name="ImportMoreErrors" xml:space="preserve">
+    <value>… und {0} weitere. Die vollständige Liste steht im Konsolenfenster von CashPrism.</value>
+    <comment>{0} is how many reasons the page leaves out. All of them go to the log.</comment>
+  </data>
+  <!--
     From here on: MudBlazor's own strings. The keys are MudBlazor's, written
     with an underscore, and ResourceMudLocalizer feeds them from this file.
     Anything left out keeps MudBlazor's English default rather than rendering

@@ -25,6 +25,12 @@ public static class ImportFeedback
     public const long MaxUploadBytes = 64L * 1024 * 1024;
 
     /// <summary>
+    /// How many reasons for a refused file the page lists before it summarises
+    /// the rest in one line.
+    /// </summary>
+    public const int MaxShownErrors = 20;
+
+    /// <summary>
     /// The message for a file the page refuses to read at all.
     /// </summary>
     /// <param name="sizeInBytes">The size of the file that was offered.</param>
@@ -70,21 +76,41 @@ public static class ImportFeedback
                 ImportFeedbackSeverity.Info,
                 text["ImportAlreadyImported"],
                 Details: []),
-            // The reasons are deliberately not shown. They are built where the
-            // failure is detected and are therefore English sentences, and this
-            // UI is German down to the last string (see Agents.md). Carrying a
-            // code and its arguments across the layer instead is issue #55;
-            // until then the page logs them and says only what it can say in
-            // German.
-            ImportOutcome.Failed => new ImportFeedbackMessage(
-                ImportFeedbackSeverity.Error,
-                text["ImportFailed"],
-                Details: []),
+            ImportOutcome.Failed => Failed(result, text),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(result),
                 result.Outcome,
                 "Unknown import outcome."),
         };
+    }
+
+    /// <summary>
+    /// The resource key a failure is translated under.
+    /// </summary>
+    /// <param name="code">What went wrong.</param>
+    public static string ResourceKey(ImportErrorCode code) => $"ImportError{code}";
+
+    private static string Explain(ImportError error, IStringLocalizer<Strings> text)
+        => text[ResourceKey(error.Code), [.. error.Arguments]];
+
+    private static ImportFeedbackMessage Failed(ImportResult result, IStringLocalizer<Strings> text)
+    {
+        // A broken column fails every row, so an export of thousands of rows
+        // would otherwise fill the page with thousands of lines. The log keeps
+        // them all.
+        var details = result.Errors
+            .Take(MaxShownErrors)
+            .Select(error => Explain(error, text))
+            .ToList();
+
+        var leftOut = result.Errors.Count - details.Count;
+
+        if (leftOut > 0)
+        {
+            details.Add(text["ImportMoreErrors", leftOut]);
+        }
+
+        return new ImportFeedbackMessage(ImportFeedbackSeverity.Error, text["ImportFailed"], details);
     }
 
     private static ImportFeedbackMessage Imported(ImportResult result, IStringLocalizer<Strings> text)

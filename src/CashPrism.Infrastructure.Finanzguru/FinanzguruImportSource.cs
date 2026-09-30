@@ -36,7 +36,7 @@ public sealed class FinanzguruImportSource : IImportSource
 
         var export = read.Export!;
         var bookings = new List<ImportedBooking>(export.Rows.Count);
-        var errors = new List<string>();
+        var errors = new List<ImportError>();
 
         foreach (var row in export.Rows)
         {

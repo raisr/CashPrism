@@ -1,3 +1,4 @@
+using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
 namespace CashPrism.Infrastructure.Finanzguru;
@@ -31,11 +32,11 @@ public static class FinanzguruBooking
             throw new ArgumentException("A booking needs the run it came from.", nameof(importRunId));
         }
 
-        var errors = new List<string>();
+        var errors = new List<ImportError>();
 
-        var fingerprint = Required(row, FinanzguruColumns.BookingId, "it identifies the booking", errors);
-        var currency = Required(row, FinanzguruColumns.Currency, "an amount without a currency says nothing", errors);
-        var accountReference = Required(row, FinanzguruColumns.AccountReference, "a booking belongs to an account", errors);
+        var fingerprint = Required(row, FinanzguruColumns.BookingId, errors);
+        var currency = Required(row, FinanzguruColumns.Currency, errors);
+        var accountReference = Required(row, FinanzguruColumns.AccountReference, errors);
 
         var isTransfer = FinanzguruFlag.Parse(
             Value(row, FinanzguruColumns.IsInternalTransfer),
@@ -63,9 +64,10 @@ public static class FinanzguruBooking
             && splitRole.Value is SplitRole.Part or SplitRole.Remainder
             && originalFingerprint is null)
         {
-            errors.Add(
-                $"Column '{FinanzguruColumns.SplitType}' in row {row.RowNumber} says the booking is a part, "
-                + $"but '{FinanzguruColumns.OriginalReferenceId}' does not say which booking it is part of.");
+            errors.Add(ImportError.SplitPartWithoutOriginal(
+                FinanzguruColumns.SplitType,
+                row.RowNumber,
+                FinanzguruColumns.OriginalReferenceId));
         }
 
         if (errors.Count > 0)
@@ -94,7 +96,7 @@ public static class FinanzguruBooking
     private static string Value(FinanzguruExportRow row, string column)
         => row.Values.TryGetValue(column, out var value) ? value : string.Empty;
 
-    private static string? Required(FinanzguruExportRow row, string column, string reason, List<string> errors)
+    private static string? Required(FinanzguruExportRow row, string column, List<ImportError> errors)
     {
         var value = Value(row, column);
 
@@ -103,7 +105,7 @@ public static class FinanzguruBooking
             return value;
         }
 
-        errors.Add($"Column '{column}' in row {row.RowNumber} is empty; {reason}.");
+        errors.Add(ImportError.EmptyValue(column, row.RowNumber));
 
         return null;
     }

@@ -1,3 +1,5 @@
+using CashPrism.Application.Imports;
+
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
@@ -11,7 +13,7 @@ namespace CashPrism.Infrastructure.Finanzguru;
 /// What is wrong with the cell, naming the column and the row so the file can be
 /// looked at. <c>null</c> on success.
 /// </param>
-public sealed record FinanzguruFlagResult(bool? Value, string? Error)
+public sealed record FinanzguruFlagResult(bool? Value, ImportError? Error)
 {
     /// <summary>Whether the cell could be read.</summary>
     public bool IsSuccess => Value.HasValue;
@@ -22,9 +24,9 @@ public sealed record FinanzguruFlagResult(bool? Value, string? Error)
 
     /// <summary>A failed result carrying <paramref name="error"/>.</summary>
     /// <param name="error">What is wrong with the cell.</param>
-    public static FinanzguruFlagResult Failure(string error)
+    public static FinanzguruFlagResult Failure(ImportError error)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(error);
+        ArgumentNullException.ThrowIfNull(error);
 
         return new FinanzguruFlagResult(Value: null, Error: error);
     }

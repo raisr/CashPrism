@@ -1,4 +1,5 @@
 using System.Globalization;
+using CashPrism.Application.Imports;
 
 namespace CashPrism.Infrastructure.Finanzguru;
 
@@ -34,8 +35,8 @@ public static class FinanzguruAmount
     /// number of cents fails and says where.
     /// </summary>
     /// <param name="value">The cell's value, as the export stores it.</param>
-    /// <param name="column">The header name of the column, for the failure message.</param>
-    /// <param name="row">The one-based worksheet row the cell sits in, for the failure message.</param>
+    /// <param name="column">The header name of the column, for the failure.</param>
+    /// <param name="row">The one-based worksheet row the cell sits in, for the failure.</param>
     /// <returns>
     /// A successful result carrying the amount in whole cents, or a failure
     /// naming the column and the row. See <see cref="FinanzguruAmountResult"/>.
@@ -48,7 +49,7 @@ public static class FinanzguruAmount
         if (double.IsNaN(value) || double.IsInfinity(value))
         {
             return FinanzguruAmountResult.Failure(
-                $"Column '{column}' in row {row} carries '{value.ToString(CultureInfo.InvariantCulture)}', which is not an amount.");
+                ImportError.NotAnAmount(column, row, value.ToString(CultureInfo.InvariantCulture)));
         }
 
         decimal units;
@@ -60,7 +61,7 @@ public static class FinanzguruAmount
         catch (OverflowException)
         {
             return FinanzguruAmountResult.Failure(
-                $"Column '{column}' in row {row} carries '{value.ToString(CultureInfo.InvariantCulture)}', which is too large to be an amount.");
+                ImportError.AmountTooLarge(column, row, value.ToString(CultureInfo.InvariantCulture)));
         }
 
         var cents = units * CentsPerUnit;
@@ -69,14 +70,13 @@ public static class FinanzguruAmount
         if (cents != wholeCents)
         {
             return FinanzguruAmountResult.Failure(
-                $"Column '{column}' in row {row} carries '{units.ToString(CultureInfo.InvariantCulture)}', "
-                + "which is not a whole number of cents; expected at most two decimal places.");
+                ImportError.AmountNotWholeCents(column, row, units.ToString(CultureInfo.InvariantCulture)));
         }
 
         if (wholeCents < long.MinValue || wholeCents > long.MaxValue)
         {
             return FinanzguruAmountResult.Failure(
-                $"Column '{column}' in row {row} carries '{units.ToString(CultureInfo.InvariantCulture)}', which is too large to be an amount.");
+                ImportError.AmountTooLarge(column, row, units.ToString(CultureInfo.InvariantCulture)));
         }
 
         return FinanzguruAmountResult.Success((long)wholeCents);

@@ -1,4 +1,5 @@
 using System.Globalization;
+using CashPrism.Application.Imports;
 using ClosedXML.Excel;
 
 namespace CashPrism.Infrastructure.Finanzguru;
@@ -64,8 +65,7 @@ public sealed class FinanzguruExportReader
         // the same thing here, and no code of ours runs inside the try.
         catch (Exception exception)
         {
-            return FinanzguruExportReadResult.Failure(
-                $"The file could not be opened as a spreadsheet: {exception.Message}");
+            return FinanzguruExportReadResult.Failure(ImportError.NotASpreadsheet(exception.Message));
         }
 
         using (workbook)
@@ -78,7 +78,7 @@ public sealed class FinanzguruExportReader
     {
         if (workbook.Worksheets.Count == 0)
         {
-            return FinanzguruExportReadResult.Failure("The workbook carries no worksheet.");
+            return FinanzguruExportReadResult.Failure(ImportError.NoWorksheet());
         }
 
         var worksheet = workbook.Worksheet(1);
@@ -86,8 +86,7 @@ public sealed class FinanzguruExportReader
         if (!FinanzguruSheetName.TryParseExportDate(worksheet.Name, out var exportedOn))
         {
             return FinanzguruExportReadResult.Failure(
-                $"The worksheet is named '{worksheet.Name}'; expected a name shaped "
-                + $"'YYYYMMDD{FinanzguruSheetName.Suffix}', which is where the export date is read from.");
+                ImportError.SheetNameWithoutExportDate(worksheet.Name, FinanzguruSheetName.Suffix));
         }
 
         var columnMap = ResolveColumns(worksheet, out var headerFailure);
@@ -98,7 +97,7 @@ public sealed class FinanzguruExportReader
         }
 
         var rows = new List<FinanzguruExportRow>();
-        var errors = new List<string>();
+        var errors = new List<ImportError>();
 
         foreach (var row in worksheet.RowsUsed().Where(r => r.RowNumber() > HeaderRowNumber))
         {
@@ -139,18 +138,16 @@ public sealed class FinanzguruExportReader
             return result;
         }
 
-        var errors = new List<string>();
+        var errors = new List<ImportError>();
 
         if (result.MissingColumns.Count > 0)
         {
-            errors.Add($"The export is missing the column(s) {Quote(result.MissingColumns)}.");
+            errors.Add(ImportError.MissingColumns(result.MissingColumns));
         }
 
         if (result.DuplicateColumns.Count > 0)
         {
-            errors.Add(
-                $"The export carries the column(s) {Quote(result.DuplicateColumns)} more than once; "
-                + "which one to read is undecidable.");
+            errors.Add(ImportError.DuplicateColumns(result.DuplicateColumns));
         }
 
         failure = FinanzguruExportReadResult.Failure([.. errors]);
@@ -160,7 +157,7 @@ public sealed class FinanzguruExportReader
     private static FinanzguruExportRow? ReadRow(
         IXLRow row,
         IReadOnlyDictionary<string, int> columns,
-        List<string> errors)
+        List<ImportError> errors)
     {
         var rowNumber = row.RowNumber();
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -193,7 +190,7 @@ public sealed class FinanzguruExportReader
         IXLRow row,
         IReadOnlyDictionary<string, int> columns,
         string column,
-        List<string> errors)
+        List<ImportError> errors)
     {
         var value = row.Cell(columns[column] + 1).Value;
 
@@ -207,8 +204,9 @@ public sealed class FinanzguruExportReader
             return value.GetDateTime();
         }
 
-        errors.Add(
-            $"Column '{column}' in row {row.RowNumber()} {Describe(value)}; expected a date.");
+        errors.Add(value.IsBlank
+            ? ImportError.EmptyValue(column, row.RowNumber())
+            : ImportError.NotADate(column, row.RowNumber(), Invariant(value)));
 
         return null;
     }
@@ -217,14 +215,16 @@ public sealed class FinanzguruExportReader
         IXLRow row,
         IReadOnlyDictionary<string, int> columns,
         string column,
-        List<string> errors)
+        List<ImportError> errors)
     {
         var rowNumber = row.RowNumber();
         var value = row.Cell(columns[column] + 1).Value;
 
         if (!value.IsNumber)
         {
-            errors.Add($"Column '{column}' in row {rowNumber} {Describe(value)}; expected an amount.");
+            errors.Add(value.IsBlank
+                ? ImportError.EmptyValue(column, rowNumber)
+                : ImportError.NotAnAmount(column, rowNumber, Invariant(value)));
             return null;
         }
 
@@ -257,9 +257,5 @@ public sealed class FinanzguruExportReader
         _ => value.ToString(CultureInfo.InvariantCulture),
     };
 
-    private static string Describe(XLCellValue value)
-        => value.IsBlank ? "is empty" : $"carries '{value.ToString(CultureInfo.InvariantCulture)}'";
-
-    private static string Quote(IReadOnlyList<string> names)
-        => string.Join(", ", names.Select(name => $"'{name}'"));
+    private static string Invariant(XLCellValue value) => value.ToString(CultureInfo.InvariantCulture);
 }
