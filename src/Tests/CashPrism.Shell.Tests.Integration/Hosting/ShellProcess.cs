@@ -63,6 +63,13 @@ internal sealed class ShellProcess : IDisposable
                 "0",
                 HostingCommandLine.NoBrowserSwitch,
                 $"--{HostingOptions.SectionName}:{nameof(HostingOptions.DataDirectory)}={dataDirectory}",
+
+                // Loopback only. The application binds every interface on purpose,
+                // and Windows answers that with a firewall prompt for every new
+                // path of the executable — a dialog no test run may wait on.
+                // Endpoints from the Kestrel section take precedence over the
+                // address Program sets, so the executable itself stays as shipped.
+                "--Kestrel:Endpoints:Http:Url=http://127.0.0.1:0",
             },
             WorkingDirectory = AppContext.BaseDirectory,
             RedirectStandardOutput = true,
