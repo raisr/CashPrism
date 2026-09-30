@@ -1,5 +1,6 @@
 using System.Text;
 using CashPrism.Application.Imports;
+using CashPrism.Infrastructure.Finanzguru.Tests.Integration.Fixtures;
 using CashPrism.TestSupport.Xlsx;
 
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Integration;
@@ -214,6 +215,32 @@ public sealed class FinanzguruExportReaderTests
 
             Assert.False(result.IsSuccess);
             Assert.Equal(ImportErrorCode.NotASpreadsheet, result.Errors.Single().Code);
+        }
+
+        /// <summary>
+        /// The workbooks above are built in code after the same constants the
+        /// reader uses, so they cannot notice Finanzguru changing its format.
+        /// A file Finanzguru wrote can.
+        /// </summary>
+        [Fact]
+        public void Reads_Every_Row_Of_A_Real_Export()
+        {
+            using var file = RealExport.Open();
+
+            var result = new FinanzguruExportReader().Read(file);
+
+            Assert.True(result.IsSuccess, Join(result.Errors));
+            Assert.Equal(RealExport.DataRowCount, result.Export!.Rows.Count);
+        }
+
+        [Fact]
+        public void Knows_Every_Column_Of_A_Real_Export()
+        {
+            using var file = RealExport.Open();
+
+            var result = new FinanzguruExportReader().Read(file);
+
+            Assert.Empty(result.Export!.UnknownColumns);
         }
 
         [Fact]

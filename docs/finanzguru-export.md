@@ -320,3 +320,34 @@ row holds, and hands both on.
 What an import did is recorded on the run itself: the file name, its hash, the
 sheet name, the export date, and how many rows were read, inserted, updated and
 left alone.
+
+## The fixture from a real export
+
+The reader's tests build their workbooks in code, after the same constants the
+reader uses, so they cannot notice Finanzguru renaming a column, reordering the
+sheet or changing a number format. One file Finanzguru actually wrote closes
+that gap:
+`src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration/Fixtures/20260907-Export-Alle_Buchungen-anonymised.xlsx`.
+It is embedded in the test assembly, read by the reader tests, and its header
+row is compared with `FinanzguruColumns.All` in order.
+
+It was produced from the later of the two measured exports with the
+[anonymiser](anonymiser.md), from the repository root:
+
+```
+dotnet run --project src/CashPrism.Anonymiser -- <path>/20260907-Export-Alle_Buchungen.xlsx --out src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration/Fixtures --synthetic-values --max-rows 50
+```
+
+`--synthetic-values` is what makes it fit for a public repository: every
+identity is replaced as usual, and dates and amounts are generated as well.
+What stays is Finanzguru's own vocabulary — categories, flags, the currency —
+the sheet name with its export date, and the workbook's metadata, which names
+Apache POI and the time the export was taken. `--max-rows 50` keeps it at about
+19 KB.
+
+**To regenerate it** from a newer export, run the same command with that file,
+adding `--force` only to overwrite a file of the same name. The output name
+follows the input name, so a different export date means a new file name:
+delete the old fixture and update the file name in `Fixtures/RealExport.cs`. `RealExport.DataRowCount` has to match `--max-rows`.
+Then run the gates — a failing header test after regenerating is the point of
+the fixture, and means the export changed shape.
