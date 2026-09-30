@@ -45,11 +45,12 @@ concrete infrastructure to a use case.
 project: it holds fixtures that more than one test project needs, contains no
 tests of its own, and carries neither the test SDK nor a runner, so `dotnet
 test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
-Finanzguru-shaped `.xlsx` in memory, and `FinanzguruTestRow`, which fills one
-data row of it. No production project may reference it, and
-`CashPrism.Architecture.Tests` fails the build if one does. When a fixture
-belongs there is a rule rather than a description, and it is in
-[`../AGENTS.md`](../AGENTS.md#test-projects).
+Finanzguru-shaped `.xlsx` in memory, `FinanzguruTestRow`, which fills one data
+row of it, and the stand-ins the import use case runs on in a test:
+`FakeImportSource`, `FakeImportStore` and `FixedClock`. No production project
+may reference it, and `CashPrism.Architecture.Tests` fails the build if one
+does. When a fixture belongs there is a rule rather than a description, and it
+is in [`../AGENTS.md`](../AGENTS.md#test-projects).
 
 ## Directory layout
 
