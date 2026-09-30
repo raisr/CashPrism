@@ -10,7 +10,7 @@ depends on it.
 
 ```
 CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory>
-    [--force] [--scale <factor>] [--max-rows <n>]
+    [--force] [--scale <factor>] [--max-rows <n>] [--synthetic-values]
 ```
 
 - One or more input files, in any order relative to the options.
@@ -26,8 +26,11 @@ CashPrism.Anonymiser <input.xlsx> [<input2.xlsx> …] --out <directory>
   every row is kept. The limit is applied before the replacement, so
   placeholder numbers stay dense instead of leaving gaps for values that only
   occurred in a dropped row.
+- `--synthetic-values` replaces the dates and amounts as well — see
+  [Synthetic values](#synthetic-values). Off by default.
 
-Both switches combine freely with each other and with `--force`.
+The switches combine freely with each other and with `--force`. With
+`--synthetic-values`, `--scale` applies to the generated amounts.
 
 The output file is the input name with `-anonymised` inserted before the
 extension, e.g. `export.xlsx` → `export-anonymised.xlsx`.
@@ -57,11 +60,11 @@ column, is untouched.
 
 | Col | Header | Rule |
 |---|---|---|
-| A | `Buchungstag` | kept |
+| A | `Buchungstag` | kept; generated with `--synthetic-values` |
 | B | `Referenzkonto` | replaced, shape-preserving |
 | C | `Name Referenzkonto` | replaced → `Account 01` |
-| D | `Betrag` | kept, optionally scaled via `--scale` |
-| E | `Kontostand` | kept, optionally scaled via `--scale` |
+| D | `Betrag` | kept, optionally scaled via `--scale`; generated with `--synthetic-values` |
+| E | `Kontostand` | kept, optionally scaled via `--scale`; generated with `--synthetic-values` |
 | F | `Waehrung` | kept |
 | G | `Beguenstigter/Auftraggeber` | replaced → `Counterparty 001` |
 | H | `IBAN Beguenstigter/Auftraggeber` | replaced, shape-preserving |
@@ -73,7 +76,7 @@ column, is untouched.
 | O–P | `Analyse-Vertrag`, `-Vertragsturnus` | kept |
 | Q | `Analyse-Vertrags-ID` | replaced |
 | R–U | `-Umbuchung`, `-Vom frei verfuegbaren Einkommen ausgeschlossen`, `-Umsatzart`, `-Betrag` | kept |
-| V–Y | `Analyse-Woche`, `-Monat`, `-Quartal`, `-Jahr` | kept |
+| V–Y | `Analyse-Woche`, `-Monat`, `-Quartal`, `-Jahr` | kept; recomputed from the generated date with `--synthetic-values` |
 | Z | `Buchungs-ID` | replaced |
 | AA | `Referenz-Original-ID` | replaced through the same dictionary as `Buchungs-ID` |
 | AB | `Split-Typ` | kept |
@@ -125,16 +128,51 @@ just wrote** — a file with forgotten cleartext looks exactly like a finished
 one otherwise, and this is the only mechanism that turns "we replaced it" into
 a checked fact rather than a claim.
 
+## Synthetic values
+
+Without `--synthetic-values`, the output still tells how the household spends:
+dates, amounts and balances are the real ones. That is fine for a file shared
+privately. A fixture in a public repository must not carry them, and the switch
+is for that case.
+
+The values are **generated, not transformed**. The tool has no salt and nothing
+secret, so a constant offset or factor would be undone by anyone who reads its
+source. Every value is computed from the row it sits in, never from the value
+it replaces:
+
+- **`Buchungstag`:** the first data row gets 1 January 2001, each further row
+  one day earlier. That is before Finanzguru existed, so no generated date is a
+  real one, and the export's newest-first order holds. A row with a time of day
+  keeps it — the fractional part of the serial number is copied digit for
+  digit.
+- **`Betrag` and `Kontostand`:** a value derived from the row number — up to
+  999.99 for `Betrag`, up to 99,999.99 for `Kontostand` — with the original's
+  sign, so `Analyse-Betrag` still agrees. A zero stays zero: it says nothing
+  about anybody. The original of a split booking gets the sum of its generated
+  parts, so the parts still add up to it to the cent.
+- **`Analyse-Woche`, `-Monat`, `-Quartal`, `-Jahr`:** recomputed from the
+  generated date, so the invariant described in
+  [finanzguru-export.md](finanzguru-export.md) still holds.
+
+Only the text inside a replaced cell changes; its style and type stay, and the
+numbers are printed the way the export prints them. Categories and flags are
+kept: they are Finanzguru's fixed vocabulary, not the owner's data.
+
+A second self-check runs with the switch. It compares every date, amount and
+balance of the written file with the cell it replaced and, as with the first
+one, deletes the file and fails the run when a non-zero value is still the
+real one.
+
 ## What this version does not do
 
 - **Generated IBANs and creditor-style identifiers carry no valid check
   digit.** Deliberate: a valid one would tempt a future check-digit validation
   into trusting the placeholder as bookable data, and any such validation
   added later should reject this data as what it is — anonymised, not real.
-- **No protection against re-identification from the retained columns.**
-  Dates, amounts, balances and categories stay as they are; anyone reading the
-  file still sees how the household spends. The tool removes identities, not
-  information.
+- **No protection against re-identification from the retained columns** unless
+  `--synthetic-values` is given. Without it, dates, amounts, balances and
+  categories stay as they are; anyone reading the file still sees how the
+  household spends. The tool removes identities, not information.
 - **`--scale` is cosmetic, not a safeguard.** A constant factor hides the
   absolute level but leaves every relation intact — rent against income, loan
   against savings still divide out to the same ratios they did in the real

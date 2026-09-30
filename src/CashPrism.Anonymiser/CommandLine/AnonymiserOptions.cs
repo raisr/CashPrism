@@ -25,9 +25,15 @@ namespace CashPrism.Anonymiser.CommandLine;
 /// The number of newest data rows to keep, applied before the replacement so
 /// placeholder numbers stay dense. <see langword="null"/> keeps every row.
 /// </param>
+/// <param name="SyntheticValues">
+/// Whether <c>Buchungstag</c>, <c>Betrag</c>, <c>Kontostand</c> and the period
+/// columns get generated values instead of keeping the real ones. Defaults to
+/// <see langword="false"/>: a file shared privately keeps its spending pattern.
+/// </param>
 public sealed record AnonymiserOptions(
     IReadOnlyList<string> InputFiles,
     string OutputDirectory,
     bool Force,
     decimal Scale,
-    int? MaxRows);
+    int? MaxRows,
+    bool SyntheticValues);

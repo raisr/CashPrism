@@ -5,8 +5,7 @@ namespace CashPrism.Anonymiser;
 
 /// <summary>
 /// The composition root of the anonymiser: a development tool that turns a
-/// real FinanzGuru export into one safe to share, without changing a single
-/// value — see <c>Agents.md</c> for why this is its own console executable
+/// real Finanzguru export into one safe to share — see <c>Agents.md</c> for why this is its own console executable
 /// rather than a feature of the running application.
 /// </summary>
 public sealed class Program
@@ -33,7 +32,12 @@ public sealed class Program
 
         var options = commandLine.Options!;
         var result = XlsxAnonymiserRun.Run(
-            options.InputFiles, options.OutputDirectory, options.Force, options.Scale, options.MaxRows);
+            options.InputFiles,
+            options.OutputDirectory,
+            options.Force,
+            options.Scale,
+            options.MaxRows,
+            options.SyntheticValues);
 
         foreach (var fileResult in result.FileResults)
         {

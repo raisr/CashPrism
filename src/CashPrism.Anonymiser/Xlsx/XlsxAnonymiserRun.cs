@@ -22,8 +22,14 @@ public static class XlsxAnonymiserRun
     /// </param>
     /// <param name="scale">The factor <c>Betrag</c> and <c>Kontostand</c> are scaled by together. <c>1.0</c> is a no-op.</param>
     /// <param name="maxRows">The number of newest data rows to keep per file, or <see langword="null"/> to keep every row.</param>
+    /// <param name="syntheticValues">Whether dates and amounts get generated values instead of the real ones.</param>
     public static XlsxAnonymiserRunResult Run(
-        IReadOnlyList<string> inputPaths, string outputDirectory, bool force, decimal scale, int? maxRows)
+        IReadOnlyList<string> inputPaths,
+        string outputDirectory,
+        bool force,
+        decimal scale,
+        int? maxRows,
+        bool syntheticValues)
     {
         ArgumentNullException.ThrowIfNull(inputPaths);
         ArgumentNullException.ThrowIfNull(outputDirectory);
@@ -70,7 +76,8 @@ public static class XlsxAnonymiserRun
                 File.Delete(outputPath);
             }
 
-            var newWorksheetXml = WorksheetAnonymiser.Rewrite(read.WorksheetXml!, read.ColumnLetters!, dictionaries, scale);
+            var newWorksheetXml = WorksheetAnonymiser.Rewrite(
+                read.WorksheetXml!, read.ColumnLetters!, dictionaries, scale, syntheticValues);
             var write = XlsxAnonymiserWriter.Write(inputPath, outputPath, read.WorksheetEntryName!, newWorksheetXml);
 
             if (!write.IsSuccess)
@@ -89,6 +96,22 @@ public static class XlsxAnonymiserRun
                     fileResults,
                     $"{outputPath}: self-check failed — column(s) {string.Join(", ", leakedColumns)} still carry an "
                         + "original value. The incomplete output was deleted.");
+            }
+
+            if (syntheticValues)
+            {
+                var keptColumns = SyntheticValuesSelfCheck.FindKeptColumns(
+                    read.WorksheetXml!, writtenWorksheetXml, read.ColumnLetters!);
+
+                if (keptColumns.Count > 0)
+                {
+                    File.Delete(outputPath);
+
+                    return XlsxAnonymiserRunResult.Failure(
+                        fileResults,
+                        $"{outputPath}: self-check failed — column(s) {string.Join(", ", keptColumns)} still carry a "
+                            + "real value in at least one row. The incomplete output was deleted.");
+                }
             }
 
             fileResults.Add(new XlsxAnonymiserResult(inputPath, outputPath, read.DataRowCount, read.RetainedRowCount));
