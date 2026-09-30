@@ -1,3 +1,5 @@
+using CashPrism.Application.Imports;
+
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
@@ -27,8 +29,8 @@ public static class FinanzguruFlag
     /// that is still neither word fails and says where.
     /// </summary>
     /// <param name="value">The cell's value, as the export stores it.</param>
-    /// <param name="column">The header name of the column, for the failure message.</param>
-    /// <param name="row">The one-based worksheet row the cell sits in, for the failure message.</param>
+    /// <param name="column">The header name of the column, for the failure.</param>
+    /// <param name="row">The one-based worksheet row the cell sits in, for the failure.</param>
     /// <returns>
     /// A successful result carrying the value, or a failure naming the column and
     /// the row. See <see cref="FinanzguruFlagResult"/>.
@@ -50,9 +52,8 @@ public static class FinanzguruFlag
             return FinanzguruFlagResult.Success(false);
         }
 
-        var what = string.IsNullOrEmpty(word) ? "is empty" : $"carries '{word}'";
-
-        return FinanzguruFlagResult.Failure(
-            $"Column '{column}' in row {row} {what}; expected '{Yes}' or '{No}'.");
+        return FinanzguruFlagResult.Failure(string.IsNullOrEmpty(word)
+            ? ImportError.EmptyValue(column, row)
+            : ImportError.NotAFlag(column, row, word, Yes, No));
     }
 }

@@ -113,7 +113,7 @@ public sealed class ImportFeedbackTests
         [Fact]
         public void Refuses_A_File_Without_Putting_English_Reasons_On_The_Page()
         {
-            var result = ImportResult.Failed(["Column 'Tags' is missing.", "Row 4 is not a date."]);
+            var result = ImportResult.Failed([ImportError.MissingColumns(["Tags"]), ImportError.NotADate("Buchungstag", 4, "gestern")]);
 
             var message = ImportFeedback.Describe(result, Text());
 
@@ -134,7 +134,7 @@ public sealed class ImportFeedbackTests
                 ("ImportSucceeded", ImportFeedback.Describe(Imported(), Text()).Headline),
                 ("ImportAlreadyImported",
                     ImportFeedback.Describe(ImportResult.AlreadyImported(Guid.NewGuid()), Text()).Headline),
-                ("ImportFailed", ImportFeedback.Describe(ImportResult.Failed(["nope"]), Text()).Headline),
+                ("ImportFailed", ImportFeedback.Describe(ImportResult.Failed([ImportError.NoWorksheet()]), Text()).Headline),
                 ("ImportUnreadable", ImportFeedback.Unreadable(Text()).Headline),
             };
 

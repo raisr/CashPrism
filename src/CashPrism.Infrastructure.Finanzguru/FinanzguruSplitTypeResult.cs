@@ -1,3 +1,4 @@
+using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
 namespace CashPrism.Infrastructure.Finanzguru;
@@ -8,7 +9,7 @@ namespace CashPrism.Infrastructure.Finanzguru;
 /// </summary>
 /// <param name="Value">The role the row plays, or <c>null</c> on failure.</param>
 /// <param name="Error">What is wrong with the cell, or <c>null</c> on success.</param>
-public sealed record FinanzguruSplitTypeResult(SplitRole? Value, string? Error)
+public sealed record FinanzguruSplitTypeResult(SplitRole? Value, ImportError? Error)
 {
     /// <summary>Whether the cell could be read.</summary>
     public bool IsSuccess => Error is null;
@@ -19,10 +20,10 @@ public sealed record FinanzguruSplitTypeResult(SplitRole? Value, string? Error)
 
     /// <summary>A failed result carrying <paramref name="error"/>.</summary>
     /// <param name="error">What is wrong with the cell.</param>
-    /// <exception cref="ArgumentException"><paramref name="error"/> is missing.</exception>
-    public static FinanzguruSplitTypeResult Failure(string error)
+    /// <exception cref="ArgumentNullException"><paramref name="error"/> is <c>null</c>.</exception>
+    public static FinanzguruSplitTypeResult Failure(ImportError error)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(error);
+        ArgumentNullException.ThrowIfNull(error);
 
         return new FinanzguruSplitTypeResult(Value: null, error);
     }

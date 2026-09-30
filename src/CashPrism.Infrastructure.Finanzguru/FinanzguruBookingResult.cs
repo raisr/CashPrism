@@ -1,3 +1,4 @@
+using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
 namespace CashPrism.Infrastructure.Finanzguru;
@@ -10,7 +11,7 @@ namespace CashPrism.Infrastructure.Finanzguru;
 /// <param name="Errors">
 /// What is wrong with the row, one entry per problem. Empty on success.
 /// </param>
-public sealed record FinanzguruBookingResult(Booking? Value, IReadOnlyList<string> Errors)
+public sealed record FinanzguruBookingResult(Booking? Value, IReadOnlyList<ImportError> Errors)
 {
     /// <summary>Whether the row describes a booking.</summary>
     public bool IsSuccess => Value is not null;
@@ -27,7 +28,7 @@ public sealed record FinanzguruBookingResult(Booking? Value, IReadOnlyList<strin
     /// <summary>A failed result carrying <paramref name="errors"/>.</summary>
     /// <param name="errors">What is wrong with the row. At least one entry.</param>
     /// <exception cref="ArgumentException"><paramref name="errors"/> is empty.</exception>
-    public static FinanzguruBookingResult Failure(IReadOnlyList<string> errors)
+    public static FinanzguruBookingResult Failure(IReadOnlyList<ImportError> errors)
     {
         ArgumentNullException.ThrowIfNull(errors);
 

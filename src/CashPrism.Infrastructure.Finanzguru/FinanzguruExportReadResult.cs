@@ -1,3 +1,5 @@
+using CashPrism.Application.Imports;
+
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
@@ -8,10 +10,10 @@ namespace CashPrism.Infrastructure.Finanzguru;
 /// </summary>
 /// <param name="Export">The export that was read, or <c>null</c> on failure.</param>
 /// <param name="Errors">
-/// What is wrong with the file, one entry per problem, each naming what it found
+/// What is wrong with the file, one entry per problem, each carrying what it found
 /// and where. Empty on success.
 /// </param>
-public sealed record FinanzguruExportReadResult(FinanzguruExport? Export, IReadOnlyList<string> Errors)
+public sealed record FinanzguruExportReadResult(FinanzguruExport? Export, IReadOnlyList<ImportError> Errors)
 {
     /// <summary>Whether the file could be read.</summary>
     public bool IsSuccess => Export is not null;
@@ -28,7 +30,7 @@ public sealed record FinanzguruExportReadResult(FinanzguruExport? Export, IReadO
     /// <summary>A failed result carrying <paramref name="errors"/>.</summary>
     /// <param name="errors">What is wrong with the file. At least one entry.</param>
     /// <exception cref="ArgumentException"><paramref name="errors"/> is empty.</exception>
-    public static FinanzguruExportReadResult Failure(params string[] errors)
+    public static FinanzguruExportReadResult Failure(params ImportError[] errors)
     {
         ArgumentNullException.ThrowIfNull(errors);
 

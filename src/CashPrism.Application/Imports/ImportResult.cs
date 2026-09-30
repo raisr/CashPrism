@@ -26,7 +26,7 @@ public sealed record ImportResult(
     int BookingsUpdated,
     int BookingsUnchanged,
     IReadOnlyList<string> UnknownColumns,
-    IReadOnlyList<string> Errors)
+    IReadOnlyList<ImportError> Errors)
 {
     /// <summary>Whether the file was accepted, whether or not it changed anything.</summary>
     public bool IsSuccess => Outcome is not ImportOutcome.Failed;
@@ -75,7 +75,7 @@ public sealed record ImportResult(
     /// <summary>A result for a file that could not be read.</summary>
     /// <param name="errors">What is wrong with it. At least one entry.</param>
     /// <exception cref="ArgumentException"><paramref name="errors"/> is empty.</exception>
-    public static ImportResult Failed(IReadOnlyList<string> errors)
+    public static ImportResult Failed(IReadOnlyList<ImportError> errors)
     {
         ArgumentNullException.ThrowIfNull(errors);
 

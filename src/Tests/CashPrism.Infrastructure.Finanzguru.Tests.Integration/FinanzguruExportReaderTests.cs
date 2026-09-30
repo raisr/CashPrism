@@ -1,4 +1,5 @@
 using System.Text;
+using CashPrism.Application.Imports;
 using CashPrism.TestSupport.Xlsx;
 
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Integration;
@@ -140,7 +141,7 @@ public sealed class FinanzguruExportReaderTests
             var result = ReadBytes(XlsxTestWorkbook.Build(headerNames, [Row()]));
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(FinanzguruColumns.Tags, Join(result.Errors), StringComparison.Ordinal);
+            Assert.Equivalent(ImportError.MissingColumns([FinanzguruColumns.Tags]), result.Errors.Single(), strict: true);
         }
 
         [Fact]
@@ -151,7 +152,7 @@ public sealed class FinanzguruExportReaderTests
             var result = ReadBytes(XlsxTestWorkbook.Build(headerNames, [Row()]));
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(FinanzguruColumns.Tags, Join(result.Errors), StringComparison.Ordinal);
+            Assert.Equivalent(ImportError.DuplicateColumns([FinanzguruColumns.Tags]), result.Errors.Single(), strict: true);
         }
 
         /// <summary>
@@ -176,7 +177,10 @@ public sealed class FinanzguruExportReaderTests
             var result = ReadWorkbook([Row()], sheetName: "Tabelle1");
 
             Assert.False(result.IsSuccess);
-            Assert.Contains("Tabelle1", Join(result.Errors), StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.SheetNameWithoutExportDate("Tabelle1", FinanzguruSheetName.Suffix),
+                result.Errors.Single(),
+                strict: true);
         }
 
         [Fact]
@@ -185,8 +189,10 @@ public sealed class FinanzguruExportReaderTests
             var result = ReadWorkbook([Row(amount: "not an amount")]);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(FinanzguruColumns.Amount, Join(result.Errors), StringComparison.Ordinal);
-            Assert.Contains("row 2", Join(result.Errors), StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.NotAnAmount(FinanzguruColumns.Amount, 2, "not an amount"),
+                result.Errors.Single(),
+                strict: true);
         }
 
         [Fact]
@@ -195,7 +201,10 @@ public sealed class FinanzguruExportReaderTests
             var result = ReadWorkbook([Row(bookingDate: "not a date")]);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains(FinanzguruColumns.BookingDate, Join(result.Errors), StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.NotADate(FinanzguruColumns.BookingDate, 2, "not a date"),
+                result.Errors.Single(),
+                strict: true);
         }
 
         [Fact]
@@ -204,7 +213,7 @@ public sealed class FinanzguruExportReaderTests
             var result = ReadBytes(Encoding.UTF8.GetBytes("This is not an xlsx."));
 
             Assert.False(result.IsSuccess);
-            Assert.NotEmpty(result.Errors);
+            Assert.Equal(ImportErrorCode.NotASpreadsheet, result.Errors.Single().Code);
         }
 
         [Fact]
@@ -243,6 +252,6 @@ public sealed class FinanzguruExportReaderTests
                 [FinanzguruColumns.BookingId] = new string('a', 40),
             };
 
-        private static string Join(IReadOnlyList<string> errors) => string.Join(" | ", errors);
+        private static string Join(IReadOnlyList<ImportError> errors) => string.Join(" | ", errors);
     }
 }

@@ -1,3 +1,5 @@
+using CashPrism.Application.Imports;
+
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Unit;
 
 public sealed class FinanzguruAmountTests
@@ -41,7 +43,7 @@ public sealed class FinanzguruAmountTests
             var result = FinanzguruAmount.ToCents(12.345d, Column, row: 7);
 
             Assert.False(result.IsSuccess);
-            Assert.Contains("12.345", result.Error, StringComparison.Ordinal);
+            Assert.Equal(ImportErrorCode.AmountNotWholeCents, result.Error!.Code);
         }
 
         [Fact]
@@ -49,8 +51,10 @@ public sealed class FinanzguruAmountTests
         {
             var result = FinanzguruAmount.ToCents(12.345d, FinanzguruColumns.Balance, row: 7);
 
-            Assert.Contains(FinanzguruColumns.Balance, result.Error, StringComparison.Ordinal);
-            Assert.Contains("row 7", result.Error, StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.AmountNotWholeCents(FinanzguruColumns.Balance, 7, "12.345"),
+                result.Error,
+                strict: true);
         }
 
         [Theory]

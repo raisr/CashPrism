@@ -10,7 +10,7 @@ namespace CashPrism.Application.Imports;
 /// <param name="Errors">
 /// What is wrong with the file, one entry per problem. Empty on success.
 /// </param>
-public sealed record ImportSourceResult(ImportedData? Data, IReadOnlyList<string> Errors)
+public sealed record ImportSourceResult(ImportedData? Data, IReadOnlyList<ImportError> Errors)
 {
     /// <summary>Whether the file could be read.</summary>
     public bool IsSuccess => Data is not null;
@@ -27,7 +27,7 @@ public sealed record ImportSourceResult(ImportedData? Data, IReadOnlyList<string
     /// <summary>A failed result carrying <paramref name="errors"/>.</summary>
     /// <param name="errors">What is wrong with the file. At least one entry.</param>
     /// <exception cref="ArgumentException"><paramref name="errors"/> is empty.</exception>
-    public static ImportSourceResult Failure(params string[] errors)
+    public static ImportSourceResult Failure(params ImportError[] errors)
     {
         ArgumentNullException.ThrowIfNull(errors);
 

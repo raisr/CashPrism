@@ -147,13 +147,13 @@ public sealed class Importer
     }
 
     /// <summary>
-    /// The first repeated fingerprint in the file, described, or <c>null</c> when
+    /// The first repeated fingerprint in the file, or <c>null</c> when
     /// every row carries its own. It was distinct in every one of 6,324 measured
     /// rows, so a repeat means the assumption the whole identity rests on has
-    /// broken — worth a message that says so rather than a write that fails
+    /// broken — worth a failure that says so rather than a write that fails
     /// halfway through.
     /// </summary>
-    private static string? FindRepeatedFingerprint(IReadOnlyList<ImportedBooking> bookings)
+    private static ImportError? FindRepeatedFingerprint(IReadOnlyList<ImportedBooking> bookings)
     {
         var rowByFingerprint = new Dictionary<string, int>(bookings.Count, StringComparer.Ordinal);
 
@@ -163,8 +163,7 @@ public sealed class Importer
 
             if (rowByFingerprint.TryGetValue(fingerprint, out var firstRow))
             {
-                return $"Row {imported.RowNumber} repeats the booking id of row {firstRow}; "
-                    + "a booking id identifies a booking and has to occur once.";
+                return ImportError.RepeatedBookingId(imported.RowNumber, firstRow);
             }
 
             rowByFingerprint[fingerprint] = imported.RowNumber;

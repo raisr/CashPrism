@@ -1,3 +1,5 @@
+using CashPrism.Application.Imports;
+
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Unit;
 
 public sealed class FinanzguruFlagTests
@@ -52,8 +54,10 @@ public sealed class FinanzguruFlagTests
         {
             var result = FinanzguruFlag.Parse("vielleicht", FinanzguruColumns.IsInternalTransfer, row: 4711);
 
-            Assert.Contains(FinanzguruColumns.IsInternalTransfer, result.Error!, StringComparison.Ordinal);
-            Assert.Contains("4711", result.Error!, StringComparison.Ordinal);
+            Assert.Equivalent(
+                ImportError.NotAFlag(FinanzguruColumns.IsInternalTransfer, 4711, "vielleicht", FinanzguruFlag.Yes, FinanzguruFlag.No),
+                result.Error,
+                strict: true);
         }
 
         [Theory]
