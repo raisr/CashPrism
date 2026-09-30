@@ -437,12 +437,62 @@ public sealed class XlsxAnonymiserRunTests
         }
 
         /// <summary>
-        /// <see cref="XlsxAnonymiserRun.Run"/> with the two new switches
+        /// What a fixture built with the switch is for: the reader still takes
+        /// the output as a Finanzguru export, every row of it.
+        /// </summary>
+        [Fact]
+        public void With_Synthetic_Values_The_Output_Still_Reads_As_An_Export()
+        {
+            var inputPath = WriteInput(BuildReadableWorkbook());
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, syntheticValues: true);
+
+            using var output = File.OpenRead(result.FileResults[0].OutputPath);
+            var read = new FinanzguruExportReader().Read(output);
+
+            Assert.True(read.IsSuccess, string.Join(" | ", read.Errors));
+            Assert.Equal(2, read.Export!.Rows.Count);
+        }
+
+        [Theory]
+        [InlineData(FinanzguruColumns.BookingDate)]
+        [InlineData(FinanzguruColumns.Amount)]
+        [InlineData(FinanzguruColumns.Balance)]
+        public void With_Synthetic_Values_No_Real_Value_Survives_In(string column)
+        {
+            var inputPath = WriteInput(BuildReadableWorkbook());
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false, syntheticValues: true);
+
+            Assert.Empty(ReadMoneyValues(result.FileResults[0].OutputPath, column)
+                .Intersect(ReadMoneyValues(inputPath, column)));
+        }
+
+        [Fact]
+        public void With_Synthetic_Values_The_Same_Input_Gives_The_Same_Output()
+        {
+            var inputPath = WriteInput(BuildReadableWorkbook());
+
+            var first = ReadWorksheetXml(
+                Anonymise([inputPath], _outputDirectory, force: false, syntheticValues: true).FileResults[0].OutputPath);
+            var second = ReadWorksheetXml(
+                Anonymise([inputPath], _outputDirectory, force: true, syntheticValues: true).FileResults[0].OutputPath);
+
+            Assert.Equal(first, second);
+        }
+
+        /// <summary>
+        /// <see cref="XlsxAnonymiserRun.Run"/> with the optional switches
         /// defaulted, so every test that predates them stays unchanged.
         /// </summary>
         private static XlsxAnonymiserRunResult Anonymise(
-            IReadOnlyList<string> inputPaths, string outputDirectory, bool force, decimal scale = 1.0m, int? maxRows = null)
-            => XlsxAnonymiserRun.Run(inputPaths, outputDirectory, force, scale, maxRows);
+            IReadOnlyList<string> inputPaths,
+            string outputDirectory,
+            bool force,
+            decimal scale = 1.0m,
+            int? maxRows = null,
+            bool syntheticValues = false)
+            => XlsxAnonymiserRun.Run(inputPaths, outputDirectory, force, scale, maxRows, syntheticValues);
 
         private static byte[] BuildValidWorkbook()
         {
@@ -456,6 +506,19 @@ public sealed class XlsxAnonymiserRunTests
                 FinanzguruColumns.All,
                 [Row("Bakery", "01.03.2026"), Row("Landlord", "02.03.2026")]);
         }
+
+        /// <summary>Two complete rows the export reader accepts as they are.</summary>
+        private static byte[] BuildReadableWorkbook()
+            => XlsxTestWorkbook.Build(
+                FinanzguruColumns.All,
+                [
+                    FinanzguruTestRow.Create(bookingDate: "12.03.2026", amount: "-63.17", balance: "3240.00"),
+                    FinanzguruTestRow.Create(
+                        bookingId: FinanzguruTestRow.AnotherFingerprint,
+                        bookingDate: "11.03.2026",
+                        amount: "1500.00",
+                        balance: "3303.17"),
+                ]);
 
         private string WriteInput(byte[] content, string fileName = "export.xlsx")
         {

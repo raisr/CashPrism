@@ -5,7 +5,8 @@ namespace CashPrism.Anonymiser.Anonymisation;
 /// <summary>
 /// Produces the anonymised worksheet XML for one file: every cell in a replaced
 /// column gets its dictionary replacement, <c>Betrag</c> and <c>Kontostand</c>
-/// are scaled together, every other byte is untouched.
+/// are scaled together, dates and amounts are generated when asked for, and
+/// every other byte is untouched.
 /// </summary>
 public static class WorksheetAnonymiser
 {
@@ -22,11 +23,17 @@ public static class WorksheetAnonymiser
     /// decimals. <c>1.0</c> leaves them byte-identical to the input — no cell
     /// is even touched.
     /// </param>
+    /// <param name="syntheticValues">
+    /// Whether to replace the dates, amounts and period columns with generated
+    /// values first — see <see cref="SyntheticValues"/>. It runs before the
+    /// dictionaries, because it recognises a split booking by its real ids.
+    /// </param>
     public static string Rewrite(
         string worksheetXml,
         IReadOnlyDictionary<string, string> columnLetters,
         AnonymisationDictionaries dictionaries,
-        decimal scale)
+        decimal scale,
+        bool syntheticValues)
     {
         ArgumentNullException.ThrowIfNull(worksheetXml);
         ArgumentNullException.ThrowIfNull(columnLetters);
@@ -34,8 +41,10 @@ public static class WorksheetAnonymiser
 
         var columnNameByLetter = ColumnNameByReplacedLetter(columnLetters);
 
+        var source = syntheticValues ? SyntheticValues.Rewrite(worksheetXml, columnLetters) : worksheetXml;
+
         var replaced = InlineStringCells.Rewrite(
-            worksheetXml,
+            source,
             (IReadOnlySet<string>)columnNameByLetter.Keys.ToHashSet(StringComparer.Ordinal),
             (letter, rawText) => dictionaries.Replace(columnNameByLetter[letter], rawText));
 

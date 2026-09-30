@@ -29,6 +29,23 @@ public sealed class AnonymiserCommandLineTests
         }
 
         [Fact]
+        public void Synthetic_Values_Are_Off_Without_The_Switch()
+        {
+            var result = AnonymiserCommandLine.Parse(["input.xlsx", "--out", "C:/out"]);
+
+            Assert.False(result.Options!.SyntheticValues);
+        }
+
+        [Fact]
+        public void Synthetic_Values_Switch_Turns_Them_On()
+        {
+            var result = AnonymiserCommandLine.Parse(["input.xlsx", "--out", "C:/out", "--synthetic-values"]);
+
+            Assert.True(result.IsSuccess);
+            Assert.True(result.Options!.SyntheticValues);
+        }
+
+        [Fact]
         public void Force_Switch_Sets_Force()
         {
             var result = AnonymiserCommandLine.Parse(["input.xlsx", "--out", "C:/out", "--force"]);

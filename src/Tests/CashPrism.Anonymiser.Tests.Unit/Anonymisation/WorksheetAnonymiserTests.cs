@@ -36,7 +36,7 @@ public sealed class WorksheetAnonymiserTests
         {
             var dictionaries = DictionariesSeenInWorksheetXml();
 
-            var rewritten = WorksheetAnonymiser.Rewrite(WorksheetXml, ColumnLetters, dictionaries, scale: 1.0m);
+            var rewritten = WorksheetAnonymiser.Rewrite(WorksheetXml, ColumnLetters, dictionaries, scale: 1.0m, syntheticValues: false);
 
             Assert.Contains("""<c r="A2" s="1" t="n"><v>46200</v></c>""", rewritten);
             Assert.Contains(
@@ -50,7 +50,7 @@ public sealed class WorksheetAnonymiserTests
         {
             var dictionaries = DictionariesSeenInWorksheetXml();
 
-            var rewritten = WorksheetAnonymiser.Rewrite(WorksheetXml, ColumnLetters, dictionaries, scale: 1.0m);
+            var rewritten = WorksheetAnonymiser.Rewrite(WorksheetXml, ColumnLetters, dictionaries, scale: 1.0m, syntheticValues: false);
 
             Assert.Contains("""<c r="C2" s="2"><v>-10.00</v></c>""", rewritten);
             Assert.Contains("""<c r="D2" s="2"><v>200.00</v></c>""", rewritten);
@@ -61,7 +61,7 @@ public sealed class WorksheetAnonymiserTests
         {
             var dictionaries = DictionariesSeenInWorksheetXml();
 
-            var rewritten = WorksheetAnonymiser.Rewrite(WorksheetXml, ColumnLetters, dictionaries, scale: 0.5m);
+            var rewritten = WorksheetAnonymiser.Rewrite(WorksheetXml, ColumnLetters, dictionaries, scale: 0.5m, syntheticValues: false);
 
             Assert.Contains("""<c r="C2" s="2"><v>-5.00</v></c>""", rewritten);
             Assert.Contains("""<c r="D2" s="2"><v>100.00</v></c>""", rewritten);

@@ -61,6 +61,11 @@ releases and the minor version is bumped for every notable change.
   placeholder numbers stay dense. Neither is a privacy safeguard — see
   [`docs/anonymiser.md`](docs/anonymiser.md) for what they do not protect
   against.
+- The anonymiser gained `--synthetic-values`: it replaces `Buchungstag`,
+  `Betrag`, `Kontostand` and the four period columns with generated values, so
+  the output carries no date or amount of the real export while still reading
+  as one. Meant for fixtures in a public repository; without the switch a
+  shared file keeps its real dates and amounts as before.
 - The application now keeps a database. On start it creates `./data/cashprism.db`
   if it is missing and brings it up to the schema the build expects, before the
   first page is served — so an update that changes the schema needs no migration

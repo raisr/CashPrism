@@ -5,7 +5,7 @@ namespace CashPrism.Anonymiser.CommandLine;
 /// <summary>
 /// The command-line surface of the tool:
 /// <c>CashPrism.Anonymiser &lt;input.xlsx&gt; [&lt;input2.xlsx&gt; …] --out &lt;directory&gt;
-/// [--force] [--scale &lt;factor&gt;] [--max-rows &lt;n&gt;]</c>.
+/// [--force] [--scale &lt;factor&gt;] [--max-rows &lt;n&gt;] [--synthetic-values]</c>.
 /// Hand-rolled, like <c>Shell/Hosting/HostingCommandLine</c> — a handful of
 /// options do not justify a command-line parsing library.
 /// </summary>
@@ -23,6 +23,9 @@ public static class AnonymiserCommandLine
     /// <summary>The switch that keeps only the newest <c>n</c> data rows.</summary>
     public const string MaxRowsSwitch = "--max-rows";
 
+    /// <summary>The flag that replaces dates and amounts with generated values.</summary>
+    public const string SyntheticValuesSwitch = "--synthetic-values";
+
     /// <summary>
     /// Parses <paramref name="args"/> into <see cref="AnonymiserOptions"/>, or
     /// reports the one reason it could not.
@@ -36,6 +39,7 @@ public static class AnonymiserCommandLine
         var force = false;
         var scale = 1.0m;
         int? maxRows = null;
+        var syntheticValues = false;
 
         for (var index = 0; index < args.Count; index++)
         {
@@ -55,6 +59,10 @@ public static class AnonymiserCommandLine
 
                 case ForceSwitch:
                     force = true;
+                    break;
+
+                case SyntheticValuesSwitch:
+                    syntheticValues = true;
                     break;
 
                 case ScaleSwitch:
@@ -112,6 +120,6 @@ public static class AnonymiserCommandLine
         }
 
         return AnonymiserCommandLineResult.Success(
-            new AnonymiserOptions(inputFiles, outputDirectory, force, scale, maxRows));
+            new AnonymiserOptions(inputFiles, outputDirectory, force, scale, maxRows, syntheticValues));
     }
 }
