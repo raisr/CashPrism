@@ -16,6 +16,7 @@ on a local disk only, no DDD — are binding and live in
 | Auth | One shared password, PBKDF2, cookie authentication | The household shares one login; there are no user accounts to manage. PBKDF2 comes from the BCL, so no extra dependency |
 | Language | German UI, `IStringLocalizer` against a neutral-German `Strings.resx`; the culture is pinned to `de-DE` by `Shell` | Finanzguru only exists in German-speaking markets, so the UI's audience reads German. The localisation path is in place from the first screen because retrofitting it means touching every component. English keys keep the code in one language — see [`Agents.md`](../Agents.md#language-of-the-user-interface) |
 | Delivery | Self-contained single-file binary per platform | The person running CashPrism double-clicks it. No installer, no runtime to install, no Docker |
+| Tests | xUnit; bUnit for Razor components | bUnit renders a component in the test process — no browser, no web server, no port — so a page is tested as fast as a class and needs nothing installed beyond the package. The use case behind a page is the real one, running on the in-memory stand-ins in `CashPrism.TestSupport` |
 
 ## What already exists
 
@@ -32,6 +33,8 @@ source tree today:
 - Every string the UI renders comes from `Strings.resx` and the process runs as
   `de-DE`, MudBlazor's own strings included; anything left out of the resource
   file keeps MudBlazor's English
+- The import page is tested with bUnit: a refused upload is rendered and the
+  German reason checked on the page
 - Authentication is not built yet
 - Delivery is still "run it from the source tree" — see
   [hosting.md](hosting.md) for the ways to start it

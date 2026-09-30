@@ -1,7 +1,7 @@
 using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 
-namespace CashPrism.Application.Tests.Unit.Imports;
+namespace CashPrism.TestSupport.Imports;
 
 /// <summary>
 /// Hands the use case a prepared export instead of reading a file, so a test can
@@ -9,7 +9,7 @@ namespace CashPrism.Application.Tests.Unit.Imports;
 /// payload that decides whether it counts as changed; the booking is built around
 /// it, because what the projection says is not what these tests are about.
 /// </summary>
-internal sealed class FakeImportSource : IImportSource
+public sealed class FakeImportSource : IImportSource
 {
     private const string SheetName = "20260907_Export_Alle_Buchungen";
 
@@ -31,23 +31,23 @@ internal sealed class FakeImportSource : IImportSource
     }
 
     /// <summary>The run id the use case passed in, or <c>null</c> when it never read.</summary>
-    internal Guid? ReadForRunId { get; private set; }
+    public Guid? ReadForRunId { get; private set; }
 
     /// <summary>A source whose file carries <paramref name="rows"/>.</summary>
-    internal static FakeImportSource Carrying(
+    public static FakeImportSource Carrying(
         DateOnly? exportedOn,
         params (string Fingerprint, string Payload)[] rows)
         => new(exportedOn, rows, unknownColumns: [], error: null);
 
     /// <summary>A source whose file also carries columns we do not know.</summary>
-    internal static FakeImportSource CarryingUnknownColumns(
+    public static FakeImportSource CarryingUnknownColumns(
         DateOnly exportedOn,
         IReadOnlyList<string> unknownColumns,
         params (string Fingerprint, string Payload)[] rows)
         => new(exportedOn, rows, unknownColumns, error: null);
 
     /// <summary>A source whose file cannot be read.</summary>
-    internal static FakeImportSource Failing(ImportError error)
+    public static FakeImportSource Failing(ImportError error)
         => new(exportedOn: null, rows: [], unknownColumns: [], error);
 
     public Task<ImportSourceResult> ReadAsync(

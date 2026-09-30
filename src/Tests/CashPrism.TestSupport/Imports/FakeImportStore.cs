@@ -2,7 +2,7 @@ using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
 
-namespace CashPrism.Application.Tests.Unit.Imports;
+namespace CashPrism.TestSupport.Imports;
 
 /// <summary>
 /// An in-memory stand-in for the real store, keeping the two things the use case
@@ -10,25 +10,25 @@ namespace CashPrism.Application.Tests.Unit.Imports;
 /// and fingerprint. It also records how often it was asked to write, which is what
 /// the batching tests read.
 /// </summary>
-internal sealed class FakeImportStore : IImportStore
+public sealed class FakeImportStore : IImportStore
 {
     private readonly Dictionary<string, Booking> bookings = new(StringComparer.Ordinal);
     private readonly Dictionary<Guid, ImportRun> runs = [];
     private readonly List<RawRow> rawRows = [];
 
-    internal IReadOnlyDictionary<string, Booking> Bookings => bookings;
+    public IReadOnlyDictionary<string, Booking> Bookings => bookings;
 
-    internal IReadOnlyList<RawRow> RawRows => rawRows;
+    public IReadOnlyList<RawRow> RawRows => rawRows;
 
-    internal IReadOnlyDictionary<Guid, ImportRun> Runs => runs;
+    public IReadOnlyDictionary<Guid, ImportRun> Runs => runs;
 
     /// <summary>How many batches were written, one entry per call with its size.</summary>
-    internal List<int> AppliedBatchSizes { get; } = [];
+    public List<int> AppliedBatchSizes { get; } = [];
 
     /// <summary>How many fingerprints each state lookup asked for, one entry per call.</summary>
-    internal List<int> LoadedBatchSizes { get; } = [];
+    public List<int> LoadedBatchSizes { get; } = [];
 
-    internal bool WasCompleted { get; private set; }
+    public bool WasCompleted { get; private set; }
 
     public Task<ImportRun?> FindRunByFileHashAsync(
         string fileHash,
