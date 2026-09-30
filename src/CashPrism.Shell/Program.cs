@@ -58,12 +58,10 @@ public sealed class Program
         var hosting = builder.Configuration.GetSection(HostingOptions.SectionName).Get<HostingOptions>()
             ?? new HostingOptions();
 
-        // Every device in the house reaches this, so binding to loopback is not
-        // an option. HTTP only and on purpose: a self-signed certificate means a
-        // warning on every phone and tablet. The consequence to carry into the
-        // shared password is that credentials travel the home network
+        // The consequence of listening on every interface over plain HTTP, to carry
+        // into the shared password, is that credentials travel the home network
         // unencrypted.
-        builder.WebHost.UseUrls($"http://0.0.0.0:{hosting.Port}");
+        builder.WebHost.UseUrls(hosting.ListenUrl());
 
         var dataDirectory = hosting.ResolveDataDirectory();
 

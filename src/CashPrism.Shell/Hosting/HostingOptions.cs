@@ -32,6 +32,17 @@ public sealed record HostingOptions
     public bool LaunchBrowser { get; init; } = true;
 
     /// <summary>
+    /// The address Kestrel listens on: every network interface, on <see cref="Port"/>.
+    /// Every device in the house reaches this, so binding to loopback is not an
+    /// option. HTTP only and on purpose: a self-signed certificate means a
+    /// warning on every phone and tablet.
+    /// </summary>
+    public string ListenUrl()
+    {
+        return $"http://0.0.0.0:{Port}";
+    }
+
+    /// <summary>
     /// <see cref="DataDirectory"/> as an absolute path. An absolute setting is
     /// taken as it is.
     /// </summary>

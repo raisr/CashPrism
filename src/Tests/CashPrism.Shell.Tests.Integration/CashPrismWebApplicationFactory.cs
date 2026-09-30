@@ -14,6 +14,10 @@ namespace CashPrism.Shell.Tests.Integration;
 /// </summary>
 public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private static readonly TimeSpan ReleasePatience = TimeSpan.FromSeconds(10);
+
+    private static readonly TimeSpan RetryInterval = TimeSpan.FromMilliseconds(100);
+
     /// <summary>The throwaway data directory this host writes into.</summary>
     public string DataDirectory { get; } = Path.Combine(
         Path.GetTempPath(),
@@ -46,9 +50,35 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
         // this the directory below cannot be deleted on Windows.
         SqliteConnection.ClearAllPools();
 
-        if (Directory.Exists(DataDirectory))
+        DeleteDataDirectory();
+    }
+
+    /// <summary>
+    /// Deletes <see cref="DataDirectory"/>, waiting for the single-instance lock
+    /// to be let go. <c>Program.Main</c> holds it until <c>RunAsync</c> returns,
+    /// and that happens on its own thread after the host has stopped — so the
+    /// lock file can still be open for a moment when this runs. A lock that is
+    /// never released still fails the test once the patience runs out.
+    /// </summary>
+    private void DeleteDataDirectory()
+    {
+        var giveUpAt = DateTime.UtcNow + ReleasePatience;
+
+        while (true)
         {
-            Directory.Delete(DataDirectory, recursive: true);
+            try
+            {
+                if (Directory.Exists(DataDirectory))
+                {
+                    Directory.Delete(DataDirectory, recursive: true);
+                }
+
+                return;
+            }
+            catch (IOException) when (DateTime.UtcNow < giveUpAt)
+            {
+                Thread.Sleep(RetryInterval);
+            }
         }
     }
 }
