@@ -15,6 +15,15 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <!--
+    Read from the assembly, not from disk, so the tests do not depend on the
+    working directory. The logical name is the file name alone; see
+    docs/finanzguru-export.md for where the file comes from.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="Fixtures\*.xlsx" LogicalName="%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
     <ProjectReference Include="..\CashPrism.TestSupport\CashPrism.TestSupport.csproj" />
