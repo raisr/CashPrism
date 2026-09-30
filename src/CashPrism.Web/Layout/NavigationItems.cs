@@ -25,6 +25,7 @@ public static class NavigationItems
         new("/", "NavOverview", Icons.Material.Outlined.Dashboard),
         new("/bookings", "NavBookings", Icons.Material.Outlined.ReceiptLong),
         new("/import", "NavImport", Icons.Material.Outlined.UploadFile),
+        new("/imports", "NavImportRuns", Icons.Material.Outlined.History),
     ];
 
     /// <summary>

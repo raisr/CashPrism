@@ -2,6 +2,7 @@
 @using CashPrism.Application.Bookings
 @using CashPrism.Domain.Bookings
 @using CashPrism.Web.Bookings
+@using CashPrism.Web.Localisation
 @inject IStringLocalizer<Strings> text
 @inject IBookingReader reader
 
@@ -63,7 +64,7 @@
         </PropertyColumn>
       </Columns>
       <PagerContent>
-        <MudDataGridPager T="Booking" PageSizeOptions="PageSizes" InfoFormat="@PagerInfo" />
+        <MudDataGridPager T="Booking" PageSizeOptions="PageSizes" InfoFormat="@PagerText" />
       </PagerContent>
     </MudDataGrid>
   }
@@ -83,16 +84,8 @@
     private int lastOnPage;
     private int totalCount;
 
-    /// <summary>
-    /// The pager's info line, already written out rather than left as a
-    /// template. MudBlazor formats the three counts itself and with a culture
-    /// of its own, which puts an English thousands separator — <c>6,327</c> —
-    /// into a German page. Handing it a finished sentence is what keeps the
-    /// separators the ones the rest of the screen uses; there is no placeholder
-    /// left in it for MudBlazor to fill.
-    /// </summary>
-    private string PagerInfo => string.Format(
-        CultureInfo.CurrentCulture,
+    /// <summary>The pager's info line — see <see cref="CashPrism.Web.Localisation.PagerInfo"/>.</summary>
+    private string PagerText => PagerInfo.Compose(
         text["MudDataGridPager_InfoFormat"],
         firstOnPage,
         lastOnPage,
@@ -117,14 +110,14 @@
         var page = await reader.ReadPageAsync(request, cancellationToken);
 
         totalCount = page.TotalCount;
-        firstOnPage = page.Bookings.Count == 0 ? 0 : request.Skip + 1;
-        lastOnPage = request.Skip + page.Bookings.Count;
+        firstOnPage = PagerInfo.First(request.Skip, page.Items.Count);
+        lastOnPage = PagerInfo.Last(request.Skip, page.Items.Count);
 
         // The grid renders itself when this returns, not the page around it, so
         // the pager would otherwise keep the info line of the page before.
         await InvokeAsync(StateHasChanged);
 
-        return new GridData<Booking> { Items = page.Bookings, TotalItems = page.TotalCount };
+        return new GridData<Booking> { Items = page.Items, TotalItems = page.TotalCount };
     }
 
     /// <summary>

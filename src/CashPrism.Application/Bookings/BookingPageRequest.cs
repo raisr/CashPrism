@@ -1,7 +1,11 @@
+using CashPrism.Application.Paging;
+
 namespace CashPrism.Application.Bookings;
 
 /// <summary>
-/// One page of the booking list: which slice, in which order.
+/// One page of the booking list: which slice, in which order. The slice and its
+/// guards come from <see cref="PageRequest"/>; what this adds is the ordering,
+/// which only a list of bookings has.
 /// </summary>
 /// <param name="Skip">How many bookings to pass over. Zero is the first page.</param>
 /// <param name="Take">How many bookings the page holds.</param>
@@ -12,28 +16,8 @@ public sealed record BookingPageRequest(
     int Take,
     BookingSortColumn SortBy = BookingSortColumn.BookedOn,
     bool Descending = true)
+    : PageRequest(Skip, Take)
 {
-    /// <summary>The largest page anything may ask for.</summary>
-    /// <remarks>
-    /// A page size arrives from a browser, and on Blazor Server every row it
-    /// names is rendered and pushed down the circuit. The ceiling keeps a
-    /// tampered-with request from turning the whole history into one render.
-    /// </remarks>
-    public const int MaxTake = 500;
-
-    /// <summary>How many bookings to pass over. Zero is the first page.</summary>
-    public int Skip { get; } = Skip >= 0
-        ? Skip
-        : throw new ArgumentOutOfRangeException(nameof(Skip), Skip, "A page cannot start before the first booking.");
-
-    /// <summary>How many bookings the page holds.</summary>
-    public int Take { get; } = Take is > 0 and <= MaxTake
-        ? Take
-        : throw new ArgumentOutOfRangeException(
-            nameof(Take),
-            Take,
-            $"A page holds between one and {MaxTake} bookings.");
-
     /// <summary>The column to order by.</summary>
     public BookingSortColumn SortBy { get; } = Enum.IsDefined(SortBy)
         ? SortBy

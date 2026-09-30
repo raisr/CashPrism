@@ -119,6 +119,15 @@ releases and the minor version is bumped for every notable change.
   is one screen of rows over the network and not six thousand.
   The pager counts in German, separators included.
   See [`docs/ui.md`](docs/ui.md).
+- A new page, Importverlauf, lists what was imported and when: the time of the
+  run, the file it read, the export date taken from the sheet name, the file
+  checksum and the four counts the import reported — rows read, bookings new,
+  updated and unchanged. Newest first. It is what makes an import something you
+  can look back at rather than a number that was on screen once.
+  The time an import ran is now stored without its time-zone offset, which is
+  what lets the database sort it; existing databases are rewritten on the next
+  start, and nothing about the recorded times changes.
+  See [`docs/ui.md`](docs/ui.md).
 
 ### Changed
 

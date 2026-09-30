@@ -1,3 +1,6 @@
+using CashPrism.Application.Paging;
+using CashPrism.Domain.Bookings;
+
 namespace CashPrism.Application.Bookings;
 
 /// <summary>
@@ -17,7 +20,7 @@ public interface IBookingReader
     /// </summary>
     /// <param name="request">Which slice, in which order.</param>
     /// <param name="cancellationToken">Cancels the query.</param>
-    Task<BookingPage> ReadPageAsync(BookingPageRequest request, CancellationToken cancellationToken = default);
+    Task<Page<Booking>> ReadPageAsync(BookingPageRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// How many bookings are stored. Asked before a list is drawn at all, so an

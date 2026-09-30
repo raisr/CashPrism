@@ -87,6 +87,10 @@
     <value>Import</value>
     <comment>Drawer label and page heading of the upload page.</comment>
   </data>
+  <data name="NavImportRuns" xml:space="preserve">
+    <value>Importverlauf</value>
+    <comment>Drawer label and page heading of the list of past imports.</comment>
+  </data>
   <data name="NavigationToggle" xml:space="preserve">
     <value>Navigation ein- oder ausblenden</value>
     <comment>Accessible name of the button that opens and closes the drawer.</comment>
@@ -154,6 +158,54 @@
   <data name="ImportHint" xml:space="preserve">
     <value>Eine .xlsx-Datei aus FinanzGuru, Export „Alle Buchungen“.</value>
     <comment>One line under the file picker saying which file is expected.</comment>
+  </data>
+  <data name="ImportRunsLead" xml:space="preserve">
+    <value>Was wann eingelesen wurde.</value>
+    <comment>One line under the heading of the list of past imports.</comment>
+  </data>
+  <data name="ImportRunsEmpty" xml:space="preserve">
+    <value>Es wurde noch nichts importiert.</value>
+    <comment>Shown on the list of past imports while the database holds no runs.</comment>
+  </data>
+  <data name="ImportRunsEmptyHint" xml:space="preserve">
+    <value>Lade einen FinanzGuru-Export hoch, um anzufangen.</value>
+    <comment>Second line under ImportRunsEmpty, pointing at the upload page.</comment>
+  </data>
+  <data name="ImportRunsColumnImportedAt" xml:space="preserve">
+    <value>Zeitpunkt</value>
+    <comment>Import runs column: when the run processed the file.</comment>
+  </data>
+  <data name="ImportRunsColumnFile" xml:space="preserve">
+    <value>Datei</value>
+    <comment>Import runs column: the name of the imported file.</comment>
+  </data>
+  <data name="ImportRunsColumnExportedOn" xml:space="preserve">
+    <value>Exportdatum</value>
+    <comment>Import runs column: the date the export was taken, read from the sheet name.</comment>
+  </data>
+  <data name="ImportRunsNoExportDate" xml:space="preserve">
+    <value>unbekannt</value>
+    <comment>Shown in the Exportdatum column when the sheet name carried no readable date.</comment>
+  </data>
+  <data name="ImportRunsColumnHash" xml:space="preserve">
+    <value>Prüfsumme</value>
+    <comment>Import runs column: the hash over the imported file, shortened. The full value is the cell title.</comment>
+  </data>
+  <data name="ImportRunsColumnRowsRead" xml:space="preserve">
+    <value>Zeilen</value>
+    <comment>Import runs column: how many data rows the export carried.</comment>
+  </data>
+  <data name="ImportRunsColumnInserted" xml:space="preserve">
+    <value>Neu</value>
+    <comment>Import runs column: how many bookings the run stored for the first time.</comment>
+  </data>
+  <data name="ImportRunsColumnUpdated" xml:space="preserve">
+    <value>Aktualisiert</value>
+    <comment>Import runs column: how many known bookings the run replaced with a later state.</comment>
+  </data>
+  <data name="ImportRunsColumnUnchanged" xml:space="preserve">
+    <value>Unverändert</value>
+    <comment>Import runs column: how many rows said nothing the stored booking did not already say.</comment>
   </data>
   <data name="ImportRunning" xml:space="preserve">
     <value>Import läuft …</value>

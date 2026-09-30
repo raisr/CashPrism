@@ -147,6 +147,50 @@ only reinforce it, which is the rule the theme is built on.
 An empty database gets the message and a button to the upload page rather than
 a table of nothing with a pager counting to zero.
 
+## The list of past imports
+
+The Importverlauf page shows what was read and when: the time of the run, the
+file, the export date taken from the sheet name, the file checksum and the four
+counts the import reported. It is the page that turns an import from a number
+that was on screen once into something you can look back at.
+
+**One order, and no sorting.** A history is read as a history, so the list is
+fixed newest first. Making the columns sortable would only make it harder to
+see what happened last.
+
+**The instant is stored without its offset, so that the database can order it.**
+`ImportRun.ImportedAt` is a `DateTimeOffset`, and SQLite has no type that orders
+one: it writes such a value as text with the offset appended, which compares
+correctly only while every row carries the same offset, so EF Core refuses to
+translate an `ORDER BY` over it at all. `ImportRunConfiguration` therefore
+converts the property to a UTC `DateTime` on the way into the column and back on
+the way out. The model keeps the type that says what the value is, the column
+gets one that can be ordered, ranged and indexed, and nothing is lost — the only
+clock that writes it is UTC.
+
+Rows written before that decision carry the old text, so
+`ImportedAtAsUtcDateTime` rewrites them. It is written by hand: the column is
+`TEXT` either way, so EF Core generated an empty migration. It strips the six
+characters of the offset and touches only the rows that actually end in
+`+00:00`; a row with any other offset is left alone and fails loudly when it is
+read, rather than being quietly shifted by however many hours it was written
+with. `ImportedAtAsUtcDateTimeTests` runs it against rows in the old format.
+
+**The checksum is shortened.** A SHA-256 written as hex is 64 characters, which
+no column can carry beside seven others. The first twelve are enough to tell
+two runs apart and to match one against a hash from elsewhere; the whole value
+is the cell's title, so nothing is actually hidden.
+
+**A run without an export date says so.** The date comes from the sheet name,
+and a name this version cannot read a date out of leaves the field empty — the
+column then reads `unbekannt` rather than showing a blank cell that could just
+as well be a rendering fault.
+
+Importing the same file twice records no second run: the import recognises the
+file by its hash and stops before a run exists (see
+[`finanzguru-export.md`](finanzguru-export.md)). The list shows what happened,
+and nothing happened.
+
 ## The upload page
 
 The Import page is the only page that does work rather than showing it, and

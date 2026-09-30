@@ -96,7 +96,7 @@ public sealed class BookingReaderTests
 
             var page = await reader.ReadPageAsync(request);
 
-            return [.. page.Bookings.Select(booking => booking.Fingerprint)];
+            return [.. page.Items.Select(booking => booking.Fingerprint)];
         }
 
         [Fact]
@@ -223,7 +223,7 @@ public sealed class BookingReaderTests
 
             var page = await reader.ReadPageAsync(new BookingPageRequest(Skip: 0, Take: 25));
 
-            Assert.Equal(25, page.Bookings.Count);
+            Assert.Equal(25, page.Items.Count);
             Assert.Equal(60, page.TotalCount);
         }
 
@@ -237,7 +237,7 @@ public sealed class BookingReaderTests
 
             var page = await reader.ReadPageAsync(new BookingPageRequest(Skip: 100, Take: 25));
 
-            Assert.Empty(page.Bookings);
+            Assert.Empty(page.Items);
             Assert.Equal(1, page.TotalCount);
         }
 
@@ -253,7 +253,7 @@ public sealed class BookingReaderTests
 
             var page = await reader.ReadPageAsync(new BookingPageRequest(Skip: 0, Take: 25));
 
-            var booking = Assert.Single(page.Bookings);
+            var booking = Assert.Single(page.Items);
             Assert.Equal(-6317, booking.AmountInCents);
             Assert.Equal("EUR", booking.Currency);
             Assert.Equal("Girokonto", booking.AccountName);
