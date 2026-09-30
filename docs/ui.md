@@ -220,11 +220,17 @@ finished while it was away — and a second import cannot be started on top of
 the first. An overlay covers the page while it runs, so the navigation is out
 of reach rather than merely ineffective.
 
-**Why a file was refused is not on the page.** The reasons are built where the
-failure is found — in the export reader and the import use case — and are
-therefore English sentences, which this UI may not show. They go to the log,
-and the page says only what it can say in German. Issue #55 is what turns them
-into something translatable.
+**Why a file was refused crosses the layers as a code, not a sentence.** The
+reasons are found in the export reader and the import use case, which write
+English, and this UI writes German. So what comes back is an `ImportError`: an
+`ImportErrorCode` plus the values that fill its gaps — a column, a row, a
+worksheet name. The page looks the code up as `ImportError<Code>` in
+`Strings.resx` and formats the arguments into it. A test fails for every code
+without a translation, so a new one cannot reach the page as its bare key.
+
+The page lists the first 20 reasons and counts the rest: a broken column fails
+every row, and thousands of lines help nobody. The log gets all of them,
+untranslated, so a bug report does not depend on what the browser showed.
 
 ## MudBlazor's own strings
 
