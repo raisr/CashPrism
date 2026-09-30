@@ -49,7 +49,7 @@ public sealed class ImportPageTests
         {
             var html = await GetAsync();
 
-            Assert.Contains("FinanzGuru", html, StringComparison.Ordinal);
+            Assert.Contains("Finanzguru", html, StringComparison.Ordinal);
             Assert.Contains(".xlsx", html, StringComparison.Ordinal);
         }
 

@@ -167,7 +167,8 @@ is cheap now and expensive to retrofit.
   not translatable and stay literals.
 - **Keys are English, values are German.** Everything else in the repository
   stays English: identifiers, comments, XML docs, tests, commits. The deviation
-  from `core.language` is limited to resource values and recorded below.
+  from `core.language` covers the resource values and the user guide, and is
+  recorded below.
 - **The resource file is neutral.** `Strings.resx` is what ships; there is no
   English sibling to keep in step. A second language is a new
   `Strings.<culture>.resx` and nothing else.
@@ -199,6 +200,6 @@ Every row was decided once and is recorded in `devkit.lock.json`, so
 
 | Rule | Deviation | Why |
 |---|---|---|
-| `core.language` | User-visible UI text is German: the values in `Strings.resx` are German, and so is what the application renders | Finanzguru is sold in German-speaking markets only, so the UI's only audience reads German. Everything else stays English — keys, identifiers, comments, XML docs, tests, commits, tickets and this file |
+| `core.language` | What a user reads is German: the values in `Strings.resx`, what the application renders, and the user guide `docs/benutzung.md`. It ends once CashPrism reads a second source whose users do not read German — then English user documentation is due | Finanzguru is sold in German-speaking markets only, so the application's only audience reads German. Everything else stays English — keys, identifiers, comments, XML docs, tests, commits, tickets, the rest of `docs/` and this file |
 | `dotnet.tests` | A second project under `src/Tests/` carries no `.Unit`/`.Integration` suffix and belongs to no production project: `CashPrism.TestSupport`, described under [Test projects](#test-projects) | `XlsxTestWorkbook` builds a Finanzguru-shaped workbook in code. The anonymiser's round-trip tests need it and the export reader's tests need the same thing, so the alternatives are a second copy or a binary fixture in the repository. The rule itself asks for a ticket arguing the case; that is issue #26 |
 | `core.tests` | A maintenance script under `.devkit/` carries no unit tests. It ships in nothing, and a gate that runs it end to end on every commit covers it instead. Logic that is not a maintenance script is not covered by this row, wherever it lives | `.devkit/generate-third-party-notices.cs` is checked by the `notices` gate, which runs the whole generator and diffs its output against the committed `THIRD-PARTY-NOTICES.md` — a golden-file test of the real pipeline, including the publish and the licence metadata lookup that unit tests would have to fake. A second project to make three string functions unit-testable would buy less coverage than the gate already gives |

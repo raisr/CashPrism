@@ -108,7 +108,7 @@
     <comment>Shown on the start page while the database holds no bookings.</comment>
   </data>
   <data name="OverviewEmptyHint" xml:space="preserve">
-    <value>Lade einen FinanzGuru-Export hoch, um anzufangen.</value>
+    <value>Lade einen Finanzguru-Export hoch, um anzufangen.</value>
     <comment>Second line under OverviewEmpty, pointing at the upload page.</comment>
   </data>
   <data name="BookingsLead" xml:space="preserve">
@@ -120,7 +120,7 @@
     <comment>Shown on the booking list while the database holds no bookings.</comment>
   </data>
   <data name="BookingsEmptyHint" xml:space="preserve">
-    <value>Lade einen FinanzGuru-Export hoch, um anzufangen.</value>
+    <value>Lade einen Finanzguru-Export hoch, um anzufangen.</value>
     <comment>Second line under BookingsEmpty, pointing at the upload page.</comment>
   </data>
   <data name="BookingsColumnDate" xml:space="preserve">
@@ -141,14 +141,14 @@
   </data>
   <data name="BookingsColumnCategory" xml:space="preserve">
     <value>Kategorie</value>
-    <comment>Booking list column: FinanzGuru's top-level category.</comment>
+    <comment>Booking list column: Finanzguru's top-level category.</comment>
   </data>
   <data name="BookingsColumnAmount" xml:space="preserve">
     <value>Betrag</value>
     <comment>Booking list column: the signed amount.</comment>
   </data>
   <data name="ImportLead" xml:space="preserve">
-    <value>FinanzGuru-Export einlesen.</value>
+    <value>Finanzguru-Export einlesen.</value>
     <comment>One line under the heading of the upload page.</comment>
   </data>
   <data name="ImportPick" xml:space="preserve">
@@ -156,7 +156,7 @@
     <comment>Label of the button that opens the file picker on the upload page.</comment>
   </data>
   <data name="ImportHint" xml:space="preserve">
-    <value>Eine .xlsx-Datei aus FinanzGuru, Export „Alle Buchungen“.</value>
+    <value>Eine .xlsx-Datei aus Finanzguru, Export „Alle Buchungen“.</value>
     <comment>One line under the file picker saying which file is expected.</comment>
   </data>
   <data name="ImportRunsLead" xml:space="preserve">
@@ -168,7 +168,7 @@
     <comment>Shown on the list of past imports while the database holds no runs.</comment>
   </data>
   <data name="ImportRunsEmptyHint" xml:space="preserve">
-    <value>Lade einen FinanzGuru-Export hoch, um anzufangen.</value>
+    <value>Lade einen Finanzguru-Export hoch, um anzufangen.</value>
     <comment>Second line under ImportRunsEmpty, pointing at the upload page.</comment>
   </data>
   <data name="ImportRunsColumnImportedAt" xml:space="preserve">

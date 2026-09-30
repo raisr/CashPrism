@@ -135,6 +135,10 @@ releases and the minor version is bumped for every notable change.
   what lets the database sort it; existing databases are rewritten on the next
   start, and nothing about the recorded times changes.
   See [`docs/ui.md`](docs/ui.md).
+- A user guide in German, [`docs/benutzung.md`](docs/benutzung.md): how to
+  start CashPrism and reach it from another device, what each page offers, what
+  the four import counts mean, what to do when a file is refused, and what the
+  booking list cannot do yet. The README links to it and says why it is German.
 
 ### Changed
 
@@ -155,5 +159,9 @@ releases and the minor version is bumped for every notable change.
   itself is no longer stored. No import code exists yet — this is the
   specification the import milestone is built to. See
   [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
+
+### Fixed
+
+- The interface spells Finanzguru the way its owner does, with a lower-case g.
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main

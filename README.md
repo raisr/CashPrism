@@ -74,14 +74,26 @@ other device answers on.
 A different port, no browser window, a build that runs without the SDK, and the
 settings that make it stick: see [docs/hosting.md](docs/hosting.md).
 
+## Using it
+
+[docs/benutzung.md](docs/benutzung.md) explains how to use CashPrism: starting
+it, reaching it from another device, importing an export and reading what was
+stored.
+
+That guide is German, and so is the interface. Finanzguru, the only source
+CashPrism reads, is sold in German-speaking markets only, so every person using
+CashPrism reads German. Should CashPrism learn to read a source whose users do
+not, English documentation becomes worth adding.
+
 ## Documentation
 
 [docs/README.md](docs/README.md) lists what is written down and where.
 
 ## Status
 
-Early development. You can upload a Finanzguru export and it is stored, but
-there is nothing to look at afterwards yet and no password. See
+Early development. You can upload a Finanzguru export, page and sort through
+the bookings it stored, and see what was imported when. There is no filtering,
+no searching, no chart and no password yet. See
 [ROADMAP.md](ROADMAP.md) for the planned phases and
 [CHANGELOG.md](CHANGELOG.md) for what has landed.
 
