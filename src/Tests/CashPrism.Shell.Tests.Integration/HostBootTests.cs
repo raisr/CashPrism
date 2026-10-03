@@ -21,7 +21,7 @@ public sealed class HostBootTests
     {
         { "_framework/blazor.web.js", "Blazor-Server-Component-State:" },
         { "_content/MudBlazor/MudBlazor.min.css", ".mud-appbar{" },
-        { "_content/CashPrism.Web/app.css", ".app-brand" },
+        { "_content/CashPrism.Web/app.css", "font-family: \"Manrope\"" },
         { "_content/CashPrism.Web/css/tokens.css", "--cp-prism-violet" },
         { "_content/CashPrism.Web/css/components.css", ".cp-icon" },
         { "_content/CashPrism.Web/Theme/ThemeAttribute.razor.js", "export function applyTheme" },
@@ -84,11 +84,11 @@ public sealed class HostBootTests
         }
 
         [Fact]
-        public async Task Start_Page_Renders_The_Wiring_Marker_As_Prerendered()
+        public async Task Start_Page_Says_That_The_Data_Stays_On_This_Machine()
         {
             var html = await GetStartPageAsync();
 
-            Assert.Contains("Vorgerendert", html);
+            Assert.Contains("Nur auf diesem Rechner", html);
         }
 
         [Fact]
@@ -104,8 +104,8 @@ public sealed class HostBootTests
         {
             var html = await GetStartPageAsync();
 
-            Assert.Contains("Rendermodus", html);
-            Assert.DoesNotContain("Render mode", html);
+            Assert.Contains("Deine Finanzen, lokal", html);
+            Assert.DoesNotContain("BrandTagline", html);
         }
 
         [Fact]

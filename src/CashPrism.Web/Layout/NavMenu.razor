@@ -1,14 +1,25 @@
 @inject IStringLocalizer<Strings> text
 
 @* The drawer's destinations. The list comes from NavigationItems so the label
-   here and the one in the app bar can never disagree. *@
-<MudNavMenu Rounded="true" Class="app-nav">
+   here and the one in the app bar can never disagree. A section heading is
+   written wherever the section changes. *@
+<nav class="cp-nav">
+  @{ string? section = null; }
   @foreach (var item in NavigationItems.All)
   {
-    <MudNavLink Href="@item.Href"
-                Icon="@item.Icon"
-                Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
-      @text[item.TitleKey]
-    </MudNavLink>
+    if (item.SectionKey is not null && item.SectionKey != section)
+    {
+      <div class="cp-sidebar__section cp-label">@text[item.SectionKey]</div>
+    }
+
+    section = item.SectionKey;
+
+    <NavLink href="@item.Href"
+             class="cp-nav__item"
+             ActiveClass="cp-nav__item--on"
+             Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+      <CpIcon Name="@item.Icon" />
+      <span>@text[item.TitleKey]</span>
+    </NavLink>
   }
-</MudNavMenu>
+</nav>

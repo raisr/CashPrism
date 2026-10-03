@@ -20,34 +20,59 @@
 <MudLayout>
   @* The drawer is not clipped by the app bar, so it runs the full height and
      carries the product name; the app bar beside it names the current page. *@
-  <MudAppBar Elevation="0" Color="Color.Surface" Class="border-b border-solid mud-border-lines-default">
-    <MudIconButton Icon="@Icons.Material.Outlined.Menu"
-                   Color="Color.Inherit"
-                   Edge="Edge.Start"
-                   aria-label="@text["NavigationToggle"]"
-                   OnClick="ToggleDrawer" />
+  <MudAppBar Elevation="0" Color="Color.Surface" Class="cp-topbar">
+    @* Only where the drawer folds away: on a wide screen it is always there,
+       and a button that hides it would only hide the way around. *@
+    <button type="button" class="cp-iconbtn cp-topbar__menu"
+            aria-label="@text["NavigationToggle"]"
+            @onclick="ToggleDrawer">
+      <CpIcon Name="menu" />
+    </button>
     @* Small, muted and spaced out: this says where you are, the page's own
        heading says what you are looking at. *@
-    <span class="app-bar-title">@CurrentTitle</span>
-    <MudSpacer />
-    <MudIconButton Icon="@(isDarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode)"
-                   Color="Color.Inherit"
-                   aria-label="@text["ThemeToggle"]"
-                   OnClick="ToggleTheme" />
+    <span class="cp-topbar__section">@CurrentTitle</span>
+    <span class="cp-topbar__spacer"></span>
+    <button type="button" class="cp-iconbtn"
+            aria-label="@text["ThemeToggle"]"
+            @onclick="ToggleTheme">
+      <CpIcon Name="@(isDarkMode ? "sun" : "moon")" />
+    </button>
+    <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Class="cp-btn cp-btn--sm">
+      <CpIcon Name="upload" />
+      @text["NavImport"]
+    </MudButton>
   </MudAppBar>
 
+  @* Responsive at MudBlazor's Md breakpoint (960 px). The design folds the
+     drawer at 1040 px, but MudBlazor's breakpoints are fixed, and its drawer
+     keeps a narrow screen from flashing the open drawer before the circuit is
+     up — which a breakpoint of our own would have to rebuild. *@
   <MudDrawer @bind-Open="drawerOpen"
              Variant="DrawerVariant.Responsive"
              Breakpoint="Breakpoint.Md"
-             Elevation="0"
-             Class="border-r border-solid mud-border-lines-default">
-    @* "CashPrism" is a product name, so it stays a literal. The second half
-       carries the accent — the prism is what splits the light. *@
-    <MudDrawerHeader Class="app-brand">
-      <span class="app-brand-name">Cash<span class="app-brand-accent">Prism</span></span>
-      <span class="app-brand-version">@AppVersion.Current</span>
-    </MudDrawerHeader>
-    <NavMenu />
+             Elevation="0">
+    <div class="cp-sidebar">
+      @* "CashPrism" is a product name, so it stays a literal. The second half
+         carries the accent — the prism is what splits the light. *@
+      <div class="cp-sidebar__brand">
+        <span class="cp-brand">
+          <span class="cp-brand__text">
+            <span class="cp-brand__name">Cash<span>Prism</span></span>
+            <span class="cp-brand__tag">@text["BrandTagline"]</span>
+          </span>
+        </span>
+      </div>
+
+      <NavMenu />
+
+      <div class="cp-sidebar__foot">
+        <div class="cp-privacy">
+          <div class="cp-privacy__title"><CpIcon Name="lock" Size="16" />@text["PrivacyTitle"]</div>
+          <div class="cp-privacy__text">@text["PrivacyText"]</div>
+          <div class="cp-privacy__version">@text["AppVersion", AppVersion.Current]</div>
+        </div>
+      </div>
+    </div>
   </MudDrawer>
 
   @* MudMainContent contributes only the offset that keeps content clear of the
