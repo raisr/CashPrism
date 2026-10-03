@@ -53,7 +53,7 @@
         </TemplateColumn>
         <TemplateColumn T="ImportRun" Title="@text["ImportRunsColumnHash"]" CellClass="cp-figure">
           <CellTemplate>
-            <span title="@context.Item.FileHash">@ImportRunFormat.ShortHash(context.Item.FileHash)</span>
+            <span class="cp-mono" title="@context.Item.FileHash">@ImportRunFormat.ShortHash(context.Item.FileHash)</span>
           </CellTemplate>
         </TemplateColumn>
         <TemplateColumn T="ImportRun" Title="@text["ImportRunsColumnRowsRead"]"

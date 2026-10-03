@@ -11,12 +11,13 @@
   @* Both files come out of the MudBlazor package's static web assets and are
      served by this application. MudBlazor's own getting-started page links
      Roboto from fonts.googleapis.com instead; CashPrism does not, because
-     everything stays local and the machine may have no internet at all. The
-     font stack is set on the theme. *@
+     everything stays local and the machine may have no internet at all. Its
+     fonts are bundled under wwwroot/fonts and named on the theme. *@
   <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
   @* The icon font is bundled for the same reason: Lucide's own setup points at
      a CDN. *@
   <link rel="stylesheet" href="_content/CashPrism.Web/icons/lucide.css" />
+  <link rel="stylesheet" href="_content/CashPrism.Web/css/tokens.css" />
   <link rel="stylesheet" href="_content/CashPrism.Web/css/components.css" />
   <link rel="stylesheet" href="_content/CashPrism.Web/app.css" />
   @* The SVG for every browser that takes one, the ICO for the rest. *@
