@@ -1,0 +1,19 @@
+<!-- @dsCard group="Components" viewport="900x420" name="Navigation" subtitle="Sidebar + Brand, Topbar, PageHeader, Tabs" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:20px;background:var(--cp-bg)}.lbl{margin:0 0 8px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.col{display:flex;flex-direction:column;gap:16px}body{padding:20px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+const { Sidebar, Topbar, PageHeader, Tabs, Input, IconButton, Button, Segmented, Icon } = window.CashPrismDesignSystem_24fa3e;
+const eur = c => (c<0?'−':'') + (Math.abs(c)/100).toLocaleString('de-DE',{maximumFractionDigits:0}) + '\u00a0€';
+function Demo(){
+const [r,setR]=React.useState('/');const [c,setC]=React.useState(false);const [t,setT]=React.useState('a');
+return <div style={{display:'flex',height:380,border:'1px solid var(--cp-line)',borderRadius:14,overflow:'hidden',background:'var(--cp-bg)'}}>
+<Sidebar collapsed={c} onToggleCollapse={()=>setC(!c)} collapsedFooter={<Icon name="lock" size={16} color="var(--cp-primary)"/>} active={r} onNavigate={setR} items={[{href:'/',label:'Übersicht',icon:'layout-dashboard'},{href:'/b',label:'Buchungen',icon:'receipt-text',count:'1.204'},{href:'/k',label:'Konten',icon:'wallet'},{section:'Auswerten'},{href:'/a',label:'Analyse',icon:'chart-pie'},{href:'/r',label:'Berichte',icon:'file-chart-column'}]}/>
+<div style={{flex:1,minWidth:0}}><Topbar section="Übersicht"><span className="cp-topbar__spacer"/><Input icon="search" placeholder="Suchen …" style={{width:200}}/><IconButton icon="moon" aria-label="Design"/><Button size="sm" icon="upload">Import</Button></Topbar>
+<div style={{padding:24}}><PageHeader title="Guten Abend" lead="So steht es um dein Geld im September 2026." actions={<Segmented options={['6 Monate','12 Monate']} value="12 Monate"/>}/><Tabs value={t} onChange={setT} tabs={[{value:'a',label:'Überblick'},{value:'b',label:'Buchungen',count:412}]}/></div></div></div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

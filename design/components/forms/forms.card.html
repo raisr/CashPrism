@@ -1,0 +1,19 @@
+<!-- @dsCard group="Components" viewport="700x330" name="Forms" subtitle="Input, Select, Segmented, FilterChip, Switch, Dropzone" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:20px;background:var(--cp-bg)}.lbl{margin:0 0 8px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.col{display:flex;flex-direction:column;gap:16px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+const { Input, Select, Segmented, FilterChip, Switch, Dropzone } = window.CashPrismDesignSystem_24fa3e;
+const eur = c => (c<0?'−':'') + (Math.abs(c)/100).toLocaleString('de-DE',{maximumFractionDigits:0}) + '\u00a0€';
+function Demo(){
+const [q,setQ]=React.useState('');const [s,setS]=React.useState('Monat');const [c,setC]=React.useState('Lebensmittel');const [on,setOn]=React.useState(true);
+return <div className="col">
+<div className="row"><Input icon="search" placeholder="Buchungen durchsuchen …" value={q} onChange={setQ} kbd="/" style={{flex:'1 1 240px'}}/><Select icon="landmark" options={['Alle Konten','Girokonto','Tagesgeld']} value="Alle Konten" style={{width:190}}/><Segmented options={['Monat','Quartal','Jahr']} value={s} onChange={setS}/></div>
+<div className="row">{['Lebensmittel','Wohnen','Mobilität','Freizeit & Essen'].map(x=><FilterChip key={x} active={c===x} onClick={()=>setC(x)} onRemove={c===x?()=>setC(null):undefined}>{x}</FilterChip>)}<span style={{flex:1}}/><Switch checked={on} onChange={setOn} label="Umbuchungen ausblenden"/></div>
+<Dropzone onFile={()=>{}}/></div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

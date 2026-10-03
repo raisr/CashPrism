@@ -1,0 +1,21 @@
+<!-- @dsCard group="Components" viewport="700x420" name="Feedback" subtitle="Alert, Insight, EmptyState, Spinner, Sheet" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:20px;background:var(--cp-bg)}.lbl{margin:0 0 8px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.col{display:flex;flex-direction:column;gap:16px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+const { Alert, Insight, EmptyState, Spinner, Sheet, Card, Button } = window.CashPrismDesignSystem_24fa3e;
+const eur = c => (c<0?'−':'') + (Math.abs(c)/100).toLocaleString('de-DE',{maximumFractionDigits:0}) + '\u00a0€';
+function Demo(){
+const [o,setO]=React.useState(false);
+return <div className="col">
+<Alert tone="success" title="Fertig! 46 neue Buchungen sind da." details={['1.204 Zeilen gelesen','3 Buchungen aktualisiert']}/>
+<Alert tone="warning" icon="trending-up" title="Spotify ist teurer geworden">Seit April zahlst du 14,99 € statt 12,99 €.</Alert>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}><Card title="Aufgefallen" padded={false}><div style={{padding:'8px 0'}}><Insight icon="shopping-basket" color="var(--cp-prism-green)" title="Lebensmittel: 22 % mehr als sonst" sub="612 € statt etwa 500 €"/><Insight icon="piggy-bank" color="var(--cp-prism-teal)" title="Du sparst 24 % deiner Einnahmen"/></div></Card>
+<Card padded={false}><EmptyState icon="search" title="Nichts gefunden" text="Probier einen anderen Begriff." actions={<><Button size="sm" variant="secondary" onClick={()=>setO(true)}>Sheet öffnen</Button><Spinner/></>} style={{padding:24}}/></Card></div>
+<Sheet open={o} onClose={()=>setO(false)} title="REWE" subtitle="Gestern">Details …</Sheet></div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

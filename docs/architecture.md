@@ -55,6 +55,7 @@ is in [`../AGENTS.md`](../AGENTS.md#test-projects).
 ## Directory layout
 
 ```
+design/
 src/
   CashPrism.slnx
   CashPrism.Domain/
@@ -79,6 +80,10 @@ src/
 
 The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder
 inside the solution root, not a solution folder that has to be kept in sync.
+
+`design/` holds the design system as exported from Claude Design: tokens,
+components, guidelines and brand assets. It is reference material for the UI
+and is not part of the build.
 
 ## Why it is cut this way
 

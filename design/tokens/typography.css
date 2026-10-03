@@ -1,0 +1,34 @@
+:root {
+  --cp-font-sans: "Manrope", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  --cp-font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --cp-font-figures: var(--cp-font-sans);
+
+  --cp-fs-display: 34px;
+  --cp-lh-display: 1.1; /* @kind font */
+  --cp-fw-display: 750; /* @kind font */
+  --cp-ls-display: -0.03em; /* @kind font */
+  --cp-fs-h1: 26px;
+  --cp-lh-h1: 1.2; /* @kind font */
+  --cp-fw-h1: 750; /* @kind font */
+  --cp-ls-h1: -0.025em; /* @kind font */
+  --cp-fs-h2: 18px;
+  --cp-lh-h2: 1.3; /* @kind font */
+  --cp-fw-h2: 700; /* @kind font */
+  --cp-ls-h2: -0.015em; /* @kind font */
+  --cp-fs-h3: 15px;
+  --cp-lh-h3: 1.4; /* @kind font */
+  --cp-fw-h3: 700; /* @kind font */
+  --cp-fs-body: 14px;
+  --cp-lh-body: 1.5; /* @kind font */
+  --cp-fw-body: 500; /* @kind font */
+  --cp-fs-small: 13px;
+  --cp-lh-small: 1.45; /* @kind font */
+  --cp-fs-caption: 12px;
+  --cp-lh-caption: 1.4; /* @kind font */
+  --cp-fs-label: 11px;
+  --cp-fw-label: 700; /* @kind font */
+  --cp-ls-label: 0.08em; /* @kind font */
+
+  --font-body: var(--cp-font-sans);
+  --font-figures: var(--cp-font-figures);
+}
