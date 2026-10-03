@@ -21,5 +21,48 @@
       "notice": "Copyright (c) 2017 andersnm",
       "source": "https://github.com/andersnm/ExcelNumberFormat/blob/master/LICENSE"
     }
-  }
+  },
+  "assetsComment": [
+    "Third-party files CashPrism ships that are not NuGet packages, so no",
+    "deps.json names them: the fonts and the icon font under the web project's",
+    "wwwroot. Licence and copyright are copied verbatim from the licence file",
+    "that ships beside each one; the version is the release the files come from.",
+    "Maintained by hand; the generator fails when a listed file does not exist."
+  ],
+  "assets": [
+    {
+      "name": "JetBrains Mono",
+      "version": "2.211",
+      "license": "OFL-1.1",
+      "copyright": "Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)",
+      "source": "https://github.com/google/fonts/tree/main/ofl/jetbrainsmono",
+      "files": [
+        "src/CashPrism.Web/wwwroot/fonts/JetBrainsMono-Variable.ttf",
+        "src/CashPrism.Web/wwwroot/fonts/JetBrainsMono-OFL.txt"
+      ]
+    },
+    {
+      "name": "Lucide",
+      "version": "0.469.0",
+      "license": "ISC",
+      "copyright": "Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.",
+      "source": "https://github.com/lucide-icons/lucide/blob/main/LICENSE",
+      "files": [
+        "src/CashPrism.Web/wwwroot/icons/lucide.css",
+        "src/CashPrism.Web/wwwroot/icons/lucide.woff2",
+        "src/CashPrism.Web/wwwroot/icons/Lucide-ISC.txt"
+      ]
+    },
+    {
+      "name": "Manrope",
+      "version": "4.505",
+      "license": "OFL-1.1",
+      "copyright": "Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)",
+      "source": "https://github.com/google/fonts/tree/main/ofl/manrope",
+      "files": [
+        "src/CashPrism.Web/wwwroot/fonts/Manrope-Variable.ttf",
+        "src/CashPrism.Web/wwwroot/fonts/Manrope-OFL.txt"
+      ]
+    }
+  ]
 }
