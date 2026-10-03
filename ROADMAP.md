@@ -45,20 +45,31 @@ Upload a Finanzguru export, store it deduplicated, and see the result as data.
   itself is not stored.
 - Upload UI and a list of past import runs.
 
-## M4 — Auth
+## M4 — Design system
+
+Give the existing application the look of the design system under
+[`design/`](design/), before more screens are built in the old one.
+
+- Fonts, icons and logo bundled with the application; nothing is fetched from
+  the internet.
+- Theme and design tokens for both light and dark.
+- The shell: sidebar, top bar and page header.
+- The booking list and the import page restyled, with the data stored today.
+
+## M5 — Auth
 
 - One shared password, PBKDF2, cookie authentication.
 - Password supplied out of band (environment variable / user secret), never in
   the repository.
 - `[Authorize]` is the default; `[AllowAnonymous]` is the justified exception.
 
-## M5 — Analysis UI
+## M6 — Analysis UI
 
 - Booking list with search and filter.
 - Categories.
 - Trends and charts.
 
-## M6 — Delivery
+## M7 — Delivery
 
 - Self-contained single-file binary per platform (Windows, Linux, macOS).
 - A repeatable release process, including cutting a `CHANGELOG.md` version at
