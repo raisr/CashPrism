@@ -28,14 +28,21 @@ using System.Threading.Tasks;
 // fails here — loudly — instead of silently leaving the .NET runtime's own
 // licence out of a file that claims to be complete.
 //
+// Not everything shipped is a package. The fonts and the icon font under the
+// web project's wwwroot are plain files no deps.json names, so they are listed
+// by hand in the 'assets' section of the overrides file and rendered in a
+// table of their own. Each entry names the files it covers, and a listed file
+// that does not exist fails the run: a notice for something no longer shipped
+// is as wrong as a missing one.
+//
 // The licence texts themselves are committed under .devkit/licenses/, one file
 // per SPDX identifier, named exactly as nuget-license reports it. They are the
-// canonical texts and are not edited, with one exception: MIT.txt carries a
-// placeholder where the canonical template puts the copyright line, because one
-// text covers many packages and each package's own notice sits in the table
-// above it. A shipped package under a licence with no file there fails rather
-// than producing a notices file that claims to reproduce a licence it does not
-// carry.
+// canonical texts and are not edited, with one exception: MIT.txt and ISC.txt
+// carry a placeholder where the canonical template puts the copyright line,
+// because one text covers several entries and each entry's own notice sits in
+// the table above it. A shipped package or asset under a licence with no file
+// there fails rather than producing a notices file that claims to reproduce a
+// licence it does not carry.
 //
 // Usage: dotnet run --file .devkit/generate-third-party-notices.cs [--output <path>]
 //
@@ -89,8 +96,14 @@ internal static class Program
             var shipped = ReadShippedPackages(Path.Combine(publishDir.FullName, "CashPrism.Shell.deps.json"));
             var metadata = await ReadLicenseMetadataAsync();
             var overrides = ReadCopyrightOverrides();
+            var assets = ReadAssets();
 
             var problems = new List<string>();
+
+            foreach (var file in assets.SelectMany(asset => asset.Files).Where(file => !File.Exists(file)))
+            {
+                problems.Add($"{OverridesFileName} lists the asset file {file}, which does not exist.");
+            }
 
             foreach (var package in shipped.Where(package => !metadata.ContainsKey(package)))
             {
@@ -121,7 +134,8 @@ internal static class Program
                 .ToList();
 
             var licenseTexts = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var license in rows.Select(row => row.License).Distinct(StringComparer.OrdinalIgnoreCase))
+            var licenses = rows.Select(row => row.License).Concat(assets.Select(asset => asset.License));
+            foreach (var license in licenses.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 var path = LicenseTextPath(license);
                 if (path is null || !File.Exists(path))
@@ -149,10 +163,11 @@ internal static class Program
             // notices gate would be red with a whole-file diff and no hint why.
             using (var writer = new StreamWriter(outputPath) { NewLine = "\n" })
             {
-                Render(writer, rows, licenseTexts);
+                Render(writer, rows, assets, licenseTexts);
             }
 
-            Console.WriteLine($"Wrote {rows.Count} packages and {licenseTexts.Count} licence texts to {outputPath}.");
+            Console.WriteLine(
+                $"Wrote {rows.Count} packages, {assets.Count} assets and {licenseTexts.Count} licence texts to {outputPath}.");
             return 0;
         }
         finally
@@ -259,6 +274,21 @@ internal static class Program
             .ToDictionary(entry => entry.Name, entry => entry.Value.GetProperty("notice").GetString()!);
     }
 
+    private static IReadOnlyList<AssetNotice> ReadAssets()
+    {
+        using var document = JsonDocument.Parse(File.ReadAllText(OverridesFileName));
+
+        return document.RootElement.GetProperty("assets").EnumerateArray()
+            .Select(entry => new AssetNotice(
+                entry.GetProperty("name").GetString()!,
+                entry.GetProperty("version").GetString()!,
+                entry.GetProperty("license").GetString()!,
+                entry.GetProperty("copyright").GetString()!,
+                entry.GetProperty("files").EnumerateArray().Select(file => file.GetString()!).ToList()))
+            .OrderBy(asset => asset.Name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     private static string? LicenseTextPath(string license) =>
         license.Length == 0 || license.AsSpan().IndexOfAny(Path.GetInvalidFileNameChars()) >= 0
             ? null
@@ -267,18 +297,21 @@ internal static class Program
     private static void Render(
         TextWriter writer,
         IReadOnlyList<PackageNotice> rows,
+        IReadOnlyList<AssetNotice> assets,
         IReadOnlyDictionary<string, string> licenseTexts)
     {
         writer.WriteLine("# Third-party notices");
         writer.WriteLine();
-        writer.WriteLine("CashPrism ships the third-party packages listed below. The table names the");
-        writer.WriteLine("licence each one is used under and the copyright notice it carries; the full");
-        writer.WriteLine("text of every licence named is reproduced further down, as those licences");
-        writer.WriteLine("require.");
+        writer.WriteLine("CashPrism ships the third-party packages and assets listed below. The tables");
+        writer.WriteLine("name the licence each one is used under and the copyright notice it carries;");
+        writer.WriteLine("the full text of every licence named is reproduced further down, as those");
+        writer.WriteLine("licences require.");
         writer.WriteLine();
         writer.WriteLine("This file is generated — see `.devkit/generate-third-party-notices.cs` — and");
         writer.WriteLine("ships next to the executable produced by `dotnet publish`. Regenerate it after");
-        writer.WriteLine("a package change; the `notices` gate fails while it is stale.");
+        writer.WriteLine("a package or asset change; the `notices` gate fails while it is stale.");
+        writer.WriteLine();
+        writer.WriteLine("## Packages");
         writer.WriteLine();
         writer.WriteLine("| Package | Version | Licence | Copyright |");
         writer.WriteLine("|---|---|---|---|");
@@ -299,6 +332,19 @@ internal static class Program
         }
 
         writer.WriteLine();
+        writer.WriteLine("## Assets");
+        writer.WriteLine();
+        writer.WriteLine("Fonts and icons served to the browser as files. Each one's own licence file");
+        writer.WriteLine("ships beside it as well.");
+        writer.WriteLine();
+        writer.WriteLine("| Asset | Version | Licence | Copyright |");
+        writer.WriteLine("|---|---|---|---|");
+        foreach (var asset in assets)
+        {
+            writer.WriteLine($"| {asset.Name} | {asset.Version} | {asset.License} | {Cell(asset.Copyright)} |");
+        }
+
+        writer.WriteLine();
         writer.WriteLine("## Licence texts");
 
         foreach (var (license, text) in licenseTexts)
@@ -306,8 +352,8 @@ internal static class Program
             writer.WriteLine();
             writer.WriteLine($"### {license}");
             writer.WriteLine();
-            writer.WriteLine($"Applies to every package marked `{license}` in the table above. Each of them");
-            writer.WriteLine("keeps its own copyright notice, as given in that table.");
+            writer.WriteLine($"Applies to every package and asset marked `{license}` in the tables above.");
+            writer.WriteLine("Each of them keeps its own copyright notice, as given in those tables.");
             writer.WriteLine();
             writer.WriteLine("```text");
             foreach (var line in text.Split('\n'))
@@ -363,4 +409,11 @@ internal static class Program
     private sealed record PackageIdentity(string Id, string Version);
 
     private sealed record PackageNotice(string Id, string Version, string License, string Copyright);
+
+    private sealed record AssetNotice(
+        string Name,
+        string Version,
+        string License,
+        string Copyright,
+        IReadOnlyList<string> Files);
 }

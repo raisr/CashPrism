@@ -14,7 +14,14 @@
      everything stays local and the machine may have no internet at all. The
      font stack is set on the theme. *@
   <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+  @* The icon font is bundled for the same reason: Lucide's own setup points at
+     a CDN. *@
+  <link rel="stylesheet" href="_content/CashPrism.Web/icons/lucide.css" />
+  <link rel="stylesheet" href="_content/CashPrism.Web/css/components.css" />
   <link rel="stylesheet" href="_content/CashPrism.Web/app.css" />
+  @* The SVG for every browser that takes one, the ICO for the rest. *@
+  <link rel="icon" type="image/svg+xml" href="_content/CashPrism.Web/favicon.svg" />
+  <link rel="icon" sizes="16x16 32x32 48x48" href="_content/CashPrism.Web/favicon.ico" />
   <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 

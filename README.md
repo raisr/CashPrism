@@ -109,8 +109,9 @@ data exports because that is what the application is for.
 
 ## Third-party notices
 
-CashPrism is built with other people's open-source packages.
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) names each one with its
+CashPrism is built with open-source packages and ships open-source fonts and
+icons, all of them other people's work.
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) names each of them with its
 licence and copyright notice and reproduces every licence text in full, as
 those licences require. It ships next to the executable produced by
 `dotnet publish`.

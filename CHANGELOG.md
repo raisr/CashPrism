@@ -139,6 +139,11 @@ releases and the minor version is bumped for every notable change.
   start CashPrism and reach it from another device, what each page offers, what
   the four import counts mean, what to do when a file is refused, and what the
   booking list cannot do yet. The README links to it and says why it is German.
+- CashPrism has its own browser-tab icon, and ships the fonts (Manrope,
+  JetBrains Mono) and the icon set (Lucide) of its design system with the
+  application instead of fetching them from the internet — nothing changes on
+  screen yet. [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) now lists
+  them with their licences beside the packages.
 
 ### Changed
 

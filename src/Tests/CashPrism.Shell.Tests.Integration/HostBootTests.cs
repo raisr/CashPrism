@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -21,7 +22,36 @@ public sealed class HostBootTests
         { "_framework/blazor.web.js", "Blazor-Server-Component-State:" },
         { "_content/MudBlazor/MudBlazor.min.css", ".mud-appbar{" },
         { "_content/CashPrism.Web/app.css", ".app-brand" },
+        { "_content/CashPrism.Web/css/components.css", ".cp-icon" },
+        { "_content/CashPrism.Web/icons/lucide.css", ".icon-wallet:before" },
+        { "_content/CashPrism.Web/icons/Lucide-ISC.txt", "ISC License" },
+        { "_content/CashPrism.Web/fonts/Manrope-OFL.txt", "SIL OPEN FONT LICENSE" },
+        { "_content/CashPrism.Web/fonts/JetBrainsMono-OFL.txt", "SIL OPEN FONT LICENSE" },
+        { "_content/CashPrism.Web/favicon.svg", "<svg" },
     };
+
+    /// <summary>
+    /// The binary assets, each with the signature its format starts with. A
+    /// font served as an HTML error page would still answer <c>200 OK</c>.
+    /// </summary>
+    public static TheoryData<string, byte[]> BinaryAssets() => new()
+    {
+        { "_content/CashPrism.Web/fonts/Manrope-Variable.ttf", [0x00, 0x01, 0x00, 0x00] },
+        { "_content/CashPrism.Web/fonts/JetBrainsMono-Variable.ttf", [0x00, 0x01, 0x00, 0x00] },
+        { "_content/CashPrism.Web/icons/lucide.woff2", "wOF2"u8.ToArray() },
+        { "_content/CashPrism.Web/favicon.ico", [0x00, 0x00, 0x01, 0x00] },
+    };
+
+    /// <summary>
+    /// A reference that leaves the application: an absolute URL with a scheme
+    /// other than <c>data:</c>, or a protocol-relative one. The scheme is
+    /// matched as text: <see cref="Uri"/> reads a rooted path such as the
+    /// <c>/</c> of the base element as a <c>file:</c> URI on Linux.
+    /// </summary>
+    private static bool PointsElsewhere(string reference) =>
+        reference.StartsWith("//", StringComparison.Ordinal)
+        || (Regex.IsMatch(reference, "^[A-Za-z][A-Za-z0-9+.-]*:")
+            && !reference.StartsWith("data:", StringComparison.OrdinalIgnoreCase));
 
     public sealed class Startup(CashPrismWebApplicationFactory factory)
         : IClassFixture<CashPrismWebApplicationFactory>
@@ -95,6 +125,49 @@ public sealed class HostBootTests
             Assert.Contains(marker, body, StringComparison.Ordinal);
         }
 
+        [Theory]
+        [MemberData(nameof(BinaryAssets), MemberType = typeof(HostBootTests))]
+        public async Task Serves_A_Binary_Asset_In_Its_Format(string path, byte[] signature)
+        {
+            using var client = factory.CreateClient();
+
+            var body = await client.GetByteArrayAsync(path);
+
+            Assert.Equal(signature, body.Take(signature.Length));
+        }
+
+        [Fact]
+        public async Task Start_Page_Links_Nothing_From_Another_Host()
+        {
+            var html = await GetStartPageAsync();
+
+            var references = Regex.Matches(html, """"(?:href|src)="([^"]*)"""")
+                .Select(match => match.Groups[1].Value);
+
+            Assert.DoesNotContain(references, PointsElsewhere);
+        }
+
+        [Fact]
+        public async Task Stylesheets_Load_Nothing_From_Another_Host()
+        {
+            using var client = factory.CreateClient();
+            var html = await GetStartPageAsync();
+            var stylesheets = Regex.Matches(html, """"<link rel="stylesheet" href="([^"]*)"""")
+                .Select(match => match.Groups[1].Value)
+                .ToList();
+
+            var references = new List<string>();
+            foreach (var stylesheet in stylesheets)
+            {
+                var css = await client.GetStringAsync(stylesheet);
+                references.AddRange(Regex.Matches(css, """(?:url\(\s*|@import\s+)["']?([^"')\s;]+)""")
+                    .Select(match => match.Groups[1].Value));
+            }
+
+            Assert.NotEmpty(stylesheets);
+            Assert.DoesNotContain(references, PointsElsewhere);
+        }
+
         [Fact]
         public void Creates_The_Configured_Data_Directory()
         {
@@ -146,6 +219,17 @@ public sealed class HostBootTests
             var body = await client.GetStringAsync(path);
 
             Assert.Contains(marker, body, StringComparison.Ordinal);
+        }
+
+        [Theory]
+        [MemberData(nameof(BinaryAssets), MemberType = typeof(HostBootTests))]
+        public async Task Serves_A_Binary_Asset_In_Its_Format(string path, byte[] signature)
+        {
+            using var client = factory.CreateClient();
+
+            var body = await client.GetByteArrayAsync(path);
+
+            Assert.Equal(signature, body.Take(signature.Length));
         }
     }
 }

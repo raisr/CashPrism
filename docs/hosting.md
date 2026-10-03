@@ -12,7 +12,7 @@ section of the README.
 | No browser window | `dotnet run --project src/CashPrism.Shell -- --no-browser` |
 | A build you can run without the SDK on the machine | `dotnet publish src/CashPrism.Shell -c Release -o out`, then start `out/CashPrism.Shell` |
 | The settings to stick | The `Hosting` section of `src/CashPrism.Shell/appsettings.json` |
-| Refresh [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) after a package change | `dotnet run --file .devkit/generate-third-party-notices.cs` (the `notices` gate fails while it is stale) |
+| Refresh [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md) after a package, font or icon change | `dotnet run --file .devkit/generate-third-party-notices.cs` (the `notices` gate fails while it is stale) |
 
 The switches win over `appsettings.json` and can be used together:
 `-- --port 5099 --no-browser`. Note the bare `--`: it separates the arguments for
