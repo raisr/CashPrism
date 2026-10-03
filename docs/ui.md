@@ -11,15 +11,23 @@ One layout, three regions:
 
 | Region | Holds |
 |---|---|
-| Drawer, left | The wordmark with its version, and the destinations |
-| App bar, top | A section label, the drawer toggle, the light/dark switch |
+| Drawer, left | The wordmark and its tagline, the destinations, and a privacy note with the version pinned to the bottom |
+| App bar, top | A section label, the light/dark switch and an Import button; the drawer toggle where the drawer folds away |
 | Content | Whatever the page renders — with no padding of its own |
 
-Two of those earn a sentence:
+Four of those earn a sentence:
 
 - **The wordmark is two-tone**: `Cash` in the text colour, `Prism` in the
   accent. It is the one place the product name appears, so it is also the one
   place a mark is needed.
+- **The destinations are grouped where a group exists.** The start page and the
+  bookings stand at the top; the destinations that bring data in sit under
+  *Daten*. A heading is written wherever the section changes in
+  `NavigationItems`, so a section with no destination yet — the design's
+  *Auswerten* — simply does not appear.
+- **Privacy is said where it is always in view.** "Nur auf diesem Rechner" is
+  the product's promise, so it is pinned to the drawer rather than buried in a
+  page. The version sits under it, where a bug report finds it.
 - **The app bar says where you are, not what you are looking at.** It carries
   the section in small, spaced, muted capitals; the page's own `h1` carries the
   heading. They read as two different things because they are set as two
@@ -29,7 +37,16 @@ Two of those earn a sentence:
 The drawer is not clipped by the app bar: it runs the full height and carries
 the brand, and the app bar sits beside it. Below the `Md` breakpoint the drawer
 folds away and reopens as an overlay over the content, so the same layout serves
-a phone and a large screen rather than two layouts serving one each.
+a phone and a large screen rather than two layouts serving one each. The app bar
+follows the same breakpoint: the toggle appears where the drawer folds away, the
+section label where it does not.
+
+The drawer and the app bar are MudBlazor's, dressed in the design system's
+classes (`cp-sidebar`, `cp-nav`, `cp-topbar`). The design folds the drawer at
+1040 px; MudBlazor's breakpoints are fixed, so it folds at `Md`, 960 px. That
+gap was accepted rather than replacing the drawer: MudBlazor already keeps a
+narrow screen from flashing the open drawer before the circuit is up, which a
+breakpoint of our own would have to rebuild.
 
 ### Why this shape
 
@@ -48,9 +65,16 @@ ordinary frame. Adding one later changes a page, not the layout.
 
 ### The page frame
 
-`Layout/PageFrame.razor` is the ordinary frame: the padding, the `h1` and the
-line under it. It is a component rather than a convention so that the two-column
-page can opt out of it without arguing with a layout.
+`Layout/PageFrame.razor` is the ordinary frame: the padding (28 px, 16 px on a
+phone), a content width of at most 1440 px, the `h1`, the lead line under it and
+an optional slot for controls that act on the whole page. It is a component
+rather than a convention so that the two-column page can opt out of it without
+arguing with a layout.
+
+The lead is one sentence that already says something. A page with nothing to
+show yet says so with `Components/EmptyState.razor` — an icon, a heading, a
+sentence on what to do and the action that does it — rather than an empty
+table.
 
 The heading has to be a real `h1`: `Routes.razor` moves focus there after every
 navigation, which is what makes the keyboard and a screen reader land on the new
@@ -79,10 +103,9 @@ the product, and only the light/dark switch changes at runtime.
   a card off the ground. In the dark palette — deep navy, `#111523` on
   `#0a0d16` — the border does that work alone.
 - **One confident blue**, `#4a6cf7` (`#7b93ff` in dark), for primary actions,
-  the active destination, focus and selection. Today it appears as a surface
-  exactly once — behind the active destination in the drawer. That tint is mixed
-  from the palette in the stylesheet (`--cp-accent-soft`, `color-mix` at 12 %
-  over the surface), so it follows light and dark without a second definition.
+  the active destination, focus and selection. As a surface it appears only in
+  its soft tint (`--cp-primary-soft`) — behind the active destination in the
+  drawer and an empty state's icon.
 - **Money gets a colour, but the colour never carries the meaning.** The minus
   in front of the amount does that; green and red only reinforce it.
 - **The fonts are bundled.** Manrope for everything, JetBrains Mono for strings
