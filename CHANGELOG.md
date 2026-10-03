@@ -164,9 +164,16 @@ releases and the minor version is bumped for every notable change.
   itself is no longer stored. No import code exists yet — this is the
   specification the import milestone is built to. See
   [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
+- CashPrism takes on the colours and type of its new design: a calm grey-blue
+  ground with white cards, one blue for everything you can act on, deep navy
+  in the dark theme, and the bundled Manrope typeface throughout. Dates and
+  amounts keep lining up digit under digit, now in Manrope's tabular figures
+  instead of a monospace face. See [`docs/ui.md`](docs/ui.md).
 
 ### Fixed
 
 - The interface spells Finanzguru the way its owner does, with a lower-case g.
+- On a device set to dark mode, CashPrism now opens dark. It used to open light
+  and only followed the system setting once that setting changed.
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main

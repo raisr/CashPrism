@@ -58,43 +58,70 @@ page instead of at the top of the drawer.
 
 ## The theme
 
-Both palettes live in `Theme/CashPrismTheme.cs` and are held as one static
-instance — the theme is a constant of the product, and only the light/dark
-switch changes at runtime.
+The look comes from the design system under [`design/`](../design/) and lives
+in two places, because two kinds of code read it:
 
-- **Separation comes from lines, not from tint or shadow.** The ground is barely
-  off-white, the surfaces are white, and one pixel of `#e3e5ea` sits between
-  them. That is what lets the dark palette be a straight inversion rather than a
-  second design: a shadow in dark mode costs contrast and buys nothing.
-- **The accent is `#3c4ba6`, and it appears as a surface exactly once** — behind
-  the active destination in the drawer. That tint is mixed from the palette in
-  the stylesheet (`--cp-accent-soft`, `color-mix` at 12 % over the surface)
-  rather than pinned per theme, so it follows light and dark without a second
-  definition.
+| Where | Read by |
+|---|---|
+| `Theme/CashPrismTheme.cs` | MudBlazor's components: both palettes, the type scale, the radius, the app bar height, the drawer width and the card shadow |
+| `wwwroot/css/tokens.css` | The design system's own classes: every `--cp-*` custom property — colours, the prism spectrum, type, spacing, radii, shadows, motion |
+
+The colours therefore exist twice. That is the price of a component library
+whose palette is configured in C# next to a design system written as CSS:
+neither can read the other's. Both are copied from `design/README.md` §1.3 and
+`design/tokens/`, and a change to one is a change to both.
+
+`CashPrismTheme` is held as one static instance — the theme is a constant of
+the product, and only the light/dark switch changes at runtime.
+
+- **Calm, bright surfaces.** A cool grey ground (`#f2f4f8`), white cards and
+  bars, one pixel of `#e3e7ee` between them, and a shadow so soft it only lifts
+  a card off the ground. In the dark palette — deep navy, `#111523` on
+  `#0a0d16` — the border does that work alone.
+- **One confident blue**, `#4a6cf7` (`#7b93ff` in dark), for primary actions,
+  the active destination, focus and selection. Today it appears as a surface
+  exactly once — behind the active destination in the drawer. That tint is mixed
+  from the palette in the stylesheet (`--cp-accent-soft`, `color-mix` at 12 %
+  over the surface), so it follows light and dark without a second definition.
 - **Money gets a colour, but the colour never carries the meaning.** The minus
-  in front of the amount does that; green and red only reinforce it. Both
-  palettes therefore pick a green and a red that stay distinguishable in
-  greyscale.
-- **The font is a system stack.** MudBlazor's own default asks the browser for
-  Roboto from `fonts.googleapis.com` and the package ships no font file — a
-  request CashPrism must not make, because everything stays local and the
-  machine may have no connection at all. Setting `Typography.Default` is enough:
-  it is the only entry that carries a family of its own.
-- **Figures get a monospace stack of their own**, `--cp-font-mono` in the
-  stylesheet, for anything that has to line up in a column — amounts, dates, a
-  fingerprint. It lives in CSS rather than in the theme because `MudTheme` has
-  no slot for a second family and nothing in C# reads it. The booking list is
-  what it was put there for, and the version beside the wordmark uses it too.
+  in front of the amount does that; green and red only reinforce it.
+- **The fonts are bundled.** Manrope for everything, JetBrains Mono for strings
+  read character by character. Both ship as variable fonts under
+  `wwwroot/fonts` and are declared in `app.css`. MudBlazor's own default asks
+  the browser for Roboto from `fonts.googleapis.com` — a request CashPrism must
+  not make, because everything stays local and the machine may have no
+  connection at all. Setting `Typography.Default` is enough: it is the only
+  entry that carries a family of its own.
+- **Figures line up without a monospace face.** Dates and amounts are set in
+  Manrope with tabular figures (`.cp-figure`), so a column of them aligns digit
+  under digit. The monospace face is `.cp-mono`, for the checksum, and the
+  version beside the wordmark.
+
+### Dark mode in the stylesheet
+
+`tokens.css` puts the light values on `:root` and the dark ones on
+`[data-theme="dark"]`. MudBlazor switches its palette but leaves no mark on the
+document a stylesheet could select on, so `Theme/ThemeAttribute.razor` mirrors
+the layout's dark-mode flag onto `<html data-theme>` through a one-function
+JavaScript module beside it. The light theme is the absence of the attribute.
+
+The attribute is written after the first interactive render. A prerendered page
+therefore arrives light, and someone whose system is set to dark sees it switch
+a moment later — as MudBlazor's own palette does, which learns the system
+setting the same way.
 
 The switch in the app bar follows the operating system's setting until it is
-used; from then on the choice stands for the rest of the session. It is not
+used; from then on the choice stands for the rest of the session. MudBlazor
+only reports a *change* of that setting, so the layout asks for the starting
+value once, after its first render — a click that comes before the answer
+wins. It is not
 remembered across a reload — that needs browser storage, and the baseline does
 not reach for it.
 
 Nothing in the interface loads from an external host. The component library's
 CSS and JavaScript are served by the application itself out of the package's
-static web assets, and the only `url(` in that stylesheet is an inline
-`data:` image.
+static web assets, the fonts and the icon font out of CashPrism's own, and
+`HostBootTests` fails when a page or a stylesheet references any other host.
 
 ## The booking list
 
