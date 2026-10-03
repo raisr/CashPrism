@@ -1,0 +1,22 @@
+/* The component classes of the design system (design/components/cashprism.css),
+   under their original names so the prototype and the application stay
+   comparable. A class moves in here with the first component that uses it,
+   not before. */
+
+/* ---------- icon ---------- */
+
+.cp-icon {
+  font-family: "lucide" !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  font-size: 20px;
+  -webkit-font-smoothing: antialiased;
+  speak: never;
+}

@@ -2,6 +2,25 @@
    left here is the handful of rules for the application's own shell, plus the
    two tokens the theme has no slot for. */
 
+/* The design system's two families, served from this application rather than
+   from a font host. Both are variable fonts, so one file covers every weight.
+   Declaring a face downloads nothing until a rule uses the family. */
+@font-face {
+  font-family: "Manrope";
+  src: url("fonts/Manrope-Variable.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Variable.ttf") format("truetype");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Figures that have to line up in a column — amounts, dates, a fingerprint.
      Every family here is already on the machine, for the same reason the sans

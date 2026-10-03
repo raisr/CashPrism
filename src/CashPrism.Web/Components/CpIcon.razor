@@ -1,0 +1,24 @@
+@* A glyph from the bundled Lucide icon font. The one way an icon is drawn:
+   MudBlazor's Icon parameters expect SVG paths, and keeping a second copy of
+   the set as paths would give every icon two sources that can drift apart.
+   Decorative only — whatever the icon stands for is said by the text beside
+   it, so a screen reader skips the glyph. *@
+<i class="@CssClass" style="@Style" aria-hidden="true"></i>
+
+@code {
+    /// <summary>The Lucide name of the glyph, such as <c>wallet</c>.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>The size in pixels; the stylesheet's default when not set.</summary>
+    [Parameter]
+    public int? Size { get; set; }
+
+    /// <summary>Further classes, for the rare case the context has to adjust the glyph.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private string CssClass => Class is null ? $"cp-icon icon-{Name}" : $"cp-icon icon-{Name} {Class}";
+
+    private string? Style => Size is null ? null : $"font-size:{Size}px";
+}
