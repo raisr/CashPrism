@@ -1,0 +1,55 @@
+@implements IAsyncDisposable
+@inject IJSRuntime js
+
+@* Renders nothing. It mirrors MudBlazor's dark mode onto <html data-theme>,
+   which is where the design tokens in css/tokens.css look for it: MudBlazor
+   swaps its own palette but leaves no mark on the document a stylesheet could
+   select on. *@
+
+@code {
+    private const string ModulePath = "./_content/CashPrism.Web/Theme/ThemeAttribute.razor.js";
+
+    // Held as the task rather than its result: a second render can arrive
+    // while the first is still importing, and both must share one import.
+    private Task<IJSObjectReference>? module;
+
+    // What was last sent to the document; null until the first write, so the
+    // light theme is written too rather than assumed. Recorded before the
+    // awaits, so a render that overtakes a pending write does not repeat it.
+    private bool? applied;
+
+    /// <summary>Whether MudBlazor currently renders its dark palette.</summary>
+    [Parameter]
+    public bool IsDarkMode { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var isDarkMode = IsDarkMode;
+        if (applied == isDarkMode)
+        {
+            return;
+        }
+
+        applied = isDarkMode;
+        module ??= js.InvokeAsync<IJSObjectReference>("import", ModulePath).AsTask();
+        await (await module).InvokeVoidAsync("applyTheme", isDarkMode);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is null)
+        {
+            return;
+        }
+
+        // The circuit may already be gone when the layout is torn down, and
+        // then there is no browser left to release the module in.
+        try
+        {
+            await (await module).DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}

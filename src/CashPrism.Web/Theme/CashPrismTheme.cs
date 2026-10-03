@@ -8,23 +8,37 @@ namespace CashPrism.Web.Theme;
 /// per-circuit setting: only the light/dark switch changes at runtime, and
 /// <c>MudThemeProvider</c> owns that.
 /// </summary>
+/// <remarks>
+/// The values are the design system's (<c>design/README.md</c>, §1.3). The same
+/// colours exist a second time as CSS custom properties in
+/// <c>wwwroot/css/tokens.css</c>, because the design system's own component
+/// classes read those rather than MudBlazor's palette.
+/// </remarks>
 public static class CashPrismTheme
 {
     /// <summary>
-    /// A system font stack. MudBlazor's own default asks the browser for Roboto
-    /// from <c>fonts.googleapis.com</c>, and the package ships no font file —
-    /// a request CashPrism must not make, because everything stays local and the
-    /// machine may have no internet at all.
+    /// Manrope, bundled under <c>wwwroot/fonts</c>, then a system stack for the
+    /// moment before it has loaded. MudBlazor's own default asks the browser for
+    /// Roboto from <c>fonts.googleapis.com</c> — a request CashPrism must not
+    /// make, because everything stays local and the machine may have no
+    /// internet at all.
     /// </summary>
-    private static readonly string[] SystemFontStack =
+    private static readonly string[] FontStack =
     [
+        "Manrope",
         "system-ui",
         "Segoe UI",
-        "Noto Sans",
         "Helvetica",
         "Arial",
         "sans-serif",
     ];
+
+    /// <summary>
+    /// The one shadow a raised surface casts: barely there, and the same for
+    /// every elevation a card uses. In the dark palette the border does the
+    /// separating and the shadow all but disappears against the navy.
+    /// </summary>
+    private const string CardShadow = "0 1px 2px rgba(19,26,42,.04), 0 4px 16px -6px rgba(19,26,42,.08)";
 
     /// <summary>
     /// The theme, with both palettes. Which one renders is decided by
@@ -34,102 +48,146 @@ public static class CashPrismTheme
 
     private static MudTheme Build() => new()
     {
-        // Light: near-white ground, white surfaces, and one pixel of line
-        // between them. Separation comes from the lines, not from a tint —
-        // which is what keeps the dark palette a straight inversion instead of
-        // a second design.
         PaletteLight = new PaletteLight
         {
-            Primary = "#3c4ba6",
+            Primary = "#4a6cf7",
             PrimaryContrastText = "#ffffff",
-            Secondary = "#6b7180",
+            Secondary = "#5b6478",
 
-            Background = "#fbfbfc",
-            BackgroundGray = "#f4f5f8",
+            Background = "#f2f4f8",
+            BackgroundGray = "#e9ecf2",
             Surface = "#ffffff",
             DrawerBackground = "#ffffff",
-            DrawerText = "#16181d",
-            DrawerIcon = "#6b7180",
+            DrawerText = "#5b6478",
+            DrawerIcon = "#5b6478",
             AppbarBackground = "#ffffff",
-            AppbarText = "#16181d",
+            AppbarText = "#131a2a",
 
-            TextPrimary = "#16181d",
-            TextSecondary = "#6b7180",
-            TextDisabled = "#9aa1b1",
+            TextPrimary = "#131a2a",
+            TextSecondary = "#5b6478",
+            TextDisabled = "#8b93a7",
 
-            Divider = "#e3e5ea",
-            DividerLight = "#eef0f4",
-            TableLines = "#e3e5ea",
-            LinesDefault = "#e3e5ea",
-            LinesInputs = "#ccd1db",
+            Divider = "#e3e7ee",
+            DividerLight = "#e9ecf2",
+            TableLines = "#e3e7ee",
+            LinesDefault = "#e3e7ee",
+            LinesInputs = "#e3e7ee",
+            TableHover = "rgba(19,26,42,0.04)",
+            ActionDefault = "#5b6478",
 
-            // Money: a credit is green, a debit red. Colour only reinforces the
-            // sign — the minus in front of the amount is what carries it, so
-            // both stay legible in greyscale.
-            Success = "#1f6b4a",
-            Error = "#9c3b2e",
-            Warning = "#8a5a12",
-            Info = "#3c4ba6",
+            Success = "#12a150",
+            Error = "#e5484d",
+            Warning = "#d97f06",
+            Info = "#4a6cf7",
         },
         PaletteDark = new PaletteDark
         {
-            Primary = "#97a3e8",
-            PrimaryContrastText = "#101218",
-            Secondary = "#9aa1b1",
+            Primary = "#7b93ff",
+            PrimaryContrastText = "#0a0d16",
+            Secondary = "#a3abc2",
 
-            Background = "#101218",
-            BackgroundGray = "#1e222b",
-            Surface = "#171a21",
-            DrawerBackground = "#171a21",
-            DrawerText = "#e7e9ee",
-            DrawerIcon = "#9aa1b1",
-            AppbarBackground = "#171a21",
-            AppbarText = "#e7e9ee",
+            Background = "#0a0d16",
+            BackgroundGray = "#1d2337",
+            Surface = "#111523",
+            DrawerBackground = "#111523",
+            DrawerText = "#a3abc2",
+            DrawerIcon = "#a3abc2",
+            AppbarBackground = "#111523",
+            AppbarText = "#eef1f8",
 
-            TextPrimary = "#e7e9ee",
-            TextSecondary = "#9aa1b1",
-            TextDisabled = "#6b7180",
+            TextPrimary = "#eef1f8",
+            TextSecondary = "#a3abc2",
+            TextDisabled = "#6f7891",
 
-            Divider = "#262a33",
-            DividerLight = "#1e222b",
-            TableLines = "#262a33",
-            LinesDefault = "#262a33",
-            LinesInputs = "#333944",
+            Divider = "#252c44",
+            DividerLight = "#1d2337",
+            TableLines = "#252c44",
+            LinesDefault = "#252c44",
+            LinesInputs = "#252c44",
+            TableHover = "rgba(255,255,255,0.05)",
+            ActionDefault = "#a3abc2",
 
-            Success = "#6fc49b",
-            Error = "#e08a7b",
-            Warning = "#d8b169",
-            Info = "#97a3e8",
+            Success = "#3ddc84",
+            Error = "#ff6b6f",
+            Warning = "#f5b544",
+            Info = "#7b93ff",
         },
         Typography = new Typography
         {
             // Only Default carries a font family out of the box; the other
             // entries inherit from it, so this one assignment removes Roboto
             // everywhere.
-            Default = new DefaultTypography { FontFamily = SystemFontStack },
+            Default = new DefaultTypography
+            {
+                FontFamily = FontStack,
+                FontSize = "0.875rem",
+                FontWeight = "500",
+                LineHeight = "1.5",
+            },
 
-            // A page heading sits just above the text it introduces rather than
-            // shouting over it: this is a screen full of figures, not an
-            // article.
+            // H4 is the page heading, H5 a section, H6 a card title. Headlines
+            // are heavy with tight tracking; the text under them is not.
+            H4 = new H4Typography
+            {
+                FontSize = "1.625rem",
+                FontWeight = "750",
+                LineHeight = "1.2",
+                LetterSpacing = "-0.025em",
+            },
             H5 = new H5Typography
             {
-                FontSize = "1.25rem",
-                FontWeight = "600",
+                FontSize = "1.125rem",
+                FontWeight = "700",
                 LineHeight = "1.3",
-                LetterSpacing = "-0.01em",
+                LetterSpacing = "-0.015em",
             },
             H6 = new H6Typography
             {
-                FontSize = "1rem",
-                FontWeight = "600",
+                FontSize = "0.9375rem",
+                FontWeight = "700",
                 LineHeight = "1.4",
-                LetterSpacing = "-0.01em",
+                LetterSpacing = "0",
+            },
+            Body1 = new Body1Typography { FontSize = "0.875rem", FontWeight = "500", LineHeight = "1.5" },
+            Body2 = new Body2Typography { FontSize = "0.8125rem", FontWeight = "500", LineHeight = "1.45" },
+            Caption = new CaptionTypography { FontSize = "0.75rem", FontWeight = "500", LineHeight = "1.4" },
+
+            // The small uppercase label above a field or a table column.
+            Overline = new OverlineTypography
+            {
+                FontSize = "0.6875rem",
+                FontWeight = "700",
+                LetterSpacing = "0.08em",
+                TextTransform = "uppercase",
+            },
+
+            // Buttons are written in sentence case, so the theme must not
+            // capitalise them.
+            Button = new ButtonTypography
+            {
+                FontSize = "0.875rem",
+                FontWeight = "700",
+                TextTransform = "none",
+                LetterSpacing = "-0.005em",
             },
         },
         LayoutProperties = new LayoutProperties
         {
-            DefaultBorderRadius = "6px",
-            AppbarHeight = "56px",
+            DefaultBorderRadius = "8px",
+            AppbarHeight = "68px",
+            DrawerWidthLeft = "248px",
         },
+        Shadows = BuildShadows(),
     };
+
+    private static Shadow BuildShadows()
+    {
+        var shadows = new Shadow();
+        for (var elevation = 1; elevation <= 3; elevation++)
+        {
+            shadows.Elevation[elevation] = CardShadow;
+        }
+
+        return shadows;
+    }
 }

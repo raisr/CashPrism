@@ -22,11 +22,6 @@
 }
 
 :root {
-  /* Figures that have to line up in a column — amounts, dates, a fingerprint.
-     Every family here is already on the machine, for the same reason the sans
-     stack is a system one: nothing is fetched from the internet. */
-  --cp-font-mono: ui-monospace, "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
-
   /* The accent at reading strength, for a surface rather than a letterform.
      Mixed from the palette instead of pinned, so it follows the light and the
      dark theme without a second definition. */
@@ -121,9 +116,9 @@
 
 /* ---------- the booking list ---------- */
 
-/* What the monospace stack was put in for: a column of dates and a column of
-   amounts that line up digit under digit. tabular-nums keeps them aligned in
-   the stacks whose digits are not all the same width.
+/* A column of dates and a column of amounts that line up digit under digit:
+   Manrope's tabular figures give every digit the same width, so the text face
+   can do this without switching to a monospace one.
 
    The selector carries MudBlazor's own classes because it has to out-specify
    `.mud-table-root .mud-table-body .mud-table-cell`, which sets the body font
@@ -131,9 +126,17 @@
    amount cell, which brings its own typography class along. */
 .mud-table-root .mud-table-body .mud-table-cell.cp-figure,
 .mud-table-cell.cp-figure .mud-typography {
-  font-family: var(--cp-font-mono);
+  font-family: var(--cp-font-figures);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* A string that is read character by character rather than as a word — a
+   checksum, an IBAN, a file name — in the monospace face. Slightly smaller,
+   because a monospace face sets larger than the text around it. */
+.cp-mono {
+  font-family: var(--cp-font-mono);
+  font-size: 0.92em;
 }
 
 /* The amount is read by its last digit, so it is set against the right edge. */
