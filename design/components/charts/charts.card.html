@@ -1,0 +1,19 @@
+<!-- @dsCard group="Components" viewport="900x380" name="Charts" subtitle="AreaChart, BarChart (stacked), DonutChart, Sparkline — hover for tooltips" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body{padding:20px;background:var(--cp-bg)}.lbl{margin:0 0 8px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.col{display:flex;flex-direction:column;gap:16px}</style></head><body><div id="root"></div>
+<script type="text/babel">
+const { AreaChart, BarChart, DonutChart, Sparkline, Card, Legend } = window.CashPrismDesignSystem_24fa3e;
+const eur = c => (c<0?'−':'') + (Math.abs(c)/100).toLocaleString('de-DE',{maximumFractionDigits:0}) + '\u00a0€';
+function Demo(){
+const L=['Apr','Mai','Jun','Jul','Aug','Sep'];
+return <div style={{display:'grid',gridTemplateColumns:'1.3fr 1fr',gap:16}}>
+<Card title="Einnahmen und Ausgaben" action={<Legend line items={[{label:'Ein',color:'var(--cp-income)'},{label:'Aus',color:'var(--cp-expense)'}]}/>}><AreaChart height={200} labels={L} format={eur} formatAxis={eur} series={[{name:'Einnahmen',color:'var(--cp-income)',values:[402000,402000,402000,476320,402000,402000]},{name:'Ausgaben',color:'var(--cp-expense)',values:[268000,291000,255000,301000,384000,312000]}]}/></Card>
+<Card title="Wofür?"><div style={{display:'flex',alignItems:'center',gap:20}}><DonutChart size={150} thickness={18} centerLabel="Ausgaben" centerValue="3.120 €" format={eur} data={[{label:'Wohnen',value:132000,color:'var(--cp-prism-violet)'},{label:'Lebensmittel',value:61000,color:'var(--cp-prism-green)'},{label:'Freizeit',value:38000,color:'var(--cp-prism-rose)'},{label:'Shopping',value:27000,color:'var(--cp-prism-orange)'},{label:'Übrige',value:54000,color:'var(--cp-prism-slate)'}]}/><div className="col" style={{gap:10}}><Sparkline values={[3,5,4,6,5,8,7,9]}/><Sparkline values={[9,7,8,6,5,6,4,3]} color="var(--cp-expense)"/></div></div></Card>
+<Card title="Ausgaben gestapelt" style={{gridColumn:'span 2'}}><BarChart stacked height={150} labels={L} format={eur} formatAxis={eur} series={[{name:'Wohnen',color:'var(--cp-prism-violet)',values:[130000,130000,130000,135000,130000,132000]},{name:'Lebensmittel',color:'var(--cp-prism-green)',values:[48000,52000,45000,50000,49000,61000]},{name:'Freizeit',color:'var(--cp-prism-rose)',values:[20000,31000,18000,40000,120000,38000]}]}/></Card></div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script></body></html>

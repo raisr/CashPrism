@@ -1,0 +1,116 @@
+/* CashPrism v2 palette. Light on :root, dark on [data-theme="dark"].
+   The "prism" spectrum is the categorical palette: one hue per spending category. */
+:root {
+  /* ---- base: brand ---- */
+  --cp-blue-50: #eef2ff;
+  --cp-blue-100: #dfe6ff;
+  --cp-blue-400: #7b93ff;
+  --cp-blue-500: #4a6cf7;
+  --cp-blue-600: #3b59e0;
+  --cp-blue-700: #2f47b8;
+  /* ---- base: neutrals ---- */
+  --cp-gray-0: #ffffff;
+  --cp-gray-25: #f7f8fb;
+  --cp-gray-50: #f2f4f8;
+  --cp-gray-100: #e9ecf2;
+  --cp-gray-200: #e3e7ee;
+  --cp-gray-300: #d0d6e1;
+  --cp-gray-400: #8b93a7;
+  --cp-gray-500: #5b6478;
+  --cp-gray-900: #131a2a;
+  --cp-night-950: #0a0d16;
+  --cp-night-900: #111523;
+  --cp-night-850: #171c2d;
+  --cp-night-800: #1d2337;
+  --cp-night-700: #252c44;
+  --cp-night-600: #323a57;
+  --cp-night-300: #6f7891;
+  --cp-night-200: #a3abc2;
+  --cp-night-50: #eef1f8;
+  /* ---- base: money & status ---- */
+  --cp-green-600: #12a150;
+  --cp-green-400: #3ddc84;
+  --cp-red-600: #e5484d;
+  --cp-red-400: #ff6b6f;
+  --cp-amber-600: #d97f06;
+  --cp-amber-400: #f5b544;
+  /* ---- base: prism spectrum (categories, chart series) ---- */
+  --cp-prism-violet: #7c5cff;
+  --cp-prism-blue: #3d7bfd;
+  --cp-prism-cyan: #12b5d6;
+  --cp-prism-teal: #14b39a;
+  --cp-prism-green: #4cc35a;
+  --cp-prism-amber: #f2b01e;
+  --cp-prism-orange: #f47b2a;
+  --cp-prism-rose: #ec4d78;
+  --cp-prism-slate: #9aa3b5;
+
+  /* ---- semantic (light) ---- */
+  --cp-primary: var(--cp-blue-500);
+  --cp-primary-hover: var(--cp-blue-600);
+  --cp-primary-press: var(--cp-blue-700);
+  --cp-primary-soft: var(--cp-blue-50);
+  --cp-primary-soft-hover: var(--cp-blue-100);
+  --cp-on-primary: #ffffff;
+  --cp-bg: var(--cp-gray-50);
+  --cp-surface: var(--cp-gray-0);
+  --cp-surface-2: var(--cp-gray-25);
+  --cp-surface-3: var(--cp-gray-100);
+  --cp-sidebar: var(--cp-gray-0);
+  --cp-line: var(--cp-gray-200);
+  --cp-line-strong: var(--cp-gray-300);
+  --cp-text: var(--cp-gray-900);
+  --cp-text-2: var(--cp-gray-500);
+  --cp-text-3: var(--cp-gray-400);
+  --cp-income: var(--cp-green-600);
+  --cp-expense: var(--cp-red-600);
+  --cp-success: var(--cp-green-600);
+  --cp-danger: var(--cp-red-600);
+  --cp-warning: var(--cp-amber-600);
+  --cp-info: var(--cp-blue-500);
+  --cp-hover: rgba(19, 26, 42, 0.04);
+  --cp-press: rgba(19, 26, 42, 0.08);
+  --cp-scrim: rgba(10, 13, 22, 0.42);
+  --cp-focus: color-mix(in srgb, var(--cp-primary) 40%, transparent);
+  --cp-chart-grid: var(--cp-gray-100);
+
+  /* ---- aliases ---- */
+  --surface-page: var(--cp-bg);
+  --surface-card: var(--cp-surface);
+  --surface-field: var(--cp-surface-2);
+  --text-body: var(--cp-text);
+  --text-muted: var(--cp-text-2);
+  --text-faint: var(--cp-text-3);
+  --money-in: var(--cp-income);
+  --money-out: var(--cp-expense);
+}
+
+[data-theme="dark"] {
+  --cp-primary: var(--cp-blue-400);
+  --cp-primary-hover: #93a6ff;
+  --cp-primary-press: #a9b8ff;
+  --cp-primary-soft: color-mix(in srgb, var(--cp-blue-400) 16%, var(--cp-night-900));
+  --cp-primary-soft-hover: color-mix(in srgb, var(--cp-blue-400) 24%, var(--cp-night-900));
+  --cp-on-primary: #0a0d16;
+  --cp-bg: var(--cp-night-950);
+  --cp-surface: var(--cp-night-900);
+  --cp-surface-2: var(--cp-night-850);
+  --cp-surface-3: var(--cp-night-800);
+  --cp-sidebar: var(--cp-night-900);
+  --cp-line: var(--cp-night-700);
+  --cp-line-strong: var(--cp-night-600);
+  --cp-text: var(--cp-night-50);
+  --cp-text-2: var(--cp-night-200);
+  --cp-text-3: var(--cp-night-300);
+  --cp-income: var(--cp-green-400);
+  --cp-expense: var(--cp-red-400);
+  --cp-success: var(--cp-green-400);
+  --cp-danger: var(--cp-red-400);
+  --cp-warning: var(--cp-amber-400);
+  --cp-info: var(--cp-blue-400);
+  --cp-hover: rgba(255, 255, 255, 0.05);
+  --cp-press: rgba(255, 255, 255, 0.09);
+  --cp-scrim: rgba(0, 0, 0, 0.6);
+  --cp-chart-grid: var(--cp-night-800);
+  color-scheme: dark;
+}

@@ -1,0 +1,23 @@
+:root {
+  --cp-space-1: 4px;
+  --cp-space-2: 8px;
+  --cp-space-3: 12px;
+  --cp-space-4: 16px;
+  --cp-space-5: 20px;
+  --cp-space-6: 24px;
+  --cp-space-7: 28px;
+  --cp-space-8: 32px;
+  --cp-space-10: 40px;
+  --cp-space-12: 48px;
+
+  --cp-sidebar-width: 248px;
+  --cp-topbar-height: 68px;
+  --cp-page-padding: 28px;
+  --cp-page-padding-mobile: 16px;
+  --cp-page-max: 1440px;
+  --cp-grid-gap: 20px;
+  --cp-card-padding: 20px;
+  --cp-control-height: 40px;
+  --cp-control-height-sm: 32px;
+  --cp-row-height: 56px;
+}

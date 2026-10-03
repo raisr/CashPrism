@@ -1,0 +1,23 @@
+:root {
+  --cp-radius-xs: 6px;
+  --cp-radius-sm: 8px;
+  --cp-radius-md: 10px;
+  --cp-radius-lg: 14px;
+  --cp-radius-xl: 20px;
+  --cp-radius-pill: 999px;
+
+  --cp-shadow-card: 0 1px 2px rgba(19,26,42,0.04), 0 4px 16px -6px rgba(19,26,42,0.08);
+  --cp-shadow-pop: 0 16px 40px -12px rgba(19,26,42,0.22), 0 2px 6px rgba(19,26,42,0.06);
+  --cp-shadow-button: 0 1px 2px rgba(19,26,42,0.12);
+
+  --cp-ease: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --cp-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --cp-dur-fast: 120ms; /* @kind other */
+  --cp-dur: 200ms; /* @kind other */
+  --cp-dur-slow: 320ms; /* @kind other */
+}
+[data-theme="dark"] {
+  --cp-shadow-card: 0 0 0 1px rgba(255,255,255,0.02);
+  --cp-shadow-pop: 0 20px 48px -12px rgba(0,0,0,0.7);
+  --cp-shadow-button: none;
+}
