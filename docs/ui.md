@@ -254,3 +254,11 @@ Two details decide whether this works:
 straight through. The consequence is that `Strings.resx` may stay as short as
 the set of components actually in use: leaving a key out is a decision to keep
 MudBlazor's English, not a bug.
+
+## The design system
+
+The look the interface is moving towards is set out in the design system under
+[`design/`](../design/). Open [`design/design-system.html`](../design/design-system.html)
+from a local clone in a browser to see it: colours, type, spacing, components
+and brand assets on one page. Its previews load React from unpkg.com, so the
+page needs an internet connection.
