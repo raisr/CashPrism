@@ -79,6 +79,14 @@
     <value>Version {0}</value>
     <comment>The running version, in the sidebar's privacy note. {0} is the version number.</comment>
   </data>
+  <data name="SidebarCollapse" xml:space="preserve">
+    <value>Navigation ausblenden</value>
+    <comment>Accessible name and tooltip of the button that collapses the sidebar to its icon rail.</comment>
+  </data>
+  <data name="SidebarExpand" xml:space="preserve">
+    <value>Navigation einblenden</value>
+    <comment>Accessible name and tooltip of the button that expands the sidebar from its icon rail.</comment>
+  </data>
   <data name="NavSectionData" xml:space="preserve">
     <value>Daten</value>
     <comment>Section heading in the sidebar above the destinations that bring data in.</comment>

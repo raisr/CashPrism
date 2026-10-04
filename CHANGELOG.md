@@ -144,6 +144,8 @@ releases and the minor version is bumped for every notable change.
   application instead of fetching them from the internet — nothing changes on
   screen yet. [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) now lists
   them with their licences beside the packages.
+- On a wide screen the navigation collapses to a narrow rail of icons and back,
+  for more room on the page. Hovering an icon names its destination.
 
 ### Changed
 
