@@ -445,6 +445,45 @@
   color: var(--cp-primary);
 }
 
+/* ---------- badge ---------- */
+
+.cp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: var(--cp-radius-pill);
+  background: var(--cp-surface-3);
+  font: 700 12px/1 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  white-space: nowrap;
+}
+
+/* A category's badge: neutral, led by a dot in the colour the component hands
+   over as --c. */
+.cp-badge--category::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+/* ---------- category icon ---------- */
+
+/* The tile and the glyph both follow --c, which the component sets to the
+   category's colour: the glyph in full, the tile at 14 % over the surface. */
+.cp-caticon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--cp-radius-md);
+  background: color-mix(in srgb, var(--c) 14%, var(--cp-surface));
+  color: var(--c);
+}
+
 /* ---------- amount ---------- */
 
 /* Income in green, spending in the text colour: red is kept for charts and

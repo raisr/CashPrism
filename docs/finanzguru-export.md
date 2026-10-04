@@ -147,6 +147,37 @@ comes close to holding. The column can be shown as what the export claims, but
 nothing may be **derived** from it: not a balance history, not a plausibility
 check on `Betrag`, not a way to detect missing rows.
 
+### The category catalogue
+
+Both exports carry the same 14 main categories and the same 76 pairs of main
+and sub-category, and no row is without either. Finanzguru writes the umlauts
+out (`Mobilitaet`, `Rundfunkgebuehren`), so a lookup has to use that spelling.
+The catalogue in the app may well be larger; these are the names that occurred.
+
+| `Analyse-Hauptkategorie` | `Analyse-Unterkategorie` |
+|---|---|
+| `Drogerie` | `Drogerie` |
+| `Einnahmen` | `Kapitalertraege`, `Kindergeld`, `Leistungen der Bundesagentur fuer Arbeit`, `Lohn / Gehalt`, `Rente/Pension`, `Sonstige Einnahmen` |
+| `Essen & Trinken` | `Lebensmittel`, `Lieferservice`, `Restaurants` |
+| `Finanzen` | `Bankgebuehren`, `Kredit`, `Sonstige Finanzausgaben`, `Spende`, `Steuern` |
+| `Freizeit` | `Buecher & Zeitungen`, `Gaming`, `In-App-Kaeufe`, `Kino`, `Mitgliedschaft`, `Musik & Podcasts`, `Serien & Filme`, `Sonstige Freizeitausgaben`, `Sport`, `Urlaub`, `Veranstaltungen` |
+| `Gesundheit` | `Aerztliche Behandlung`, `Apotheke`, `Sonstige Gesundheitsausgaben` |
+| `Haustiere` | `Futter & Tierbedarf`, `Tieraerztliche Behandlung` |
+| `Kinder` | `Kinderbetreuung`, `Schule & Foerderung`, `Sonstige Kinderausgaben`, `Taschengeld` |
+| `Lifestyle` | `Bekleidung`, `Bildung`, `Cloud-Dienste`, `Elektrohandel`, `Geschenke`, `Mobilfunk`, `Prime-Mitgliedschaft`, `Shopping`, `Sonstiger Lifestyle` |
+| `Mobilitaet` | `Auto`, `Bus & Bahn`, `Fahrrad`, `Sharing / Gemietet`, `Tanken`, `Taxi` |
+| `Sonstiges` | `Bargeld`, `Kreditkartenabrechnung`, `Sonstige Ausgaben` |
+| `Sparen` | `Bausparvertrag`, `Sparen` |
+| `Versicherungen` | `Brillenversicherung`, `Gesetzliche Krankenversicherung`, `Haftpflichtversicherung`, `Hausratversicherung`, `KFZ-Versicherung`, `Lebensversicherung`, `Private Krankenversicherung`, `Rechtsschutzversicherung`, `Sonstige Sachversicherung`, `Tierhaftpflichtversicherung`, `Tierkrankenversicherung`, `Unfallversicherung`, `Wohngebaeudeversicherung` |
+| `Wohnen` | `Bauen / Renovieren`, `Baufinanzierung`, `Einrichtung`, `Gas`, `Internet & Telefon`, `Rundfunkgebuehren`, `Sonstiges Wohnen`, `Strom` |
+
+Neither "contract" nor "transfer" is a category here. Whether a booking belongs
+to a recognised contract is `Analyse-Vertrag`, and whether it moves money
+between the owner's own accounts is `Analyse-Umbuchung` — both flags beside the
+category, not part of it. Contracts span nearly every main category: the 1,257
+contract rows of the second export fall into ten of the fourteen, insurance
+first, then children, finance, housing and income.
+
 ## What two exports one day apart reveal
 
 The first export was taken again the next day. Comparing the two booking by
