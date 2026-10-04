@@ -21,15 +21,16 @@
   font-display: swap;
 }
 
-/* ---------- the booking list ---------- */
+/* ---------- the lists ---------- */
 
 /* A column of dates and a column of amounts that line up digit under digit:
    Manrope's tabular figures give every digit the same width, so the text face
    can do this without switching to a monospace one.
 
-   The selector carries MudBlazor's own classes because it has to out-specify
-   `.mud-table-root .mud-table-body .mud-table-cell`, which sets the body font
-   on every cell of every table. */
+   The second selector carries MudBlazor's own classes because inside a
+   MudDataGrid it has to out-specify `.mud-table-root .mud-table-body
+   .mud-table-cell`, which sets the body font on every cell of every table. */
+.cp-figure,
 .mud-table-root .mud-table-body .mud-table-cell.cp-figure {
   font-family: var(--cp-font-figures);
   font-variant-numeric: tabular-nums;

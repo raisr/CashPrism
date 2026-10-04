@@ -1,6 +1,7 @@
 using Bunit;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
+using CashPrism.Web.Tests.Unit.Bookings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashPrism.Web.Tests.Unit.Layout;

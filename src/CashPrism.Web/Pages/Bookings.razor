@@ -1,131 +1,184 @@
 @page "/bookings"
 @using CashPrism.Application.Bookings
+@using CashPrism.Application.Paging
+@using CashPrism.Application.Time
 @using CashPrism.Domain.Bookings
 @using CashPrism.Web.Bookings
-@using CashPrism.Web.Localisation
 @inject IStringLocalizer<Strings> text
 @inject IBookingReader reader
+@inject IClock clock
 
 <PageFrame Title="@text["NavBookings"]" Lead="@text["BookingsLead"]">
-  @if (isEmpty)
+  @if (page is null)
   {
-    @* An empty table with a pager reading "0–0 of 0" says nothing a person can
+    @* Only between the first render and the first answer from the database. *@
+  }
+  else if (page.TotalCount == 0)
+  {
+    @* An empty table with a pager reading "0–0 von 0" says nothing a person can
        act on. While nothing is stored the page says so and points at the one
        screen that changes it. *@
-    <MudPaper Elevation="0" Outlined="true" Class="pa-6">
-      <MudText Typo="Typo.body1">@text["BookingsEmpty"]</MudText>
-      <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">@text["BookingsEmptyHint"]</MudText>
-      <MudButton Href="/import"
-                 Variant="Variant.Filled"
-                 Color="Color.Primary"
-                 StartIcon="@Icons.Material.Filled.UploadFile"
-                 Class="mt-4">
-        @text["NavImport"]
-      </MudButton>
-    </MudPaper>
+    <EmptyState Icon="upload" Title="@text["BookingsEmpty"]" Text="@text["BookingsEmptyHint"]">
+      <Actions>
+        <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
+          <CpIcon Name="upload" />
+          @text["NavImport"]
+        </MudButton>
+      </Actions>
+    </EmptyState>
   }
   else
   {
-    @* Filterable is off on purpose: with ServerData the grid hands filters to
-       the query rather than applying them itself, so a filter menu nothing
-       implements would look like a feature and do nothing. Filters are a
-       non-goal of issue #34. *@
-    <MudDataGrid T="Booking"
-                 ServerData="LoadAsync"
-                 Elevation="0"
-                 Outlined="true"
-                 Dense="true"
-                 Hover="true"
-                 Filterable="false"
-                 SortMode="SortMode.Single">
-      <Columns>
-        <PropertyColumn T="Booking" TProperty="DateTime" Property="b => b.BookedOn" Title="@text["BookingsColumnDate"]" CellClass="cp-figure">
-          <CellTemplate>@BookingFormat.Date(context.Item.BookedOn)</CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn T="Booking" TProperty="string" Property="b => b.AccountName" Title="@text["BookingsColumnAccount"]" />
-        <PropertyColumn T="Booking" TProperty="string" Property="b => b.Counterparty" Title="@text["BookingsColumnCounterparty"]" />
-        <PropertyColumn T="Booking" TProperty="string" Property="b => b.PaymentReference" Title="@text["BookingsColumnReference"]">
-          @* A bank fills this with whatever it likes, so the column is clamped
-             and the whole text stays available on hover. *@
-          <CellTemplate>
-            <span class="cp-reference" title="@context.Item.PaymentReference">@context.Item.PaymentReference</span>
-          </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn T="Booking" TProperty="string" Property="b => b.Category" Title="@text["BookingsColumnCategory"]" />
-        @* Sorted by the stored cents and shown as a formatted amount: sorting on
-           the rendered string would order -9,00 after -10,00. *@
-        <PropertyColumn T="Booking" TProperty="long" Property="b => b.AmountInCents" Title="@text["BookingsColumnAmount"]"
-                        HeaderStyle="text-align: end" CellClass="cp-figure cp-cell-end">
-          <CellTemplate>
-            <Amount AmountInCents="context.Item.AmountInCents" Currency="@context.Item.Currency" />
-          </CellTemplate>
-        </PropertyColumn>
-      </Columns>
-      <PagerContent>
-        <MudDataGridPager T="Booking" PageSizeOptions="PageSizes" InfoFormat="@PagerText" />
-      </PagerContent>
-    </MudDataGrid>
+    @* A table of our own rather than MudDataGrid: the design groups a page's
+       rows under a header per day and numbers the pages, and the grid offers
+       neither without being argued with. Sorting and paging still happen in
+       the database — every click asks the reader for one page. *@
+    <div class="cp-card cp-card--flush">
+      <div class="cp-table-wrap">
+        <table class="cp-table cp-table--hover">
+          <thead>
+            <tr>
+              <th aria-sort="@AriaSort(BookingSortColumn.Counterparty)">@SortButton(BookingSortColumn.Counterparty, text["BookingsColumnCounterparty"])</th>
+              <th>@text["BookingsColumnCategory"]</th>
+              <th>@text["BookingsColumnAccount"]</th>
+              <th aria-sort="@AriaSort(BookingSortColumn.BookedOn)">@SortButton(BookingSortColumn.BookedOn, text["BookingsColumnDate"])</th>
+              <th class="cp-cell-end" aria-sort="@AriaSort(BookingSortColumn.AmountInCents)">@SortButton(BookingSortColumn.AmountInCents, text["BookingsColumnAmount"])</th>
+            </tr>
+          </thead>
+          <tbody>
+            @{ string? day = null; }
+            @foreach (var booking in page.Items)
+            {
+              var category = CategoryStyle.For(booking.Category, booking.SubCategory, booking.IsTransfer);
+
+              @* Only in the order the day headers describe: sorted by name or
+                 amount, the same day turns up all over the page. *@
+              if (sortBy is null)
+              {
+                var header = DayHeaderOf(booking);
+                if (header != day)
+                {
+                  day = header;
+                  <tr class="cp-table__group"><td colspan="5">@header</td></tr>
+                }
+              }
+
+              <tr>
+                <td>
+                  <div class="cp-party">
+                    <CategoryIcon Category="category" />
+                    <div class="cp-party__text">
+                      <div class="cp-party__name">@booking.Counterparty</div>
+                      @* A bank fills this with whatever it likes, so it is
+                         clamped and the whole text stays available on hover. *@
+                      <div class="cp-party__reference" title="@booking.PaymentReference">@booking.PaymentReference</div>
+                    </div>
+                  </div>
+                </td>
+                <td><CategoryBadge Category="category" /></td>
+                <td class="cp-muted-strong">@booking.AccountName</td>
+                <td class="cp-muted-strong cp-figure">@BookingFormat.Date(booking.BookedOn)</td>
+                <td class="cp-cell-end"><Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" /></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <Pager Page="pageIndex"
+             PageSize="pageSize"
+             Total="page.TotalCount"
+             InfoFormat="@text["BookingsPagerInfo"]"
+             PageChanged="GoToPageAsync"
+             PageSizeChanged="ChangePageSizeAsync" />
+    </div>
   }
 </PageFrame>
 
 @code {
-    /// <summary>
-    /// The pages a person can pick. Deliberately without MudBlazor's "all"
-    /// entry: it asks for every booking at once, which on Blazor Server means
-    /// rendering six thousand rows into one circuit.
-    /// </summary>
-    private static readonly int[] PageSizes = [25, 50, 100];
+    private Page<Booking>? page;
 
-    private bool isEmpty;
+    private int pageIndex;
+    private int pageSize = 25;
 
-    private int firstOnPage;
-    private int lastOnPage;
-    private int totalCount;
+    // Null is the order the list opens in: newest first, grouped by day.
+    private BookingSortColumn? sortBy;
+    private bool descending = true;
 
-    /// <summary>The pager's info line — see <see cref="CashPrism.Web.Localisation.PagerInfo"/>.</summary>
-    private string PagerText => PagerInfo.Compose(
-        text["MudDataGridPager_InfoFormat"],
-        firstOnPage,
-        lastOnPage,
-        totalCount);
+    // Today in the local time of the machine that hosts CashPrism, which is
+    // what "Heute" means to the person in front of it.
+    private DateOnly Today => DateOnly.FromDateTime(clock.UtcNow.LocalDateTime);
 
-    protected override async Task OnInitializedAsync()
-        => isEmpty = await reader.CountAsync() == 0;
+    protected override Task OnInitializedAsync() => LoadAsync();
 
-    private async Task<GridData<Booking>> LoadAsync(GridState<Booking> state, CancellationToken cancellationToken)
+    private async Task LoadAsync()
     {
-        var sort = state.SortDefinitions.FirstOrDefault();
-
         var request = new BookingPageRequest(
-            Skip: state.Page * state.PageSize,
-            // Clamped rather than rejected: the page size travels from the
-            // browser, and a value the model refuses would take the circuit down
-            // instead of showing a list.
-            Take: Math.Clamp(state.PageSize, 1, BookingPageRequest.MaxTake),
-            SortBy: ColumnOf(sort?.SortBy),
-            Descending: sort?.Descending ?? true);
+            Skip: pageIndex * pageSize,
+            Take: pageSize,
+            SortBy: sortBy ?? BookingSortColumn.BookedOn,
+            Descending: sortBy is null || descending);
 
-        var page = await reader.ReadPageAsync(request, cancellationToken);
+        page = await reader.ReadPageAsync(request);
+    }
 
-        totalCount = page.TotalCount;
-        firstOnPage = PagerInfo.First(request.Skip, page.Items.Count);
-        lastOnPage = PagerInfo.Last(request.Skip, page.Items.Count);
+    private Task GoToPageAsync(int target)
+    {
+        pageIndex = target;
 
-        // The grid renders itself when this returns, not the page around it, so
-        // the pager would otherwise keep the info line of the page before.
-        await InvokeAsync(StateHasChanged);
+        return LoadAsync();
+    }
 
-        return new GridData<Booking> { Items = page.Items, TotalItems = page.TotalCount };
+    private Task ChangePageSizeAsync(int size)
+    {
+        pageSize = size;
+        pageIndex = 0;
+
+        return LoadAsync();
     }
 
     /// <summary>
-    /// The column MudBlazor names, as the reader knows it. The grid reports a
-    /// sort as the property name of the column that was clicked, and the columns
-    /// above are the only ones there are — anything else is the unsorted state
-    /// and means the default order.
+    /// A click on a column sorts by it, newest or largest first; a second
+    /// click turns the order round, and a third gives the list back its day
+    /// headers. The design stops at the second, which would leave the grouped
+    /// list unreachable once a header was clicked.
     /// </summary>
-    private static BookingSortColumn ColumnOf(string? sortBy)
-        => Enum.TryParse<BookingSortColumn>(sortBy, out var column) && Enum.IsDefined(column)
-            ? column
-            : BookingSortColumn.BookedOn;
+    private Task SortAsync(BookingSortColumn column)
+    {
+        if (sortBy != column)
+        {
+            sortBy = column;
+            descending = true;
+        }
+        else if (descending)
+        {
+            descending = false;
+        }
+        else
+        {
+            sortBy = null;
+        }
+
+        pageIndex = 0;
+
+        return LoadAsync();
+    }
+
+    private string DayHeaderOf(Booking booking)
+        => BookingFormat.DayHeader(booking.BookedOn, Today, text["BookingsToday"], text["BookingsYesterday"]);
+
+    // On the header cell, where a screen reader looks for it.
+    private string? AriaSort(BookingSortColumn column)
+        => sortBy != column ? null : descending ? "descending" : "ascending";
+
+    private RenderFragment SortButton(BookingSortColumn column, string title)
+    {
+        var on = sortBy == column;
+        var glyph = on && !descending ? "arrow-up" : "arrow-down";
+
+        return @<button type="button"
+                        class="@(on ? "cp-sort cp-sort--on" : "cp-sort")"
+                        @onclick="() => SortAsync(column)">
+                  @title<CpIcon Name="@glyph" />
+                </button>;
+    }
 }

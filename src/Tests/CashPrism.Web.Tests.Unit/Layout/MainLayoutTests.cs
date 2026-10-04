@@ -1,6 +1,7 @@
 using Bunit;
 using CashPrism.Web.Layout;
 using CashPrism.Web.Localisation;
+using CashPrism.Web.Tests.Unit.Bookings;
 using CashPrism.Web.Theme;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;

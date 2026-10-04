@@ -113,4 +113,52 @@ public sealed class PagerInfoTests
             Assert.Equal(0, PagerInfo.Last(skip: 50, onPage: 0));
         }
     }
+
+    public sealed class PageCount
+    {
+        [Fact]
+        public void Counts_A_Partly_Filled_Last_Page()
+        {
+            Assert.Equal(254, PagerInfo.PageCount(total: 6327, pageSize: 25));
+        }
+
+        [Fact]
+        public void Has_One_Page_For_An_Empty_List()
+        {
+            Assert.Equal(1, PagerInfo.PageCount(total: 0, pageSize: 25));
+        }
+    }
+
+    public sealed class Pages
+    {
+        [Fact]
+        public void Offers_Every_Page_Of_A_Short_List()
+        {
+            Assert.Equal([0, 1, 2], PagerInfo.Pages(page: 0, pageCount: 3));
+        }
+
+        [Fact]
+        public void Offers_Two_Pages_After_The_First_And_Then_The_Last()
+        {
+            Assert.Equal([0, 1, 2, null, 253], PagerInfo.Pages(page: 0, pageCount: 254));
+        }
+
+        [Fact]
+        public void Offers_Two_Pages_On_Either_Side_And_Both_Ends_In_The_Middle()
+        {
+            Assert.Equal([0, null, 8, 9, 10, 11, 12, null, 253], PagerInfo.Pages(page: 10, pageCount: 254));
+        }
+
+        [Fact]
+        public void Leaves_No_Gap_Where_No_Page_Is_Left_Out()
+        {
+            Assert.Equal([0, 1, 2, 3, 4, 5], PagerInfo.Pages(page: 3, pageCount: 6));
+        }
+
+        [Fact]
+        public void Offers_The_First_And_Two_Pages_Before_The_Last()
+        {
+            Assert.Equal([0, null, 251, 252, 253], PagerInfo.Pages(page: 253, pageCount: 254));
+        }
+    }
 }

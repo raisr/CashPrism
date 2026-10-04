@@ -137,26 +137,37 @@ gelesen werden.*
 
 ## Die Buchungsliste
 
-*Buchungen* zeigt alle gespeicherten Buchungen, zu Beginn die neuesten oben.
+*Buchungen* zeigt alle gespeicherten Buchungen, zu Beginn die neuesten oben,
+nach Tagen gruppiert: über den Buchungen eines Tages steht *Heute*, *Gestern*
+oder das Datum mit Wochentag, etwa *Mo, 28. September 2026*.
 
 | Spalte | Enthält |
 |---|---|
-| Datum | Das Buchungsdatum |
+| Empfänger / Absender | Wer bezahlt hat oder bezahlt wurde, davor das Symbol der Kategorie und darunter der Verwendungszweck. Lange Verwendungszwecke werden abgeschnitten; der ganze Text erscheint, wenn der Mauszeiger darauf ruht |
+| Kategorie | Die Kategorie mit ihrer Farbe — siehe unten |
 | Konto | Das Konto, wie Finanzguru es nennt |
-| Gegenseite | Wer bezahlt hat oder bezahlt wurde |
-| Verwendungszweck | Der Text der Bank. Lange Texte werden abgeschnitten; der ganze Text erscheint, wenn der Mauszeiger darauf ruht |
-| Kategorie | Die Kategorie aus Finanzguru |
+| Datum | Das Buchungsdatum |
 | Betrag | Der Betrag mit Vorzeichen, etwa `−12,50 €` oder `+1.850,00 €`. Euro-Beträge tragen das €-Zeichen, Beträge in einer anderen Währung deren Code, etwa `−4,00 USD`. Eingänge sind grün, Ausgänge in der normalen Schriftfarbe — das Vorzeichen sagt es auch ohne Farbe |
 
-**Sortieren:** Ein Klick auf eine Spaltenüberschrift sortiert die Liste nach
-dieser Spalte, ein weiterer Klick kehrt die Richtung um. Es wird immer nach
-genau einer Spalte sortiert. Der Betrag wird nach seinem Wert sortiert, nicht
-nach dem Text.
+**Kategorien:** CashPrism fasst die Kategorien aus Finanzguru zu elf eigenen
+zusammen, jede mit fester Farbe und eigenem Symbol: Wohnen, Mobilität,
+Verträge & Abos, Versicherungen, Lebensmittel, Gesundheit, Shopping,
+Freizeit & Essen, Einkommen, Umbuchung und Sonstiges. Restaurants und
+Lieferdienste zählen zu *Freizeit & Essen*, Mobilfunk, Streaming, Cloud-Dienste,
+Internet und Rundfunkbeitrag zu *Verträge & Abos*. Eine Buchung, die Finanzguru
+als Umbuchung zwischen deinen eigenen Konten erkennt, ist immer *Umbuchung*.
 
-**Blättern:** Unter der Liste stehen die Schaltflächen zum Blättern und die
-Angabe, welche Buchungen gerade zu sehen sind, etwa *1–25 von 6.327*. Unter
-*Zeilen pro Seite* lassen sich 25, 50 oder 100 Buchungen pro Seite wählen. Alle
-auf einmal anzuzeigen ist bewusst nicht vorgesehen.
+**Sortieren:** *Empfänger / Absender*, *Datum* und *Betrag* lassen sich
+sortieren. Der erste Klick auf eine dieser Überschriften sortiert absteigend,
+der zweite aufsteigend, der dritte stellt die Liste wieder nach Tagen gruppiert
+dar. Solange nach einer Spalte sortiert wird, fallen die Tagesüberschriften
+weg.
+
+**Blättern:** Unter der Liste steht, welche Buchungen gerade zu sehen sind, etwa
+*1–25 von 6.327 Buchungen*, daneben die Seitenzahlen und die Pfeile zur
+vorigen und nächsten Seite. Unter *Zeilen pro Seite* lassen sich 25, 50 oder
+100 Buchungen pro Seite wählen. Alle auf einmal anzuzeigen ist bewusst nicht
+vorgesehen.
 
 **Filtern und Suchen gibt es noch nicht.** Die Liste lässt sich weder nach
 Konto, Kategorie oder Zeitraum filtern noch nach einem Text durchsuchen.

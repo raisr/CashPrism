@@ -152,6 +152,14 @@ releases and the minor version is bumped for every notable change.
 
 ### Changed
 
+- The booking list has a new look. Each booking shows who it went to or came
+  from with its payment reference beneath, and a category with a fixed colour
+  and symbol — CashPrism sorts Finanzguru's categories into eleven of its own,
+  such as *Lebensmittel*, *Freizeit & Essen* or *Verträge & Abos*. Bookings are
+  grouped by day under *Heute*, *Gestern* or the date. The pager shows page
+  numbers and still lets you pick 25, 50 or 100 bookings per page. Clicking a
+  column title a third time brings the grouping by day back.
+
 - Amounts in the booking list are written the way the design asks: `€` instead
   of `EUR` for euros (other currencies keep their code, such as `USD`), a real
   minus sign, and the currency kept on the same line as the figure. Income is
