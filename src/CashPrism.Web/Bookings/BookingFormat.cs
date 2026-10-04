@@ -11,15 +11,18 @@ namespace CashPrism.Web.Bookings;
 public static class BookingFormat
 {
     /// <summary>
-    /// Always a sign, always two decimals. The sign is what carries the meaning
-    /// of a credit or a debit — <c>docs/ui.md</c> keeps the colour a
-    /// reinforcement, so the text has to say it on its own.
+    /// Always two decimals, without a sign of their own. The sign is what
+    /// carries the meaning of a credit or a debit, so it is written in front by
+    /// hand: .NET's minus is the hyphen-minus, and the design asks for the real
+    /// one. A zero takes no sign, because nothing is neither.
     /// </summary>
-    /// <remarks>
-    /// The third section is what makes a zero read as <c>0,00</c> instead of
-    /// taking the positive section and claiming to be a credit of nothing.
-    /// </remarks>
-    private const string SignedWithTwoDecimals = "+#,##0.00;-#,##0.00;0.00";
+    private const string TwoDecimals = "#,##0.00";
+
+    /// <summary>The real minus sign, U+2212 — wider than a hyphen, and level with the plus.</summary>
+    private const char Minus = '−';
+
+    /// <summary>Keeps the figure and its currency on one line.</summary>
+    private const char NoBreakSpace = ' ';
 
     /// <summary>
     /// Formats an amount for display, with its currency behind it. Dividing by a
@@ -34,21 +37,62 @@ public static class BookingFormat
     /// pins to German — the UI never reads a culture of its own.
     /// </param>
     /// <returns>
-    /// The amount, the currency code behind it after a non-breaking space. The
-    /// code rather than a symbol: the symbol of the machine's culture would be a
-    /// lie about a booking in another currency.
+    /// The amount with a plus for income, a real minus for spending and no sign
+    /// for nothing, then a no-break space and the currency — see
+    /// <see cref="CurrencyOf"/>.
     /// </returns>
     public static string Amount(long amountInCents, string currency, IFormatProvider? formatProvider = null)
     {
+        var (whole, cents) = AmountParts(amountInCents, currency, formatProvider);
+
+        return whole + cents;
+    }
+
+    /// <summary>
+    /// The same text as <see cref="Amount"/>, cut where the cents begin — for a
+    /// large amount that sets the cents apart from the euros.
+    /// </summary>
+    /// <param name="amountInCents">The signed amount in whole cents.</param>
+    /// <param name="currency">The ISO 4217 code the amount is in.</param>
+    /// <param name="formatProvider">The culture to format in.</param>
+    /// <returns>
+    /// Everything before the decimal separator, and everything from it on: the
+    /// separator, the cents and the currency.
+    /// </returns>
+    public static (string Whole, string Cents) AmountParts(
+        long amountInCents,
+        string currency,
+        IFormatProvider? formatProvider = null)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(currency);
 
-        var amount = (decimal)amountInCents / 100m;
+        var provider = formatProvider ?? CultureInfo.CurrentCulture;
+        var sign = amountInCents switch
+        {
+            > 0 => "+",
+            < 0 => Minus.ToString(),
+            _ => string.Empty,
+        };
 
-        return string.Concat(
-            amount.ToString(SignedWithTwoDecimals, formatProvider ?? CultureInfo.CurrentCulture),
-            " ",
-            currency);
+        var figure = (Math.Abs((decimal)amountInCents) / 100m).ToString(TwoDecimals, provider);
+        var separator = NumberFormatInfo.GetInstance(provider).NumberDecimalSeparator;
+        var cut = figure.LastIndexOf(separator, StringComparison.Ordinal);
+
+        return (
+            sign + figure[..cut],
+            string.Concat(figure[cut..], NoBreakSpace.ToString(), CurrencyOf(currency)));
     }
+
+    /// <summary>
+    /// <c>€</c> for the euro, the ISO code for every other currency. Decided by
+    /// the booking's currency alone and never by the culture: the symbol a
+    /// machine's culture would pick is a lie about a booking in another
+    /// currency, and the code is unambiguous where a symbol such as <c>$</c> is
+    /// not.
+    /// </summary>
+    /// <param name="currency">The ISO 4217 code the amount is in.</param>
+    private static string CurrencyOf(string currency)
+        => string.Equals(currency, "EUR", StringComparison.OrdinalIgnoreCase) ? "€" : currency;
 
     /// <summary>
     /// Formats a booking date, without its time. The export carries a time on

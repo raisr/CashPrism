@@ -152,6 +152,12 @@ releases and the minor version is bumped for every notable change.
 
 ### Changed
 
+- Amounts in the booking list are written the way the design asks: `€` instead
+  of `EUR` for euros (other currencies keep their code, such as `USD`), a real
+  minus sign, and the currency kept on the same line as the figure. Income is
+  still green; spending is now in the normal text colour instead of red, so a
+  page of ordinary spending no longer looks like an alarm.
+
 - The user interface is now German. Finanzguru is only available in
   German-speaking markets, so the one audience CashPrism has reads German — the
   start page says `Rendermodus: Vorgerendert`, the page declares itself as

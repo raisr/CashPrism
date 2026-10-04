@@ -445,6 +445,37 @@
   color: var(--cp-primary);
 }
 
+/* ---------- amount ---------- */
+
+/* Income in green, spending in the text colour: red is kept for charts and
+   deltas, where it marks something worth a look rather than every other row. */
+.cp-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cp-amount--in {
+  color: var(--cp-income);
+}
+
+.cp-amount--out {
+  color: var(--cp-text);
+}
+
+/* The headline of a single booking. The cents are faded so the euros are read
+   first. */
+.cp-amount--lg {
+  font-size: 34px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.cp-amount__cents {
+  font-weight: 650;
+  opacity: 0.62;
+}
+
 /* ---------- privacy note ---------- */
 
 /* Privacy is a feature, so it is said where it is always in view. */

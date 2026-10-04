@@ -1,0 +1,47 @@
+@using CashPrism.Web.Bookings
+
+@* A booking's amount as the design writes it (design/README.md §1.6): signed,
+   two decimals, € for the euro. Income is green; spending stays in the text
+   colour, because in a list most rows are spending, and a page of red reads as
+   an alarm about nothing. Red is left to charts and deltas. *@
+@if (Large)
+{
+  var (whole, cents) = BookingFormat.AmountParts(AmountInCents, Currency);
+  <span class="@CssClass">@whole<span class="cp-amount__cents">@cents</span></span>
+}
+else
+{
+  <span class="@CssClass">@BookingFormat.Amount(AmountInCents, Currency)</span>
+}
+
+@code {
+    /// <summary>The signed amount in whole cents.</summary>
+    [Parameter, EditorRequired]
+    public long AmountInCents { get; set; }
+
+    /// <summary>The ISO 4217 code the amount is in.</summary>
+    [Parameter, EditorRequired]
+    public string Currency { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The headline size for a single booking, with the cents faded so the
+    /// euros are what is read first.
+    /// </summary>
+    [Parameter]
+    public bool Large { get; set; }
+
+    private string CssClass
+    {
+        get
+        {
+            var direction = AmountInCents switch
+            {
+                > 0 => " cp-amount--in",
+                < 0 => " cp-amount--out",
+                _ => string.Empty,
+            };
+
+            return "cp-amount" + direction + (Large ? " cp-amount--lg" : string.Empty);
+        }
+    }
+}

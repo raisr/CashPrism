@@ -57,19 +57,19 @@
           </CellTemplate>
         </TemplateColumn>
         <TemplateColumn T="ImportRun" Title="@text["ImportRunsColumnRowsRead"]"
-                        HeaderStyle="text-align: right" CellClass="cp-figure cp-amount">
+                        HeaderStyle="text-align: end" CellClass="cp-figure cp-cell-end">
           <CellTemplate>@ImportRunFormat.Count(context.Item.RowsRead)</CellTemplate>
         </TemplateColumn>
         <TemplateColumn T="ImportRun" Title="@text["ImportRunsColumnInserted"]"
-                        HeaderStyle="text-align: right" CellClass="cp-figure cp-amount">
+                        HeaderStyle="text-align: end" CellClass="cp-figure cp-cell-end">
           <CellTemplate>@ImportRunFormat.Count(context.Item.BookingsInserted)</CellTemplate>
         </TemplateColumn>
         <TemplateColumn T="ImportRun" Title="@text["ImportRunsColumnUpdated"]"
-                        HeaderStyle="text-align: right" CellClass="cp-figure cp-amount">
+                        HeaderStyle="text-align: end" CellClass="cp-figure cp-cell-end">
           <CellTemplate>@ImportRunFormat.Count(context.Item.BookingsUpdated)</CellTemplate>
         </TemplateColumn>
         <TemplateColumn T="ImportRun" Title="@text["ImportRunsColumnUnchanged"]"
-                        HeaderStyle="text-align: right" CellClass="cp-figure cp-amount">
+                        HeaderStyle="text-align: end" CellClass="cp-figure cp-cell-end">
           <CellTemplate>@ImportRunFormat.Count(context.Item.BookingsUnchanged)</CellTemplate>
         </TemplateColumn>
       </Columns>

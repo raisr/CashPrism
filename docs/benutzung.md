@@ -146,7 +146,7 @@ gelesen werden.*
 | Gegenseite | Wer bezahlt hat oder bezahlt wurde |
 | Verwendungszweck | Der Text der Bank. Lange Texte werden abgeschnitten; der ganze Text erscheint, wenn der Mauszeiger darauf ruht |
 | Kategorie | Die Kategorie aus Finanzguru |
-| Betrag | Der Betrag mit Vorzeichen und Währungscode, etwa `-12,50 EUR` oder `+1.850,00 EUR`. Eingänge sind grün, Ausgänge rot — das Vorzeichen sagt es auch ohne Farbe |
+| Betrag | Der Betrag mit Vorzeichen, etwa `−12,50 €` oder `+1.850,00 €`. Euro-Beträge tragen das €-Zeichen, Beträge in einer anderen Währung deren Code, etwa `−4,00 USD`. Eingänge sind grün, Ausgänge in der normalen Schriftfarbe — das Vorzeichen sagt es auch ohne Farbe |
 
 **Sortieren:** Ein Klick auf eine Spaltenüberschrift sortiert die Liste nach
 dieser Spalte, ein weiterer Klick kehrt die Richtung um. Es wird immer nach
