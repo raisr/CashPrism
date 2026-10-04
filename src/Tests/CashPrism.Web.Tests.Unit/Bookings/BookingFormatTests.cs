@@ -14,60 +14,99 @@ public sealed class BookingFormatTests
 
     public sealed class Amount
     {
+        // Spelled out, because both look like their plain cousins in an editor.
+        private const string Minus = "−";
+        private const string NoBreakSpace = " ";
+
         [Fact]
-        public void Spending_Keeps_Its_Minus()
+        public void Spending_Is_Written_With_A_Real_Minus()
         {
-            Assert.Equal("-63,17 EUR", BookingFormat.Amount(-6317, "EUR", German));
+            Assert.Equal($"{Minus}43,18{NoBreakSpace}€", BookingFormat.Amount(-4318, "EUR", German));
         }
 
         [Fact]
         public void Income_Is_Written_With_A_Plus()
         {
-            Assert.Equal("+2.500,00 EUR", BookingFormat.Amount(250_000, "EUR", German));
+            Assert.Equal($"+250,00{NoBreakSpace}€", BookingFormat.Amount(25_000, "EUR", German));
         }
 
         [Fact]
-        public void Nothing_Is_Neither_Income_Nor_Spending()
+        public void Nothing_Is_Written_Without_A_Sign()
         {
-            Assert.Equal("0,00 EUR", BookingFormat.Amount(0, "EUR", German));
+            Assert.Equal($"0,00{NoBreakSpace}€", BookingFormat.Amount(0, "EUR", German));
+        }
+
+        [Fact]
+        public void Another_Currency_Is_Written_As_Its_Code()
+        {
+            Assert.Equal($"{Minus}4,00{NoBreakSpace}USD", BookingFormat.Amount(-400, "USD", German));
+        }
+
+        [Fact]
+        public void An_Amount_Above_A_Thousand_Is_Grouped()
+        {
+            Assert.Equal($"+4.020,00{NoBreakSpace}€", BookingFormat.Amount(402_000, "EUR", German));
         }
 
         [Fact]
         public void A_Whole_Amount_Still_Shows_Both_Decimals()
         {
-            Assert.Equal("-12,00 EUR", BookingFormat.Amount(-1200, "EUR", German));
+            Assert.Equal($"{Minus}12,00{NoBreakSpace}€", BookingFormat.Amount(-1200, "EUR", German));
         }
 
         [Fact]
         public void A_Single_Cent_Is_Not_Rounded_Away()
         {
-            Assert.Equal("-0,01 EUR", BookingFormat.Amount(-1, "EUR", German));
-        }
-
-        [Fact]
-        public void The_Currency_Is_The_One_The_Booking_Carries()
-        {
-            Assert.EndsWith("CHF", BookingFormat.Amount(-6317, "CHF", German), StringComparison.Ordinal);
+            Assert.Equal($"{Minus}0,01{NoBreakSpace}€", BookingFormat.Amount(-1, "EUR", German));
         }
 
         [Fact]
         public void The_Culture_Decides_Where_The_Separators_Go()
         {
             Assert.Equal(
-                "+2,500.00 EUR",
+                $"+2,500.00{NoBreakSpace}€",
                 BookingFormat.Amount(250_000, "EUR", CultureInfo.GetCultureInfo("en-GB")));
         }
 
-        [Fact]
-        public void The_Amount_And_Its_Currency_Do_Not_Break_Across_Two_Lines()
+        /// <summary>
+        /// A culture whose own currency symbol is the dollar must not turn a
+        /// booking in euros into one, nor a booking in dollars into its symbol.
+        /// </summary>
+        [Theory]
+        [InlineData("EUR", "€")]
+        [InlineData("USD", "USD")]
+        public void The_Symbol_Comes_From_The_Booking_And_Not_From_The_Culture(string currency, string expected)
         {
-            Assert.Contains(' ', BookingFormat.Amount(-6317, "EUR", German));
+            var written = BookingFormat.Amount(-400, currency, CultureInfo.GetCultureInfo("en-US"));
+
+            Assert.EndsWith(NoBreakSpace + expected, written, StringComparison.Ordinal);
         }
 
         [Fact]
         public void A_Booking_Without_A_Currency_Is_Not_A_Booking_This_Can_Write()
         {
             Assert.Throws<ArgumentException>(() => BookingFormat.Amount(-6317, " ", German));
+        }
+    }
+
+    public sealed class AmountParts
+    {
+        [Fact]
+        public void Cuts_The_Amount_Where_The_Cents_Begin()
+        {
+            var (whole, cents) = BookingFormat.AmountParts(-402_018, "EUR", German);
+
+            Assert.Equal("−4.020", whole);
+            Assert.Equal(",18 €", cents);
+        }
+
+        [Fact]
+        public void Cuts_Where_The_Culture_Puts_Its_Decimal_Separator()
+        {
+            var (whole, cents) = BookingFormat.AmountParts(402_018, "EUR", CultureInfo.GetCultureInfo("en-GB"));
+
+            Assert.Equal("+4,020", whole);
+            Assert.Equal(".18 €", cents);
         }
     }
 

@@ -131,8 +131,11 @@ the product, and only the light/dark switch changes at runtime.
   the active destination, focus and selection. As a surface it appears only in
   its soft tint (`--cp-primary-soft`) — behind the active destination in the
   drawer and an empty state's icon.
-- **Money gets a colour, but the colour never carries the meaning.** The minus
-  in front of the amount does that; green and red only reinforce it.
+- **Income is green, spending is not red.** The sign in front of the amount
+  carries the meaning; the colour only picks out the money coming in. In a
+  list most rows are spending, and a column of red would read as an alarm on
+  every page. Red is kept for charts and deltas, where it marks something worth
+  a look.
 - **The fonts are bundled.** Manrope for everything, JetBrains Mono for strings
   read character by character. Both ship as variable fonts under
   `wwwroot/fonts` and are declared in `app.css`. MudBlazor's own default asks
@@ -213,11 +216,19 @@ filter menu would look like a feature and do nothing. Filtering and searching
 are their own work, and deliberately not part of this screen yet.
 
 The amount is the only column that is more than the stored value written out.
-`Bookings/BookingFormat.cs` always writes a sign and two decimals and puts the
-booking's own ISO currency code behind the number — the code and not a symbol,
-because the symbol of the machine's culture would be a lie about a booking in
-another currency. The sign is what says credit or debit; the green and the red
-only reinforce it, which is the rule the theme is built on.
+`Components/Amount.razor` draws it from `Bookings/BookingFormat.cs`, which
+writes a plus for income, a real minus (U+2212) for spending and no sign for
+nothing, always two decimals, and a no-break space before the currency so the
+two never wrap apart. The currency is `€` for a booking in euros and the ISO
+code for every other one: `−43,18 €`, `−4,00 USD`. That choice is made from
+the booking's currency alone and never from the culture — the symbol a
+machine's culture would pick is a lie about a booking in another currency, and
+a code is unambiguous where a symbol such as `$` is not. The separators do
+follow the culture, which the host pins to German.
+
+Income is green and spending stays in the text colour, the rule the theme is
+built on. `Amount` also has a large variant for a single booking, with the
+cents faded so the euros are read first.
 
 An empty database gets the message and a button to the upload page rather than
 a table of nothing with a pager counting to zero.

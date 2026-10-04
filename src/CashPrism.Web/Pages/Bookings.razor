@@ -55,11 +55,9 @@
         @* Sorted by the stored cents and shown as a formatted amount: sorting on
            the rendered string would order -9,00 after -10,00. *@
         <PropertyColumn T="Booking" TProperty="long" Property="b => b.AmountInCents" Title="@text["BookingsColumnAmount"]"
-                        HeaderStyle="text-align: right" CellClass="cp-figure cp-amount">
+                        HeaderStyle="text-align: end" CellClass="cp-figure cp-cell-end">
           <CellTemplate>
-            <MudText Typo="Typo.body2" Color="@ColourOf(context.Item.AmountInCents)">
-              @BookingFormat.Amount(context.Item.AmountInCents, context.Item.Currency)
-            </MudText>
+            <Amount AmountInCents="context.Item.AmountInCents" Currency="@context.Item.Currency" />
           </CellTemplate>
         </PropertyColumn>
       </Columns>
@@ -130,16 +128,4 @@
         => Enum.TryParse<BookingSortColumn>(sortBy, out var column) && Enum.IsDefined(column)
             ? column
             : BookingSortColumn.BookedOn;
-
-    /// <summary>
-    /// Green for a credit, red for a debit — and neither for a booking of
-    /// nothing. The colour only reinforces the sign the amount already carries
-    /// (see <c>docs/ui.md</c>).
-    /// </summary>
-    private static Color ColourOf(long amountInCents) => amountInCents switch
-    {
-        < 0 => Color.Error,
-        > 0 => Color.Success,
-        _ => Color.Default,
-    };
 }
