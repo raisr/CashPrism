@@ -1,0 +1,110 @@
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Imports
+@inherits OwningComponentBase<LibrarySummaryReader>
+@inject IStringLocalizer<Strings> text
+@inject ImportActivity activity
+
+@* The drawer's content. A component of its own, and one that owns its service
+   scope, because it reads the database while the page beside it may be doing
+   the same: the circuit's database context takes one query at a time, so the
+   drawer reads through a context of its own.
+
+   Both faces of the drawer are rendered and the stylesheet shows one: the
+   rail exists only where the drawer is permanent, so below the breakpoint
+   the full face shows whatever the collapsed flag says. *@
+<div class="@(Collapsed ? "cp-sidebar cp-sidebar--collapsed" : "cp-sidebar")">
+  @* "CashPrism" is a product name, so it stays a literal. The second half
+     carries the accent — the prism is what splits the light. *@
+  <div class="cp-sidebar__brand">
+    <span class="cp-brand">
+      <span class="cp-brand__text">
+        <span class="cp-brand__name">Cash<span>Prism</span></span>
+        <span class="cp-brand__tag">@text["BrandTagline"]</span>
+      </span>
+    </span>
+    <span class="cp-sidebar__mono" title="CashPrism">C<span>P</span></span>
+    <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-sidebar__toggle"
+            aria-label="@ToggleLabel"
+            title="@ToggleLabel"
+            aria-expanded="@(Collapsed ? "false" : "true")"
+            @onclick="OnToggleCollapsed">
+      <CpIcon Name="@(Collapsed ? "panel-left-open" : "panel-left-close")" />
+    </button>
+  </div>
+
+  <NavMenu Collapsed="Collapsed" Counts="Counts" />
+
+  <div class="cp-sidebar__foot">
+    <div class="cp-privacy">
+      <div class="cp-privacy__title"><CpIcon Name="lock" Size="16" />@text["PrivacyTitle"]</div>
+      <div class="cp-privacy__text">@text["PrivacyText"]</div>
+      @if (summary?.LastImportedAt is { } lastImportedAt)
+      {
+        <div class="cp-privacy__import">@text["SidebarLastImport", ImportRunFormat.ImportedOn(lastImportedAt)]</div>
+      }
+      <div class="cp-privacy__version">@text["AppVersion", AppVersion.Current]</div>
+    </div>
+    <span class="cp-privacy__rail" title="@text["PrivacyTitle"]">
+      <CpIcon Name="lock" Size="16" />
+    </span>
+  </div>
+</div>
+
+@code {
+    private LibrarySummary? summary;
+
+    /// <summary>Whether the drawer is collapsed to its icon rail.</summary>
+    [Parameter]
+    public bool Collapsed { get; set; }
+
+    /// <summary>Raised when the person asks to collapse or expand the drawer.</summary>
+    [Parameter]
+    public EventCallback OnToggleCollapsed { get; set; }
+
+    private string ToggleLabel => text[Collapsed ? "SidebarExpand" : "SidebarCollapse"];
+
+    // An empty database gets no pill rather than a zero: there is nothing to
+    // count yet, and the booking list says so itself.
+    private IReadOnlyDictionary<NavigationItem, string> Counts
+        => summary is { BookingCount: > 0 } figures
+            ? new Dictionary<NavigationItem, string> { [NavigationItems.Bookings] = BookingFormat.Count(figures.BookingCount) }
+            : new Dictionary<NavigationItem, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        activity.Completed += OnImportCompleted;
+
+        summary = await Service.ReadAsync();
+    }
+
+    /// <summary>
+    /// The import raises this from the thread it ran on, so the read and the
+    /// render are marshalled back onto the circuit's.
+    /// </summary>
+    private void OnImportCompleted() => _ = InvokeAsync(RefreshAsync);
+
+    private async Task RefreshAsync()
+    {
+        try
+        {
+            summary = await Service.ReadAsync();
+            StateHasChanged();
+        }
+        catch (Exception exception)
+        {
+            // Nobody awaits this, so a failure would otherwise vanish. Handed to
+            // the renderer, it ends the circuit the way a failed render does.
+            await DispatchExceptionAsync(exception);
+        }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            activity.Completed -= OnImportCompleted;
+        }
+
+        base.Dispose(disposing);
+    }
+}

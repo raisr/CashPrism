@@ -57,6 +57,28 @@ public sealed class ImportRunFormatTests
         }
     }
 
+    public sealed class ImportedOn
+    {
+        [Fact]
+        public void Writes_The_Day_Without_The_Time()
+        {
+            // Noon, so the local day is the same on every machine that runs it.
+            var importedAt = new DateTimeOffset(2026, 9, 7, 12, 0, 0, TimeSpan.Zero);
+
+            Assert.Equal("07.09.2026", ImportRunFormat.ImportedOn(importedAt, German));
+        }
+
+        [Fact]
+        public void Takes_The_Day_In_The_Local_Time_Of_The_Machine()
+        {
+            var importedAt = new DateTimeOffset(2026, 9, 7, 23, 30, 0, TimeSpan.FromHours(-10));
+
+            var written = ImportRunFormat.ImportedOn(importedAt, German);
+
+            Assert.Equal(importedAt.LocalDateTime.ToString("d", German), written);
+        }
+    }
+
     public sealed class Count
     {
         [Fact]

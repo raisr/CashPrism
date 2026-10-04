@@ -89,4 +89,19 @@ public sealed class BookingFormatTests
                 BookingFormat.Date(new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified), German));
         }
     }
+
+    public sealed class Count
+    {
+        [Fact]
+        public void Groups_A_Four_Digit_Count_The_German_Way()
+        {
+            Assert.Equal("6.327", BookingFormat.Count(6327, German));
+        }
+
+        [Fact]
+        public void Leaves_A_Small_Count_Alone()
+        {
+            Assert.Equal("42", BookingFormat.Count(42, German));
+        }
+    }
 }

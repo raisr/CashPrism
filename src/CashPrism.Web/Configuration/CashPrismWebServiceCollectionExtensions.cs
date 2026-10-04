@@ -1,4 +1,5 @@
 using CashPrism.Web.Imports;
+using CashPrism.Web.Layout;
 using CashPrism.Web.Localisation;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -36,6 +37,10 @@ public static class CashPrismWebServiceCollectionExtensions
         // from, so what is running has to be remembered somewhere that survives
         // navigating away and back.
         services.AddScoped<ImportActivity>();
+
+        // Scoped like the readers it is built on. The drawer resolves it in a
+        // scope of its own, so it never shares a database context with a page.
+        services.AddScoped<LibrarySummaryReader>();
 
         services.AddRazorComponents()
             .AddInteractiveServerComponents();

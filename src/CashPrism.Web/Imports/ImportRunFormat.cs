@@ -33,6 +33,18 @@ public static class ImportRunFormat
     }
 
     /// <summary>
+    /// Writes the day a run happened, without the time — for where the date
+    /// alone answers the question, such as how fresh the stored data is.
+    /// </summary>
+    /// <param name="importedAt">When the run processed the file.</param>
+    /// <param name="formatProvider">The culture to format in.</param>
+    public static string ImportedOn(DateTimeOffset importedAt, IFormatProvider? formatProvider = null)
+    {
+        return DateOnly.FromDateTime(importedAt.LocalDateTime)
+            .ToString("d", formatProvider ?? CultureInfo.CurrentCulture);
+    }
+
+    /// <summary>
     /// Writes the date an export was taken, or <see langword="null"/> when the
     /// run has none — the sheet name did not carry one this version can read.
     /// The caller says what to put there instead, because that text is German

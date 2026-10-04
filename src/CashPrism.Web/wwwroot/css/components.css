@@ -426,6 +426,25 @@
   font-weight: 750;
 }
 
+/* How many entries stand behind a destination. Hidden on the rail with the
+   label, since it is a direct span of the item like the label is. */
+.cp-nav__count {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: var(--cp-radius-pill);
+  background: var(--cp-surface-3);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--cp-text-2);
+}
+
+.cp-nav__item--on .cp-nav__count {
+  background: var(--cp-surface);
+  color: var(--cp-primary);
+}
+
 /* ---------- privacy note ---------- */
 
 /* Privacy is a feature, so it is said where it is always in view. */
@@ -453,6 +472,19 @@
   font-size: var(--cp-fs-caption);
   line-height: var(--cp-lh-caption);
   color: var(--cp-text-2);
+}
+
+.cp-privacy__import {
+  margin-top: 10px;
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-3);
+}
+
+/* Directly under the import line where there is one, set apart from the
+   promise above it where there is not. */
+.cp-privacy__import + .cp-privacy__version {
+  margin-top: 2px;
 }
 
 .cp-privacy__version {

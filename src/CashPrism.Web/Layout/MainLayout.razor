@@ -54,42 +54,7 @@
              Variant="DrawerVariant.Responsive"
              Breakpoint="Breakpoint.Md"
              Elevation="0">
-    @* Both faces of the drawer are rendered and the stylesheet shows one: the
-       rail exists only where the drawer is permanent, so below the breakpoint
-       the full face shows whatever the collapsed flag says. *@
-    <div class="@(sidebarCollapsed ? "cp-sidebar cp-sidebar--collapsed" : "cp-sidebar")">
-      @* "CashPrism" is a product name, so it stays a literal. The second half
-         carries the accent — the prism is what splits the light. *@
-      <div class="cp-sidebar__brand">
-        <span class="cp-brand">
-          <span class="cp-brand__text">
-            <span class="cp-brand__name">Cash<span>Prism</span></span>
-            <span class="cp-brand__tag">@text["BrandTagline"]</span>
-          </span>
-        </span>
-        <span class="cp-sidebar__mono" title="CashPrism">C<span>P</span></span>
-        <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-sidebar__toggle"
-                aria-label="@SidebarToggleLabel"
-                title="@SidebarToggleLabel"
-                aria-expanded="@(sidebarCollapsed ? "false" : "true")"
-                @onclick="ToggleSidebar">
-          <CpIcon Name="@(sidebarCollapsed ? "panel-left-open" : "panel-left-close")" />
-        </button>
-      </div>
-
-      <NavMenu Collapsed="sidebarCollapsed" />
-
-      <div class="cp-sidebar__foot">
-        <div class="cp-privacy">
-          <div class="cp-privacy__title"><CpIcon Name="lock" Size="16" />@text["PrivacyTitle"]</div>
-          <div class="cp-privacy__text">@text["PrivacyText"]</div>
-          <div class="cp-privacy__version">@text["AppVersion", AppVersion.Current]</div>
-        </div>
-        <span class="cp-privacy__rail" title="@text["PrivacyTitle"]">
-          <CpIcon Name="lock" Size="16" />
-        </span>
-      </div>
-    </div>
+    <Sidebar Collapsed="sidebarCollapsed" OnToggleCollapsed="ToggleSidebar" />
   </MudDrawer>
 
   @* MudMainContent contributes only the offset that keeps content clear of the
@@ -147,8 +112,6 @@
     private void ToggleDrawer() => drawerOpen = !drawerOpen;
 
     private void ToggleSidebar() => sidebarCollapsed = !sidebarCollapsed;
-
-    private string SidebarToggleLabel => text[sidebarCollapsed ? "SidebarExpand" : "SidebarCollapse"];
 
     private void ToggleTheme()
     {

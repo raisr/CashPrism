@@ -62,4 +62,15 @@ public static class BookingFormat
         return DateOnly.FromDateTime(bookedOn)
             .ToString("d", formatProvider ?? CultureInfo.CurrentCulture);
     }
+
+    /// <summary>
+    /// Writes how many bookings there are, grouped so a figure in the thousands
+    /// stays readable at a glance.
+    /// </summary>
+    /// <param name="count">The number of bookings.</param>
+    /// <param name="formatProvider">The culture to format in.</param>
+    public static string Count(int count, IFormatProvider? formatProvider = null)
+    {
+        return count.ToString("N0", formatProvider ?? CultureInfo.CurrentCulture);
+    }
 }

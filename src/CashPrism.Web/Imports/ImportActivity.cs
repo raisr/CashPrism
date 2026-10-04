@@ -24,6 +24,19 @@ public sealed class ImportActivity
     /// </remarks>
     public event Action? Changed;
 
+    /// <summary>
+    /// Raised once an import has run to its end — whatever it said, since even a
+    /// refused file was read to the end. Not raised for one that threw, for one
+    /// turned away because another was in flight, or for a <see cref="Report"/>.
+    /// </summary>
+    /// <remarks>
+    /// Narrower than <see cref="Changed"/> on purpose: whoever shows what is
+    /// stored has to look again after an import, not every time the Import page
+    /// changes what it shows. Raised from the thread that finished the import,
+    /// like <see cref="Changed"/>.
+    /// </remarks>
+    public event Action? Completed;
+
     /// <summary>Whether an import is in flight.</summary>
     public bool IsRunning
     {
@@ -81,6 +94,8 @@ public sealed class ImportActivity
 
             Changed?.Invoke();
         }
+
+        Completed?.Invoke();
 
         return true;
     }

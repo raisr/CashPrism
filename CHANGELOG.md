@@ -146,6 +146,9 @@ releases and the minor version is bumped for every notable change.
   them with their licences beside the packages.
 - On a wide screen the navigation collapses to a narrow rail of icons and back,
   for more room on the page. Hovering an icon names its destination.
+- The navigation shows how many bookings are stored beside "Buchungen", and the
+  privacy note says when the last import happened. Both update as soon as an
+  import finishes, without reloading the page.
 
 ### Changed
 
