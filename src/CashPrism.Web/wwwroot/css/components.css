@@ -679,6 +679,138 @@
   pointer-events: none;
 }
 
+/* A row that opens something: a pointer on hover, a ring when it has the
+   keyboard focus. The ring sits inside the row, where the card's clipping
+   cannot cut it off. */
+.cp-table__row {
+  cursor: pointer;
+}
+
+.cp-table__row:focus-visible {
+  outline: none;
+}
+
+.cp-table__row:focus-visible td {
+  box-shadow: inset 0 2px 0 var(--cp-focus), inset 0 -2px 0 var(--cp-focus);
+}
+
+.cp-table__row:focus-visible td:first-child {
+  box-shadow: inset 2px 2px 0 var(--cp-focus), inset 0 -2px 0 var(--cp-focus);
+}
+
+.cp-table__row:focus-visible td:last-child {
+  box-shadow: inset -2px 2px 0 var(--cp-focus), inset 0 -2px 0 var(--cp-focus);
+}
+
+/* ---------- sheet ---------- */
+
+@keyframes cp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cp-sheet-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Above MudBlazor's drawer (1100) and app bar (1300), level with its dialogs. */
+.cp-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  background: var(--cp-scrim);
+  animation: cp-fade-in var(--cp-dur);
+}
+
+/* Floats 12 px from the edges rather than docking to them, so it reads as a
+   panel over the page and not as a second page. */
+.cp-sheet {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1401;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, calc(100vw - 24px));
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-xl);
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow-pop);
+  animation: cp-sheet-in var(--cp-dur-slow) var(--cp-ease-out);
+}
+
+.cp-sheet:focus {
+  outline: none;
+}
+
+.cp-sheet__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--cp-line);
+}
+
+.cp-sheet__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-sheet__subtitle {
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-sheet__body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-sheet,
+  .cp-sheet-scrim {
+    animation: none;
+  }
+}
+
+/* A booking's amount, centred above its details, with its badges beneath. */
+.cp-booking-sheet__amount {
+  padding: 8px 0 24px;
+  text-align: center;
+}
+
+.cp-booking-sheet__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* A list of labels and values, the values set against the end. */
+.cp-kv {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 12px 16px;
+  margin: 0;
+  font-size: var(--cp-fs-small);
+}
+
+.cp-kv dt {
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-kv dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
 /* ---------- badge ---------- */
 
 .cp-badge {

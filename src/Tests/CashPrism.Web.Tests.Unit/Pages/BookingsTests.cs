@@ -4,6 +4,7 @@ using CashPrism.Application.Time;
 using CashPrism.TestSupport.Imports;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.Tests.Unit.Bookings;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -151,6 +152,68 @@ public sealed class BookingsTests
                 new BookingPageRequest(0, 25, BookingSortColumn.BookedOn, Descending: true),
                 Reader.Requests[^1]);
             Assert.NotEmpty(page.FindAll(".cp-table__group"));
+        }
+    }
+
+    public sealed class Open : PageTest
+    {
+        [Fact]
+        public void Opens_The_Sheet_Of_The_Booking_That_Was_Clicked()
+        {
+            Reader.Add(Today, counterparty: "Bäckerei Wendl");
+            Reader.Add(Today, counterparty: "Deutsche Bahn");
+            var page = Context.Render<BookingsPage>();
+
+            page.FindAll("tr.cp-table__row")[1].Click();
+
+            Assert.Equal("Deutsche Bahn", page.Find(".cp-sheet .cp-h2").TextContent);
+        }
+
+        [Fact]
+        public void Opens_The_Sheet_From_The_Keyboard()
+        {
+            Reader.Add(Today, counterparty: "Deutsche Bahn");
+            var page = Context.Render<BookingsPage>();
+
+            page.Find("tr.cp-table__row").KeyDown("Enter");
+
+            Assert.NotNull(page.Find(".cp-sheet"));
+        }
+    }
+
+    public sealed class Close : PageTest
+    {
+        [Fact]
+        public void Closes_The_Sheet_On_Escape()
+        {
+            Reader.Add(Today, counterparty: "Deutsche Bahn");
+            var page = Context.Render<BookingsPage>();
+            page.Find("tr.cp-table__row").Click();
+
+            page.Find(".cp-sheet").KeyDown("Escape");
+
+            Assert.Empty(page.FindAll(".cp-sheet"));
+        }
+
+        [Fact]
+        public void Gives_The_Focus_Back_To_The_Row_The_Sheet_Was_Opened_From()
+        {
+            Reader.Add(Today, counterparty: "Bäckerei Wendl");
+            Reader.Add(Today, counterparty: "Deutsche Bahn");
+            var page = Context.Render<BookingsPage>();
+
+            // bUnit writes a row's reference into the markup only on the render
+            // that creates the row, so it is read before anything re-renders.
+            var clicked = page.FindAll("tr.cp-table__row")[1].GetAttribute("blazor:elementReference");
+            page.FindAll("tr.cp-table__row")[1].Click();
+
+            page.Find(".cp-sheet").KeyDown("Escape");
+
+            // The sheet took the focus when it opened; the second call is the
+            // way back, and it has to land on the row that was clicked.
+            var focus = Context.JSInterop.VerifyFocusAsyncInvoke(calledTimes: 2)[1];
+            var focused = Assert.IsType<ElementReference>(focus.Arguments[0]);
+            Assert.Equal(clicked, focused.Id);
         }
     }
 

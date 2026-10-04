@@ -158,7 +158,11 @@ releases and the minor version is bumped for every notable change.
   such as *Lebensmittel*, *Freizeit & Essen* or *Verträge & Abos*. Bookings are
   grouped by day under *Heute*, *Gestern* or the date. The pager shows page
   numbers and still lets you pick 25, 50 or 100 bookings per page. Clicking a
-  column title a third time brings the grouping by day back.
+  column title a third time brings the grouping by day back. A click on a
+  booking — or Enter on one picked with the keyboard — opens its details in a
+  panel at the side: the amount large, the account, the category, who it went
+  to or came from and the payment reference, with transfers between your own
+  accounts marked as such.
 
 - Amounts in the booking list are written the way the design asks: `€` instead
   of `EUR` for euros (other currencies keep their code, such as `USD`), a real

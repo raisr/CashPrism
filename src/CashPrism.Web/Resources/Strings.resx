@@ -175,6 +175,26 @@
     <value>{0:N0}–{1:N0} von {2:N0} Buchungen</value>
     <comment>Booking list pager: {0} and {1} are the first and the last booking on screen, {2} the total. Keep the three numeric placeholders.</comment>
   </data>
+  <data name="BookingSheetRecipient" xml:space="preserve">
+    <value>Empfänger</value>
+    <comment>Booking sheet: label of the other party when money went out.</comment>
+  </data>
+  <data name="BookingSheetSender" xml:space="preserve">
+    <value>Absender</value>
+    <comment>Booking sheet: label of the other party when money came in.</comment>
+  </data>
+  <data name="BookingSheetReference" xml:space="preserve">
+    <value>Verwendungszweck</value>
+    <comment>Booking sheet: label of the payment reference.</comment>
+  </data>
+  <data name="BookingSheetTransfer" xml:space="preserve">
+    <value>Zwischen deinen Konten</value>
+    <comment>Booking sheet: badge on a transfer between the owner's own accounts.</comment>
+  </data>
+  <data name="SheetClose" xml:space="preserve">
+    <value>Schließen</value>
+    <comment>Accessible name of the button that closes a sheet.</comment>
+  </data>
   <data name="PagerRowsPerPage" xml:space="preserve">
     <value>Zeilen pro Seite</value>
     <comment>Pager: the label of the page size picker.</comment>

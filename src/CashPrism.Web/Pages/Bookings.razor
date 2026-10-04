@@ -63,7 +63,14 @@
                 }
               }
 
-              <tr>
+              @* A row opens the booking's sheet. It takes the focus by Tab and
+                 opens on Enter as well, so the sheet is not a
+                 mouse-only feature. *@
+              <tr class="cp-table__row" tabindex="0"
+                  aria-label="@booking.Counterparty"
+                  @ref="rows[booking.Fingerprint]"
+                  @onclick="() => Open(booking)"
+                  @onkeydown="key => OnRowKeyDown(key, booking)">
                 <td>
                   <div class="cp-party">
                     <CategoryIcon Category="category" />
@@ -94,8 +101,17 @@
   }
 </PageFrame>
 
+<BookingSheet Booking="selected" OnClose="Close" />
+
 @code {
     private Page<Booking>? page;
+
+    // The rows of the page on screen, so the focus can go back to the one
+    // whose sheet was just closed.
+    private readonly Dictionary<string, ElementReference> rows = [];
+
+    private Booking? selected;
+    private string? returnFocusTo;
 
     private int pageIndex;
     private int pageSize = 25;
@@ -119,6 +135,9 @@
             Descending: sortBy is null || descending);
 
         page = await reader.ReadPageAsync(request);
+
+        // A new page renders new rows; references to the old ones are stale.
+        rows.Clear();
     }
 
     private Task GoToPageAsync(int target)
@@ -161,6 +180,38 @@
         pageIndex = 0;
 
         return LoadAsync();
+    }
+
+    private void Open(Booking booking) => selected = booking;
+
+    private void OnRowKeyDown(KeyboardEventArgs key, Booking booking)
+    {
+        if (key.Key == "Enter")
+        {
+            Open(booking);
+        }
+    }
+
+    // The focus goes back to the row the sheet was opened from, so a keyboard
+    // user carries on in the list where they left it. It is moved after the
+    // render that removes the sheet, not before it.
+    private void Close()
+    {
+        returnFocusTo = selected?.Fingerprint;
+        selected = null;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (returnFocusTo is { } fingerprint)
+        {
+            returnFocusTo = null;
+
+            if (rows.TryGetValue(fingerprint, out var row))
+            {
+                await row.FocusAsync();
+            }
+        }
     }
 
     private string DayHeaderOf(Booking booking)
