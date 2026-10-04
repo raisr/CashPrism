@@ -63,4 +63,55 @@ public sealed class MainLayoutTests
             Assert.True(layout.FindComponent<ThemeAttribute>().Instance.IsDarkMode);
         }
     }
+
+    public sealed class ToggleSidebar : IAsyncLifetime
+    {
+        private readonly BunitContext context = new();
+
+        public ToggleSidebar()
+        {
+            context.JSInterop.Mode = JSRuntimeMode.Loose;
+            context.Services.AddLocalization();
+            context.Services.AddMudServices();
+            context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
+        }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        // Asynchronously, because MudBlazor registers services that only
+        // implement IAsyncDisposable.
+        public async Task DisposeAsync() => await context.DisposeAsync();
+
+        [Fact]
+        public void Starts_With_The_Full_Drawer()
+        {
+            var layout = context.Render<MainLayout>();
+
+            Assert.Empty(layout.FindAll(".cp-sidebar--collapsed"));
+            Assert.Empty(layout.FindAll(".mud-layout.cp-shell--rail"));
+        }
+
+        [Fact]
+        public void Collapses_The_Drawer_To_The_Rail()
+        {
+            var layout = context.Render<MainLayout>();
+
+            layout.Find("button[aria-label='Navigation ausblenden']").Click();
+
+            Assert.NotNull(layout.Find(".cp-sidebar--collapsed"));
+            Assert.NotNull(layout.Find(".mud-layout.cp-shell--rail"));
+        }
+
+        [Fact]
+        public void Expands_The_Rail_Back_To_The_Full_Drawer()
+        {
+            var layout = context.Render<MainLayout>();
+            layout.Find("button[aria-label='Navigation ausblenden']").Click();
+
+            layout.Find("button[aria-label='Navigation einblenden']").Click();
+
+            Assert.Empty(layout.FindAll(".cp-sidebar--collapsed"));
+            Assert.Empty(layout.FindAll(".mud-layout.cp-shell--rail"));
+        }
+    }
 }

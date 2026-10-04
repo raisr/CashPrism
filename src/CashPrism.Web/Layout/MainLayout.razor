@@ -17,7 +17,10 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
+@* Collapsing to the icon rail narrows MudBlazor's own drawer width variable on
+   the layout, so the drawer, the app bar and the content beside it all follow
+   one value. The stylesheet applies it only where the drawer is permanent. *@
+<MudLayout Class="@(sidebarCollapsed ? "cp-shell--rail" : null)">
   @* The drawer is not clipped by the app bar, so it runs the full height and
      carries the product name; the app bar beside it names the current page. *@
   <MudAppBar Elevation="0" Color="Color.Surface" Class="cp-topbar">
@@ -51,7 +54,10 @@
              Variant="DrawerVariant.Responsive"
              Breakpoint="Breakpoint.Md"
              Elevation="0">
-    <div class="cp-sidebar">
+    @* Both faces of the drawer are rendered and the stylesheet shows one: the
+       rail exists only where the drawer is permanent, so below the breakpoint
+       the full face shows whatever the collapsed flag says. *@
+    <div class="@(sidebarCollapsed ? "cp-sidebar cp-sidebar--collapsed" : "cp-sidebar")">
       @* "CashPrism" is a product name, so it stays a literal. The second half
          carries the accent — the prism is what splits the light. *@
       <div class="cp-sidebar__brand">
@@ -61,9 +67,17 @@
             <span class="cp-brand__tag">@text["BrandTagline"]</span>
           </span>
         </span>
+        <span class="cp-sidebar__mono" title="CashPrism">C<span>P</span></span>
+        <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-sidebar__toggle"
+                aria-label="@SidebarToggleLabel"
+                title="@SidebarToggleLabel"
+                aria-expanded="@(sidebarCollapsed ? "false" : "true")"
+                @onclick="ToggleSidebar">
+          <CpIcon Name="@(sidebarCollapsed ? "panel-left-open" : "panel-left-close")" />
+        </button>
       </div>
 
-      <NavMenu />
+      <NavMenu Collapsed="sidebarCollapsed" />
 
       <div class="cp-sidebar__foot">
         <div class="cp-privacy">
@@ -71,6 +85,9 @@
           <div class="cp-privacy__text">@text["PrivacyText"]</div>
           <div class="cp-privacy__version">@text["AppVersion", AppVersion.Current]</div>
         </div>
+        <span class="cp-privacy__rail" title="@text["PrivacyTitle"]">
+          <CpIcon Name="lock" Size="16" />
+        </span>
       </div>
     </div>
   </MudDrawer>
@@ -86,6 +103,11 @@
 
 @code {
     private bool drawerOpen = true;
+
+    // Lasts for the session; remembering it across a reload is a separate
+    // concern (issue #92).
+    private bool sidebarCollapsed;
+
     private bool isDarkMode;
     private bool themeChosenByUser;
     private MudThemeProvider? themeProvider;
@@ -123,6 +145,10 @@
     }
 
     private void ToggleDrawer() => drawerOpen = !drawerOpen;
+
+    private void ToggleSidebar() => sidebarCollapsed = !sidebarCollapsed;
+
+    private string SidebarToggleLabel => text[sidebarCollapsed ? "SidebarExpand" : "SidebarCollapse"];
 
     private void ToggleTheme()
     {

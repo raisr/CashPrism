@@ -53,7 +53,9 @@ Links steht die Navigation mit vier Zielen. Auf einem schmalen Bildschirm ist
 sie eingeklappt und öffnet sich über das Menüsymbol oben links. Oben rechts
 wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
 *Import* führt von jeder Seite direkt zum Einlesen. Unten in der Navigation
-steht, welche Version von CashPrism läuft.
+steht, welche Version von CashPrism läuft. Auf einem breiten Bildschirm klappt
+das Symbol neben dem Schriftzug die Navigation zu einer schmalen Leiste aus
+Symbolen ein und wieder auf.
 
 | Ziel | Adresse | Was dort ist |
 |---|---|---|

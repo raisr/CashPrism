@@ -13,13 +13,24 @@
     }
 
     section = item.SectionKey;
+    var label = text[item.TitleKey].Value;
 
+    @* On the rail the label is hidden, so it moves into the tooltip and the
+       accessible name. *@
     <NavLink href="@item.Href"
              class="cp-nav__item"
              ActiveClass="cp-nav__item--on"
+             title="@(Collapsed ? label : null)"
+             aria-label="@(Collapsed ? label : null)"
              Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
       <CpIcon Name="@item.Icon" />
-      <span>@text[item.TitleKey]</span>
+      <span>@label</span>
     </NavLink>
   }
 </nav>
+
+@code {
+    /// <summary>Whether the drawer is collapsed to its icon rail.</summary>
+    [Parameter]
+    public bool Collapsed { get; set; }
+}

@@ -41,6 +41,20 @@ a phone and a large screen rather than two layouts serving one each. The app bar
 follows the same breakpoint: the toggle appears where the drawer folds away, the
 section label where it does not.
 
+Where the drawer is permanent, a quiet button beside the wordmark collapses it
+to a 72 px rail of icons: the wordmark becomes the "CP" monogram, labels move
+into tooltips, section headings become hairlines and the privacy note a lock.
+The choice lasts for the session; remembering it across a reload is issue #92.
+On the rail the toggle is set as a control of its own — as large as the
+monogram, outlined and a step darker — where the design keeps it as quiet as
+beside the full wordmark: without the wordmark next to it, a faint glyph under
+the monogram read as decoration rather than as the way back.
+It is done without a second drawer: MudBlazor sizes the drawer, offsets the app
+bar and indents the content from one variable, `--mud-drawer-width-left`, so the
+layout narrows that variable and all three move together. MudBlazor's own
+`Mini` drawer was tried first and dropped — it showed the drawer beside the
+content on a narrow screen until the circuit was up.
+
 The drawer and the app bar are MudBlazor's, dressed in the design system's
 classes (`cp-sidebar`, `cp-nav`, `cp-topbar`). The design folds the drawer at
 1040 px; MudBlazor's breakpoints are fixed, so it folds at `Md`, 960 px. That

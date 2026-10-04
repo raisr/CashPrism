@@ -40,5 +40,22 @@ public sealed class NavMenuTests
             Assert.Equal("Daten", section.TextContent);
             Assert.Equal("Import", section.NextElementSibling!.TextContent.Trim());
         }
+
+        [Fact]
+        public void Names_Every_Destination_In_Its_Tooltip_On_The_Rail()
+        {
+            var menu = context.Render<NavMenu>(parameters => parameters.Add(p => p.Collapsed, true));
+
+            var titles = menu.FindAll("a.cp-nav__item").Select(link => link.GetAttribute("title"));
+            Assert.Equal(["Übersicht", "Buchungen", "Import", "Importverlauf"], titles);
+        }
+
+        [Fact]
+        public void Leaves_The_Tooltips_Out_On_The_Full_Drawer()
+        {
+            var menu = context.Render<NavMenu>();
+
+            Assert.All(menu.FindAll("a.cp-nav__item"), link => Assert.False(link.HasAttribute("title")));
+        }
     }
 }
