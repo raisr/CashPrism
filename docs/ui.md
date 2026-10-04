@@ -182,7 +182,16 @@ colour from the prism spectrum and a Lucide glyph, used the same way wherever a
 category appears. `Bookings/CategoryStyle.cs` holds the eleven and decides
 which one a booking belongs to; `Components/CategoryIcon.razor` draws the glyph
 on a tile tinted with the colour, and `Components/CategoryBadge.razor` names the
-category on a neutral pill led by a dot in it.
+category on a pill tinted the same way, led by a dot in the full colour.
+
+**The badge is tinted, against the design.** The design draws it as a grey
+pill with a 6 px dot. In the booking list that left the colour barely visible —
+the dot is a sliver of the pill, and the slate of *Sonstiges* and *Umbuchung*
+all but vanishes on grey — so the categories looked alike, although telling
+them apart at a glance is what the colour is for. The pill now takes the
+category colour at 14 % over the surface, as the tile beside it does, so tile
+and badge read as one. The label keeps the text colour: in the category colour,
+amber and cyan on a light ground would not read.
 
 Finanzguru's own catalogue does not line up with the design's, so the mapping
 reads three fields rather than one:
