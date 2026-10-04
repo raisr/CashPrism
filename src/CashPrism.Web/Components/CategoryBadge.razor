@@ -1,0 +1,15 @@
+@using CashPrism.Web.Bookings
+@inject IStringLocalizer<Strings> text
+
+@* A category's name on a neutral pill, led by a dot in the category's colour.
+   The colour stays on the dot: a row of fully tinted pills would compete with
+   the amounts beside them. *@
+<span class="cp-badge cp-badge--category" style="@DotStyle">@text[Category.NameKey]</span>
+
+@code {
+    /// <summary>The category to name, as <see cref="CategoryStyle.For"/> returns it.</summary>
+    [Parameter, EditorRequired]
+    public CategoryStyle Category { get; set; } = CategoryStyle.Other;
+
+    private string DotStyle => $"--c:{Category.Colour}";
+}

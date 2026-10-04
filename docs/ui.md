@@ -174,6 +174,38 @@ CSS and JavaScript are served by the application itself out of the package's
 static web assets, the fonts and the icon font out of CashPrism's own, and
 `HostBootTests` fails when a page or a stylesheet references any other host.
 
+## Categories
+
+The design gives every booking one of eleven categories, each with a fixed
+colour from the prism spectrum and a Lucide glyph, used the same way wherever a
+category appears. `Bookings/CategoryStyle.cs` holds the eleven and decides
+which one a booking belongs to; `Components/CategoryIcon.razor` draws the glyph
+on a tile tinted with the colour, and `Components/CategoryBadge.razor` names the
+category on a neutral pill led by a dot in it.
+
+Finanzguru's own catalogue does not line up with the design's, so the mapping
+reads three fields rather than one:
+
+- **The transfer flag first.** A booking Finanzguru marks as a transfer between
+  the owner's own accounts is *Umbuchung*, whatever category it is filed under —
+  it is neither spending nor income.
+- **Then the sub-category, where the design cuts a main category apart.**
+  Finanzguru keeps groceries and eating out together under `Essen & Trinken`;
+  the design splits them into *Lebensmittel* and *Freizeit & Essen*. It has no
+  main category for subscriptions at all, so mobile, cloud, streaming,
+  membership, internet and broadcasting fees are picked out of `Lifestyle`,
+  `Freizeit` and `Wohnen` into *Verträge & Abos*.
+- **Then the main category**, and *Sonstiges* for everything else — including
+  Finanzguru's finance, children, pets and savings, which have no colour of
+  their own in the design, and any name a later export brings that this version
+  does not know.
+
+Finanzguru's contract flag is not used for *Verträge & Abos*: it marks how a
+booking recurs, not what it pays for, and would put every insurance premium and
+every salary into that category. The names the mapping matches are the ones
+measured in the export, listed in
+[`finanzguru-export.md`](finanzguru-export.md#the-category-catalogue).
+
 ## The booking list
 
 The Buchungen page is the first screen with real data behind it, and the

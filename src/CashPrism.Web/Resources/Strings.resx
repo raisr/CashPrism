@@ -403,6 +403,50 @@
   <data name="MudTablePager_NextPage" xml:space="preserve">
     <value>Nächste Seite</value>
   </data>
+  <data name="CategoryHousing" xml:space="preserve">
+    <value>Wohnen</value>
+    <comment>Name of the design category for rent, utilities and furnishing.</comment>
+  </data>
+  <data name="CategoryMobility" xml:space="preserve">
+    <value>Mobilität</value>
+    <comment>Name of the design category for car, fuel and public transport.</comment>
+  </data>
+  <data name="CategorySubscriptions" xml:space="preserve">
+    <value>Verträge &amp; Abos</value>
+    <comment>Name of the design category for recurring contracts and subscriptions.</comment>
+  </data>
+  <data name="CategoryInsurance" xml:space="preserve">
+    <value>Versicherungen</value>
+    <comment>Name of the design category for insurance.</comment>
+  </data>
+  <data name="CategoryGroceries" xml:space="preserve">
+    <value>Lebensmittel</value>
+    <comment>Name of the design category for groceries.</comment>
+  </data>
+  <data name="CategoryHealth" xml:space="preserve">
+    <value>Gesundheit</value>
+    <comment>Name of the design category for doctors and pharmacies.</comment>
+  </data>
+  <data name="CategoryShopping" xml:space="preserve">
+    <value>Shopping</value>
+    <comment>Name of the design category for things bought.</comment>
+  </data>
+  <data name="CategoryLeisure" xml:space="preserve">
+    <value>Freizeit &amp; Essen</value>
+    <comment>Name of the design category for spare time and eating out.</comment>
+  </data>
+  <data name="CategoryOther" xml:space="preserve">
+    <value>Sonstiges</value>
+    <comment>Name of the design category for everything else.</comment>
+  </data>
+  <data name="CategoryTransfer" xml:space="preserve">
+    <value>Umbuchung</value>
+    <comment>Name of the design category for transfers between the owner's own accounts.</comment>
+  </data>
+  <data name="CategoryIncome" xml:space="preserve">
+    <value>Einkommen</value>
+    <comment>Name of the design category for money coming in.</comment>
+  </data>
   <data name="MudTablePager_PreviousPage" xml:space="preserve">
     <value>Vorherige Seite</value>
   </data>

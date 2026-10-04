@@ -1,0 +1,23 @@
+@using CashPrism.Web.Bookings
+
+@* A category's glyph on a tile tinted with its colour. The colour is handed to
+   the stylesheet as a custom property, so the tint and the glyph are both
+   derived from it there rather than computed here. *@
+<span class="cp-caticon" style="@TileStyle">
+  <CpIcon Name="@Category.Icon" Size="@GlyphSize" />
+</span>
+
+@code {
+    /// <summary>The category to draw, as <see cref="CategoryStyle.For"/> returns it.</summary>
+    [Parameter, EditorRequired]
+    public CategoryStyle Category { get; set; } = CategoryStyle.Other;
+
+    /// <summary>The edge of the square tile in pixels.</summary>
+    [Parameter]
+    public int Size { get; set; } = 36;
+
+    // The design sets the glyph at half the tile.
+    private int GlyphSize => (int)Math.Round(Size * 0.5, MidpointRounding.AwayFromZero);
+
+    private string TileStyle => $"--c:{Category.Colour};width:{Size}px;height:{Size}px";
+}
