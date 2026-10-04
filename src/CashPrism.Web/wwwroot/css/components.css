@@ -1019,6 +1019,16 @@
   }
 }
 
+/* While an import runs, the card with the drop zone stands above the overlay
+   that dims and locks the rest of the page (z-index 9999, set on the
+   MudOverlay in Import.razor). */
+.cp-import-busy {
+  position: relative;
+  z-index: 10000;
+  border-color: var(--cp-primary);
+  box-shadow: var(--cp-shadow-pop), 0 0 0 3px var(--cp-focus);
+}
+
 .cp-import-result {
   margin-top: 16px;
 }

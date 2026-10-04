@@ -153,6 +153,18 @@ public sealed class ImportTests
         }
 
         [Fact]
+        public void Shows_A_Run_Without_New_Bookings_As_A_Plain_Zero()
+        {
+            Runs.Add(Noon, rowsRead: 1047, inserted: 0, updated: 3);
+
+            var page = Context.Render<Import>();
+
+            var cells = page.FindAll(".cp-import-history tbody td");
+            Assert.Empty(page.FindAll(".cp-import-history .cp-badge--success"));
+            Assert.Equal("0", cells[2].TextContent.Trim());
+        }
+
+        [Fact]
         public void Keeps_The_Checksum_On_The_File_Name()
         {
             var run = Runs.Add(Noon);
@@ -203,6 +215,31 @@ public sealed class ImportTests
             Assert.NotNull(page.Find(".cp-dropzone--busy"));
 
             release.SetResult();
+        }
+
+        /// <summary>
+        /// The overlay dims the whole page while an import runs; the card with
+        /// the drop zone is lifted above it, so the spinner is not dimmed with
+        /// everything else.
+        /// </summary>
+        [Fact]
+        public void Lifts_The_Drop_Zone_Above_The_Overlay_Only_While_An_Import_Runs()
+        {
+            var release = new TaskCompletionSource();
+            var activity = Context.Services.GetRequiredService<ImportActivity>();
+            var running = activity.RunAsync(async () =>
+            {
+                await release.Task;
+
+                return new ImportFeedbackMessage(ImportFeedbackSeverity.Info, "fertig", Details: []);
+            });
+            var page = Context.Render<Import>();
+
+            Assert.NotNull(page.Find(".cp-import-busy .cp-dropzone--busy"));
+
+            release.SetResult();
+            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-import-busy")));
+            Assert.True(running.IsCompleted);
         }
 
         /// <summary>
