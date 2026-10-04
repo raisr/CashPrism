@@ -52,13 +52,19 @@ public sealed class CategoryBadgeTests
             Assert.NotEqual(category.NameKey, badge.Find(".cp-badge").TextContent);
         }
 
-        [Fact]
-        public void Colours_The_Dot_With_The_Colour_Of_The_Category()
+        /// <summary>
+        /// The pill's tint and its dot are both drawn by the stylesheet from
+        /// <c>--c</c>, so this is what decides that each category's badge
+        /// carries its own colour.
+        /// </summary>
+        [Theory]
+        [MemberData(nameof(EveryCategory))]
+        public void Hands_The_Pill_The_Colour_It_Is_Tinted_With(CategoryStyle category)
         {
             var badge = context.Render<CategoryBadge>(parameters => parameters
-                .Add(p => p.Category, CategoryStyle.Subscriptions));
+                .Add(p => p.Category, category));
 
-            Assert.Equal("--c:var(--cp-prism-cyan)", badge.Find(".cp-badge--category").GetAttribute("style"));
+            Assert.Equal($"--c:{category.Colour}", badge.Find(".cp-badge--category").GetAttribute("style"));
         }
     }
 }

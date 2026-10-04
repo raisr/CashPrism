@@ -858,12 +858,20 @@
   white-space: nowrap;
 }
 
-/* A category's badge: neutral, led by a dot in the colour the component hands
-   over as --c. */
+/* A category's badge, tinted in the colour the component hands over as --c —
+   the same 14 % the category tile beside it uses — and led by a dot in the full
+   colour. The label keeps the text colour: in the category colour, amber and
+   cyan on a light ground would not read. The design keeps the pill grey with a
+   6 px dot; in a list that left the categories looking alike. */
+.cp-badge--category {
+  background: color-mix(in srgb, var(--c) 14%, var(--cp-surface));
+  color: var(--cp-text);
+}
+
 .cp-badge--category::before {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--c);
 }
