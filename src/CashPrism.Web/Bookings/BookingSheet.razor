@@ -1,0 +1,73 @@
+@using CashPrism.Application.Time
+@using CashPrism.Domain.Bookings
+@inject IStringLocalizer<Strings> text
+@inject IClock clock
+
+@* One booking in full: what the list can only hint at in a row. Only what is
+   stored today — the design's earlier bookings at the same party, the
+   recurring badge, the booking type and the buttons to recategorise or hide
+   need queries and features that do not exist yet. *@
+<Sheet Open="Booking is not null"
+       Title="@(Booking?.Counterparty ?? string.Empty)"
+       Subtitle="@DayLabel"
+       OnClose="OnClose">
+  <Leading>
+    @if (Booking is not null)
+    {
+      <CategoryIcon Category="Category" Size="44" />
+    }
+  </Leading>
+  <ChildContent>
+    @if (Booking is { } booking)
+    {
+      <div class="cp-booking-sheet__amount">
+        <Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" Large="true" />
+        @if (booking.IsTransfer)
+        {
+          <div class="cp-booking-sheet__badges">
+            <span class="cp-badge"><CpIcon Name="arrow-left-right" Size="13" />@text["BookingSheetTransfer"]</span>
+          </div>
+        }
+      </div>
+      <dl class="cp-kv">
+        <dt>@text["BookingsColumnDate"]</dt>
+        <dd>@BookingFormat.Date(booking.BookedOn)</dd>
+        <dt>@text["BookingsColumnAccount"]</dt>
+        <dd>@booking.AccountName</dd>
+        <dt>@text["BookingsColumnCategory"]</dt>
+        <dd>@text[Category.NameKey]</dd>
+        @* Who the money went to, or who it came from — the sign decides. *@
+        <dt>@text[booking.AmountInCents < 0 ? "BookingSheetRecipient" : "BookingSheetSender"]</dt>
+        <dd>@booking.Counterparty</dd>
+        @if (!string.IsNullOrWhiteSpace(booking.PaymentReference))
+        {
+          <dt>@text["BookingSheetReference"]</dt>
+          <dd>@booking.PaymentReference</dd>
+        }
+      </dl>
+    }
+  </ChildContent>
+</Sheet>
+
+@code {
+    /// <summary>The booking to show, or <c>null</c> to keep the sheet closed.</summary>
+    [Parameter]
+    public Booking? Booking { get; set; }
+
+    /// <summary>Raised when the person asks to close the sheet.</summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private CategoryStyle Category => Booking is { } booking
+        ? CategoryStyle.For(booking.Category, booking.SubCategory, booking.IsTransfer)
+        : CategoryStyle.Other;
+
+    // The same day label the list groups the booking under.
+    private string? DayLabel => Booking is { } booking
+        ? BookingFormat.DayHeader(
+            booking.BookedOn,
+            DateOnly.FromDateTime(clock.UtcNow.LocalDateTime),
+            text["BookingsToday"],
+            text["BookingsYesterday"])
+        : null;
+}

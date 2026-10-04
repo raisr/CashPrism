@@ -169,6 +169,13 @@ vorigen und nächsten Seite. Unter *Zeilen pro Seite* lassen sich 25, 50 oder
 100 Buchungen pro Seite wählen. Alle auf einmal anzuzeigen ist bewusst nicht
 vorgesehen.
 
+**Details einer Buchung:** Ein Klick auf eine Buchung öffnet rechts ein Fenster
+mit allen gespeicherten Angaben: Betrag, Datum, Konto, Kategorie, Empfänger
+oder Absender und Verwendungszweck. Umbuchungen zwischen deinen eigenen Konten
+sind dort als *Zwischen deinen Konten* markiert. Mit der Tastatur geht es
+ebenso: Mit Tab zur Buchung, mit Enter öffnen. Esc, das Kreuz oben rechts oder
+ein Klick neben das Fenster schließen es wieder.
+
 **Filtern und Suchen gibt es noch nicht.** Die Liste lässt sich weder nach
 Konto, Kategorie oder Zeitraum filtern noch nach einem Text durchsuchen.
 

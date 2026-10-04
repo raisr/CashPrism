@@ -41,7 +41,8 @@ public sealed class FakeBookingReader : IBookingReader
         long amountInCents = -4318,
         string counterparty = "Bäckerei",
         string category = "Essen & Trinken",
-        string subCategory = "Lebensmittel")
+        string subCategory = "Lebensmittel",
+        bool isTransfer = false)
     {
         var booking = new Booking(
             fingerprint: Guid.NewGuid().ToString("N"),
@@ -55,7 +56,7 @@ public sealed class FakeBookingReader : IBookingReader
             paymentReference: "Kartenzahlung",
             category: category,
             subCategory: subCategory,
-            isTransfer: false,
+            isTransfer: isTransfer,
             splitRole: SplitRole.None,
             originalFingerprint: null,
             sourceImportRunId: Guid.NewGuid());

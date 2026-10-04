@@ -1,0 +1,80 @@
+@inject IStringLocalizer<Strings> text
+
+@* A panel that slides in from the end of the screen over a dimmed page, for
+   the details of one thing without leaving the list it was picked from. Esc,
+   the close button and a click on the dimmed page all close it; where the
+   focus goes then is the opener's business, because only it knows what was
+   picked. *@
+@if (Open)
+{
+  <div class="cp-sheet-scrim" @onclick="CloseAsync"></div>
+  <aside class="cp-sheet" role="dialog" aria-modal="true" aria-labelledby="@titleId"
+         tabindex="-1" @ref="sheet" @onkeydown="OnKeyDownAsync">
+    <header class="cp-sheet__head">
+      @Leading
+      <div class="cp-sheet__title">
+        <div class="cp-h2" id="@titleId">@Title</div>
+        @if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+          <div class="cp-sheet__subtitle">@Subtitle</div>
+        }
+      </div>
+      <button type="button" class="cp-iconbtn" aria-label="@text["SheetClose"]" @onclick="CloseAsync">
+        <CpIcon Name="x" />
+      </button>
+    </header>
+    <div class="cp-sheet__body">@ChildContent</div>
+  </aside>
+}
+
+@code {
+    // One id per instance, so two sheets on a page would not label each other.
+    private readonly string titleId = $"cp-sheet-{Guid.NewGuid():N}";
+
+    private ElementReference sheet;
+    private bool focused;
+
+    /// <summary>Whether the sheet is shown.</summary>
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>The heading, already localised.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>A line under the heading.</summary>
+    [Parameter]
+    public string? Subtitle { get; set; }
+
+    /// <summary>What stands before the heading, usually an icon tile.</summary>
+    [Parameter]
+    public RenderFragment? Leading { get; set; }
+
+    /// <summary>The body.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Raised when the person asks to close the sheet.</summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    // The focus moves into the sheet once it opens, so Esc reaches it at once
+    // and a screen reader announces the dialog.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Open && !focused)
+        {
+            focused = true;
+            await sheet.FocusAsync();
+        }
+        else if (!Open)
+        {
+            focused = false;
+        }
+    }
+
+    private Task CloseAsync() => OnClose.InvokeAsync();
+
+    private Task OnKeyDownAsync(KeyboardEventArgs key)
+        => key.Key == "Escape" ? CloseAsync() : Task.CompletedTask;
+}

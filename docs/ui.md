@@ -272,6 +272,30 @@ cents faded so the euros are read first.
 An empty database gets the message and a button to the upload page rather than
 a table of nothing with a pager counting to zero.
 
+### The booking sheet
+
+A click on a row — or Enter on a row that has the keyboard focus — opens the
+booking in a sheet: `Components/Sheet.razor`, a panel that slides in from the
+end of the screen over a dimmed page, filled by `Bookings/BookingSheet.razor`.
+It shows the booking the way the list can only hint at: the category tile, the
+party and the day in the head, the amount large with its cents faded, a badge
+when Finanzguru marks the booking as a transfer between the owner's own
+accounts, and the date, account, category, party and payment reference as a
+list. The party is labelled *Empfänger* or *Absender* by the sign of the
+amount.
+
+Only what is stored today is shown. The design's booking type badge reads a
+column the import does not keep yet, and its recurring badge, the earlier
+bookings at the same party and the buttons to recategorise or hide a booking
+need queries and features that do not exist yet.
+
+The focus is the one part that needs care. The sheet takes it when it opens,
+so Esc reaches it at once and a screen reader announces the dialog. Esc, the
+close button and a click on the dimmed page close it, and the focus goes back
+to the row it was opened from — a keyboard user carries on in the list where
+they left it, rather than at the top of the page. Both moves use Blazor's own
+`FocusAsync`; no script of ours is involved.
+
 ## The list of past imports
 
 The Importverlauf page shows what was read and when: the time of the run, the
