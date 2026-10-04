@@ -107,10 +107,6 @@
     <value>Import</value>
     <comment>Drawer label and page heading of the upload page.</comment>
   </data>
-  <data name="NavImportRuns" xml:space="preserve">
-    <value>Importverlauf</value>
-    <comment>Drawer label and page heading of the list of past imports.</comment>
-  </data>
   <data name="NavigationToggle" xml:space="preserve">
     <value>Navigation ein- oder ausblenden</value>
     <comment>Accessible name of the button that opens and closes the drawer.</comment>
@@ -208,79 +204,111 @@
     <comment>Pager: accessible name of the button to the page after.</comment>
   </data>
   <data name="ImportLead" xml:space="preserve">
-    <value>Finanzguru-Export einlesen.</value>
-    <comment>One line under the heading of the upload page.</comment>
+    <value>Hol deine neuesten Buchungen aus Finanzguru. Jeder Import ergänzt, was schon da ist – nichts geht verloren.</value>
+    <comment>One line under the heading of the import page.</comment>
   </data>
-  <data name="ImportPick" xml:space="preserve">
-    <value>Export auswählen</value>
-    <comment>Label of the button that opens the file picker on the upload page.</comment>
+  <data name="ImportDropTitle" xml:space="preserve">
+    <value>Finanzguru-Export hierher ziehen</value>
+    <comment>Import page: the headline of the drop zone, and the accessible name of its file input.</comment>
   </data>
-  <data name="ImportHint" xml:space="preserve">
-    <value>Eine .xlsx-Datei aus Finanzguru, Export „Alle Buchungen“.</value>
-    <comment>One line under the file picker saying which file is expected.</comment>
-  </data>
-  <data name="ImportRunsLead" xml:space="preserve">
-    <value>Was wann eingelesen wurde.</value>
-    <comment>One line under the heading of the list of past imports.</comment>
-  </data>
-  <data name="ImportRunsEmpty" xml:space="preserve">
-    <value>Es wurde noch nichts importiert.</value>
-    <comment>Shown on the list of past imports while the database holds no runs.</comment>
-  </data>
-  <data name="ImportRunsEmptyHint" xml:space="preserve">
-    <value>Lade einen Finanzguru-Export hoch, um anzufangen.</value>
-    <comment>Second line under ImportRunsEmpty, pointing at the upload page.</comment>
-  </data>
-  <data name="ImportRunsColumnImportedAt" xml:space="preserve">
-    <value>Zeitpunkt</value>
-    <comment>Import runs column: when the run processed the file.</comment>
-  </data>
-  <data name="ImportRunsColumnFile" xml:space="preserve">
-    <value>Datei</value>
-    <comment>Import runs column: the name of the imported file.</comment>
-  </data>
-  <data name="ImportRunsColumnExportedOn" xml:space="preserve">
-    <value>Exportdatum</value>
-    <comment>Import runs column: the date the export was taken, read from the sheet name.</comment>
-  </data>
-  <data name="ImportRunsNoExportDate" xml:space="preserve">
-    <value>unbekannt</value>
-    <comment>Shown in the Exportdatum column when the sheet name carried no readable date.</comment>
-  </data>
-  <data name="ImportRunsColumnHash" xml:space="preserve">
-    <value>Prüfsumme</value>
-    <comment>Import runs column: the hash over the imported file, shortened. The full value is the cell title.</comment>
-  </data>
-  <data name="ImportRunsColumnRowsRead" xml:space="preserve">
-    <value>Zeilen</value>
-    <comment>Import runs column: how many data rows the export carried.</comment>
-  </data>
-  <data name="ImportRunsColumnInserted" xml:space="preserve">
-    <value>Neu</value>
-    <comment>Import runs column: how many bookings the run stored for the first time.</comment>
-  </data>
-  <data name="ImportRunsColumnUpdated" xml:space="preserve">
-    <value>Aktualisiert</value>
-    <comment>Import runs column: how many known bookings the run replaced with a later state.</comment>
-  </data>
-  <data name="ImportRunsColumnUnchanged" xml:space="preserve">
-    <value>Unverändert</value>
-    <comment>Import runs column: how many rows said nothing the stored booking did not already say.</comment>
+  <data name="ImportDropHint" xml:space="preserve">
+    <value>oder klicken, um eine .xlsx-Datei auszuwählen</value>
+    <comment>Import page: the line under the drop zone's headline.</comment>
   </data>
   <data name="ImportRunning" xml:space="preserve">
-    <value>Import läuft …</value>
-    <comment>Shown while the file is being read and stored.</comment>
+    <value>Wird eingelesen …</value>
+    <comment>Shown in the drop zone while the file is being read and stored.</comment>
+  </data>
+  <data name="ImportRunningHint" xml:space="preserve">
+    <value>Das dauert ein paar Sekunden.</value>
+    <comment>The line under "Wird eingelesen …".</comment>
+  </data>
+  <data name="ImportStepsTitle" xml:space="preserve">
+    <value>So geht’s</value>
+    <comment>Import page: the heading of the card with the three steps.</comment>
+  </data>
+  <data name="ImportStep1Title" xml:space="preserve">
+    <value>1. Finanzguru öffnen</value>
+    <comment>Import page, first step.</comment>
+  </data>
+  <data name="ImportStep1Hint" xml:space="preserve">
+    <value>In der App unter Profil → Datenexport.</value>
+    <comment>Import page, first step: where the export is found.</comment>
+  </data>
+  <data name="ImportStep2Title" xml:space="preserve">
+    <value>2. „Alle Buchungen“ exportieren</value>
+    <comment>Import page, second step.</comment>
+  </data>
+  <data name="ImportStep2Hint" xml:space="preserve">
+    <value>Als Excel-Datei (.xlsx) speichern oder dir selbst schicken.</value>
+    <comment>Import page, second step: what to do with the export.</comment>
+  </data>
+  <data name="ImportStep3Title" xml:space="preserve">
+    <value>3. Hier ablegen</value>
+    <comment>Import page, third step.</comment>
+  </data>
+  <data name="ImportStep3Hint" xml:space="preserve">
+    <value>CashPrism liest nur Neues ein. Doppeltes wird erkannt.</value>
+    <comment>Import page, third step: what the import does with it.</comment>
+  </data>
+  <data name="ImportHistoryTitle" xml:space="preserve">
+    <value>Bisherige Importe</value>
+    <comment>Import page: the heading of the list of past imports.</comment>
+  </data>
+  <data name="ImportHistoryLead" xml:space="preserve">
+    <value>Was wann eingelesen wurde</value>
+    <comment>Import page: the line under the heading of the list of past imports.</comment>
+  </data>
+  <data name="ImportHistoryColumnFile" xml:space="preserve">
+    <value>Datei</value>
+    <comment>Past imports column: the file name and the day the export was taken.</comment>
+  </data>
+  <data name="ImportHistoryColumnImportedAt" xml:space="preserve">
+    <value>Eingelesen</value>
+    <comment>Past imports column: when the file was read.</comment>
+  </data>
+  <data name="ImportHistoryColumnInserted" xml:space="preserve">
+    <value>Neu</value>
+    <comment>Past imports column: how many bookings the run added.</comment>
+  </data>
+  <data name="ImportHistoryColumnUpdated" xml:space="preserve">
+    <value>Aktualisiert</value>
+    <comment>Past imports column: how many stored bookings the run updated.</comment>
+  </data>
+  <data name="ImportHistoryColumnRowsRead" xml:space="preserve">
+    <value>Zeilen gesamt</value>
+    <comment>Past imports column: how many rows the file held.</comment>
+  </data>
+  <data name="ImportHistoryExportedOn" xml:space="preserve">
+    <value>Exportiert am {0}</value>
+    <comment>Past imports: under the file name. {0} is the day the export was taken.</comment>
+  </data>
+  <data name="ImportHistoryExportedOnUnknown" xml:space="preserve">
+    <value>Exportiert – Datum unbekannt</value>
+    <comment>Past imports: under the file name, when the sheet name carried no date this version can read.</comment>
+  </data>
+  <data name="ImportHistoryPagerInfo" xml:space="preserve">
+    <value>{0:N0}–{1:N0} von {2:N0} Importen</value>
+    <comment>Past imports pager: {0} and {1} are the first and the last run on screen, {2} the total. Keep the three numeric placeholders.</comment>
   </data>
   <data name="ImportSucceeded" xml:space="preserve">
-    <value>Import abgeschlossen.</value>
-    <comment>Headline after a file was read and its rows applied.</comment>
+    <value>Fertig! {0:N0} neue Buchungen sind da.</value>
+    <comment>Headline after a file was read and its rows applied. {0} is the number of new bookings, at least one.</comment>
+  </data>
+  <data name="ImportSucceededNothingNew" xml:space="preserve">
+    <value>Fertig! Keine neuen Buchungen.</value>
+    <comment>Headline after a file was read that brought no new booking, only updates or nothing.</comment>
+  </data>
+  <data name="ImportAlreadyImportedHint" xml:space="preserve">
+    <value>Sie wurde bereits eingelesen – es hat sich nichts geändert.</value>
+    <comment>The line under the headline when the file hash matches an earlier run.</comment>
   </data>
   <data name="ImportAlreadyImported" xml:space="preserve">
-    <value>Diese Datei wurde bereits importiert – es hat sich nichts geändert.</value>
+    <value>Diese Datei kennen wir schon</value>
     <comment>Headline when the file hash matches an earlier run. Not an error.</comment>
   </data>
   <data name="ImportFailed" xml:space="preserve">
-    <value>Die Datei wurde nicht importiert.</value>
+    <value>Das ist keine Finanzguru-Datei</value>
     <comment>Headline when the file could not be read. The reasons follow as details.</comment>
   </data>
   <data name="ImportUnreadable" xml:space="preserve">

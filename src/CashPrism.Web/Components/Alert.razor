@@ -1,0 +1,44 @@
+@* A message tinted with its tone: a headline, and beneath it a line or a list
+   of lines. Announced to a screen reader as it appears. *@
+<div role="status" class="@($"cp-alert cp-alert--{Tone.ToString().ToLowerInvariant()}")">
+  <CpIcon Name="@Glyph" />
+  <div class="cp-alert__content">
+    <div class="cp-alert__title">@Title</div>
+    @* One line is a sentence; only several are a list. *@
+    @if (Details.Count == 1)
+    {
+      <p class="cp-alert__body cp-alert__body--text">@Details[0]</p>
+    }
+    else if (Details.Count > 1)
+    {
+      <ul class="cp-alert__body">
+        @foreach (var detail in Details)
+        {
+          <li>@detail</li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+
+@code {
+    /// <summary>What the message is: good news, a note, a warning or a refusal.</summary>
+    [Parameter]
+    public AlertTone Tone { get; set; } = AlertTone.Info;
+
+    /// <summary>The headline, already localised.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>The lines beneath the headline, already localised.</summary>
+    [Parameter]
+    public IReadOnlyList<string> Details { get; set; } = [];
+
+    private string Glyph => Tone switch
+    {
+        AlertTone.Success => "circle-check",
+        AlertTone.Warning => "triangle-alert",
+        AlertTone.Danger => "circle-alert",
+        _ => "info",
+    };
+}

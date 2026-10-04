@@ -25,45 +25,15 @@
 
 /* A column of dates and a column of amounts that line up digit under digit:
    Manrope's tabular figures give every digit the same width, so the text face
-   can do this without switching to a monospace one.
-
-   The second selector carries MudBlazor's own classes because inside a
-   MudDataGrid it has to out-specify `.mud-table-root .mud-table-body
-   .mud-table-cell`, which sets the body font on every cell of every table. */
-.cp-figure,
-.mud-table-root .mud-table-body .mud-table-cell.cp-figure {
+   can do this without switching to a monospace one. */
+.cp-figure {
   font-family: var(--cp-font-figures);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-/* A string that is read character by character rather than as a word — a
-   checksum, an IBAN, a file name — in the monospace face. Slightly smaller,
-   because a monospace face sets larger than the text around it. */
-.cp-mono {
-  font-family: var(--cp-font-mono);
-  font-size: 0.92em;
 }
 
 /* A figure is read by its last digit, so a column of them is set against the
    end of the cell — amounts and counts alike. */
 .cp-cell-end {
   text-align: end;
-}
-
-/* A payment reference is whatever the bank sent — sometimes a word, sometimes a
-   hundred characters of reference numbers. Clamped so one row cannot push the
-   amount off the screen; the whole text stays in the cell's title. */
-.cp-reference {
-  display: block;
-  max-width: 22rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (max-width: 599px) {
-  .cp-reference {
-    max-width: 10rem;
-  }
 }

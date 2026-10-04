@@ -75,7 +75,7 @@ public static class ImportFeedback
             ImportOutcome.AlreadyImported => new ImportFeedbackMessage(
                 ImportFeedbackSeverity.Info,
                 text["ImportAlreadyImported"],
-                Details: []),
+                Details: [text["ImportAlreadyImportedHint"]]),
             ImportOutcome.Failed => Failed(result, text),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(result),
@@ -131,7 +131,13 @@ public static class ImportFeedback
             details.Add(text["ImportUnknownColumns", string.Join(", ", result.UnknownColumns)]);
         }
 
-        return new ImportFeedbackMessage(ImportFeedbackSeverity.Success, text["ImportSucceeded"], details);
+        // "Fertig! 0 neue Buchungen sind da." reads like a mistake; an export
+        // that only updated bookings, or changed nothing at all, says so instead.
+        var headline = result.BookingsInserted > 0
+            ? text["ImportSucceeded", result.BookingsInserted]
+            : text["ImportSucceededNothingNew"];
+
+        return new ImportFeedbackMessage(ImportFeedbackSeverity.Success, headline, details);
     }
 
     private static string Megabytes(long bytes)

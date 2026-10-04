@@ -61,31 +61,34 @@ Symbolen ein und wieder auf.
 |---|---|---|
 | Übersicht | `/` | Noch nichts außer einem Hinweis und dem Weg zum Import |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
-| Import | `/import` | Einen Finanzguru-Export einlesen |
-| Importverlauf | `/imports` | Welche Datei wann eingelesen wurde |
+| Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 
-Solange nichts importiert ist, zeigen *Buchungen* und *Importverlauf* statt
-einer leeren Tabelle einen Hinweis und eine Schaltfläche zur Seite *Import*.
+Solange nichts importiert ist, zeigt *Buchungen* statt einer leeren Tabelle
+einen Hinweis und eine Schaltfläche zur Seite *Import*.
 
 ## Einen Export importieren
 
 CashPrism liest den Finanzguru-Export „Alle Buchungen“ als `.xlsx`-Datei.
 
 1. *Import* öffnen.
-2. *Export auswählen* klicken und die Datei wählen.
-3. Warten, bis *Import läuft …* verschwindet. Bei einigen tausend Buchungen
+2. Die Datei auf die Fläche *Finanzguru-Export hierher ziehen* ziehen — oder
+   auf die Fläche klicken und die Datei wählen.
+3. Warten, bis *Wird eingelesen …* verschwindet. Bei einigen tausend Buchungen
    dauert das wenige Sekunden.
 
-Während der Import läuft, liegt eine Abdeckung über der Seite: Die Navigation
-ist nicht erreichbar, und ein zweiter Import lässt sich nicht starten.
+Neben der Fläche steht unter *So geht’s*, wo Finanzguru den Export anbietet.
+
+Während der Import läuft, ist die Seite abgedunkelt: Die Navigation ist nicht
+erreichbar, und ein zweiter Import lässt sich nicht starten.
 
 Dateien über 64 MB liest CashPrism nicht ein. Ein Finanzguru-Export ist weit
 kleiner.
 
 ### Was die vier Zahlen bedeuten
 
-Nach einem erfolgreichen Import meldet die Seite *Import abgeschlossen.* und
-vier Zahlen:
+Nach einem erfolgreichen Import meldet die Seite *Fertig! … neue Buchungen sind
+da.* — oder *Fertig! Keine neuen Buchungen.*, wenn der Export nichts Neues
+enthielt — und darunter vier Zahlen:
 
 | Zahl | Bedeutet |
 |---|---|
@@ -114,14 +117,14 @@ und diese Version von CashPrism die genannten Spalten noch nicht kennt.
 ### Dieselbe Datei zweimal
 
 Wird eine Datei importiert, die schon einmal eingelesen wurde, meldet CashPrism
-*Diese Datei wurde bereits importiert – es hat sich nichts geändert.* Dabei
-wird nichts gespeichert, und im Importverlauf erscheint kein neuer Eintrag.
+*Diese Datei kennen wir schon*. Dabei wird nichts gespeichert, und unter
+*Bisherige Importe* erscheint kein neuer Eintrag.
 CashPrism erkennt die Datei an ihrem Inhalt, nicht am Namen: Eine umbenannte
 Kopie gilt als dieselbe Datei.
 
 ### Wenn eine Datei abgelehnt wird
 
-Passt eine Datei nicht, meldet die Seite *Die Datei wurde nicht importiert.* und
+Passt eine Datei nicht, meldet die Seite *Das ist keine Finanzguru-Datei* und
 nennt darunter die Gründe — etwa eine fehlende Spalte, eine leere Pflichtzelle
 oder einen Wert, der kein Datum ist, jeweils mit Spalte und Zeile. Abgelehnt
 wird die ganze Datei; es wird nichts davon gespeichert.
@@ -179,18 +182,19 @@ ein Klick neben das Fenster schließen es wieder.
 **Filtern und Suchen gibt es noch nicht.** Die Liste lässt sich weder nach
 Konto, Kategorie oder Zeitraum filtern noch nach einem Text durchsuchen.
 
-## Der Importverlauf
+## Bisherige Importe
 
-*Importverlauf* listet jeden Import, der etwas eingelesen hat, die neuesten
-oben. Die Reihenfolge ist fest; die Spalten lassen sich nicht sortieren.
+Unter der Fläche zum Einlesen listet *Bisherige Importe* jeden Import, der
+etwas eingelesen hat, die neuesten oben. Vor dem ersten Import fehlt die Liste.
+Die Reihenfolge ist fest; die Spalten lassen sich nicht sortieren.
 
 | Spalte | Enthält |
 |---|---|
-| Zeitpunkt | Wann importiert wurde |
-| Datei | Der Dateiname beim Hochladen. Lange Namen werden abgeschnitten; der ganze Name erscheint, wenn der Mauszeiger darauf ruht |
-| Exportdatum | Wann Finanzguru die Datei erzeugt hat, gelesen aus dem Namen des Tabellenblatts. *unbekannt*, wenn der Name kein Datum enthielt |
-| Prüfsumme | Die ersten zwölf Zeichen der Prüfsumme der Datei. Die vollständige erscheint, wenn der Mauszeiger darauf ruht |
-| Zeilen, Neu, Aktualisiert, Unverändert | Die vier Zahlen, die der Import gemeldet hat — siehe [oben](#was-die-vier-zahlen-bedeuten) |
+| Datei | Der Dateiname beim Hochladen und darunter, wann Finanzguru die Datei erzeugt hat — gelesen aus dem Namen des Tabellenblatts, *Datum unbekannt*, wenn der Name kein Datum enthielt. Ruht der Mauszeiger auf dem Namen, erscheint die Prüfsumme der Datei |
+| Eingelesen | Wann importiert wurde |
+| Neu | Wie viele Buchungen der Import neu gespeichert hat |
+| Aktualisiert | Wie viele gespeicherte Buchungen er durch einen neueren Stand ersetzt hat |
+| Zeilen gesamt | Wie viele Buchungszeilen die Datei enthielt |
 
 Abgelehnte Dateien und Dateien, die schon einmal importiert waren, erscheinen
 hier nicht: Sie haben nichts eingelesen. Einträge lassen sich weder löschen

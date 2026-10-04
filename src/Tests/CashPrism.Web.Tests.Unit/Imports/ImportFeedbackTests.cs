@@ -97,12 +97,30 @@ public sealed class ImportFeedbackTests
         }
 
         [Fact]
+        public void Counts_The_New_Bookings_In_The_Headline()
+        {
+            var message = ImportFeedback.Describe(Imported(inserted: 46), Text());
+
+            Assert.Equal("Fertig! 46 neue Buchungen sind da.", message.Headline);
+        }
+
+        [Fact]
+        public void Says_So_When_An_Import_Brought_No_New_Booking()
+        {
+            var message = ImportFeedback.Describe(Imported(inserted: 0, updated: 3), Text());
+
+            Assert.Equal(ImportFeedbackSeverity.Success, message.Severity);
+            Assert.Equal("Fertig! Keine neuen Buchungen.", message.Headline);
+        }
+
+        [Fact]
         public void Reports_A_File_That_Was_Already_Imported_As_Information()
         {
             var message = ImportFeedback.Describe(ImportResult.AlreadyImported(Guid.NewGuid()), Text());
 
             Assert.Equal(ImportFeedbackSeverity.Info, message.Severity);
-            Assert.Empty(message.Details);
+            Assert.Equal("Diese Datei kennen wir schon", message.Headline);
+            Assert.Equal(["Sie wurde bereits eingelesen – es hat sich nichts geändert."], message.Details);
         }
 
         [Fact]
@@ -111,6 +129,7 @@ public sealed class ImportFeedbackTests
             var message = ImportFeedback.Describe(ImportResult.Failed([ImportError.NoWorksheet()]), Text());
 
             Assert.Equal(ImportFeedbackSeverity.Error, message.Severity);
+            Assert.Equal("Das ist keine Finanzguru-Datei", message.Headline);
         }
 
         [Fact]
@@ -187,6 +206,7 @@ public sealed class ImportFeedbackTests
             var headlines = new (string Key, string Headline)[]
             {
                 ("ImportSucceeded", ImportFeedback.Describe(Imported(), Text()).Headline),
+                ("ImportSucceededNothingNew", ImportFeedback.Describe(Imported(inserted: 0), Text()).Headline),
                 ("ImportAlreadyImported",
                     ImportFeedback.Describe(ImportResult.AlreadyImported(Guid.NewGuid()), Text()).Headline),
                 ("ImportFailed", ImportFeedback.Describe(ImportResult.Failed([ImportError.NoWorksheet()]), Text()).Headline),

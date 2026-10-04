@@ -1,0 +1,30 @@
+@* A glyph on a tile tinted with a colour: a category beside a booking, a file
+   beside an import, a step in a how-to. The colour is handed to the
+   stylesheet as a custom property, so the tint and the glyph are both
+   derived from it there rather than computed here. *@
+<span class="@(Round ? "cp-caticon cp-caticon--round" : "cp-caticon")" style="@TileStyle">
+  <CpIcon Name="@Icon" Size="@GlyphSize" />
+</span>
+
+@code {
+    /// <summary>The Lucide name of the glyph.</summary>
+    [Parameter, EditorRequired]
+    public string Icon { get; set; } = string.Empty;
+
+    /// <summary>A CSS colour, usually one of the design system's custom properties.</summary>
+    [Parameter, EditorRequired]
+    public string Colour { get; set; } = string.Empty;
+
+    /// <summary>The edge of the tile in pixels.</summary>
+    [Parameter]
+    public int Size { get; set; } = 36;
+
+    /// <summary>A circle rather than a rounded square.</summary>
+    [Parameter]
+    public bool Round { get; set; }
+
+    // The design sets the glyph at half the tile.
+    private int GlyphSize => (int)Math.Round(Size * 0.5, MidpointRounding.AwayFromZero);
+
+    private string TileStyle => $"--c:{Colour};width:{Size}px;height:{Size}px";
+}
