@@ -20,3 +20,383 @@
   -webkit-font-smoothing: antialiased;
   speak: never;
 }
+
+/* ---------- type helpers (design/tokens/base.css) ---------- */
+
+.cp-h1 {
+  margin: 0;
+  font-size: var(--cp-fs-h1);
+  line-height: var(--cp-lh-h1);
+  font-weight: var(--cp-fw-h1);
+  letter-spacing: var(--cp-ls-h1);
+  color: var(--cp-text);
+}
+
+.cp-h2 {
+  margin: 0;
+  font-size: var(--cp-fs-h2);
+  line-height: var(--cp-lh-h2);
+  font-weight: var(--cp-fw-h2);
+  letter-spacing: var(--cp-ls-h2);
+  color: var(--cp-text);
+}
+
+.cp-label {
+  font-size: var(--cp-fs-label);
+  font-weight: var(--cp-fw-label);
+  letter-spacing: var(--cp-ls-label);
+  text-transform: uppercase;
+  color: var(--cp-text-3);
+}
+
+/* ---------- button ---------- */
+
+/* Sizes and the press nudge on top of MudButton; MudBlazor's palette already
+   supplies the colours, the radius and the weight through the theme. The gap
+   goes on the label, because that is the element MudButton puts the icon and
+   the text into. */
+.mud-button-root.cp-btn {
+  height: var(--cp-control-height);
+  padding: 0 16px;
+  letter-spacing: -0.005em;
+  box-shadow: var(--cp-shadow-button);
+  transition: background-color var(--cp-dur-fast) var(--cp-ease), transform var(--cp-dur-fast) var(--cp-ease);
+}
+
+.mud-button-root.cp-btn .mud-button-label {
+  gap: 8px;
+}
+
+.mud-button-root.cp-btn:active {
+  transform: translateY(1px);
+}
+
+.mud-button-root.cp-btn .cp-icon {
+  font-size: 18px;
+}
+
+.mud-button-root.cp-btn--sm {
+  height: var(--cp-control-height-sm);
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.mud-button-root.cp-btn--sm .mud-button-label {
+  gap: 6px;
+}
+
+.mud-button-root.cp-btn--sm .cp-icon {
+  font-size: 16px;
+}
+
+/* ---------- icon button ---------- */
+
+.cp-iconbtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cp-control-height);
+  height: var(--cp-control-height);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--cp-radius-sm);
+  background: transparent;
+  color: var(--cp-text-2);
+  cursor: pointer;
+  transition: background-color var(--cp-dur-fast) var(--cp-ease), color var(--cp-dur-fast) var(--cp-ease);
+}
+
+.cp-iconbtn:hover {
+  background: var(--cp-hover);
+  color: var(--cp-text);
+}
+
+.cp-iconbtn:focus-visible,
+.cp-nav__item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+/* ---------- card ---------- */
+
+.cp-card {
+  min-width: 0;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-lg);
+  box-shadow: var(--cp-shadow-card);
+}
+
+/* ---------- empty state ---------- */
+
+.cp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.cp-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+  background: var(--cp-primary-soft);
+  color: var(--cp-primary);
+}
+
+.cp-empty__icon .cp-icon {
+  font-size: 26px;
+}
+
+.cp-empty__text {
+  max-width: 380px;
+  margin: 0;
+  color: var(--cp-text-2);
+  text-wrap: pretty;
+}
+
+.cp-empty__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* ---------- brand ---------- */
+
+.cp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cp-text);
+}
+
+.cp-brand__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cp-brand__name {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--cp-text);
+}
+
+/* The prism is what splits the light, so it is the half that carries colour. */
+.cp-brand__name span {
+  color: var(--cp-primary);
+}
+
+.cp-brand__tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cp-text-3);
+}
+
+/* ---------- sidebar ---------- */
+
+/* Fills the MudDrawer, which supplies the width, the position and the
+   overlay below the breakpoint. */
+.cp-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 14px 14px;
+  background: var(--cp-sidebar);
+  border-right: 1px solid var(--cp-line);
+  overflow-y: auto;
+}
+
+.cp-sidebar__brand {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 4px 26px 10px;
+}
+
+.cp-sidebar__section {
+  padding: 18px 12px 8px;
+}
+
+.cp-sidebar__foot {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+/* ---------- navigation ---------- */
+
+.cp-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cp-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: var(--cp-radius-md);
+  font: 650 14px/1 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  text-decoration: none;
+  transition: background var(--cp-dur-fast), color var(--cp-dur-fast);
+}
+
+.cp-nav__item .cp-icon {
+  font-size: 19px;
+}
+
+.cp-nav__item:hover {
+  background: var(--cp-hover);
+  color: var(--cp-text);
+  text-decoration: none;
+}
+
+/* The active destination is a tinted pill: the one place in the shell where
+   the accent appears as a surface. */
+.cp-nav__item.cp-nav__item--on {
+  background: var(--cp-primary-soft);
+  color: var(--cp-primary);
+  font-weight: 750;
+}
+
+/* ---------- privacy note ---------- */
+
+/* Privacy is a feature, so it is said where it is always in view. */
+.cp-privacy {
+  padding: 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-lg);
+  background: var(--cp-surface-2);
+}
+
+.cp-privacy__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 750;
+  color: var(--cp-text);
+}
+
+.cp-privacy__title .cp-icon {
+  color: var(--cp-primary);
+}
+
+.cp-privacy__text {
+  margin-top: 4px;
+  font-size: var(--cp-fs-caption);
+  line-height: var(--cp-lh-caption);
+  color: var(--cp-text-2);
+}
+
+.cp-privacy__version {
+  margin-top: 10px;
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-3);
+}
+
+/* ---------- top bar ---------- */
+
+/* MudAppBar keeps the position and the offset of the content beneath it;
+   its toolbar is where the row of controls lives. */
+.mud-appbar.cp-topbar {
+  border-bottom: 1px solid var(--cp-line);
+}
+
+.mud-appbar.cp-topbar .mud-toolbar {
+  gap: 12px;
+  height: var(--cp-topbar-height);
+  padding: 0 var(--cp-page-padding);
+}
+
+.cp-topbar__spacer {
+  flex: 1;
+}
+
+/* Says where you are, not what you are looking at — the page's own heading
+   does that. */
+.cp-topbar__section {
+  font-size: var(--cp-fs-label);
+  font-weight: var(--cp-fw-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cp-text-3);
+}
+
+/* The menu button only where the drawer folds away, the section label only
+   where it does not — the same breakpoint the drawer uses (Md, 960 px). */
+@media (min-width: 960px) {
+  .cp-topbar__menu {
+    display: none;
+  }
+}
+
+@media (max-width: 959.98px) {
+  .cp-topbar__section {
+    display: none;
+  }
+}
+
+/* ---------- page ---------- */
+
+.cp-page {
+  max-width: var(--cp-page-max);
+  margin: 0 auto;
+  padding: var(--cp-page-padding);
+}
+
+.cp-pagehead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cp-pagehead__text {
+  flex: 1;
+  min-width: 240px;
+}
+
+.cp-pagehead__lead {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--cp-text-2);
+  text-wrap: pretty;
+}
+
+.cp-pagehead__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Focus is moved to the heading after navigating. It is a programmatic
+   target, not something the person tabbed to, so it gets no focus ring. */
+.cp-pagehead h1:focus {
+  outline: none;
+}
+
+@media (max-width: 700px) {
+  .cp-page {
+    padding: var(--cp-page-padding-mobile);
+  }
+
+  .mud-appbar.cp-topbar .mud-toolbar {
+    padding: 0 var(--cp-page-padding-mobile);
+  }
+}

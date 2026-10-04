@@ -51,11 +51,13 @@ Buchungen.
 
 Links steht die Navigation mit vier Zielen. Auf einem schmalen Bildschirm ist
 sie eingeklappt und öffnet sich über das Menüsymbol oben links. Oben rechts
-wechselt ein Schalter zwischen hellem und dunklem Design.
+wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
+*Import* führt von jeder Seite direkt zum Einlesen. Unten in der Navigation
+steht, welche Version von CashPrism läuft.
 
 | Ziel | Adresse | Was dort ist |
 |---|---|---|
-| Übersicht | `/` | Noch nichts. Die Seite ist ein Platzhalter und bietet nichts zu tun |
+| Übersicht | `/` | Noch nichts außer einem Hinweis und dem Weg zum Import |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Import | `/import` | Einen Finanzguru-Export einlesen |
 | Importverlauf | `/imports` | Welche Datei wann eingelesen wurde |

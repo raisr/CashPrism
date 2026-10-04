@@ -123,6 +123,10 @@ public static class CashPrismTheme
                 FontSize = "0.875rem",
                 FontWeight = "500",
                 LineHeight = "1.5",
+
+                // MudBlazor spaces its default text out slightly; Manrope is
+                // drawn to be set as it is.
+                LetterSpacing = "normal",
             },
 
             // H4 is the page heading, H5 a section, H6 a card title. Headlines

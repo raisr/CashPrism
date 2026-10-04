@@ -1,15 +1,22 @@
-@* The frame every page sits in: the padding, the heading and the lead line.
-   It lives here rather than in each page so a page that wants the raw content
-   area — a list beside a detail pane, say — simply does not use it. *@
+@* The frame every page sits in: the padding, the heading, the lead line and
+   the page's own actions. It lives here rather than in each page so a page
+   that wants the raw content area — a list beside a detail pane, say — simply
+   does not use it. *@
 
-<div class="page-frame">
-  <header class="page-frame-head">
-    @* Routes.razor moves focus to the h1 after navigating, so the heading has
-       to be a real h1 and not just look like one. *@
-    <MudText Typo="Typo.h5" HtmlTag="h1" tabindex="-1">@Title</MudText>
-    @if (!string.IsNullOrWhiteSpace(Lead))
+<div class="cp-page">
+  <header class="cp-pagehead">
+    <div class="cp-pagehead__text">
+      @* Routes.razor moves focus to the h1 after navigating, so the heading has
+         to be a real h1 and not just look like one. *@
+      <h1 class="cp-h1" tabindex="-1">@Title</h1>
+      @if (!string.IsNullOrWhiteSpace(Lead))
+      {
+        <p class="cp-pagehead__lead">@Lead</p>
+      }
+    </div>
+    @if (Actions is not null)
     {
-      <MudText Typo="Typo.body2" Color="Color.Secondary">@Lead</MudText>
+      <div class="cp-pagehead__actions">@Actions</div>
     }
   </header>
 
@@ -21,9 +28,13 @@
     [Parameter, EditorRequired]
     public string Title { get; set; } = string.Empty;
 
-    /// <summary>One line under the heading saying what the page is for.</summary>
+    /// <summary>One sentence under the heading that already says something.</summary>
     [Parameter]
     public string? Lead { get; set; }
+
+    /// <summary>Controls that act on the whole page, set against the heading's right edge.</summary>
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
 
     /// <summary>The page's content.</summary>
     [Parameter]

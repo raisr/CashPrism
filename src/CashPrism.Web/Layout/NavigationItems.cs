@@ -1,5 +1,3 @@
-using MudBlazor;
-
 namespace CashPrism.Web.Layout;
 
 /// <summary>
@@ -7,8 +5,12 @@ namespace CashPrism.Web.Layout;
 /// </summary>
 /// <param name="Href">The route, without a leading slash for anything but the start page.</param>
 /// <param name="TitleKey">The key in <c>Strings.resx</c> holding the German label.</param>
-/// <param name="Icon">An SVG path from <see cref="Icons"/>.</param>
-public sealed record NavigationItem(string Href, string TitleKey, string Icon);
+/// <param name="Icon">The Lucide name of the destination's glyph, as <c>CpIcon</c> takes it.</param>
+/// <param name="SectionKey">
+/// The key of the heading the destination is grouped under, or <c>null</c> for
+/// the destinations at the top that belong to no group.
+/// </param>
+public sealed record NavigationItem(string Href, string TitleKey, string Icon, string? SectionKey = null);
 
 /// <summary>
 /// The application's destinations, in the order the drawer lists them. One list
@@ -18,14 +20,16 @@ public sealed record NavigationItem(string Href, string TitleKey, string Icon);
 public static class NavigationItems
 {
     /// <summary>
-    /// Every destination the navigation reaches.
+    /// Every destination the navigation reaches. Destinations of one section
+    /// stand next to each other: the drawer writes a heading wherever the
+    /// section changes.
     /// </summary>
     public static IReadOnlyList<NavigationItem> All { get; } =
     [
-        new("/", "NavOverview", Icons.Material.Outlined.Dashboard),
-        new("/bookings", "NavBookings", Icons.Material.Outlined.ReceiptLong),
-        new("/import", "NavImport", Icons.Material.Outlined.UploadFile),
-        new("/imports", "NavImportRuns", Icons.Material.Outlined.History),
+        new("/", "NavOverview", "layout-dashboard"),
+        new("/bookings", "NavBookings", "receipt-text"),
+        new("/import", "NavImport", "upload", "NavSectionData"),
+        new("/imports", "NavImportRuns", "history", "NavSectionData"),
     ];
 
     /// <summary>

@@ -169,6 +169,12 @@ releases and the minor version is bumped for every notable change.
   in the dark theme, and the bundled Manrope typeface throughout. Dates and
   amounts keep lining up digit under digit, now in Manrope's tabular figures
   instead of a monospace face. See [`docs/ui.md`](docs/ui.md).
+- The navigation and the bar above every page follow the new design: the
+  destinations that bring data in are grouped under *Daten*, an Import button
+  sits in the top bar on every page, and the promise that your data stays on
+  this machine is pinned to the bottom of the navigation, together with the
+  version. The start page says plainly that nothing has been imported yet and
+  leads to the import.
 
 ### Fixed
 

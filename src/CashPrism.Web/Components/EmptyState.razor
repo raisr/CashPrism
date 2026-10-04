@@ -1,0 +1,33 @@
+@* What a page shows instead of content it does not have yet: an icon, a
+   heading that says so, a sentence on what to do, and the action that does
+   it. *@
+<div class="cp-empty">
+  <span class="cp-empty__icon"><CpIcon Name="@Icon" /></span>
+  <h2 class="cp-h2">@Title</h2>
+  @if (!string.IsNullOrWhiteSpace(Text))
+  {
+    <p class="cp-empty__text">@Text</p>
+  }
+  @if (Actions is not null)
+  {
+    <div class="cp-empty__actions">@Actions</div>
+  }
+</div>
+
+@code {
+    /// <summary>The Lucide name of the glyph in the tile.</summary>
+    [Parameter]
+    public string Icon { get; set; } = "inbox";
+
+    /// <summary>The heading, already localised.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>One sentence on what to do about it.</summary>
+    [Parameter]
+    public string? Text { get; set; }
+
+    /// <summary>The way out, usually a single button.</summary>
+    [Parameter]
+    public RenderFragment? Actions { get; set; }
+}
