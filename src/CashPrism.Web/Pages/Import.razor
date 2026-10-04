@@ -1,89 +1,233 @@
 @page "/import"
 @using CashPrism.Application.Imports
+@using CashPrism.Application.Paging
+@using CashPrism.Domain.Imports
 @using CashPrism.Web.Imports
 @using Microsoft.Extensions.Logging
 @implements IDisposable
 @inject IStringLocalizer<Strings> text
 @inject Importer importer
 @inject ImportActivity activity
+@inject IImportRunReader runReader
 @inject ILogger<Import> log
 
 <PageFrame Title="@text["NavImport"]" Lead="@text["ImportLead"]">
-  <MudPaper Elevation="0" Outlined="true" Class="pa-6">
-    <MudStack Spacing="4">
-      @* MudBlazor's own MaxFileSize is deliberately not set: it rejects the file
-         with a validation message of its own, in English, and the page would
-         then have no chance to say what the limit is. The size is checked in
-         OnFilePickedAsync instead.
+  <div class="cp-import-grid">
+    <div class="cp-card cp-import-grid__wide">
+      <div class="cp-card__body">
+        @* The file input lies invisibly over the whole zone, so a click
+           anywhere opens the file picker and a file dropped anywhere lands in
+           it — the browser's own drag and drop, no script of ours.
 
-         d-inline-block: the upload renders its content in a block that would
-         otherwise stretch the button across the whole card. *@
-      <MudFileUpload T="IBrowserFile"
-                     FilesChanged="OnFilePickedAsync"
-                     Accept=".xlsx"
-                     Disabled="@activity.IsRunning"
-                     Class="d-inline-block">
-        <CustomContent Context="picker">
-          <MudButton Variant="Variant.Filled"
-                     Color="Color.Primary"
-                     StartIcon="@Icons.Material.Filled.UploadFile"
-                     Disabled="@activity.IsRunning"
-                     OnClick="@(() => picker.OpenFilePickerAsync())">
-            @text["ImportPick"]
-          </MudButton>
-        </CustomContent>
-      </MudFileUpload>
+           It stays in the page while an import runs, disabled, and only what
+           the zone shows changes: the upload is read from this very element
+           after the import has started, and an input taken out of the page
+           leaves the read waiting for ever.
 
-      <MudText Typo="Typo.body2" Color="Color.Secondary">@text["ImportHint"]</MudText>
-
-      @if (!activity.IsRunning && activity.Result is { } message)
-      {
-        <MudAlert Severity="@ToMudSeverity(message.Severity)" Variant="Variant.Outlined" Dense="true">
-          <MudText Typo="Typo.body1">@message.Headline</MudText>
-          @if (message.Details.Count > 0)
+           The size limit is checked in OnFilePickedAsync, so it can be named
+           in German. *@
+        <div class="@DropzoneClass">
+          <InputFile class="cp-dropzone__input"
+                     accept=".xlsx"
+                     disabled="@activity.IsRunning"
+                     aria-label="@text["ImportDropTitle"]"
+                     OnChange="OnFilePickedAsync"
+                     @ondragenter="() => dragging = true"
+                     @ondragleave="() => dragging = false"
+                     @ondrop="() => dragging = false" />
+          @if (activity.IsRunning)
           {
-            <ul class="import-details">
-              @foreach (var detail in message.Details)
-              {
-                <li>@detail</li>
-              }
-            </ul>
+            <span class="cp-spinner cp-spinner--lg" role="progressbar"></span>
+            <div class="cp-h3">@text["ImportRunning"]</div>
+            <div class="cp-dropzone__hint">@text["ImportRunningHint"]</div>
           }
-        </MudAlert>
-      }
-    </MudStack>
-  </MudPaper>
+          else
+          {
+            <span class="cp-empty__icon"><CpIcon Name="file-spreadsheet" /></span>
+            <div class="cp-h3">@text["ImportDropTitle"]</div>
+            <div class="cp-dropzone__hint">@text["ImportDropHint"]</div>
+          }
+        </div>
+
+        @if (!activity.IsRunning && activity.Result is { } message)
+        {
+          <div class="cp-import-result">
+            <Alert Tone="ToneOf(message.Severity)" Title="@message.Headline" Details="message.Details" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card__head">
+        <div class="cp-card__title cp-h3">@text["ImportStepsTitle"]</div>
+      </div>
+      <ol class="cp-card__body cp-steps">
+        @foreach (var (icon, title, hint) in Steps)
+        {
+          <li class="cp-steps__item">
+            <IconTile Icon="@icon" Colour="var(--cp-primary)" Round="true" />
+            <div>
+              <div class="cp-steps__title">@text[title]</div>
+              <div class="cp-steps__hint">@text[hint]</div>
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+  </div>
+
+  @* What came in before. Left out until something did: before the first
+     import the zone above is the only thing worth looking at. *@
+  @if (runs is { TotalCount: > 0 })
+  {
+    <div class="cp-card cp-card--flush cp-import-history">
+      <div class="cp-card__head">
+        <div class="cp-card__title">
+          <div class="cp-h3">@text["ImportHistoryTitle"]</div>
+          <div class="cp-card__sub">@text["ImportHistoryLead"]</div>
+        </div>
+      </div>
+      @* A history has one order — newest first — so nothing here sorts. *@
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead>
+            <tr>
+              <th>@text["ImportHistoryColumnFile"]</th>
+              <th>@text["ImportHistoryColumnImportedAt"]</th>
+              <th class="cp-cell-end">@text["ImportHistoryColumnInserted"]</th>
+              <th class="cp-cell-end">@text["ImportHistoryColumnUpdated"]</th>
+              <th class="cp-cell-end">@text["ImportHistoryColumnRowsRead"]</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var run in runs.Items)
+            {
+              <tr>
+                <td>
+                  <div class="cp-party">
+                    <IconTile Icon="file-spreadsheet" Colour="var(--cp-prism-green)" Size="34" />
+                    <div class="cp-party__text">
+                      @* The checksum identifies the file beyond its name, which is
+                         whatever it was saved as; it is kept for whoever needs
+                         to match a run against a file, on hover. *@
+                      <div class="cp-party__name cp-import-history__file" title="@run.FileHash">@run.FileName</div>
+                      <div class="cp-party__reference">@ExportedOn(run)</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="cp-muted-strong cp-figure">@ImportRunFormat.ImportedAt(run.ImportedAt)</td>
+                <td class="cp-cell-end"><span class="cp-badge cp-badge--success">+@ImportRunFormat.Count(run.BookingsInserted)</span></td>
+                <td class="cp-cell-end cp-figure cp-import-history__count">@ImportRunFormat.Count(run.BookingsUpdated)</td>
+                <td class="cp-cell-end cp-figure cp-muted-strong">@ImportRunFormat.Count(run.RowsRead)</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <Pager Page="runsPage"
+             PageSize="runsPageSize"
+             Total="runs.TotalCount"
+             InfoFormat="@text["ImportHistoryPagerInfo"]"
+             PageChanged="GoToRunsPageAsync"
+             PageSizeChanged="ChangeRunsPageSizeAsync" />
+    </div>
+  }
 </PageFrame>
 
-@* Over the whole page rather than beside the button: an import is not something
-   to work around while it runs, and a spinner inside the card would leave the
+@* Over the whole page rather than only the zone: an import is not something
+   to work around while it runs, and a lock on the zone alone would leave the
    navigation clickable — which is how a second import used to get started on
-   top of the first. *@
-<MudOverlay Visible="@activity.IsRunning" DarkBackground="true" ZIndex="9999">
-  <MudStack AlignItems="AlignItems.Center" Spacing="4">
-    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-    <MudText Typo="Typo.body1" Color="Color.Surface">@text["ImportRunning"]</MudText>
-  </MudStack>
-</MudOverlay>
+   top of the first. The zone itself says what is happening. *@
+<MudOverlay Visible="@activity.IsRunning" DarkBackground="true" ZIndex="9999" />
 
 @code {
-    protected override void OnInitialized() => activity.Changed += OnActivityChanged;
+    private static readonly (string Icon, string Title, string Hint)[] Steps =
+    [
+        ("smartphone", "ImportStep1Title", "ImportStep1Hint"),
+        ("file-spreadsheet", "ImportStep2Title", "ImportStep2Hint"),
+        ("upload", "ImportStep3Title", "ImportStep3Hint"),
+    ];
+
+    private bool dragging;
+
+    private string DropzoneClass => activity.IsRunning
+        ? "cp-dropzone cp-dropzone--busy"
+        : dragging ? "cp-dropzone cp-dropzone--over" : "cp-dropzone";
+
+    private Page<ImportRun>? runs;
+    private int runsPage;
+    private int runsPageSize = 25;
+
+    protected override async Task OnInitializedAsync()
+    {
+        activity.Changed += OnActivityChanged;
+
+        // The import writes through the circuit's database context, which
+        // takes one query at a time. Coming back to the page while one runs,
+        // the history waits for it to finish.
+        if (!activity.IsRunning)
+        {
+            await LoadRunsAsync();
+        }
+    }
 
     /// <inheritdoc />
     public void Dispose() => activity.Changed -= OnActivityChanged;
 
     /// <summary>
-    /// The import raises this from the thread it ran on, so the render has to be
-    /// marshalled back onto the circuit's.
+    /// The import raises this from the thread it ran on, so the render — and
+    /// the history read once it has finished — is marshalled back onto the
+    /// circuit's.
     /// </summary>
-    private void OnActivityChanged() => _ = InvokeAsync(StateHasChanged);
+    private void OnActivityChanged() => _ = InvokeAsync(RefreshAsync);
 
-    private async Task OnFilePickedAsync(IBrowserFile? file)
+    private async Task RefreshAsync()
     {
-        if (file is null)
+        try
         {
-            return;
+            if (!activity.IsRunning)
+            {
+                await LoadRunsAsync();
+            }
+
+            StateHasChanged();
         }
+        catch (Exception exception)
+        {
+            // Nobody awaits this, so a failure would otherwise vanish. Handed to
+            // the renderer, it ends the circuit the way a failed render does.
+            await DispatchExceptionAsync(exception);
+        }
+    }
+
+    private async Task LoadRunsAsync()
+        => runs = await runReader.ReadPageAsync(new PageRequest(runsPage * runsPageSize, runsPageSize));
+
+    private Task GoToRunsPageAsync(int page)
+    {
+        runsPage = page;
+
+        return LoadRunsAsync();
+    }
+
+    private Task ChangeRunsPageSizeAsync(int size)
+    {
+        runsPageSize = size;
+        runsPage = 0;
+
+        return LoadRunsAsync();
+    }
+
+    private string ExportedOn(ImportRun run)
+        => ImportRunFormat.ExportedOn(run.ExportedOn) is { } day
+            ? text["ImportHistoryExportedOn", day]
+            : text["ImportHistoryExportedOnUnknown"];
+
+    private async Task OnFilePickedAsync(InputFileChangeEventArgs change)
+    {
+        dragging = false;
+        var file = change.File;
 
         if (file.Size > ImportFeedback.MaxUploadBytes)
         {
@@ -92,9 +236,9 @@
             return;
         }
 
-        // RunAsync refuses while one is in flight. The button is disabled then,
-        // so this is the case the button cannot cover: a file picked in a second
-        // browser tab on the same circuit.
+        // RunAsync refuses while one is in flight. The zone is replaced by the
+        // spinner then, so this is the case it cannot cover: a file picked in a
+        // second browser tab on the same circuit.
         await activity.RunAsync(() => ImportAsync(file));
     }
 
@@ -145,10 +289,10 @@
         return ImportFeedback.Describe(result, text);
     }
 
-    private static Severity ToMudSeverity(ImportFeedbackSeverity severity) => severity switch
+    private static AlertTone ToneOf(ImportFeedbackSeverity severity) => severity switch
     {
-        ImportFeedbackSeverity.Success => Severity.Success,
-        ImportFeedbackSeverity.Info => Severity.Info,
-        _ => Severity.Error,
+        ImportFeedbackSeverity.Success => AlertTone.Success,
+        ImportFeedbackSeverity.Info => AlertTone.Info,
+        _ => AlertTone.Danger,
     };
 }

@@ -99,35 +99,4 @@ public sealed class ImportRunFormatTests
             Assert.Equal("6,327", ImportRunFormat.Count(6327, CultureInfo.GetCultureInfo("en-GB")));
         }
     }
-
-    public sealed class ShortHash
-    {
-        private const string ASha256 = "3b8f1c2d4e5a6b7c8d9e0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e";
-
-        [Fact]
-        public void Keeps_Only_The_Leading_Characters_Of_A_Long_Hash()
-        {
-            Assert.Equal("3b8f1c2d4e5a", ImportRunFormat.ShortHash(ASha256));
-        }
-
-        [Fact]
-        public void Shortens_To_The_Length_The_Column_Was_Built_For()
-        {
-            Assert.Equal(ImportRunFormat.HashPrefixLength, ImportRunFormat.ShortHash(ASha256).Length);
-        }
-
-        [Fact]
-        public void Leaves_A_Hash_Shorter_Than_That_As_It_Is()
-        {
-            Assert.Equal("3b8f1c", ImportRunFormat.ShortHash("3b8f1c"));
-        }
-
-        [Fact]
-        public void Leaves_A_Hash_Of_Exactly_That_Length_As_It_Is()
-        {
-            var twelve = ASha256[..ImportRunFormat.HashPrefixLength];
-
-            Assert.Equal(twelve, ImportRunFormat.ShortHash(twelve));
-        }
-    }
 }

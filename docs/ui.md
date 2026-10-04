@@ -21,7 +21,7 @@ Four of those earn a sentence:
   accent. It is the one place the product name appears, so it is also the one
   place a mark is needed.
 - **The destinations are grouped where a group exists.** The start page and the
-  bookings stand at the top; the destinations that bring data in sit under
+  bookings stand at the top; the import, which brings data in, sits under
   *Daten*. A heading is written wherever the section changes in
   `NavigationItems`, so a section with no destination yet — the design's
   *Auswerten* — simply does not appear.
@@ -145,8 +145,9 @@ the product, and only the light/dark switch changes at runtime.
   entry that carries a family of its own.
 - **Figures line up without a monospace face.** Dates and amounts are set in
   Manrope with tabular figures (`.cp-figure`), so a column of them aligns digit
-  under digit. The monospace face is `.cp-mono`, for the checksum, and the
-  version beside the wordmark.
+  under digit. The monospace face is bundled for strings read character by
+  character; since an import's checksum moved into a tooltip, nothing on
+  screen uses it.
 
 ### Dark mode in the stylesheet
 
@@ -296,16 +297,79 @@ to the row it was opened from — a keyboard user carries on in the list where
 they left it, rather than at the top of the page. Both moves use Blazor's own
 `FocusAsync`; no script of ours is involved.
 
-## The list of past imports
+## The import page
 
-The Importverlauf page shows what was read and when: the time of the run, the
-file, the export date taken from the sheet name, the file checksum and the four
-counts the import reported. It is the page that turns an import from a number
-that was on screen once into something you can look back at.
+The Import page brings data in and shows what came in before. Its shape is the
+design's (`design/README.md` §3.6): a drop zone beside a card with the three
+steps to an export, the result of the last import beneath the zone, and the
+list of past imports below both. The list used to be a page of its own; one
+page now answers both "how do I get my data in" and "what is in already".
+
+**The drop zone is a file input laid over a panel.** `InputFile` lies
+invisibly across the whole zone, so a click anywhere opens the file picker and
+a file dropped anywhere lands in it. That is the browser's own drag and drop;
+no script of ours is involved, and MudBlazor's upload component is no longer
+used. While an import runs the zone gives way to a spinner and "Wird
+eingelesen …".
+
+**The result is one of three alerts.** "Fertig! … neue Buchungen sind da." with
+the four counts beneath it; "Diese Datei kennen wir schon" when the file was
+imported before; "Das ist keine Finanzguru-Datei" with the reasons it was
+refused. An import that brought nothing new but may have updated bookings
+reads "Fertig! Keine neuen Buchungen." rather than counting zero new ones.
+
+The decisions below are not visible in what the page renders.
+
+**The read limit is set, and set by CashPrism.** `IBrowserFile.OpenReadStream`
+allows 512 KB unless told otherwise and throws above it — no Finanzguru export
+has ever fit in that, the measured ones being 1.15 MB. The page passes 64 MB,
+far above the largest export anyone is likely to have, checks the size itself
+and names the limit in German.
+
+**The import runs off the circuit's thread.** ClosedXML has no asynchronous
+API and reading a workbook is CPU-bound — about 1.4 s for the measured export.
+On Blazor Server that would occupy the thread the circuit renders on, and the
+page would accept no input at all while the spinner turned. The page therefore
+hands the import to `Task.Run`. That is deliberately not the pattern
+`AGENTS.dotnet.md` rules out: nothing here is synchronous work dressed up as
+asynchronous, it is blocking work moved out of the render path.
+
+**What is running outlives the page.** An import keeps going when the page it
+was started from is left, so what is in flight is held in a service that lives
+for as long as the browser stays connected, not in the component. Coming back
+to the page therefore shows the import still running, or the result of one that
+finished while it was away — and a second import cannot be started on top of
+the first. An overlay dims the whole page while it runs, so the navigation is
+out of reach rather than merely ineffective.
+
+**Why a file was refused crosses the layers as a code, not a sentence.** The
+reasons are found in the export reader and the import use case, which write
+English, and this UI writes German. So what comes back is an `ImportError`: an
+`ImportErrorCode` plus the values that fill its gaps — a column, a row, a
+worksheet name. The page looks the code up as `ImportError<Code>` in
+`Strings.resx` and formats the arguments into it. A test fails for every code
+without a translation, so a new one cannot reach the page as its bare key.
+
+The page lists the first 20 reasons and counts the rest: a broken column fails
+every row, and thousands of lines help nobody. The log gets all of them,
+untranslated, so a bug report does not depend on what the browser showed.
+
+### The list of past imports
+
+"Bisherige Importe" shows what was read and when: the file with the day the
+export was taken, when it was read, how many bookings were new, how many were
+updated, and how many rows the file held. It turns an import from a number that
+was on screen once into something to look back at. Before the first import the
+list is left out; the drop zone is then the only thing worth looking at.
 
 **One order, and no sorting.** A history is read as a history, so the list is
 fixed newest first. Making the columns sortable would only make it harder to
 see what happened last.
+
+**The list waits for a running import.** The import writes through the
+circuit's database context, which takes one query at a time. Coming back to
+the page while an import runs, the list is not read until it has finished; it
+is read again whenever one finishes, so the new run appears without a reload.
 
 **The instant is stored without its offset, so that the database can order it.**
 `ImportRun.ImportedAt` is a `DateTimeOffset`, and SQLite has no type that orders
@@ -325,61 +389,19 @@ characters of the offset and touches only the rows that actually end in
 read, rather than being quietly shifted by however many hours it was written
 with. `ImportedAtAsUtcDateTimeTests` runs it against rows in the old format.
 
-**The checksum is shortened.** A SHA-256 written as hex is 64 characters, which
-no column can carry beside seven others. The first twelve are enough to tell
-two runs apart and to match one against a hash from elsewhere; the whole value
-is the cell's title, so nothing is actually hidden.
+**The checksum is a tooltip.** A SHA-256 written as hex is 64 characters, and
+only someone matching a run against a file needs it. It is the file name's
+title, so it is there on hover without taking a column.
 
 **A run without an export date says so.** The date comes from the sheet name,
 and a name this version cannot read a date out of leaves the field empty — the
-column then reads `unbekannt` rather than showing a blank cell that could just
-as well be a rendering fault.
+line under the file then reads "Exportiert – Datum unbekannt" rather than
+nothing, which could just as well be a rendering fault.
 
 Importing the same file twice records no second run: the import recognises the
 file by its hash and stops before a run exists (see
 [`finanzguru-export.md`](finanzguru-export.md)). The list shows what happened,
 and nothing happened.
-
-## The upload page
-
-The Import page is the only page that does work rather than showing it, and
-four of its decisions are not visible in what it renders.
-
-**The read limit is set, and set by CashPrism.** `IBrowserFile.OpenReadStream`
-allows 512 KB unless told otherwise and throws above it — no Finanzguru export
-has ever fit in that, the measured ones being 1.15 MB. The page passes 64 MB,
-far above the largest export anyone is likely to have. MudBlazor's own
-`MaxFileSize` would also reject an oversized file, but with a message of its
-own in English, so the size is checked in the page instead and the limit is
-named in German.
-
-**The import runs off the circuit's thread.** ClosedXML has no asynchronous
-API and reading a workbook is CPU-bound — about 1.4 s for the measured export.
-On Blazor Server that would occupy the thread the circuit renders on, and the
-page would accept no input at all while the spinner turned. The page therefore
-hands the import to `Task.Run`. That is deliberately not the pattern
-`AGENTS.dotnet.md` rules out: nothing here is synchronous work dressed up as
-asynchronous, it is blocking work moved out of the render path.
-
-**What is running outlives the page.** An import keeps going when the page it
-was started from is left, so what is in flight is held in a service that lives
-for as long as the browser stays connected, not in the component. Coming back
-to the page therefore shows the import still running, or the result of one that
-finished while it was away — and a second import cannot be started on top of
-the first. An overlay covers the page while it runs, so the navigation is out
-of reach rather than merely ineffective.
-
-**Why a file was refused crosses the layers as a code, not a sentence.** The
-reasons are found in the export reader and the import use case, which write
-English, and this UI writes German. So what comes back is an `ImportError`: an
-`ImportErrorCode` plus the values that fill its gaps — a column, a row, a
-worksheet name. The page looks the code up as `ImportError<Code>` in
-`Strings.resx` and formats the arguments into it. A test fails for every code
-without a translation, so a new one cannot reach the page as its bare key.
-
-The page lists the first 20 reasons and counts the rest: a broken column fails
-every row, and thousands of lines help nobody. The log gets all of them,
-untranslated, so a bug report does not depend on what the browser showed.
 
 ## MudBlazor's own strings
 

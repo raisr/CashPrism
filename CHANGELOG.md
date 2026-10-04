@@ -126,11 +126,11 @@ releases and the minor version is bumped for every notable change.
   is one screen of rows over the network and not six thousand.
   The pager counts in German, separators included.
   See [`docs/ui.md`](docs/ui.md).
-- A new page, Importverlauf, lists what was imported and when: the time of the
-  run, the file it read, the export date taken from the sheet name, the file
-  checksum and the four counts the import reported — rows read, bookings new,
-  updated and unchanged. Newest first. It is what makes an import something you
-  can look back at rather than a number that was on screen once.
+- The import page lists what was imported and when: the file it read with the
+  export date taken from the sheet name, when it ran, and how many bookings
+  were new, how many were updated and how many rows the file held. Newest
+  first. It is what makes an import something you can look back at rather than
+  a number that was on screen once.
   The time an import ran is now stored without its time-zone offset, which is
   what lets the database sort it; existing databases are rewritten on the next
   start, and nothing about the recorded times changes.
@@ -152,6 +152,10 @@ releases and the minor version is bumped for every notable change.
 
 ### Changed
 
+- The import page has a new look. Drop a Finanzguru export onto the page or
+  click to pick one; a card beside it says where Finanzguru offers the export.
+  The result reads "Fertig! … neue Buchungen sind da.", "Diese Datei kennen wir
+  schon" or "Das ist keine Finanzguru-Datei".
 - The booking list has a new look. Each booking shows who it went to or came
   from with its payment reference beneath, and a category with a fixed colour
   and symbol — CashPrism sorts Finanzguru's categories into eleven of its own,

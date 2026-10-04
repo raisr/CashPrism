@@ -41,6 +41,14 @@
   color: var(--cp-text);
 }
 
+.cp-h3 {
+  margin: 0;
+  font-size: var(--cp-fs-h3);
+  line-height: var(--cp-lh-h3);
+  font-weight: var(--cp-fw-h3);
+  color: var(--cp-text);
+}
+
 .cp-label {
   font-size: var(--cp-fs-label);
   font-weight: var(--cp-fw-label);
@@ -133,6 +141,30 @@
    them off. */
 .cp-card--flush {
   overflow: hidden;
+}
+
+.cp-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px var(--cp-card-padding) 0;
+}
+
+.cp-card__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-card__sub {
+  margin-top: 2px;
+  font-size: var(--cp-fs-small);
+  font-weight: 500;
+  color: var(--cp-text-2);
+}
+
+.cp-card__body {
+  margin: 0;
+  padding: var(--cp-card-padding);
 }
 
 /* ---------- empty state ---------- */
@@ -836,6 +868,203 @@
   background: var(--c);
 }
 
+/* Good news, such as how many bookings an import brought. */
+.cp-badge--success {
+  background: color-mix(in srgb, var(--cp-success) 13%, transparent);
+  color: var(--cp-success);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- alert ---------- */
+
+/* Tinted with its tone: the border at 28 %, the ground at 8 % over the
+   surface, the glyph in full. */
+.cp-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--c) 28%, transparent);
+  border-radius: var(--cp-radius-md);
+  background: color-mix(in srgb, var(--c) 8%, var(--cp-surface));
+  color: var(--cp-text);
+}
+
+.cp-alert--info { --c: var(--cp-info); }
+.cp-alert--success { --c: var(--cp-success); }
+.cp-alert--warning { --c: var(--cp-warning); }
+.cp-alert--danger { --c: var(--cp-danger); }
+
+.cp-alert > .cp-icon {
+  margin-top: 1px;
+  color: var(--c);
+}
+
+.cp-alert__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-alert__title {
+  font-weight: 750;
+}
+
+.cp-alert__body {
+  margin: 6px 0 0;
+  padding-inline-start: 18px;
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-alert__body--text {
+  margin-top: 2px;
+  padding-inline-start: 0;
+}
+
+/* ---------- spinner ---------- */
+
+@keyframes cp-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cp-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  color: var(--cp-primary);
+  animation: cp-spin 0.8s linear infinite;
+}
+
+.cp-spinner--lg {
+  width: 34px;
+  height: 34px;
+  border-width: 3px;
+}
+
+/* ---------- drop zone ---------- */
+
+/* The file input lies invisibly over the whole zone: a click anywhere opens
+   the picker, a file dropped anywhere lands in it. */
+.cp-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 24px;
+  border: 1.5px dashed var(--cp-line-strong);
+  border-radius: var(--cp-radius-lg);
+  background: var(--cp-surface-2);
+  text-align: center;
+  transition: background var(--cp-dur) var(--cp-ease), border-color var(--cp-dur) var(--cp-ease);
+}
+
+.cp-dropzone:hover,
+.cp-dropzone--over {
+  border-color: var(--cp-primary);
+  background: var(--cp-primary-soft);
+}
+
+.cp-dropzone:focus-within {
+  border-color: var(--cp-primary);
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-dropzone__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cp-dropzone .cp-empty__icon {
+  margin-bottom: 6px;
+}
+
+.cp-dropzone__hint {
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-dropzone--busy,
+.cp-dropzone--busy:hover {
+  border-color: var(--cp-line-strong);
+  background: var(--cp-surface-2);
+}
+
+.cp-dropzone--busy .cp-dropzone__input {
+  cursor: default;
+}
+
+/* ---------- import page ---------- */
+
+/* The drop zone takes two thirds beside the how-to; on a narrow screen they
+   stack. */
+.cp-import-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--cp-grid-gap);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .cp-import-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cp-import-result {
+  margin-top: 16px;
+}
+
+.cp-import-history {
+  margin-top: var(--cp-grid-gap);
+}
+
+.cp-import-history .cp-table-wrap {
+  margin-top: 12px;
+}
+
+.cp-import-history__file {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-import-history__count {
+  font-weight: 700;
+}
+
+/* Numbered steps, each led by a round tile. The numbers are part of the
+   text, so the list's own markers are switched off. */
+.cp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  list-style: none;
+}
+
+.cp-steps__item {
+  display: flex;
+  gap: 12px;
+}
+
+.cp-steps__title {
+  font-weight: 750;
+}
+
+.cp-steps__hint {
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
 /* ---------- category icon ---------- */
 
 /* The tile and the glyph both follow --c, which the component sets to the
@@ -848,6 +1077,10 @@
   border-radius: var(--cp-radius-md);
   background: color-mix(in srgb, var(--c) 14%, var(--cp-surface));
   color: var(--c);
+}
+
+.cp-caticon--round {
+  border-radius: 50%;
 }
 
 /* ---------- amount ---------- */

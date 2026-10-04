@@ -1,5 +1,6 @@
 using CashPrism.Web.Layout;
 using CashPrism.Web.Tests.Unit.Bookings;
+using CashPrism.Web.Tests.Unit.Imports;
 
 namespace CashPrism.Web.Tests.Unit.Layout;
 
