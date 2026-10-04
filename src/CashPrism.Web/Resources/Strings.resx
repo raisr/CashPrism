@@ -75,6 +75,10 @@
     <value>Kein Konto, keine Cloud. Deine Daten verlassen dein Heimnetz nicht.</value>
     <comment>Body of the privacy note in the sidebar.</comment>
   </data>
+  <data name="SidebarLastImport" xml:space="preserve">
+    <value>Letzter Import: {0}</value>
+    <comment>In the sidebar's privacy note, above the version. {0} is the day of the latest import run.</comment>
+  </data>
   <data name="AppVersion" xml:space="preserve">
     <value>Version {0}</value>
     <comment>The running version, in the sidebar's privacy note. {0} is the version number.</comment>

@@ -11,7 +11,7 @@ One layout, three regions:
 
 | Region | Holds |
 |---|---|
-| Drawer, left | The wordmark and its tagline, the destinations, and a privacy note with the version pinned to the bottom |
+| Drawer, left | The wordmark and its tagline, the destinations with the booking count, and a privacy note with the day of the last import and the version pinned to the bottom |
 | App bar, top | A section label, the light/dark switch and an Import button; the drawer toggle where the drawer folds away |
 | Content | Whatever the page renders — with no padding of its own |
 
@@ -27,7 +27,8 @@ Four of those earn a sentence:
   *Auswerten* — simply does not appear.
 - **Privacy is said where it is always in view.** "Nur auf diesem Rechner" is
   the product's promise, so it is pinned to the drawer rather than buried in a
-  page. The version sits under it, where a bug report finds it.
+  page. The day of the last import sits under it, saying how fresh the data
+  is, and the version under that, where a bug report finds it.
 - **The app bar says where you are, not what you are looking at.** It carries
   the section in small, spaced, muted capitals; the page's own `h1` carries the
   heading. They read as two different things because they are set as two
@@ -54,6 +55,16 @@ bar and indents the content from one variable, `--mud-drawer-width-left`, so the
 layout narrows that variable and all three move together. MudBlazor's own
 `Mini` drawer was tried first and dropped — it showed the drawer beside the
 content on a narrow screen until the circuit was up.
+
+The drawer's content is `Layout/Sidebar.razor`. It shows two figures about the
+stored data — the number of bookings as a pill beside *Buchungen*, left out on
+an empty database, and the day of the latest import run — and reads both again
+when `ImportActivity` announces that an import has completed. That notification
+is the only one the drawer listens to, and it fires only for an import that ran
+to its end. The drawer reads through a service scope of its own
+(`OwningComponentBase`): the circuit's database context takes one query at a
+time, and the page beside the drawer reads through that one while the drawer
+does.
 
 The drawer and the app bar are MudBlazor's, dressed in the design system's
 classes (`cp-sidebar`, `cp-nav`, `cp-topbar`). The design folds the drawer at

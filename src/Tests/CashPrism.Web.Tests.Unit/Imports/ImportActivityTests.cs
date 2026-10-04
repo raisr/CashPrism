@@ -119,6 +119,72 @@ public sealed class ImportActivityTests
 
             Assert.Equal(2, announcements);
         }
+
+        [Fact]
+        public async Task Announces_The_Completion_Once_The_Import_Has_Finished()
+        {
+            var activity = new ImportActivity();
+            var completions = 0;
+            activity.Completed += () => completions++;
+
+            await activity.RunAsync(() => Task.FromResult(AMessage()));
+
+            Assert.Equal(1, completions);
+        }
+
+        [Fact]
+        public async Task Does_Not_Announce_The_Completion_While_The_Import_Runs()
+        {
+            var activity = new ImportActivity();
+            var completed = false;
+            activity.Completed += () => completed = true;
+            var release = new TaskCompletionSource();
+            var running = activity.RunAsync(async () =>
+            {
+                await release.Task;
+
+                return AMessage();
+            });
+
+            Assert.False(completed);
+
+            release.SetResult();
+            await running;
+        }
+
+        [Fact]
+        public async Task Does_Not_Announce_The_Completion_When_The_Import_Throws()
+        {
+            var activity = new ImportActivity();
+            var completed = false;
+            activity.Completed += () => completed = true;
+
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => activity.RunAsync(() => throw new InvalidOperationException("kaputt")));
+
+            Assert.False(completed);
+        }
+
+        [Fact]
+        public async Task Does_Not_Announce_A_Completion_For_An_Import_It_Turned_Away()
+        {
+            var activity = new ImportActivity();
+            var release = new TaskCompletionSource();
+            var first = activity.RunAsync(async () =>
+            {
+                await release.Task;
+
+                return AMessage("erster");
+            });
+            var completions = 0;
+            activity.Completed += () => completions++;
+
+            await activity.RunAsync(() => Task.FromResult(AMessage("zweiter")));
+            release.SetResult();
+            await first;
+
+            Assert.Equal(1, completions);
+        }
     }
 
     public sealed class Report
@@ -144,6 +210,18 @@ public sealed class ImportActivityTests
             activity.Report(AMessage());
 
             Assert.True(announced);
+        }
+
+        [Fact]
+        public void Does_Not_Announce_A_Completion()
+        {
+            var activity = new ImportActivity();
+            var completed = false;
+            activity.Completed += () => completed = true;
+
+            activity.Report(AMessage());
+
+            Assert.False(completed);
         }
     }
 }

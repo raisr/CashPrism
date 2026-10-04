@@ -20,7 +20,7 @@ public sealed class MainLayoutTests
         public OnAfterRenderAsync()
         {
             context.JSInterop.Mode = JSRuntimeMode.Loose;
-            context.Services.AddLocalization();
+            context.AddSidebarServices(new FakeBookingReader(), new FakeImportRunReader());
             context.Services.AddMudServices();
             context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
         }
@@ -71,7 +71,7 @@ public sealed class MainLayoutTests
         public ToggleSidebar()
         {
             context.JSInterop.Mode = JSRuntimeMode.Loose;
-            context.Services.AddLocalization();
+            context.AddSidebarServices(new FakeBookingReader(), new FakeImportRunReader());
             context.Services.AddMudServices();
             context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
         }

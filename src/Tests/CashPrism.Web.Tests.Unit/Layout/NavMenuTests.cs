@@ -51,6 +51,26 @@ public sealed class NavMenuTests
         }
 
         [Fact]
+        public void Shows_A_Count_Beside_The_Destination_It_Belongs_To()
+        {
+            var menu = context.Render<NavMenu>(parameters => parameters.Add(
+                p => p.Counts,
+                new Dictionary<NavigationItem, string> { [NavigationItems.Bookings] = "6.327" }));
+
+            var count = Assert.Single(menu.FindAll(".cp-nav__count"));
+            Assert.Equal("6.327", count.TextContent);
+            Assert.Equal("/bookings", count.Closest("a")!.GetAttribute("href"));
+        }
+
+        [Fact]
+        public void Shows_No_Count_Where_None_Is_Given()
+        {
+            var menu = context.Render<NavMenu>();
+
+            Assert.Empty(menu.FindAll(".cp-nav__count"));
+        }
+
+        [Fact]
         public void Leaves_The_Tooltips_Out_On_The_Full_Drawer()
         {
             var menu = context.Render<NavMenu>();

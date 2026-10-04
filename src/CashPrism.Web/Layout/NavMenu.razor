@@ -25,6 +25,10 @@
              Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
       <CpIcon Name="@item.Icon" />
       <span>@label</span>
+      @if (Counts.TryGetValue(item, out var count))
+      {
+        <span class="cp-nav__count">@count</span>
+      }
     </NavLink>
   }
 </nav>
@@ -33,4 +37,11 @@
     /// <summary>Whether the drawer is collapsed to its icon rail.</summary>
     [Parameter]
     public bool Collapsed { get; set; }
+
+    /// <summary>
+    /// A figure to show beside a destination, already written for a person.
+    /// A destination with no entry shows none.
+    /// </summary>
+    [Parameter]
+    public IReadOnlyDictionary<NavigationItem, string> Counts { get; set; } = new Dictionary<NavigationItem, string>();
 }

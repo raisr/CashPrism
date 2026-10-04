@@ -20,6 +20,12 @@ public sealed record NavigationItem(string Href, string TitleKey, string Icon, s
 public static class NavigationItems
 {
     /// <summary>
+    /// The booking list — named on its own because the drawer shows how many
+    /// bookings are stored beside it.
+    /// </summary>
+    public static NavigationItem Bookings { get; } = new("/bookings", "NavBookings", "receipt-text");
+
+    /// <summary>
     /// Every destination the navigation reaches. Destinations of one section
     /// stand next to each other: the drawer writes a heading wherever the
     /// section changes.
@@ -27,7 +33,7 @@ public static class NavigationItems
     public static IReadOnlyList<NavigationItem> All { get; } =
     [
         new("/", "NavOverview", "layout-dashboard"),
-        new("/bookings", "NavBookings", "receipt-text"),
+        Bookings,
         new("/import", "NavImport", "upload", "NavSectionData"),
         new("/imports", "NavImportRuns", "history", "NavSectionData"),
     ];
