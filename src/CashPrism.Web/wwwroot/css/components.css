@@ -128,6 +128,13 @@
   box-shadow: var(--cp-shadow-card);
 }
 
+/* A card whose content runs to its edges — a table, a pager — clips it to its
+   rounded corners; otherwise a header or a row painted to the edge squares
+   them off. */
+.cp-card--flush {
+  overflow: hidden;
+}
+
 /* ---------- empty state ---------- */
 
 .cp-empty {
@@ -443,6 +450,233 @@
 .cp-nav__item--on .cp-nav__count {
   background: var(--cp-surface);
   color: var(--cp-primary);
+}
+
+/* ---------- table ---------- */
+
+/* Scrolls sideways on a narrow screen rather than squeezing five columns
+   into it. */
+.cp-table-wrap {
+  overflow-x: auto;
+}
+
+.cp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.cp-table th {
+  height: 40px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--cp-line);
+  background: var(--cp-surface);
+  font-size: var(--cp-fs-label);
+  font-weight: var(--cp-fw-label);
+  letter-spacing: var(--cp-ls-label);
+  text-align: start;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cp-text-3);
+}
+
+.cp-table td {
+  height: var(--cp-row-height);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--cp-line);
+  vertical-align: middle;
+}
+
+.cp-table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* A figure column's title sits over its figures, against the end of the cell:
+   the header rule above would otherwise put it at the start. */
+.cp-table th.cp-cell-end {
+  text-align: end;
+}
+
+.cp-table th:first-child,
+.cp-table td:first-child {
+  padding-inline-start: var(--cp-card-padding);
+}
+
+.cp-table th:last-child,
+.cp-table td:last-child {
+  padding-inline-end: var(--cp-card-padding);
+}
+
+.cp-table--hover tbody tr:not(.cp-table__group):hover td {
+  background: var(--cp-hover);
+}
+
+/* The header above a day's bookings: shorter than a row, on the field fill. */
+.cp-table__group td {
+  height: 36px;
+  padding-top: 14px;
+  padding-bottom: 6px;
+  background: var(--cp-surface-2);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cp-text-2);
+}
+
+/* A sortable column's title is a button, so it is reachable by keyboard. The
+   arrow shows on hover and stays once the column sorts. */
+.cp-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cp-sort .cp-icon {
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity var(--cp-dur-fast);
+}
+
+.cp-sort:hover .cp-icon,
+.cp-sort:focus-visible .cp-icon {
+  opacity: 0.6;
+}
+
+.cp-sort:focus-visible {
+  outline: none;
+  border-radius: var(--cp-radius-sm);
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-sort--on {
+  color: var(--cp-text);
+}
+
+.cp-sort--on .cp-icon {
+  opacity: 1;
+}
+
+/* Who a booking went to or came from: the category tile, the name, and the
+   payment reference as a clamped caption beneath it. */
+.cp-party {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.cp-party__text {
+  min-width: 0;
+}
+
+.cp-party__name {
+  font-weight: 700;
+}
+
+.cp-party__reference {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--cp-fs-caption);
+  color: var(--cp-text-2);
+}
+
+/* A column that supports the row rather than leading it. */
+.cp-muted-strong {
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+/* ---------- pager ---------- */
+
+.cp-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px var(--cp-card-padding);
+  border-top: 1px solid var(--cp-line);
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-pager__info {
+  font-variant-numeric: tabular-nums;
+}
+
+.cp-pager__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Not in the design, which fixes a page at 25: on a large screen a person may
+   want more at once. Set apart from the page numbers by a margin. */
+.cp-pager__size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-end: 12px;
+}
+
+.cp-pager__select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--cp-line-strong);
+  border-radius: var(--cp-radius-sm);
+  background: var(--cp-surface);
+  font: 600 13px/1 var(--cp-font-sans);
+  color: var(--cp-text);
+}
+
+.cp-pager__page {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--cp-radius-sm);
+  background: transparent;
+  font: 700 13px/1 var(--cp-font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text-2);
+  cursor: pointer;
+}
+
+.cp-pager__page:hover {
+  background: var(--cp-hover);
+  color: var(--cp-text);
+}
+
+.cp-pager__page--on {
+  background: var(--cp-primary-soft);
+  color: var(--cp-primary);
+}
+
+.cp-pager__page:focus-visible,
+.cp-pager__select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-pager__gap {
+  padding: 0 4px;
+}
+
+.cp-iconbtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* ---------- badge ---------- */

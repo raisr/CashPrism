@@ -3,6 +3,7 @@ using CashPrism.Application.Bookings;
 using CashPrism.Application.Imports;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
+using CashPrism.Web.Tests.Unit.Bookings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashPrism.Web.Tests.Unit.Layout;

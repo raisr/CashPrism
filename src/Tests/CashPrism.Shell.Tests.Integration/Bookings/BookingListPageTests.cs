@@ -14,10 +14,9 @@ namespace CashPrism.Shell.Tests.Integration.Bookings;
 /// faces — the empty state or the table — a database puts in front of a person.
 /// </summary>
 /// <remarks>
-/// The rows themselves are deliberately not asserted here. <c>MudDataGrid</c>
-/// fetches its server data after the first interactive render, so a prerendered
-/// response carries the frame and not the bookings — asserting on a row would
-/// be asserting on something this transport never carries.
+/// The page reads its first page of bookings before it renders, so the
+/// prerendered response already carries the rows. What happens on a click —
+/// sorting, paging — needs a circuit and is covered by the page's bUnit tests.
 /// </remarks>
 public sealed class BookingListPageTests
 {
@@ -140,7 +139,7 @@ public sealed class BookingListPageTests
 
             var html = await GetAsync(factory);
 
-            Assert.DoesNotContain("Verwendungszweck", html, StringComparison.Ordinal);
+            Assert.DoesNotContain("<table", html, StringComparison.Ordinal);
         }
     }
 
@@ -154,12 +153,24 @@ public sealed class BookingListPageTests
 
             var html = await GetAsync(factory);
 
-            Assert.Contains("Datum", html, StringComparison.Ordinal);
-            Assert.Contains("Konto", html, StringComparison.Ordinal);
-            Assert.Contains("Gegenseite", html, StringComparison.Ordinal);
-            Assert.Contains("Verwendungszweck", html, StringComparison.Ordinal);
+            Assert.Contains("Empfänger / Absender", html, StringComparison.Ordinal);
             Assert.Contains("Kategorie", html, StringComparison.Ordinal);
+            Assert.Contains("Konto", html, StringComparison.Ordinal);
+            Assert.Contains("Datum", html, StringComparison.Ordinal);
             Assert.Contains("Betrag", html, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task Shows_The_Imported_Bookings()
+        {
+            using var factory = StartHost();
+            await ImportTwoBookingsAsync(factory);
+
+            var html = await GetAsync(factory);
+
+            Assert.Contains("Supermarkt", html, StringComparison.Ordinal);
+            Assert.Contains("−63,17 €", html, StringComparison.Ordinal);
+            Assert.Contains("−12,00 €", html, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -181,7 +192,8 @@ public sealed class BookingListPageTests
 
             var html = await GetAsync(factory);
 
-            Assert.Contains("Zeilen pro Seite:", html, StringComparison.Ordinal);
+            Assert.Contains("Zeilen pro Seite", html, StringComparison.Ordinal);
+            Assert.Contains("1–2 von 2 Buchungen", html, StringComparison.Ordinal);
         }
     }
 }

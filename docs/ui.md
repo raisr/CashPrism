@@ -210,15 +210,28 @@ measured in the export, listed in
 
 The Buchungen page is the first screen with real data behind it, and the
 measured export puts 6,327 bookings over six years and seven accounts in front
-of it. Five decisions follow from that number.
+of it. Its shape is the design's (`design/README.md` §3.2): one card holding a
+table and a pager. Each row leads with the category tile and the other party,
+the payment reference as a clamped caption beneath; then the category badge,
+the account, the date and the amount. Five decisions follow from the number of
+rows and from that shape.
 
-**The database does the sorting and the paging, not the browser.** The page
-asks `IBookingReader` for one page at a time — a slice, a column and a
-direction — and MudBlazor's `ServerData` is what carries the question. On
-Blazor Server every rendered row is also a row pushed down the circuit, so the
-alternative would mean sending six thousand of them to show twenty-five. A page
-flip measures about 40 ms end to end on the machine that hosts it, a sort about
-25 ms.
+**A table of our own, not `MudDataGrid`.** The design groups a page's rows
+under a header per day — "Heute", "Gestern", "Mo, 28. September 2026" — and
+numbers the pages. The grid offers neither: its grouping is done in the
+browser and draws a collapsible header of its own, and its pager has no page
+numbers. `Pages/Bookings.razor` therefore renders a plain `cp-table`, and
+`Components/Pager.razor` is the pager. The day headers only appear in the order
+they describe — newest first, which is how the list opens. Sorted by name or by
+amount the same day turns up all over a page, so the headers go.
+
+**The database does the sorting and the paging, not the browser.** Every click
+on a column title or a page asks `IBookingReader` for one page — a slice, a
+column and a direction. On Blazor Server every rendered row is also a row
+pushed down the circuit, so the alternative would mean sending six thousand of
+them to show twenty-five. A page flip measures about 40 ms end to end on the
+machine that hosts it, a sort about 25 ms. The page reads its first page before
+it renders, so the prerendered response already carries the rows.
 
 **The order always has a second key.** Hundreds of bookings share a date, and
 SQLite is free to return equally-ranked rows in whatever order suits it. Without
@@ -226,26 +239,20 @@ a tiebreaker the same query can answer differently twice, which is how a pager
 shows one booking on two pages and another on none. `BookingReader` therefore
 appends the fingerprint to every ordering.
 
-**Pages, not an infinite scroll.** MudBlazor can virtualise a grid and fetch
-windows as the reader scrolls. A pager was chosen instead: it needs no fixed
-grid height to be kept in step across a phone and a large screen, and its
-buttons and its "rows per page" are text the resource file already carries. The
-sizes offered are 25, 50 and 100 — MudBlazor's "all" entry is left out, because
-it asks for every booking at once and that is exactly the render the
-server-side paging exists to avoid.
+**A third click gives the day headers back.** The name, the date and the amount
+sort; a first click sorts a column newest or largest first, a second turns it
+round. The design stops there, which would leave the grouped list unreachable
+once a title was clicked, so a third click returns to it.
 
-**The pager writes its own info line.** `MudDataGridPager` formats the three
-counts it shows with a culture of its own, so a German page came out reading
-`1–25 von 6,327` — an English thousands separator beside amounts set with a
-German one. The page therefore formats that sentence itself, out of the same
-`MudDataGridPager_InfoFormat` resource, and hands the pager a finished line
-rather than a template. The resource keeps its numeric placeholders for that
-reason, and `PagerInfoFormatTests` is what stops someone taking them out again.
+**The page size can be picked, against the design.** The design fixes a page at
+25 bookings. A large screen holds far more, and paging through thousands 25 at
+a time is a chore, so the pager keeps a choice of 25, 50 and 100 beside the
+page numbers. There is no "all": it asks for every booking at once, exactly the
+render the paging exists to avoid. The info line — "1–25 von 6.327 Buchungen" —
+is composed by `PagerInfo` from a resource with three numeric placeholders, in
+the culture the host pins, so the thousands separator is German.
 
-**A column can be sorted, not filtered.** With `ServerData` a filter is a
-question for the query rather than something the grid answers by itself, so a
-filter menu would look like a feature and do nothing. Filtering and searching
-are their own work, and deliberately not part of this screen yet.
+Filtering and searching are their own work and not part of this screen yet.
 
 The amount is the only column that is more than the stored value written out.
 `Components/Amount.razor` draws it from `Bookings/BookingFormat.cs`, which

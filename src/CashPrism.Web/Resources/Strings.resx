@@ -152,20 +152,40 @@
     <comment>Booking list column: the account the booking belongs to.</comment>
   </data>
   <data name="BookingsColumnCounterparty" xml:space="preserve">
-    <value>Gegenseite</value>
-    <comment>Booking list column: the other party of the booking.</comment>
-  </data>
-  <data name="BookingsColumnReference" xml:space="preserve">
-    <value>Verwendungszweck</value>
-    <comment>Booking list column: the payment reference.</comment>
+    <value>Empfänger / Absender</value>
+    <comment>Booking list column: the other party of the booking, with the payment reference beneath it.</comment>
   </data>
   <data name="BookingsColumnCategory" xml:space="preserve">
     <value>Kategorie</value>
-    <comment>Booking list column: Finanzguru's top-level category.</comment>
+    <comment>Booking list column: the design category the booking is shown in.</comment>
   </data>
   <data name="BookingsColumnAmount" xml:space="preserve">
     <value>Betrag</value>
     <comment>Booking list column: the signed amount.</comment>
+  </data>
+  <data name="BookingsToday" xml:space="preserve">
+    <value>Heute</value>
+    <comment>Booking list: the header above today's bookings.</comment>
+  </data>
+  <data name="BookingsYesterday" xml:space="preserve">
+    <value>Gestern</value>
+    <comment>Booking list: the header above yesterday's bookings.</comment>
+  </data>
+  <data name="BookingsPagerInfo" xml:space="preserve">
+    <value>{0:N0}–{1:N0} von {2:N0} Buchungen</value>
+    <comment>Booking list pager: {0} and {1} are the first and the last booking on screen, {2} the total. Keep the three numeric placeholders.</comment>
+  </data>
+  <data name="PagerRowsPerPage" xml:space="preserve">
+    <value>Zeilen pro Seite</value>
+    <comment>Pager: the label of the page size picker.</comment>
+  </data>
+  <data name="PagerPrevious" xml:space="preserve">
+    <value>Vorherige Seite</value>
+    <comment>Pager: accessible name of the button to the page before.</comment>
+  </data>
+  <data name="PagerNext" xml:space="preserve">
+    <value>Nächste Seite</value>
+    <comment>Pager: accessible name of the button to the page after.</comment>
   </data>
   <data name="ImportLead" xml:space="preserve">
     <value>Finanzguru-Export einlesen.</value>

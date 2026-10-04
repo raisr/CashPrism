@@ -129,6 +129,43 @@ public sealed class BookingFormatTests
         }
     }
 
+    public sealed class DayHeader
+    {
+        private static readonly DateOnly Today = new(2026, 10, 4);
+
+        [Fact]
+        public void Calls_Today_By_Its_Name()
+        {
+            var header = BookingFormat.DayHeader(new DateTime(2026, 10, 4, 9, 41, 0, DateTimeKind.Unspecified), Today, "Heute", "Gestern", German);
+
+            Assert.Equal("Heute", header);
+        }
+
+        [Fact]
+        public void Calls_Yesterday_By_Its_Name()
+        {
+            var header = BookingFormat.DayHeader(new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Unspecified), Today, "Heute", "Gestern", German);
+
+            Assert.Equal("Gestern", header);
+        }
+
+        [Fact]
+        public void Writes_An_Older_Day_Out_With_Its_Weekday()
+        {
+            var header = BookingFormat.DayHeader(new DateTime(2026, 9, 28, 0, 0, 0, DateTimeKind.Unspecified), Today, "Heute", "Gestern", German);
+
+            Assert.Equal("Mo, 28. September 2026", header);
+        }
+
+        [Fact]
+        public void Writes_A_Day_After_Today_Out_As_Well()
+        {
+            var header = BookingFormat.DayHeader(new DateTime(2026, 10, 5, 0, 0, 0, DateTimeKind.Unspecified), Today, "Heute", "Gestern", German);
+
+            Assert.Equal("Mo, 5. Oktober 2026", header);
+        }
+    }
+
     public sealed class Count
     {
         [Fact]

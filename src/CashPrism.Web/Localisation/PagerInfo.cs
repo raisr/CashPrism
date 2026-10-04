@@ -56,4 +56,65 @@ public static class PagerInfo
     /// <param name="skip">How many entries the page passed over.</param>
     /// <param name="onPage">How many entries the page carries.</param>
     public static int Last(int skip, int onPage) => onPage == 0 ? 0 : skip + onPage;
+
+    /// <summary>
+    /// How many pages a list of <paramref name="total"/> entries fills — at
+    /// least one, so an empty list still has a page to be on.
+    /// </summary>
+    /// <param name="total">How many entries there are in total.</param>
+    /// <param name="pageSize">How many entries a page holds.</param>
+    public static int PageCount(int total, int pageSize)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageSize);
+
+        return Math.Max(1, (total + pageSize - 1) / pageSize);
+    }
+
+    /// <summary>
+    /// The page numbers a pager offers, as the design draws them: the two pages
+    /// on either side of the current one, the first and the last page always,
+    /// and a gap wherever pages are left out between them.
+    /// </summary>
+    /// <param name="page">The current page, counted from zero.</param>
+    /// <param name="pageCount">How many pages there are.</param>
+    /// <returns>
+    /// The pages counted from zero, in order, with <c>null</c> standing for a
+    /// gap of one or more pages.
+    /// </returns>
+    public static IReadOnlyList<int?> Pages(int page, int pageCount)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pageCount);
+        ArgumentOutOfRangeException.ThrowIfNegative(page);
+
+        var from = Math.Max(0, page - 2);
+        var to = Math.Min(pageCount - 1, page + 2);
+        var pages = new List<int?>();
+
+        if (from > 0)
+        {
+            pages.Add(0);
+        }
+
+        if (from > 1)
+        {
+            pages.Add(null);
+        }
+
+        for (var near = from; near <= to; near++)
+        {
+            pages.Add(near);
+        }
+
+        if (to < pageCount - 2)
+        {
+            pages.Add(null);
+        }
+
+        if (to < pageCount - 1)
+        {
+            pages.Add(pageCount - 1);
+        }
+
+        return pages;
+    }
 }

@@ -1,0 +1,107 @@
+@using CashPrism.Web.Localisation
+@inject IStringLocalizer<Strings> text
+
+@* The foot of a paged list: which entries of how many are on screen, how many
+   a page holds, and the way to the others. The page numbers follow the
+   design; the page size is an addition of ours — the design shows a fixed 25,
+   but a large screen holds far more, and paging through thousands of
+   bookings 25 at a time is a chore. *@
+<div class="cp-pager">
+  <span class="cp-pager__info">@Info</span>
+  <div class="cp-pager__nav">
+    <label class="cp-pager__size">
+      <span>@text["PagerRowsPerPage"]</span>
+      <select class="cp-pager__select" value="@PageSize" @onchange="OnPageSizeChangedAsync">
+        @foreach (var size in PageSizes)
+        {
+          <option value="@size">@size</option>
+        }
+      </select>
+    </label>
+    <button type="button" class="cp-iconbtn cp-iconbtn--sm"
+            aria-label="@text["PagerPrevious"]"
+            disabled="@(Page == 0)"
+            @onclick="() => GoAsync(Page - 1)">
+      <CpIcon Name="chevron-left" />
+    </button>
+    @foreach (var page in PagerInfo.Pages(Page, PageCount))
+    {
+      if (page is { } number)
+      {
+        <button type="button"
+                class="@(number == Page ? "cp-pager__page cp-pager__page--on" : "cp-pager__page")"
+                aria-current="@(number == Page ? "page" : null)"
+                @onclick="() => GoAsync(number)">
+          @((number + 1).ToString("N0", CultureInfo.CurrentCulture))
+        </button>
+      }
+      else
+      {
+        <span class="cp-pager__gap" aria-hidden="true">…</span>
+      }
+    }
+    <button type="button" class="cp-iconbtn cp-iconbtn--sm"
+            aria-label="@text["PagerNext"]"
+            disabled="@(Page >= PageCount - 1)"
+            @onclick="() => GoAsync(Page + 1)">
+      <CpIcon Name="chevron-right" />
+    </button>
+  </div>
+</div>
+
+@code {
+    /// <summary>The current page, counted from zero.</summary>
+    [Parameter]
+    public int Page { get; set; }
+
+    /// <summary>How many entries a page holds; one of <see cref="PageSizes"/>.</summary>
+    [Parameter]
+    public int PageSize { get; set; } = 25;
+
+    /// <summary>The page sizes a person can pick from.</summary>
+    [Parameter]
+    public IReadOnlyList<int> PageSizes { get; set; } = [25, 50, 100];
+
+    /// <summary>How many entries the list holds in total.</summary>
+    [Parameter]
+    public int Total { get; set; }
+
+    /// <summary>
+    /// The info line, with three numeric placeholders for the first and the
+    /// last entry on screen and the total — already localised, because only
+    /// the list knows what it counts.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string InfoFormat { get; set; } = string.Empty;
+
+    /// <summary>Raised with the page, counted from zero, a person asked for.</summary>
+    [Parameter]
+    public EventCallback<int> PageChanged { get; set; }
+
+    /// <summary>Raised with the page size a person picked.</summary>
+    [Parameter]
+    public EventCallback<int> PageSizeChanged { get; set; }
+
+    private int PageCount => PagerInfo.PageCount(Total, PageSize);
+
+    private string Info
+    {
+        get
+        {
+            var skip = Page * PageSize;
+            var onPage = Math.Clamp(Total - skip, 0, PageSize);
+
+            return PagerInfo.Compose(InfoFormat, PagerInfo.First(skip, onPage), PagerInfo.Last(skip, onPage), Total);
+        }
+    }
+
+    private Task GoAsync(int page)
+        => page < 0 || page >= PageCount || page == Page ? Task.CompletedTask : PageChanged.InvokeAsync(page);
+
+    // Only a size from the list is taken: the value travels from the browser,
+    // and a size nobody offered is not one the list was built to ask for.
+    private Task OnPageSizeChangedAsync(ChangeEventArgs change)
+        => int.TryParse(change.Value?.ToString(), CultureInfo.InvariantCulture, out var size) && PageSizes.Contains(size)
+            ? PageSizeChanged.InvokeAsync(size)
+            : Task.CompletedTask;
+}

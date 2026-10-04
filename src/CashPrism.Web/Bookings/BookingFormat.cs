@@ -95,6 +95,38 @@ public static class BookingFormat
         => string.Equals(currency, "EUR", StringComparison.OrdinalIgnoreCase) ? "€" : currency;
 
     /// <summary>
+    /// The heading a day's bookings are grouped under: the two days a person
+    /// thinks of by name are called by it, every other day is written out with
+    /// its weekday — <c>Mo, 29. September 2026</c>.
+    /// </summary>
+    /// <param name="bookedOn">The date the booking was posted; its time is ignored.</param>
+    /// <param name="today">Today, in the local time of the machine that hosts CashPrism.</param>
+    /// <param name="todayText">What today is called, from the resource file.</param>
+    /// <param name="yesterdayText">What yesterday is called, from the resource file.</param>
+    /// <param name="formatProvider">The culture to format in.</param>
+    public static string DayHeader(
+        DateTime bookedOn,
+        DateOnly today,
+        string todayText,
+        string yesterdayText,
+        IFormatProvider? formatProvider = null)
+    {
+        var day = DateOnly.FromDateTime(bookedOn);
+
+        if (day == today)
+        {
+            return todayText;
+        }
+
+        if (day == today.AddDays(-1))
+        {
+            return yesterdayText;
+        }
+
+        return day.ToString("ddd, d. MMMM yyyy", formatProvider ?? CultureInfo.CurrentCulture);
+    }
+
+    /// <summary>
     /// Formats a booking date, without its time. The export carries a time on
     /// some rows and not on others, so a column showing one row's time next to
     /// another row's midnight would be noise rather than information.
