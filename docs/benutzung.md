@@ -49,7 +49,7 @@ Buchungen.
 
 ## Die Navigation
 
-Links steht die Navigation mit vier Zielen. Auf einem schmalen Bildschirm ist
+Links steht die Navigation mit fünf Zielen. Auf einem schmalen Bildschirm ist
 sie eingeklappt und öffnet sich über das Menüsymbol oben links. Oben rechts
 wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
 *Import* führt von jeder Seite direkt zum Einlesen. Unten in der Navigation
@@ -62,6 +62,7 @@ Symbolen ein und wieder auf.
 | Übersicht | `/` | Noch nichts außer einem Hinweis und dem Weg zum Import |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
+| Einstellungen | `/settings` | Alle gespeicherten Daten löschen |
 
 Solange nichts importiert ist, zeigt *Buchungen* statt einer leeren Tabelle
 einen Hinweis und eine Schaltfläche zur Seite *Import*.
@@ -198,5 +199,20 @@ Die Reihenfolge ist fest; die Spalten lassen sich nicht sortieren.
 | Zeilen gesamt | Wie viele Buchungszeilen die Datei enthielt |
 
 Abgelehnte Dateien und Dateien, die schon einmal importiert waren, erscheinen
-hier nicht: Sie haben nichts eingelesen. Einträge lassen sich weder löschen
-noch wiederholen, und ein Import lässt sich nicht rückgängig machen.
+hier nicht: Sie haben nichts eingelesen. Einzelne Einträge lassen sich weder
+löschen noch wiederholen, und ein Import lässt sich nicht rückgängig machen.
+
+## Alle Daten löschen
+
+Unter *Einstellungen* löscht *Alle Daten löschen* jede gespeicherte Buchung
+und jeden bisherigen Import. Danach baut ein neuer Import alles wieder auf, denn
+jeder Finanzguru-Export enthält deine ganze Historie. Das ist der Weg, wenn eine
+neue Version von CashPrism mehr aus dem Export speichert als die alte: löschen,
+dann den neuesten Export importieren.
+
+Nach dem Klick fragt die Seite nach und nennt, wie viele Buchungen und Importe
+verschwinden. Erst *Endgültig löschen* löscht, *Abbrechen* lässt alles, wie es
+ist. Rückgängig machen lässt sich das Löschen nicht. Weil auch die bisherigen
+Importe verschwinden, nimmt CashPrism danach auch eine Datei an, die es vorher
+schon kannte. Solange nichts gespeichert ist, lässt sich die Schaltfläche nicht
+anklicken.

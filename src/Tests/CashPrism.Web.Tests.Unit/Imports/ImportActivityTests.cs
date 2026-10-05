@@ -1,4 +1,5 @@
 using CashPrism.Web.Imports;
+using CashPrism.Web.StoredData;
 
 namespace CashPrism.Web.Tests.Unit.Imports;
 
@@ -12,7 +13,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Runs_The_Import_And_Keeps_What_It_Said()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
 
             var started = await activity.RunAsync(() => Task.FromResult(AMessage("fertig")));
 
@@ -24,7 +26,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Says_It_Is_Running_While_It_Does()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var release = new TaskCompletionSource();
             var running = activity.RunAsync(async () =>
             {
@@ -48,7 +51,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Refuses_A_Second_Import_While_One_Is_In_Flight()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var release = new TaskCompletionSource();
             var first = activity.RunAsync(async () =>
             {
@@ -69,7 +73,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Accepts_Another_Import_Once_The_First_Has_Finished()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             await activity.RunAsync(() => Task.FromResult(AMessage("erster")));
 
             var started = await activity.RunAsync(() => Task.FromResult(AMessage("zweiter")));
@@ -81,7 +86,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Clears_The_Previous_Result_When_A_New_Import_Starts()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             await activity.RunAsync(() => Task.FromResult(AMessage("erster")));
             var release = new TaskCompletionSource();
             var second = activity.RunAsync(async () =>
@@ -100,7 +106,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Stops_Running_When_The_Import_Throws()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
 
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => activity.RunAsync(() => throw new InvalidOperationException("kaputt")));
@@ -111,7 +118,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Announces_The_Start_And_The_End()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var announcements = 0;
             activity.Changed += () => announcements++;
 
@@ -123,9 +131,10 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Announces_The_Completion_Once_The_Import_Has_Finished()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var completions = 0;
-            activity.Completed += () => completions++;
+            changes.Changed += () => completions++;
 
             await activity.RunAsync(() => Task.FromResult(AMessage()));
 
@@ -135,9 +144,10 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Does_Not_Announce_The_Completion_While_The_Import_Runs()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var completed = false;
-            activity.Completed += () => completed = true;
+            changes.Changed += () => completed = true;
             var release = new TaskCompletionSource();
             var running = activity.RunAsync(async () =>
             {
@@ -155,9 +165,10 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Does_Not_Announce_The_Completion_When_The_Import_Throws()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var completed = false;
-            activity.Completed += () => completed = true;
+            changes.Changed += () => completed = true;
 
             await Assert.ThrowsAsync<InvalidOperationException>(
                 () => activity.RunAsync(() => throw new InvalidOperationException("kaputt")));
@@ -168,7 +179,8 @@ public sealed class ImportActivityTests
         [Fact]
         public async Task Does_Not_Announce_A_Completion_For_An_Import_It_Turned_Away()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var release = new TaskCompletionSource();
             var first = activity.RunAsync(async () =>
             {
@@ -177,7 +189,7 @@ public sealed class ImportActivityTests
                 return AMessage("erster");
             });
             var completions = 0;
-            activity.Completed += () => completions++;
+            changes.Changed += () => completions++;
 
             await activity.RunAsync(() => Task.FromResult(AMessage("zweiter")));
             release.SetResult();
@@ -192,7 +204,8 @@ public sealed class ImportActivityTests
         [Fact]
         public void Keeps_A_Message_Without_Running_Anything()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
 
             activity.Report(AMessage("zu groß"));
 
@@ -203,7 +216,8 @@ public sealed class ImportActivityTests
         [Fact]
         public void Announces_The_Message()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var announced = false;
             activity.Changed += () => announced = true;
 
@@ -215,9 +229,10 @@ public sealed class ImportActivityTests
         [Fact]
         public void Does_Not_Announce_A_Completion()
         {
-            var activity = new ImportActivity();
+            var changes = new StoredDataChanges();
+            var activity = new ImportActivity(changes);
             var completed = false;
-            activity.Completed += () => completed = true;
+            changes.Changed += () => completed = true;
 
             activity.Report(AMessage());
 

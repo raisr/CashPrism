@@ -143,6 +143,16 @@
   overflow: hidden;
 }
 
+/* While an import runs or the data is being deleted, the card doing the work
+   stands above the overlay that dims and locks the rest of the page (z-index
+   9999, set on the MudOverlay in Import.razor and Settings.razor). */
+.cp-card--busy {
+  position: relative;
+  z-index: 10000;
+  border-color: var(--cp-primary);
+  box-shadow: var(--cp-shadow-pop), 0 0 0 3px var(--cp-focus);
+}
+
 .cp-card__head {
   display: flex;
   align-items: center;
@@ -1027,16 +1037,6 @@
   }
 }
 
-/* While an import runs, the card with the drop zone stands above the overlay
-   that dims and locks the rest of the page (z-index 9999, set on the
-   MudOverlay in Import.razor). */
-.cp-import-busy {
-  position: relative;
-  z-index: 10000;
-  border-color: var(--cp-primary);
-  box-shadow: var(--cp-shadow-pop), 0 0 0 3px var(--cp-focus);
-}
-
 .cp-import-result {
   margin-top: 16px;
 }
@@ -1272,4 +1272,31 @@
   .mud-appbar.cp-topbar .mud-toolbar {
     padding: 0 var(--cp-page-padding-mobile);
   }
+}
+
+/* ---------- settings ---------- */
+
+.cp-settings-erase {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-settings-erase__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.cp-settings-erase__hint {
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-settings-erase__busy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
 }

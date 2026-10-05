@@ -4,6 +4,7 @@ using CashPrism.Application.Time;
 using CashPrism.TestSupport.Imports;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Localisation;
+using CashPrism.Web.StoredData;
 using CashPrism.Web.Tests.Unit.Imports;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ public sealed class ImportTests
             Context.Services.AddLocalization();
             Context.Services.AddMudServices();
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
+            Context.Services.AddScoped<StoredDataChanges>();
             Context.Services.AddScoped<ImportActivity>();
             Context.Services.AddSingleton<IImportStore>(new FakeImportStore());
             Context.Services.AddSingleton<IClock>(new FixedClock(DateTimeOffset.UnixEpoch));
@@ -235,10 +237,10 @@ public sealed class ImportTests
             });
             var page = Context.Render<Import>();
 
-            Assert.NotNull(page.Find(".cp-import-busy .cp-dropzone--busy"));
+            Assert.NotNull(page.Find(".cp-card--busy .cp-dropzone--busy"));
 
             release.SetResult();
-            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-import-busy")));
+            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-card--busy")));
             Assert.True(running.IsCompleted);
         }
 

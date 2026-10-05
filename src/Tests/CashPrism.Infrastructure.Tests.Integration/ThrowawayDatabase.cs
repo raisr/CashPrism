@@ -92,6 +92,15 @@ public sealed class ThrowawayDatabase : IAsyncDisposable
         return new CashPrismDbContext(options);
     }
 
+    /// <summary>
+    /// What the database takes on disk, for asserting what a compaction did: the
+    /// file plus its write-ahead log, because EF Core creates SQLite databases in
+    /// WAL mode and a write lands in the log before it reaches the file.
+    /// </summary>
+    public long FileSizeInBytes
+        => new FileInfo(filePath).Length
+           + (File.Exists(filePath + "-wal") ? new FileInfo(filePath + "-wal").Length : 0);
+
     /// <summary>Opens a raw connection, for asserting what a column actually holds.</summary>
     public SqliteConnection CreateConnection() => new($"Data Source={filePath}");
 

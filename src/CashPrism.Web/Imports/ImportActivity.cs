@@ -1,3 +1,5 @@
+using CashPrism.Web.StoredData;
+
 namespace CashPrism.Web.Imports;
 
 /// <summary>
@@ -24,18 +26,23 @@ public sealed class ImportActivity
     /// </remarks>
     public event Action? Changed;
 
-    /// <summary>
-    /// Raised once an import has run to its end — whatever it said, since even a
-    /// refused file was read to the end. Not raised for one that threw, for one
-    /// turned away because another was in flight, or for a <see cref="Report"/>.
-    /// </summary>
-    /// <remarks>
+    private readonly StoredDataChanges storedDataChanges;
+
+    /// <summary>Creates the activity of one circuit.</summary>
+    /// <param name="storedDataChanges">
+    /// Told once an import has run to its end — whatever it said, since even a
+    /// refused file was read to the end. Not told about one that threw, one
+    /// turned away because another was in flight, or a <see cref="Report"/>.
     /// Narrower than <see cref="Changed"/> on purpose: whoever shows what is
     /// stored has to look again after an import, not every time the Import page
-    /// changes what it shows. Raised from the thread that finished the import,
-    /// like <see cref="Changed"/>.
-    /// </remarks>
-    public event Action? Completed;
+    /// changes what it shows.
+    /// </param>
+    public ImportActivity(StoredDataChanges storedDataChanges)
+    {
+        ArgumentNullException.ThrowIfNull(storedDataChanges);
+
+        this.storedDataChanges = storedDataChanges;
+    }
 
     /// <summary>Whether an import is in flight.</summary>
     public bool IsRunning
@@ -95,7 +102,7 @@ public sealed class ImportActivity
             Changed?.Invoke();
         }
 
-        Completed?.Invoke();
+        storedDataChanges.Notify();
 
         return true;
     }

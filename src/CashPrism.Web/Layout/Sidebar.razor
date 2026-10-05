@@ -1,8 +1,9 @@
 @using CashPrism.Web.Bookings
 @using CashPrism.Web.Imports
+@using CashPrism.Web.StoredData
 @inherits OwningComponentBase<LibrarySummaryReader>
 @inject IStringLocalizer<Strings> text
-@inject ImportActivity activity
+@inject StoredDataChanges storedDataChanges
 
 @* The drawer's content. A component of its own, and one that owns its service
    scope, because it reads the database while the page beside it may be doing
@@ -72,16 +73,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        activity.Completed += OnImportCompleted;
+        storedDataChanges.Changed += OnStoredDataChanged;
 
         summary = await Service.ReadAsync();
     }
 
     /// <summary>
-    /// The import raises this from the thread it ran on, so the read and the
+    /// Raised from the thread that changed the data, so the read and the
     /// render are marshalled back onto the circuit's.
     /// </summary>
-    private void OnImportCompleted() => _ = InvokeAsync(RefreshAsync);
+    private void OnStoredDataChanged() => _ = InvokeAsync(RefreshAsync);
 
     private async Task RefreshAsync()
     {
@@ -102,7 +103,7 @@
     {
         if (disposing)
         {
-            activity.Completed -= OnImportCompleted;
+            storedDataChanges.Changed -= OnStoredDataChanged;
         }
 
         base.Dispose(disposing);

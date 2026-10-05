@@ -154,8 +154,13 @@ releases and the minor version is bumped for every notable change.
   Finanzguru leaves it out of the disposable income, the SEPA mandate and
   creditor, the tags, and the balance the export reports. The booking detail
   shows how a booking was paid as a badge. **A database from an earlier version
-  does not have these values:** stop CashPrism, delete `data/cashprism.db` and
-  import the latest export again — it carries every booking.
+  does not have these values:** delete all data under *Einstellungen* and import
+  the latest export again — it carries every booking.
+- A settings page, *Einstellungen*, under *Daten* in the navigation. Its
+  *Alle Daten löschen* deletes every booking and import after asking once, and
+  shrinks the database file again; a fresh import then rebuilds everything,
+  the same file included. No more stopping CashPrism to delete the database by
+  hand.
 
 ### Changed
 

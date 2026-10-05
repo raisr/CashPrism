@@ -1,0 +1,139 @@
+@page "/settings"
+@using CashPrism.Application.Bookings
+@using CashPrism.Application.Imports
+@using CashPrism.Application.Persistence
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.StoredData
+@using Microsoft.Extensions.Logging
+@inject IStringLocalizer<Strings> text
+@inject IDataEraser eraser
+@inject IBookingReader bookingReader
+@inject IImportRunReader runReader
+@inject StoredDataChanges storedDataChanges
+@inject ILogger<Settings> log
+
+<PageFrame Title="@text["NavSettings"]" Lead="@text["SettingsLead"]">
+  @* The card stands above the overlay while the data is deleted, like the
+     drop zone during an import (cp-card--busy). *@
+  <div class="@(erasing ? "cp-card cp-card--busy" : "cp-card")">
+    <div class="cp-card__head">
+      <div class="cp-card__title">
+        <div class="cp-h3">@text["SettingsDataTitle"]</div>
+        <div class="cp-card__sub">@text["SettingsDataLead"]</div>
+      </div>
+    </div>
+    <div class="cp-card__body cp-settings-erase">
+      @if (erasing)
+      {
+        <div class="cp-settings-erase__busy">
+          <span class="cp-spinner" role="progressbar"></span>
+          @text["SettingsErasing"]
+        </div>
+      }
+      else if (confirming)
+      {
+        @* Asked here rather than in a dialog of the browser: the warning stands
+           where the button was, and deleting takes a second, differently
+           labelled click. *@
+        <Alert Tone="AlertTone.Danger"
+               Title="@text["SettingsEraseConfirmTitle"]"
+               Details="ConfirmDetails" />
+        <div class="cp-settings-erase__actions">
+          <MudButton Variant="Variant.Filled" Color="Color.Error" Class="cp-btn cp-settings-erase__confirm"
+                     OnClick="EraseAsync">
+            <CpIcon Name="trash-2" />
+            @text["SettingsEraseConfirm"]
+          </MudButton>
+          <MudButton Variant="Variant.Outlined" Class="cp-btn cp-settings-erase__cancel" OnClick="Cancel">
+            @text["SettingsEraseCancel"]
+          </MudButton>
+        </div>
+      }
+      else
+      {
+        @if (erased)
+        {
+          <Alert Tone="AlertTone.Success" Title="@text["SettingsErasedTitle"]" Details="ErasedDetails" />
+        }
+        <div class="cp-settings-erase__actions">
+          @* Nothing to delete is said rather than offered: an empty database
+             gets a disabled button and the reason beside it. *@
+          <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="cp-btn cp-settings-erase__start"
+                     Disabled="@(!HasData)" OnClick="AskAsync">
+            <CpIcon Name="trash-2" />
+            @text["SettingsErase"]
+          </MudButton>
+          @if (!HasData && !erased)
+          {
+            <span class="cp-settings-erase__hint">@text["SettingsEraseNothing"]</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</PageFrame>
+
+@* Locks the page for the moment the deletion takes, as the import does: a
+   click elsewhere must not read tables that are being emptied. *@
+<MudOverlay Visible="@erasing" DarkBackground="true" ZIndex="9999" />
+
+@code {
+    private int bookingCount;
+    private int runCount;
+    private bool confirming;
+    private bool erasing;
+    private bool erased;
+
+    private bool HasData => bookingCount > 0 || runCount > 0;
+
+    // German counts one apart from every other number, and a household with a
+    // single import is the ordinary case, so "1 Importe" would be read often.
+    private IReadOnlyList<string> ConfirmDetails
+        => [text[
+            "SettingsEraseConfirmText",
+            text[bookingCount == 1 ? "SettingsEraseBookingsOne" : "SettingsEraseBookingsOther", BookingFormat.Count(bookingCount)],
+            text[runCount == 1 ? "SettingsEraseRunsOne" : "SettingsEraseRunsOther", runCount]]];
+
+    private IReadOnlyList<string> ErasedDetails => [text["SettingsErasedText"]];
+
+    protected override Task OnInitializedAsync() => CountAsync();
+
+    // One after the other: both readers share the circuit's database context,
+    // which takes one query at a time.
+    private async Task CountAsync()
+    {
+        bookingCount = await bookingReader.CountAsync();
+        runCount = await runReader.CountAsync();
+    }
+
+    // Counted again on asking, so the warning names what is stored now and not
+    // what was stored when the page opened.
+    private async Task AskAsync()
+    {
+        await CountAsync();
+        erased = false;
+        confirming = true;
+    }
+
+    private void Cancel() => confirming = false;
+
+    private async Task EraseAsync()
+    {
+        confirming = false;
+        erasing = true;
+
+        try
+        {
+            await eraser.EraseAllAsync();
+            log.LogInformation("All stored data was deleted");
+        }
+        finally
+        {
+            erasing = false;
+        }
+
+        await CountAsync();
+        erased = true;
+        storedDataChanges.Notify();
+    }
+}
