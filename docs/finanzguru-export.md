@@ -373,7 +373,7 @@ It was produced from the later of the two measured exports with the
 [anonymiser](anonymiser.md), from the repository root:
 
 ```
-dotnet run --project src/CashPrism.Anonymiser -- <path>/20260907-Export-Alle_Buchungen.xlsx --out src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration/Fixtures --synthetic-values --max-rows 50
+dotnet run --project src/Tools/CashPrism.Anonymiser -- <path>/20260907-Export-Alle_Buchungen.xlsx --out src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration/Fixtures --synthetic-values --max-rows 50
 ```
 
 `--synthetic-values` is what makes it fit for a public repository: every

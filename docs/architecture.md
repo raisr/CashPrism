@@ -21,7 +21,7 @@ centre.
 | `src/CashPrism.Infrastructure.Finanzguru` | Reads the Finanzguru xlsx with ClosedXML and projects its rows onto bookings. Keeps both the ClosedXML dependency and the German column names out of everything else | Application, Domain |
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
-| `src/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real Finanzguru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
+| `src/Tools/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real Finanzguru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
 
 `Shell` and `Anonymiser` are the only two projects that reference an
 Infrastructure project — both are composition roots, so both are allowed to wire
@@ -38,6 +38,7 @@ concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader and the import source against a workbook built in code — no binary fixture in the repository |
 | `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, and that amounts are stored as cents |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included, and the import through the objects the host actually wires |
+| `src/Tests/CashPrism.Web.Tests.Unit` | `Web` without a host: pages, layout and components rendered with bUnit against test doubles, and the formatting and mapping beside them |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
 | `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository |
 
@@ -65,7 +66,6 @@ src/
   CashPrism.Infrastructure.Finanzguru/
   CashPrism.Web/
   CashPrism.Shell/
-  CashPrism.Anonymiser/
   Tests/
     CashPrism.Architecture.Tests/
     CashPrism.Application.Tests.Unit/
@@ -74,13 +74,17 @@ src/
     CashPrism.Infrastructure.Finanzguru.Tests.Integration/
     CashPrism.Infrastructure.Tests.Integration/
     CashPrism.Shell.Tests.Integration/
+    CashPrism.Web.Tests.Unit/
     CashPrism.Anonymiser.Tests.Unit/
     CashPrism.Anonymiser.Tests.Integration/
     CashPrism.TestSupport/
+  Tools/
+    CashPrism.Anonymiser/
 ```
 
-The solution file is `src/CashPrism.slnx`, so `src/Tests` is a plain folder
-inside the solution root, not a solution folder that has to be kept in sync.
+The solution file is `src/CashPrism.slnx`. `src/Tests` and `src/Tools` are
+plain folders inside the solution root, and the `/Tests/` and `/Tools/`
+solution folders in the `.slnx` list the same projects.
 
 `design/` holds the design system as exported from Claude Design: tokens,
 components, guidelines and brand assets. It is reference material for the UI
