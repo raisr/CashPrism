@@ -255,5 +255,30 @@ public sealed class BookingReaderTests
             Assert.Equal("Wocheneinkauf", booking.PaymentReference);
             Assert.Equal("Lebensmittel", booking.Category);
         }
+
+        [Fact]
+        public async Task Reads_A_Booking_Back_With_The_Contract_Direct_Debit_And_Analysis_Fields()
+        {
+            var stored = TestBookings.Create(
+                Fingerprint(1),
+                reportedBalanceInCents: -36960546,
+                transactionKind: "SEPA-Lastschrift",
+                isContract: true,
+                contractInterval: "vierteljaehrlich",
+                contractId: "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+                isExcludedFromDisposableIncome: true,
+                mandateReference: "KM-1234567890-000001",
+                creditorId: "DE98ZZZ09999999999",
+                tags: "Urlaub",
+                sourceImportRunId: ARun);
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(database, stored);
+            var reader = CreateReader(database, out var context);
+            await using var _ = context;
+
+            var page = await reader.ReadPageAsync(new BookingPageRequest(Skip: 0, Take: 25));
+
+            Assert.Equivalent(stored, Assert.Single(page.Items), strict: true);
+        }
     }
 }

@@ -8,16 +8,17 @@ namespace CashPrism.Domain.Bookings;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The export carries 29 columns and this model keeps 14 of them. The four
-/// period columns are left out because they reproduce exactly from the booking
-/// date and therefore carry nothing; the rest stays available in the stored raw
-/// row for the day it is needed. The reasoning, and the measurements behind it,
-/// are in <c>docs/finanzguru-export.md</c>.
+/// The export carries 29 columns and this model keeps 23 of them. Six are left
+/// out because they carry nothing: the four period columns reproduce exactly
+/// from the booking date, the income/spending word repeats the sign of the
+/// amount, and the end-to-end reference was empty in every measured row. The
+/// reasoning, and the measurements behind it, are in
+/// <c>docs/finanzguru-export.md</c>.
 /// </para>
 /// <para>
 /// A booking is deliberately not a record: two bookings are the same booking
 /// when their fingerprints match, whatever their other fields say — that is the
-/// whole point of the fingerprint, and value equality over all 14 fields would
+/// whole point of the fingerprint, and value equality over all 23 fields would
 /// answer a different question. Use <see cref="IsSameBookingAs"/>.
 /// </para>
 /// </remarks>
@@ -67,6 +68,31 @@ public sealed class Booking
     /// The fingerprint of the booking this one is a part of, or <c>null</c> when
     /// it is not a part.
     /// </param>
+    /// <param name="reportedBalanceInCents">
+    /// The balance the export reports for the booking, in whole cents. It looks
+    /// like a running balance and is not one, so nothing may be derived from it —
+    /// see <c>docs/finanzguru-export.md</c>.
+    /// </param>
+    /// <param name="transactionKind">
+    /// How the booking was paid, as Finanzguru names it — card payment, direct
+    /// debit, transfer and so on. Free text from our point of view. Empty where
+    /// the export has no value.
+    /// </param>
+    /// <param name="isContract">Whether Finanzguru counts the booking to a recognised contract.</param>
+    /// <param name="contractInterval">
+    /// How often that contract recurs, as Finanzguru names it. Empty where the
+    /// booking belongs to no contract.
+    /// </param>
+    /// <param name="contractId">
+    /// Finanzguru's identifier of that contract. Empty where the booking belongs
+    /// to no contract.
+    /// </param>
+    /// <param name="isExcludedFromDisposableIncome">
+    /// Whether Finanzguru leaves the booking out of the freely disposable income.
+    /// </param>
+    /// <param name="mandateReference">The SEPA mandate reference. Empty unless the booking is a direct debit.</param>
+    /// <param name="creditorId">The SEPA creditor identifier. Empty unless the booking is a direct debit.</param>
+    /// <param name="tags">The free-text tags a person put on the booking. Empty where there are none.</param>
     /// <param name="sourceImportRunId">
     /// The run whose export this state of the booking came from. It is what makes
     /// a re-import able to tell whether the file in front of it is older than what
@@ -95,6 +121,15 @@ public sealed class Booking
         bool isTransfer,
         SplitRole splitRole,
         string? originalFingerprint,
+        long reportedBalanceInCents,
+        string transactionKind,
+        bool isContract,
+        string contractInterval,
+        string contractId,
+        bool isExcludedFromDisposableIncome,
+        string mandateReference,
+        string creditorId,
+        string tags,
         Guid sourceImportRunId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fingerprint);
@@ -106,6 +141,12 @@ public sealed class Booking
         ArgumentNullException.ThrowIfNull(paymentReference);
         ArgumentNullException.ThrowIfNull(category);
         ArgumentNullException.ThrowIfNull(subCategory);
+        ArgumentNullException.ThrowIfNull(transactionKind);
+        ArgumentNullException.ThrowIfNull(contractInterval);
+        ArgumentNullException.ThrowIfNull(contractId);
+        ArgumentNullException.ThrowIfNull(mandateReference);
+        ArgumentNullException.ThrowIfNull(creditorId);
+        ArgumentNullException.ThrowIfNull(tags);
 
         if (sourceImportRunId == Guid.Empty)
         {
@@ -144,6 +185,15 @@ public sealed class Booking
         IsTransfer = isTransfer;
         SplitRole = splitRole;
         OriginalFingerprint = originalFingerprint;
+        ReportedBalanceInCents = reportedBalanceInCents;
+        TransactionKind = transactionKind;
+        IsContract = isContract;
+        ContractInterval = contractInterval;
+        ContractId = contractId;
+        IsExcludedFromDisposableIncome = isExcludedFromDisposableIncome;
+        MandateReference = mandateReference;
+        CreditorId = creditorId;
+        Tags = tags;
         SourceImportRunId = sourceImportRunId;
     }
 
@@ -188,6 +238,36 @@ public sealed class Booking
 
     /// <summary>The fingerprint of the booking this one is a part of, or <c>null</c>.</summary>
     public string? OriginalFingerprint { get; }
+
+    /// <summary>
+    /// The balance the export reports for the booking, in whole cents. Not a
+    /// running balance: shown as what the export claims, never derived from.
+    /// </summary>
+    public long ReportedBalanceInCents { get; }
+
+    /// <summary>How the booking was paid, as Finanzguru names it, or empty.</summary>
+    public string TransactionKind { get; }
+
+    /// <summary>Whether Finanzguru counts the booking to a recognised contract.</summary>
+    public bool IsContract { get; }
+
+    /// <summary>How often the booking's contract recurs, as Finanzguru names it, or empty.</summary>
+    public string ContractInterval { get; }
+
+    /// <summary>Finanzguru's identifier of the booking's contract, or empty.</summary>
+    public string ContractId { get; }
+
+    /// <summary>Whether Finanzguru leaves the booking out of the freely disposable income.</summary>
+    public bool IsExcludedFromDisposableIncome { get; }
+
+    /// <summary>The SEPA mandate reference, or empty.</summary>
+    public string MandateReference { get; }
+
+    /// <summary>The SEPA creditor identifier, or empty.</summary>
+    public string CreditorId { get; }
+
+    /// <summary>The free-text tags a person put on the booking, or empty.</summary>
+    public string Tags { get; }
 
     /// <summary>The run whose export this state of the booking came from.</summary>
     public Guid SourceImportRunId { get; }

@@ -1,5 +1,6 @@
 using System.Text;
 using CashPrism.Application.Imports;
+using CashPrism.Infrastructure.Finanzguru.Tests.Integration.Fixtures;
 using CashPrism.TestSupport.Xlsx;
 
 namespace CashPrism.Infrastructure.Finanzguru.Tests.Integration;
@@ -107,6 +108,22 @@ public sealed class FinanzguruImportSourceTests
 
             Assert.True(result.IsSuccess, string.Join(" | ", result.Errors));
             Assert.Equal(["Analyse-Nebelkerze"], result.Data!.UnknownColumns);
+        }
+
+        /// <summary>
+        /// The workbooks above carry only the values a test sets. A file
+        /// Finanzguru wrote carries every column filled the way Finanzguru fills
+        /// it, so it is what proves each stored column projects without error.
+        /// </summary>
+        [Fact]
+        public async Task Turns_Every_Row_Of_A_Real_Export_Into_A_Booking()
+        {
+            using var file = RealExport.Open();
+
+            var result = await new FinanzguruImportSource().ReadAsync(file, ARunId);
+
+            Assert.True(result.IsSuccess, string.Join(" | ", result.Errors));
+            Assert.Equal(RealExport.DataRowCount, result.Data!.Bookings.Count);
         }
 
         [Fact]

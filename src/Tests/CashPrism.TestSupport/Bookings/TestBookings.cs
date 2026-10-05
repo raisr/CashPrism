@@ -41,6 +41,15 @@ public static class TestBookings
         bool isTransfer = false,
         SplitRole splitRole = SplitRole.None,
         string? originalFingerprint = null,
+        long reportedBalanceInCents = 123456,
+        string transactionKind = "Kartenzahlung",
+        bool isContract = false,
+        string contractInterval = "",
+        string contractId = "",
+        bool isExcludedFromDisposableIncome = false,
+        string mandateReference = "",
+        string creditorId = "",
+        string tags = "",
         Guid? sourceImportRunId = null)
         => new(
             fingerprint,
@@ -57,5 +66,14 @@ public static class TestBookings
             isTransfer,
             splitRole,
             originalFingerprint,
+            reportedBalanceInCents,
+            transactionKind,
+            isContract,
+            contractInterval,
+            contractId,
+            isExcludedFromDisposableIncome,
+            mandateReference,
+            creditorId,
+            tags,
             sourceImportRunId ?? AnImportRunId);
 }
