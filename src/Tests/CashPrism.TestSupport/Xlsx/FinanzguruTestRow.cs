@@ -8,9 +8,9 @@ namespace CashPrism.TestSupport.Xlsx;
 /// </summary>
 /// <remarks>
 /// The columns left out here are the ones nothing reads yet; an empty cell is
-/// what a real export carries in most of them anyway. The three that must never
-/// be empty are the two identities and the transfer flag: the first two identify
-/// the booking and its account, and the flag is translated strictly, so a blank
+/// what a real export carries in most of them anyway. The ones that must never be
+/// empty are the two identities and the three yes/no flags: the identities name
+/// the booking and its account, and a flag is translated strictly, so a blank
 /// would fail the row rather than default.
 /// </remarks>
 public static class FinanzguruTestRow
@@ -54,6 +54,8 @@ public static class FinanzguruTestRow
             [FinanzguruColumns.MainCategory] = "Lebensmittel",
             [FinanzguruColumns.SubCategory] = "Supermarkt",
             [FinanzguruColumns.IsInternalTransfer] = isInternalTransfer,
+            [FinanzguruColumns.IsContract] = FinanzguruFlag.No,
+            [FinanzguruColumns.ExcludedFromDisposableIncome] = FinanzguruFlag.No,
             [FinanzguruColumns.SplitType] = splitType,
             [FinanzguruColumns.OriginalReferenceId] = originalReferenceId,
             [FinanzguruColumns.BookingId] = bookingId,

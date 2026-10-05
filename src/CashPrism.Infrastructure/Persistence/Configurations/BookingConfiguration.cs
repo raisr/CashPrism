@@ -52,6 +52,16 @@ public sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
         // a row the export legitimately contains.
         builder.Property(booking => booking.OriginalFingerprint);
 
+        builder.Property(booking => booking.ReportedBalanceInCents);
+        builder.Property(booking => booking.TransactionKind);
+        builder.Property(booking => booking.IsContract);
+        builder.Property(booking => booking.ContractInterval);
+        builder.Property(booking => booking.ContractId);
+        builder.Property(booking => booking.IsExcludedFromDisposableIncome);
+        builder.Property(booking => booking.MandateReference);
+        builder.Property(booking => booking.CreditorId);
+        builder.Property(booking => booking.Tags);
+
         // The run this state of the booking came from, so a re-import can compare
         // the file in front of it with what is stored. Indexed because the list of
         // an import's bookings is read by it.

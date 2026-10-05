@@ -47,9 +47,10 @@ tests of its own, and carries neither the test SDK nor a runner, so `dotnet
 test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
 Finanzguru-shaped `.xlsx` in memory, `FinanzguruTestRow`, which fills one data
 row of it, and the stand-ins the import use case runs on in a test:
-`FakeImportSource`, `FakeImportStore` and `FixedClock`. No production project
-may reference it, and `CashPrism.Architecture.Tests` fails the build if one
-does. When a fixture belongs there is a rule rather than a description, and it
+`FakeImportSource`, `FakeImportStore` and `FixedClock`; and `TestBookings`,
+which builds a booking with plain values for every field a test does not name.
+No production project may reference it, and `CashPrism.Architecture.Tests`
+fails the build if one does. When a fixture belongs there is a rule rather than a description, and it
 is in [`../AGENTS.md`](../AGENTS.md#test-projects).
 
 ## Directory layout

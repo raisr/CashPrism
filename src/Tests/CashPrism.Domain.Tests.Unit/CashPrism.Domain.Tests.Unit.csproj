@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CashPrism.Domain\CashPrism.Domain.csproj" />
+    <ProjectReference Include="..\CashPrism.TestSupport\CashPrism.TestSupport.csproj" />
   </ItemGroup>
 
 </Project>

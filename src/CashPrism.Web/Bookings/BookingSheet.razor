@@ -5,8 +5,8 @@
 
 @* One booking in full: what the list can only hint at in a row. Only what is
    stored today — the design's earlier bookings at the same party, the
-   recurring badge, the booking type and the buttons to recategorise or hide
-   need queries and features that do not exist yet. *@
+   recurring badge and the buttons to recategorise or hide need queries and
+   features that do not exist yet. *@
 <Sheet Open="Booking is not null"
        Title="@(Booking?.Counterparty ?? string.Empty)"
        Subtitle="@DayLabel"
@@ -22,10 +22,17 @@
     {
       <div class="cp-booking-sheet__amount">
         <Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" Large="true" />
-        @if (booking.IsTransfer)
+        @if (!string.IsNullOrWhiteSpace(booking.TransactionKind) || booking.IsTransfer)
         {
           <div class="cp-booking-sheet__badges">
-            <span class="cp-badge"><CpIcon Name="arrow-left-right" Size="13" />@text["BookingSheetTransfer"]</span>
+            @if (!string.IsNullOrWhiteSpace(booking.TransactionKind))
+            {
+              <span class="cp-badge cp-booking-sheet__kind">@TransactionKind(booking.TransactionKind)</span>
+            }
+            @if (booking.IsTransfer)
+            {
+              <span class="cp-badge cp-booking-sheet__transfer"><CpIcon Name="arrow-left-right" Size="13" />@text["BookingSheetTransfer"]</span>
+            }
           </div>
         }
       </div>
@@ -61,6 +68,10 @@
     private CategoryStyle Category => Booking is { } booking
         ? CategoryStyle.For(booking.Category, booking.SubCategory, booking.IsTransfer)
         : CategoryStyle.Other;
+
+    // A known word in its German spelling, an unknown one as the export wrote it.
+    private string TransactionKind(string transactionKind)
+        => TransactionKindLabel.KeyFor(transactionKind) is { } key ? text[key] : transactionKind;
 
     // The same day label the list groups the booking under.
     private string? DayLabel => Booking is { } booking

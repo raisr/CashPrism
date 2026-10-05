@@ -187,6 +187,34 @@
     <value>Zwischen deinen Konten</value>
     <comment>Booking sheet: badge on a transfer between the owner's own accounts.</comment>
   </data>
+  <data name="TransactionKindCardPayment" xml:space="preserve">
+    <value>Kartenzahlung</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Kartenzahlung".</comment>
+  </data>
+  <data name="TransactionKindDirectDebit" xml:space="preserve">
+    <value>SEPA-Lastschrift</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "SEPA-Lastschrift".</comment>
+  </data>
+  <data name="TransactionKindBankTransfer" xml:space="preserve">
+    <value>Überweisung</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Ueberweisung".</comment>
+  </data>
+  <data name="TransactionKindStandingOrder" xml:space="preserve">
+    <value>Dauerauftrag</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Dauerauftrag".</comment>
+  </data>
+  <data name="TransactionKindCashWithdrawal" xml:space="preserve">
+    <value>Bargeldabhebung</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Barentnahme".</comment>
+  </data>
+  <data name="TransactionKindInterestAndFees" xml:space="preserve">
+    <value>Zinsen und Entgelte</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Zinsen/Entgelt".</comment>
+  </data>
+  <data name="TransactionKindOther" xml:space="preserve">
+    <value>Sonstige Zahlung</value>
+    <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Sonstige".</comment>
+  </data>
   <data name="SheetClose" xml:space="preserve">
     <value>Schließen</value>
     <comment>Accessible name of the button that closes a sheet.</comment>

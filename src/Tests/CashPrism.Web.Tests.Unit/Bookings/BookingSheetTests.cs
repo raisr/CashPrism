@@ -86,11 +86,52 @@ public sealed class BookingSheetTests
 
             var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
 
-            Assert.Equal("Zwischen deinen Konten", sheet.Find(".cp-booking-sheet__badges .cp-badge").TextContent);
+            Assert.Equal("Zwischen deinen Konten", sheet.Find(".cp-booking-sheet__transfer").TextContent);
         }
 
         [Fact]
-        public void Shows_No_Transfer_Badge_On_An_Ordinary_Booking()
+        public void Shows_The_Booking_Type_In_Its_German_Spelling()
+        {
+            var booking = bookings.Add(Yesterday, transactionKind: "Ueberweisung");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Equal("Überweisung", sheet.Find(".cp-booking-sheet__kind").TextContent);
+        }
+
+        [Fact]
+        public void Shows_A_Booking_Type_It_Does_Not_Know_As_The_Export_Wrote_It()
+        {
+            var booking = bookings.Add(Yesterday, transactionKind: "Scheck");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Equal("Scheck", sheet.Find(".cp-booking-sheet__kind").TextContent);
+        }
+
+        [Fact]
+        public void Puts_The_Booking_Type_Before_The_Transfer_Badge()
+        {
+            var booking = bookings.Add(Yesterday, isTransfer: true, transactionKind: "Ueberweisung");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            var badges = sheet.FindAll(".cp-booking-sheet__badges .cp-badge").Select(badge => badge.TextContent);
+            Assert.Equal(["Überweisung", "Zwischen deinen Konten"], badges);
+        }
+
+        [Fact]
+        public void Shows_No_Booking_Type_Badge_When_The_Export_Names_None()
+        {
+            var booking = bookings.Add(Yesterday, isTransfer: true);
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Empty(sheet.FindAll(".cp-booking-sheet__kind"));
+        }
+
+        [Fact]
+        public void Shows_No_Badges_On_An_Ordinary_Booking_Without_A_Type()
         {
             var booking = bookings.Add(Yesterday);
 

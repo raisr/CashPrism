@@ -4,7 +4,7 @@ using CashPrism.Domain.Bookings;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Projects one row of a FinanzGuru export onto a <see cref="Booking"/>: 14 of
+/// Projects one row of a FinanzGuru export onto a <see cref="Booking"/>: 23 of
 /// the export's 29 columns, with the German yes/no and split words translated.
 /// </summary>
 /// <remarks>
@@ -38,15 +38,9 @@ public static class FinanzguruBooking
         var currency = Required(row, FinanzguruColumns.Currency, errors);
         var accountReference = Required(row, FinanzguruColumns.AccountReference, errors);
 
-        var isTransfer = FinanzguruFlag.Parse(
-            Value(row, FinanzguruColumns.IsInternalTransfer),
-            FinanzguruColumns.IsInternalTransfer,
-            row.RowNumber);
-
-        if (!isTransfer.IsSuccess)
-        {
-            errors.Add(isTransfer.Error!);
-        }
+        var isTransfer = Flag(row, FinanzguruColumns.IsInternalTransfer, errors);
+        var isContract = Flag(row, FinanzguruColumns.IsContract, errors);
+        var isExcludedFromDisposableIncome = Flag(row, FinanzguruColumns.ExcludedFromDisposableIncome, errors);
 
         var splitRole = FinanzguruSplitType.Parse(
             Value(row, FinanzguruColumns.SplitType),
@@ -87,14 +81,37 @@ public static class FinanzguruBooking
             paymentReference: Value(row, FinanzguruColumns.PaymentReference),
             category: Value(row, FinanzguruColumns.MainCategory),
             subCategory: Value(row, FinanzguruColumns.SubCategory),
-            isTransfer.Value!.Value,
+            isTransfer!.Value,
             splitRole.Value!.Value,
             originalFingerprint,
+            row.BalanceInCents,
+            transactionKind: Value(row, FinanzguruColumns.TransactionKind),
+            isContract!.Value,
+            contractInterval: Value(row, FinanzguruColumns.ContractInterval),
+            contractId: Value(row, FinanzguruColumns.ContractId),
+            isExcludedFromDisposableIncome!.Value,
+            mandateReference: Value(row, FinanzguruColumns.MandateReference),
+            creditorId: Value(row, FinanzguruColumns.CreditorId),
+            tags: Value(row, FinanzguruColumns.Tags),
             importRunId));
     }
 
     private static string Value(FinanzguruExportRow row, string column)
         => row.Values.TryGetValue(column, out var value) ? value : string.Empty;
+
+    private static bool? Flag(FinanzguruExportRow row, string column, List<ImportError> errors)
+    {
+        var flag = FinanzguruFlag.Parse(Value(row, column), column, row.RowNumber);
+
+        if (flag.IsSuccess)
+        {
+            return flag.Value;
+        }
+
+        errors.Add(flag.Error!);
+
+        return null;
+    }
 
     private static string? Required(FinanzguruExportRow row, string column, List<ImportError> errors)
     {

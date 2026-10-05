@@ -26,6 +26,14 @@ public sealed class FinanzguruBookingTests
             [FinanzguruColumns.IsInternalTransfer] = "nein",
             [FinanzguruColumns.SplitType] = string.Empty,
             [FinanzguruColumns.OriginalReferenceId] = string.Empty,
+            [FinanzguruColumns.TransactionKind] = "SEPA-Lastschrift",
+            [FinanzguruColumns.IsContract] = "nein",
+            [FinanzguruColumns.ContractInterval] = string.Empty,
+            [FinanzguruColumns.ContractId] = string.Empty,
+            [FinanzguruColumns.ExcludedFromDisposableIncome] = "nein",
+            [FinanzguruColumns.MandateReference] = string.Empty,
+            [FinanzguruColumns.CreditorId] = string.Empty,
+            [FinanzguruColumns.Tags] = string.Empty,
         };
 
         foreach (var (column, value) in overrides)
@@ -55,6 +63,63 @@ public sealed class FinanzguruBookingTests
             Assert.Equal(new DateTime(2026, 3, 12, 9, 41, 0), booking.BookedOn);
             Assert.Equal(-6317L, booking.AmountInCents);
         }
+
+        [Fact]
+        public void Keeps_The_Reported_Balance_The_Reader_Produced()
+            => Assert.Equal(324000L, FinanzguruBooking.Create(Row(), ARunId).Value!.ReportedBalanceInCents);
+
+        /// <summary>The text columns stored as they are, each with the field it lands in.</summary>
+        public static TheoryData<string, Func<Booking, string>> TextColumns => new()
+        {
+            { FinanzguruColumns.TransactionKind, booking => booking.TransactionKind },
+            { FinanzguruColumns.ContractInterval, booking => booking.ContractInterval },
+            { FinanzguruColumns.ContractId, booking => booking.ContractId },
+            { FinanzguruColumns.MandateReference, booking => booking.MandateReference },
+            { FinanzguruColumns.CreditorId, booking => booking.CreditorId },
+            { FinanzguruColumns.Tags, booking => booking.Tags },
+        };
+
+        [Theory]
+        [MemberData(nameof(TextColumns))]
+        public void Takes_A_Text_Column_As_It_Stands(string column, Func<Booking, string> field)
+        {
+            var booking = FinanzguruBooking.Create(Row((column, "Some text")), ARunId).Value!;
+
+            Assert.Equal("Some text", field(booking));
+        }
+
+        [Theory]
+        [MemberData(nameof(TextColumns))]
+        public void Keeps_A_Blank_Text_Column_As_Empty(string column, Func<Booking, string> field)
+        {
+            var booking = FinanzguruBooking.Create(Row((column, string.Empty)), ARunId).Value!;
+
+            Assert.Equal(string.Empty, field(booking));
+        }
+
+        [Fact]
+        public void Translates_The_German_Word_For_A_Contract()
+        {
+            var row = Row((FinanzguruColumns.IsContract, "ja"));
+
+            Assert.True(FinanzguruBooking.Create(row, ARunId).Value!.IsContract);
+        }
+
+        [Fact]
+        public void Translates_The_German_Word_For_No_Contract()
+            => Assert.False(FinanzguruBooking.Create(Row(), ARunId).Value!.IsContract);
+
+        [Fact]
+        public void Translates_The_German_Word_For_An_Exclusion_From_The_Disposable_Income()
+        {
+            var row = Row((FinanzguruColumns.ExcludedFromDisposableIncome, "ja"));
+
+            Assert.True(FinanzguruBooking.Create(row, ARunId).Value!.IsExcludedFromDisposableIncome);
+        }
+
+        [Fact]
+        public void Translates_The_German_Word_For_No_Exclusion_From_The_Disposable_Income()
+            => Assert.False(FinanzguruBooking.Create(Row(), ARunId).Value!.IsExcludedFromDisposableIncome);
 
         [Fact]
         public void Records_The_Run_Its_State_Came_From()
@@ -120,6 +185,35 @@ public sealed class FinanzguruBookingTests
             Assert.False(result.IsSuccess);
             Assert.Equivalent(
                 ImportError.NotAFlag(FinanzguruColumns.IsInternalTransfer, 2, "vielleicht", FinanzguruFlag.Yes, FinanzguruFlag.No),
+                result.Errors.Single(),
+                strict: true);
+        }
+
+        [Fact]
+        public void Fails_When_The_Contract_Column_Carries_A_Word_It_Does_Not_Know()
+        {
+            var result = FinanzguruBooking.Create(Row((FinanzguruColumns.IsContract, "vielleicht")), ARunId);
+
+            Assert.Equivalent(
+                ImportError.NotAFlag(FinanzguruColumns.IsContract, 2, "vielleicht", FinanzguruFlag.Yes, FinanzguruFlag.No),
+                result.Errors.Single(),
+                strict: true);
+        }
+
+        [Fact]
+        public void Fails_When_The_Exclusion_Column_Carries_A_Word_It_Does_Not_Know()
+        {
+            var result = FinanzguruBooking.Create(
+                Row((FinanzguruColumns.ExcludedFromDisposableIncome, "vielleicht")),
+                ARunId);
+
+            Assert.Equivalent(
+                ImportError.NotAFlag(
+                    FinanzguruColumns.ExcludedFromDisposableIncome,
+                    2,
+                    "vielleicht",
+                    FinanzguruFlag.Yes,
+                    FinanzguruFlag.No),
                 result.Errors.Single(),
                 strict: true);
         }
