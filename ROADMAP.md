@@ -56,21 +56,45 @@ Give the existing application the look of the design system under
 - The shell: sidebar, top bar and page header.
 - The booking list and the import page restyled, with the data stored today.
 
-## M5 — Auth
+## M5 — First release
 
-- One shared password, PBKDF2, cookie authentication.
-- Password supplied out of band (environment variable / user secret), never in
-  the repository.
-- `[Authorize]` is the default; `[AllowAnonymous]` is the justified exception.
+The first version someone else can download: analyses on the data imported
+today, a demo export to try them on, and the application secured and packaged.
 
-## M6 — Analysis UI
+- The remaining useful export columns stored on the booking (#104).
+- A settings page that deletes all data, so a fresh import rebuilds everything.
+- The anonymiser moved to `src/Tools/`, in a `Tools` solution folder.
+- `CashPrism.DemoData`: a generator for a larger synthetic Finanzguru export.
+  The generated file is committed and linked from the README.
+- Analyses: average spending per category over the last 12 months, and income
+  against spending per month — each with a tile on the overview.
+- What grew markedly between two periods.
+- Auth:
+  - One shared password, PBKDF2, cookie authentication.
+  - Password supplied out of band (environment variable / user secret), never
+    in the repository.
+  - `[Authorize]` is the default; `[AllowAnonymous]` is the justified
+    exception.
+- Delivery:
+  - Self-contained single-file binary per platform (Windows, Linux, macOS).
+  - A repeatable release process, including cutting a `CHANGELOG.md` version
+    at the tag.
+  - The demo export attached to every release.
 
-- Booking list with search and filter.
-- Categories.
-- Trends and charts.
+## M6 — Accounts and contracts
 
-## M7 — Delivery
+- Booking list with filters (account, category, period), search, and the
+  remaining detail fields.
+- Accounts in user-defined groups, with a balance per account.
+- Contracts grouped by interval.
+- Forecasts of contract bookings, with an overdue marker.
 
-- Self-contained single-file binary per platform (Windows, Linux, macOS).
-- A repeatable release process, including cutting a `CHANGELOG.md` version at
-  the tag.
+## M7 — Net worth
+
+- Net worth over time.
+- Tangible assets entered by hand, such as real estate.
+
+## M8 — Reports and custom analyses
+
+- Monthly report, annual review, print/PDF.
+- Custom analyses.
