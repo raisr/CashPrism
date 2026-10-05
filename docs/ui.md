@@ -21,8 +21,8 @@ Four of those earn a sentence:
   accent. It is the one place the product name appears, so it is also the one
   place a mark is needed.
 - **The destinations are grouped where a group exists.** The start page and the
-  bookings stand at the top; the import, which brings data in, sits under
-  *Daten*. A heading is written wherever the section changes in
+  bookings stand at the top; the import, which brings data in, and the
+  settings, which delete it again, sit under *Daten*. A heading is written wherever the section changes in
   `NavigationItems`, so a section with no destination yet — the design's
   *Auswerten* — simply does not appear.
 - **Privacy is said where it is always in view.** "Nur auf diesem Rechner" is
@@ -415,6 +415,23 @@ Importing the same file twice records no second run: the import recognises the
 file by its hash and stops before a run exists (see
 [`finanzguru-export.md`](finanzguru-export.md)). The list shows what happened,
 and nothing happened.
+
+## The settings page
+
+`Pages/Settings.razor` at `/settings` holds one card today: *Daten*, with
+*Alle Daten löschen*. It deletes every booking, raw row and import run through
+`IDataEraser`, which compacts the SQLite file afterwards (see
+`Persistence/DataEraser.cs`).
+
+The confirmation is asked inside the card rather than in a dialog: the first
+click turns the button into a danger alert naming how many bookings and import
+runs will go, with *Endgültig löschen* and *Abbrechen* beneath it. The counts
+are read again on that click, so they say what is stored now. The design
+system has no modal dialog yet; this is the interim answer, not a rule. While
+the deletion runs, the page is locked by the same overlay as an import, with
+the card lifted above it (`cp-card--busy`). Afterwards the card says the data
+is gone, and `StoredDataChanges` tells the drawer to read its figures again.
+On an empty database the button is disabled and says why.
 
 ## MudBlazor's own strings
 

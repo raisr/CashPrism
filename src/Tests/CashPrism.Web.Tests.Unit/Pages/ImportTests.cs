@@ -237,10 +237,10 @@ public sealed class ImportTests
             });
             var page = Context.Render<Import>();
 
-            Assert.NotNull(page.Find(".cp-import-busy .cp-dropzone--busy"));
+            Assert.NotNull(page.Find(".cp-card--busy .cp-dropzone--busy"));
 
             release.SetResult();
-            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-import-busy")));
+            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-card--busy")));
             Assert.True(running.IsCompleted);
         }
 

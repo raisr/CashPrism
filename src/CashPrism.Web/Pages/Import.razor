@@ -13,7 +13,7 @@
 
 <PageFrame Title="@text["NavImport"]" Lead="@text["ImportLead"]">
   <div class="cp-import-grid">
-    <div class="@(activity.IsRunning ? "cp-card cp-import-grid__wide cp-import-busy" : "cp-card cp-import-grid__wide")">
+    <div class="@(activity.IsRunning ? "cp-card cp-import-grid__wide cp-card--busy" : "cp-card cp-import-grid__wide")">
       <div class="cp-card__body">
         @* The file input lies invisibly over the whole zone, so a click
            anywhere opens the file picker and a file dropped anywhere lands in
@@ -149,7 +149,7 @@
 @* Over the whole page rather than only the zone: an import is not something
    to work around while it runs, and a lock on the zone alone would leave the
    navigation clickable — which is how a second import used to get started on
-   top of the first. The card with the zone is lifted above it (cp-import-busy),
+   top of the first. The card with the zone is lifted above it (cp-card--busy),
    so what is happening stays in full light while the rest of the page dims;
    dimmed with everything else, the spinner was easy to miss. The zone's input
    is disabled meanwhile, so the lifted card takes no second file. *@

@@ -42,4 +42,7 @@ public sealed class FakeImportRunReader : IImportRunReader
 
     public Task<int> CountAsync(CancellationToken cancellationToken = default)
         => Task.FromResult(runs.Count);
+
+    /// <summary>Forgets every run, as deleting all data does.</summary>
+    public void Clear() => runs.Clear();
 }

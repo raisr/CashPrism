@@ -21,6 +21,7 @@ public sealed class NavMenuTests
         [InlineData("/", "Übersicht")]
         [InlineData("/bookings", "Buchungen")]
         [InlineData("/import", "Import")]
+        [InlineData("/settings", "Einstellungen")]
         public void Marks_Only_The_Destination_Of_The_Current_Route(string route, string label)
         {
             context.Services.GetRequiredService<NavigationManager>().NavigateTo(route);
@@ -42,12 +43,21 @@ public sealed class NavMenuTests
         }
 
         [Fact]
+        public void Puts_The_Settings_In_The_Data_Section_After_The_Import()
+        {
+            var menu = context.Render<NavMenu>();
+
+            var import = menu.Find(".cp-sidebar__section").NextElementSibling!;
+            Assert.Equal("Einstellungen", import.NextElementSibling!.TextContent.Trim());
+        }
+
+        [Fact]
         public void Names_Every_Destination_In_Its_Tooltip_On_The_Rail()
         {
             var menu = context.Render<NavMenu>(parameters => parameters.Add(p => p.Collapsed, true));
 
             var titles = menu.FindAll("a.cp-nav__item").Select(link => link.GetAttribute("title"));
-            Assert.Equal(["Übersicht", "Buchungen", "Import"], titles);
+            Assert.Equal(["Übersicht", "Buchungen", "Import", "Einstellungen"], titles);
         }
 
         [Fact]

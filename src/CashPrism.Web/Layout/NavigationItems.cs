@@ -35,6 +35,7 @@ public static class NavigationItems
         new("/", "NavOverview", "layout-dashboard"),
         Bookings,
         new("/import", "NavImport", "upload", "NavSectionData"),
+        new("/settings", "NavSettings", "settings", "NavSectionData"),
     ];
 
     /// <summary>

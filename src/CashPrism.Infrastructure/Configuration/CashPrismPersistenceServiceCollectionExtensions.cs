@@ -36,6 +36,7 @@ public static class CashPrismPersistenceServiceCollectionExtensions
             options.UseSqlite($"Data Source={databaseFilePath}"));
 
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
+        services.AddScoped<IDataEraser, DataEraser>();
         services.AddScoped<IImportStore, ImportStore>();
         services.AddScoped<IBookingReader, BookingReader>();
         services.AddScoped<IImportRunReader, ImportRunReader>();

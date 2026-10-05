@@ -1,6 +1,7 @@
 using Bunit;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
+using CashPrism.Web.StoredData;
 using CashPrism.Web.Tests.Unit.Bookings;
 using CashPrism.Web.Tests.Unit.Imports;
 using Microsoft.Extensions.DependencyInjection;
@@ -100,5 +101,31 @@ public sealed class SidebarTests
 
         private static Task<ImportFeedbackMessage> ImportAsync()
             => Task.FromResult(new ImportFeedbackMessage(ImportFeedbackSeverity.Success, "fertig", Details: []));
+    }
+
+    public sealed class OnStoredDataChanged : IAsyncLifetime
+    {
+        private readonly BunitContext context = new();
+        private readonly FakeBookingReader bookings = new();
+        private readonly FakeImportRunReader importRuns = new();
+
+        public OnStoredDataChanged() => context.AddSidebarServices(bookings, importRuns);
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public async Task DisposeAsync() => await context.DisposeAsync();
+
+        /// <summary>What deleting all data looks like to the drawer.</summary>
+        [Fact]
+        public void Drops_The_Count_Once_Nothing_Is_Stored_Without_A_Reload()
+        {
+            bookings.Count = 42;
+            var sidebar = context.Render<Sidebar>();
+            bookings.Count = 0;
+
+            context.Services.GetRequiredService<StoredDataChanges>().Notify();
+
+            sidebar.WaitForAssertion(() => Assert.Empty(sidebar.FindAll(".cp-nav__count")));
+        }
     }
 }

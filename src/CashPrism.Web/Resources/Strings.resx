@@ -107,6 +107,74 @@
     <value>Import</value>
     <comment>Drawer label and page heading of the upload page.</comment>
   </data>
+  <data name="NavSettings" xml:space="preserve">
+    <value>Einstellungen</value>
+    <comment>Drawer label and page heading of the settings page.</comment>
+  </data>
+  <data name="SettingsLead" xml:space="preserve">
+    <value>Was CashPrism gespeichert hat, und wie du von vorn anfängst.</value>
+    <comment>Settings page: the line under the heading.</comment>
+  </data>
+  <data name="SettingsDataTitle" xml:space="preserve">
+    <value>Daten</value>
+    <comment>Settings page: heading of the card about the stored data.</comment>
+  </data>
+  <data name="SettingsDataLead" xml:space="preserve">
+    <value>Löscht alle Buchungen und Importe. Danach baut ein neuer Import alles wieder auf, denn jeder Finanzguru-Export enthält deine ganze Historie.</value>
+    <comment>Settings page: what deleting all data does, under the card heading.</comment>
+  </data>
+  <data name="SettingsErase" xml:space="preserve">
+    <value>Alle Daten löschen</value>
+    <comment>Settings page: the button that asks to delete all data.</comment>
+  </data>
+  <data name="SettingsEraseNothing" xml:space="preserve">
+    <value>Es sind keine Daten gespeichert.</value>
+    <comment>Settings page: beside the disabled delete button when nothing is stored.</comment>
+  </data>
+  <data name="SettingsEraseConfirmTitle" xml:space="preserve">
+    <value>Wirklich alle Daten löschen?</value>
+    <comment>Settings page: headline of the warning before deleting.</comment>
+  </data>
+  <data name="SettingsEraseConfirmText" xml:space="preserve">
+    <value>Das löscht {0} und {1} und lässt sich nicht rückgängig machen.</value>
+    <comment>Settings page: the warning before deleting. {0} is SettingsEraseBookingsOne or -Other, {1} is SettingsEraseRunsOne or -Other.</comment>
+  </data>
+  <data name="SettingsEraseBookingsOne" xml:space="preserve">
+    <value>{0} Buchung</value>
+    <comment>Settings page: the number of bookings in the warning, when it is exactly one. {0} is the number.</comment>
+  </data>
+  <data name="SettingsEraseBookingsOther" xml:space="preserve">
+    <value>{0} Buchungen</value>
+    <comment>Settings page: the number of bookings in the warning, when it is not one. {0} is the number.</comment>
+  </data>
+  <data name="SettingsEraseRunsOne" xml:space="preserve">
+    <value>{0} Import</value>
+    <comment>Settings page: the number of import runs in the warning, when it is exactly one. {0} is the number.</comment>
+  </data>
+  <data name="SettingsEraseRunsOther" xml:space="preserve">
+    <value>{0} Importe</value>
+    <comment>Settings page: the number of import runs in the warning, when it is not one. {0} is the number.</comment>
+  </data>
+  <data name="SettingsEraseConfirm" xml:space="preserve">
+    <value>Endgültig löschen</value>
+    <comment>Settings page: the button that deletes all data.</comment>
+  </data>
+  <data name="SettingsEraseCancel" xml:space="preserve">
+    <value>Abbrechen</value>
+    <comment>Settings page: the button that keeps the data.</comment>
+  </data>
+  <data name="SettingsErasing" xml:space="preserve">
+    <value>Daten werden gelöscht …</value>
+    <comment>Settings page: shown while the data is being deleted.</comment>
+  </data>
+  <data name="SettingsErasedTitle" xml:space="preserve">
+    <value>Alle Daten gelöscht</value>
+    <comment>Settings page: headline after the data was deleted.</comment>
+  </data>
+  <data name="SettingsErasedText" xml:space="preserve">
+    <value>Importiere einen Finanzguru-Export, um wieder Buchungen zu sehen.</value>
+    <comment>Settings page: what to do after the data was deleted.</comment>
+  </data>
   <data name="NavigationToggle" xml:space="preserve">
     <value>Navigation ein- oder ausblenden</value>
     <comment>Accessible name of the button that opens and closes the drawer.</comment>
