@@ -37,6 +37,12 @@ since the last import are kept, and the `.xlsx` file itself is not stored. The
 measurements these rules rest on are in
 [`docs/finanzguru-export.md`](docs/finanzguru-export.md).
 
+**CashPrism mirrors the export; it never edits what the export carries.**
+A category, a transfer flag, a contract or anything else a Finanzguru row says
+is changed in Finanzguru and arrives with the next export. A change made here
+would be overwritten by the next import or contradict it. CashPrism keeps
+state of its own only for what the export carries nothing about.
+
 ## Trademark
 
 Finanzguru is a registered trademark of dwins GmbH, unrelated to this project.
