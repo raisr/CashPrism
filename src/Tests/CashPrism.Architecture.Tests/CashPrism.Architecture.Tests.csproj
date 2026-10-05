@@ -21,7 +21,7 @@
       assembly in the reference graph loadable for reflection — not just the
       ones its own code calls into.
     -->
-    <ProjectReference Include="..\..\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
+    <ProjectReference Include="..\..\Tools\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
     <ProjectReference Include="..\..\CashPrism.Application\CashPrism.Application.csproj" />
     <ProjectReference Include="..\..\CashPrism.Domain\CashPrism.Domain.csproj" />
     <ProjectReference Include="..\..\CashPrism.Infrastructure\CashPrism.Infrastructure.csproj" />

@@ -12,7 +12,9 @@
     <Project Path="Tests/CashPrism.TestSupport/CashPrism.TestSupport.csproj" />
     <Project Path="Tests/CashPrism.Web.Tests.Unit/CashPrism.Web.Tests.Unit.csproj" />
   </Folder>
-  <Project Path="CashPrism.Anonymiser/CashPrism.Anonymiser.csproj" />
+  <Folder Name="/Tools/">
+    <Project Path="Tools/CashPrism.Anonymiser/CashPrism.Anonymiser.csproj" />
+  </Folder>
   <Project Path="CashPrism.Application/CashPrism.Application.csproj" />
   <Project Path="CashPrism.Domain/CashPrism.Domain.csproj" />
   <Project Path="CashPrism.Infrastructure.Finanzguru/CashPrism.Infrastructure.Finanzguru.csproj" />

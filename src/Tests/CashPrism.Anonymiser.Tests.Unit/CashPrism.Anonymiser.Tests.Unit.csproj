@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
+    <ProjectReference Include="..\..\Tools\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
   </ItemGroup>
 
 </Project>

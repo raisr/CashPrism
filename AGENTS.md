@@ -115,6 +115,9 @@ Consequences worth stating, because they are where it usually goes wrong:
   never references ClosedXML — an `.xlsx` is a zip it takes apart and puts back
   together itself, so a real Finanzguru export stays recognisable as one. This
   is about the fidelity of the output, not about containing a dependency.
+- **A development tool lives under `src/Tools/`** and in the `/Tools/` solution
+  folder, apart from the application it serves. Its test projects stay under
+  `src/Tests/` like every other.
 
 ## Test projects
 
