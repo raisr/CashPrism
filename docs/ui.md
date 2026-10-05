@@ -289,13 +289,17 @@ booking in a sheet: `Components/Sheet.razor`, a panel that slides in from the
 end of the screen over a dimmed page, filled by `Bookings/BookingSheet.razor`.
 It shows the booking the way the list can only hint at: the category tile, the
 party and the day in the head, the amount large with its cents faded, a badge
-when Finanzguru marks the booking as a transfer between the owner's own
-accounts, and the date, account, category, party and payment reference as a
-list. The party is labelled *Empfänger* or *Absender* by the sign of the
-amount.
+naming how the booking was paid, a badge when Finanzguru marks the booking as a
+transfer between the owner's own accounts, and the date, account, category,
+party and payment reference as a list. The party is labelled *Empfänger* or
+*Absender* by the sign of the amount.
 
-Only what is stored today is shown. The design's booking type badge reads a
-column the import does not keep yet, and its recurring badge, the earlier
+The booking type badge shows the seven words measured in an export in their
+German spelling — Finanzguru writes `Ueberweisung` — and any other word as the
+export wrote it. Without a type there is no badge. Both badges keep the
+design's neutral grey: they carry text, not a colour code to tell apart.
+
+Only what is stored today is shown. The design's recurring badge, the earlier
 bookings at the same party and the buttons to recategorise or hide a booking
 need queries and features that do not exist yet.
 

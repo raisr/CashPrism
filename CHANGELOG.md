@@ -149,6 +149,13 @@ releases and the minor version is bumped for every notable change.
 - The navigation shows how many bookings are stored beside "Buchungen", and the
   privacy note says when the last import happened. Both update as soon as an
   import finishes, without reloading the page.
+- An import now keeps more of what the export says about a booking: how it was
+  paid, whether it belongs to a contract and how often that recurs, whether
+  Finanzguru leaves it out of the disposable income, the SEPA mandate and
+  creditor, the tags, and the balance the export reports. The booking detail
+  shows how a booking was paid as a badge. **A database from an earlier version
+  does not have these values:** stop CashPrism, delete `data/cashprism.db` and
+  import the latest export again — it carries every booking.
 
 ### Changed
 

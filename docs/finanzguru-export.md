@@ -320,12 +320,19 @@ data. It never sees a German column name: `FinanzguruImportSource` reads the
 file, projects each row onto a `Booking` and renders the row as the JSON a raw
 row holds, and hands both on.
 
-- **The projection keeps 14 of the 29 columns.** The four `Analyse-` period
-  columns reproduce from `Buchungstag` and are dropped; the rest stays in the
-  raw row for the day it is needed. `Split-Typ` is translated from `Original` /
-  `Teilbuchung` / `Restbetrag` into a role, as strictly as `FinanzguruFlag`
-  translates the yes/no columns, and an empty cell is the ordinary case rather
-  than an error.
+- **The projection keeps 23 of the 29 columns.** Besides identity, date,
+  amounts, account, party, reference, categories, transfer flag and split, it
+  stores how the booking was paid (`Analyse-Umsatzart`), the contract columns
+  (`Analyse-Vertrag`, `-Vertragsturnus`, `-Vertrags-ID`), the exclusion from
+  the disposable income, `Mandatsreferenz`, `Glaeubiger-ID`, `Tags`, and
+  `Kontostand` — under a name that says it is what the export reports, because
+  it is [not a running balance](#kontostand-is-not-a-running-balance). Six
+  columns are dropped because they carry nothing: the four `Analyse-` period
+  columns reproduce from `Buchungstag`, `Analyse-Betrag` repeats the sign of
+  `Betrag`, and `E-Ref` is empty in every row. The raw row still holds them.
+  `Split-Typ` is translated from `Original` / `Teilbuchung` / `Restbetrag` into
+  a role, as strictly as `FinanzguruFlag` translates the yes/no columns, and an
+  empty cell is the ordinary case rather than an error.
 - **The raw JSON is rendered deterministically** — the export's own column order
   first, unknown columns after it, no indentation. The stored text is compared
   byte for byte to decide whether a booking changed, so a serialiser that
