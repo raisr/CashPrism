@@ -59,9 +59,9 @@ content on a narrow screen until the circuit was up.
 The drawer's content is `Layout/Sidebar.razor`. It shows two figures about the
 stored data — the number of bookings as a pill beside *Buchungen*, left out on
 an empty database, and the day of the latest import run — and reads both again
-when `ImportActivity` announces that an import has completed. That notification
-is the only one the drawer listens to, and it fires only for an import that ran
-to its end. The drawer reads through a service scope of its own
+when `StoredDataChanges` announces that the stored data has changed. That
+notification is the only one the drawer listens to; `ImportActivity` raises it
+only for an import that ran to its end. The drawer reads through a service scope of its own
 (`OwningComponentBase`): the circuit's database context takes one query at a
 time, and the page beside the drawer reads through that one while the drawer
 does.

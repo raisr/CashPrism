@@ -3,6 +3,7 @@ using CashPrism.Application.Bookings;
 using CashPrism.Application.Imports;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
+using CashPrism.Web.StoredData;
 using CashPrism.Web.Tests.Unit.Bookings;
 using CashPrism.Web.Tests.Unit.Imports;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ internal static class SidebarServices
         FakeImportRunReader importRuns)
     {
         context.Services.AddLocalization();
+        context.Services.AddSingleton<StoredDataChanges>();
         context.Services.AddSingleton<ImportActivity>();
         context.Services.AddSingleton<IBookingReader>(bookings);
         context.Services.AddSingleton<IImportRunReader>(importRuns);
