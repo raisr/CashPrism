@@ -1,6 +1,7 @@
 using CashPrism.Application.Bookings;
 using CashPrism.Domain.Bookings;
 using CashPrism.Infrastructure.Persistence;
+using CashPrism.TestSupport.Bookings;
 
 namespace CashPrism.Infrastructure.Tests.Integration.Persistence;
 
@@ -25,22 +26,15 @@ public sealed class BookingReaderTests
         string counterparty = "Supermarkt",
         string paymentReference = "",
         string category = "Lebensmittel")
-        => new(
+        => TestBookings.Create(
             Fingerprint(ordinal),
-            bookedOn ?? new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified),
+            bookedOn,
             amountInCents,
-            currency: "EUR",
-            accountReference: "DE02120300000000202051",
-            accountName,
-            counterparty,
-            counterpartyAccount: string.Empty,
-            paymentReference,
-            category,
-            subCategory: "Supermarkt",
-            isTransfer: false,
-            SplitRole.None,
-            originalFingerprint: null,
-            ARun);
+            accountName: accountName,
+            counterparty: counterparty,
+            paymentReference: paymentReference,
+            category: category,
+            sourceImportRunId: ARun);
 
     /// <summary>A fingerprint that sorts in the same order as its ordinal.</summary>
     private static string Fingerprint(int ordinal) => ordinal.ToString("D40", null);

@@ -2,6 +2,7 @@ using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
 using CashPrism.Infrastructure.Persistence;
+using CashPrism.TestSupport.Bookings;
 using Microsoft.EntityFrameworkCore;
 
 namespace CashPrism.Infrastructure.Tests.Integration.Persistence;
@@ -27,22 +28,7 @@ public sealed class ImportStoreTests
             importedAt ?? AnImportTime);
 
     private static Booking CreateBooking(Guid runId, string fingerprint = AFingerprint, long amountInCents = -6317)
-        => new(
-            fingerprint,
-            new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified),
-            amountInCents,
-            currency: "EUR",
-            accountReference: "DE02120300000000202051",
-            accountName: "Girokonto",
-            counterparty: "Supermarkt",
-            counterpartyAccount: string.Empty,
-            paymentReference: string.Empty,
-            category: "Lebensmittel",
-            subCategory: "Supermarkt",
-            isTransfer: false,
-            SplitRole.None,
-            originalFingerprint: null,
-            runId);
+        => TestBookings.Create(fingerprint, amountInCents: amountInCents, sourceImportRunId: runId);
 
     /// <summary>
     /// Writes one booking with the row behind it, the way an import would, and

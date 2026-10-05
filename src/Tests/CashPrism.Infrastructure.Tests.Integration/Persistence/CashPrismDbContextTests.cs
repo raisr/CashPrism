@@ -1,5 +1,6 @@
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
+using CashPrism.TestSupport.Bookings;
 using Microsoft.EntityFrameworkCore;
 
 namespace CashPrism.Infrastructure.Tests.Integration.Persistence;
@@ -17,22 +18,14 @@ public sealed class CashPrismDbContextTests
         SplitRole splitRole = SplitRole.None,
         string? originalFingerprint = null,
         Guid? sourceImportRunId = null)
-        => new(
+        => TestBookings.Create(
             fingerprint,
-            new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified),
-            amountInCents,
-            currency: "EUR",
-            accountReference: "DE02120300000000202051",
-            accountName: "Girokonto",
-            counterparty: "Supermarkt",
+            amountInCents: amountInCents,
             counterpartyAccount: "DE02500105170137075030",
             paymentReference: "Kartenzahlung",
-            category: "Lebensmittel",
-            subCategory: "Supermarkt",
-            isTransfer: false,
-            splitRole,
-            originalFingerprint,
-            sourceImportRunId ?? ARunId);
+            splitRole: splitRole,
+            originalFingerprint: originalFingerprint,
+            sourceImportRunId: sourceImportRunId ?? ARunId);
 
     private static ImportRun CreateRun(Guid id, DateOnly? exportedOn = null)
         => new(

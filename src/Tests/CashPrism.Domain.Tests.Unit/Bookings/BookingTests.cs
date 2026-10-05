@@ -1,4 +1,5 @@
 using CashPrism.Domain.Bookings;
+using CashPrism.TestSupport.Bookings;
 
 namespace CashPrism.Domain.Tests.Unit.Bookings;
 
@@ -6,8 +7,6 @@ public sealed class BookingTests
 {
     private const string AFingerprint = "0f4c3a1b2d5e6f708192a3b4c5d6e7f809a1b2c3";
     private const string AnotherFingerprint = "1a2b3c4d5e6f708192a3b4c5d6e7f809a1b2c3d4";
-
-    private static readonly Guid AnImportRunId = Guid.Parse("8f3b1c2d-4e5f-4a6b-8c9d-0e1f2a3b4c5d");
 
     private static Booking Create(
         string fingerprint = AFingerprint,
@@ -18,22 +17,15 @@ public sealed class BookingTests
         SplitRole splitRole = SplitRole.None,
         string? originalFingerprint = null,
         Guid? sourceImportRunId = null)
-        => new(
+        => TestBookings.Create(
             fingerprint,
-            bookedOn ?? new DateTime(2026, 3, 14, 0, 0, 0, DateTimeKind.Unspecified),
+            bookedOn,
             amountInCents,
             currency,
-            accountReference: "DE02120300000000202051",
-            accountName: "Current account",
-            counterparty,
-            counterpartyAccount: string.Empty,
-            paymentReference: string.Empty,
-            category: "Groceries",
-            subCategory: "Supermarket",
-            isTransfer: false,
-            splitRole,
-            originalFingerprint,
-            sourceImportRunId ?? AnImportRunId);
+            counterparty: counterparty,
+            splitRole: splitRole,
+            originalFingerprint: originalFingerprint,
+            sourceImportRunId: sourceImportRunId);
 
     public sealed class Constructor
     {

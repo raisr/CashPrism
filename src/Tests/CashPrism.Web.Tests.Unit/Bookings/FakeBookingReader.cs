@@ -1,6 +1,7 @@
 using CashPrism.Application.Bookings;
 using CashPrism.Application.Paging;
 using CashPrism.Domain.Bookings;
+using CashPrism.TestSupport.Bookings;
 
 namespace CashPrism.Web.Tests.Unit.Bookings;
 
@@ -44,21 +45,16 @@ public sealed class FakeBookingReader : IBookingReader
         string subCategory = "Lebensmittel",
         bool isTransfer = false)
     {
-        var booking = new Booking(
+        var booking = TestBookings.Create(
             fingerprint: Guid.NewGuid().ToString("N"),
             bookedOn: bookedOn,
             amountInCents: amountInCents,
-            currency: "EUR",
             accountReference: "DE00000000000000000000",
-            accountName: "Girokonto",
             counterparty: counterparty,
-            counterpartyAccount: string.Empty,
             paymentReference: "Kartenzahlung",
             category: category,
             subCategory: subCategory,
             isTransfer: isTransfer,
-            splitRole: SplitRole.None,
-            originalFingerprint: null,
             sourceImportRunId: Guid.NewGuid());
 
         Stored.Add(booking);

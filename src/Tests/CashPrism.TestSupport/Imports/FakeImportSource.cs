@@ -1,5 +1,6 @@
 using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
+using CashPrism.TestSupport.Bookings;
 
 namespace CashPrism.TestSupport.Imports;
 
@@ -74,20 +75,5 @@ public sealed class FakeImportSource : IImportSource
     }
 
     private static Booking CreateBooking(string fingerprint, Guid importRunId)
-        => new(
-            fingerprint,
-            new DateTime(2026, 3, 12, 9, 41, 0, DateTimeKind.Unspecified),
-            amountInCents: -6317,
-            currency: "EUR",
-            accountReference: "DE02120300000000202051",
-            accountName: "Girokonto",
-            counterparty: "Supermarkt",
-            counterpartyAccount: string.Empty,
-            paymentReference: string.Empty,
-            category: "Lebensmittel",
-            subCategory: "Supermarkt",
-            isTransfer: false,
-            SplitRole.None,
-            originalFingerprint: null,
-            importRunId);
+        => TestBookings.Create(fingerprint, sourceImportRunId: importRunId);
 }
