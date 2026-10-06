@@ -89,8 +89,9 @@ repository, and this is where it is written down: a second external source
 becomes a new `CashPrism.Infrastructure.<Name>` project next to the existing
 one, not a change to the existing parser.
 
-`Shell` and `Anonymiser` are the only two **production** projects allowed to
-reference an Infrastructure project — both are composition roots.
+`Shell`, `Anonymiser` and `DemoData` are the only **production** projects
+allowed to reference an Infrastructure project — all three are composition
+roots.
 `CashPrism.Architecture.Tests` fails the build if a production project outside
 that set takes such a dependency.
 
@@ -115,6 +116,9 @@ Consequences worth stating, because they are where it usually goes wrong:
   never references ClosedXML — an `.xlsx` is a zip it takes apart and puts back
   together itself, so a real Finanzguru export stays recognisable as one. This
   is about the fidelity of the output, not about containing a dependency.
+- `DemoData` is a development tool, not part of the shipped application. What it
+  writes is synthetic from end to end: no value from a real export enters the
+  generator, not even as a seed or a template.
 - **A development tool lives under `src/Tools/`** and in the `/Tools/` solution
   folder, apart from the application it serves. Its test projects stay under
   `src/Tests/` like every other.

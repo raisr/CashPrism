@@ -22,10 +22,11 @@ centre.
 | `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
 | `src/Tools/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real Finanzguru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
+| `src/Tools/CashPrism.DemoData` | The third composition root: a standalone console tool that writes a fully synthetic Finanzguru export to try CashPrism on | Infrastructure.Finanzguru |
 
-`Shell` and `Anonymiser` are the only two projects that reference an
-Infrastructure project — both are composition roots, so both are allowed to wire
-concrete infrastructure to a use case.
+`Shell`, `Anonymiser` and `DemoData` are the only projects that reference an
+Infrastructure project — all three are composition roots, so all three are
+allowed to wire concrete infrastructure to a use case.
 
 ## Test projects
 
@@ -41,6 +42,8 @@ concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Web.Tests.Unit` | `Web` without a host: pages, layout and components rendered with bUnit against test doubles, and the formatting and mapping beside them |
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
 | `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository |
+| `src/Tests/CashPrism.DemoData.Tests.Unit` | The generator in memory: command line, identifiers, and one test per special case the data covers |
+| `src/Tests/CashPrism.DemoData.Tests.Integration` | The written workbook: repeatable cell content, and a file the export reader reads |
 
 `src/Tests/CashPrism.TestSupport` sits in the same folder and is not a test
 project: it holds fixtures that more than one test project needs, contains no
@@ -77,9 +80,12 @@ src/
     CashPrism.Web.Tests.Unit/
     CashPrism.Anonymiser.Tests.Unit/
     CashPrism.Anonymiser.Tests.Integration/
+    CashPrism.DemoData.Tests.Unit/
+    CashPrism.DemoData.Tests.Integration/
     CashPrism.TestSupport/
   Tools/
     CashPrism.Anonymiser/
+    CashPrism.DemoData/
 ```
 
 The solution file is `src/CashPrism.slnx`. `src/Tests` and `src/Tools` are
@@ -117,6 +123,11 @@ and is not part of the build.
   is a second composition root with its own entry point, and it never references
   ClosedXML — an `.xlsx` is a zip it takes apart and puts back together itself,
   so a real Finanzguru export stays recognisable as one.
+- **`DemoData` is a development tool as well.** It is the third composition
+  root, writes its workbook with the ClosedXML the export reader already
+  brings, and takes the column names from `Infrastructure.Finanzguru` so the
+  file it writes and the reader that reads it cannot drift apart. See
+  [`demo-data.md`](demo-data.md).
 - **The migrations live with the schema they describe.** They sit in
   `CashPrism.Infrastructure/Persistence/Migrations`, next to the context and the
   entity configurations, and an `IDesignTimeDbContextFactory` lets
@@ -131,4 +142,5 @@ and is not part of the build.
   but not what the database is.
 - **`CashPrism.Architecture.Tests` enforces the reference graph.** The rules
   above are not a gentleman's agreement: the build fails if a project outside
-  `Shell` and `Anonymiser` takes a dependency on an Infrastructure project.
+  `Shell`, `Anonymiser` and `DemoData` takes a dependency on an Infrastructure
+  project.

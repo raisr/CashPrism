@@ -22,6 +22,7 @@
       ones its own code calls into.
     -->
     <ProjectReference Include="..\..\Tools\CashPrism.Anonymiser\CashPrism.Anonymiser.csproj" />
+    <ProjectReference Include="..\..\Tools\CashPrism.DemoData\CashPrism.DemoData.csproj" />
     <ProjectReference Include="..\..\CashPrism.Application\CashPrism.Application.csproj" />
     <ProjectReference Include="..\..\CashPrism.Domain\CashPrism.Domain.csproj" />
     <ProjectReference Include="..\..\CashPrism.Infrastructure\CashPrism.Infrastructure.csproj" />

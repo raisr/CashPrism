@@ -4,6 +4,8 @@
     <Project Path="Tests/CashPrism.Anonymiser.Tests.Unit/CashPrism.Anonymiser.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Application.Tests.Unit/CashPrism.Application.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Architecture.Tests/CashPrism.Architecture.Tests.csproj" />
+    <Project Path="Tests/CashPrism.DemoData.Tests.Integration/CashPrism.DemoData.Tests.Integration.csproj" />
+    <Project Path="Tests/CashPrism.DemoData.Tests.Unit/CashPrism.DemoData.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Domain.Tests.Unit/CashPrism.Domain.Tests.Unit.csproj" />
     <Project Path="Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration/CashPrism.Infrastructure.Finanzguru.Tests.Integration.csproj" />
     <Project Path="Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit/CashPrism.Infrastructure.Finanzguru.Tests.Unit.csproj" />
@@ -14,6 +16,7 @@
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/CashPrism.Anonymiser/CashPrism.Anonymiser.csproj" />
+    <Project Path="Tools/CashPrism.DemoData/CashPrism.DemoData.csproj" />
   </Folder>
   <Project Path="CashPrism.Application/CashPrism.Application.csproj" />
   <Project Path="CashPrism.Domain/CashPrism.Domain.csproj" />

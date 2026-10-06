@@ -8,4 +8,5 @@
 | [hosting.md](hosting.md) | Ways to start CashPrism, the `Hosting` settings, and why port, protocol and addresses behave as they do |
 | [finanzguru-export.md](finanzguru-export.md) | What a Finanzguru export looks like, measured on a real file: the single sheet, the 29 columns, and the special cases that break a naive reader |
 | [anonymiser.md](anonymiser.md) | The `CashPrism.Anonymiser` console tool: command line, which columns it replaces and how, the self-check that proves it, and what it deliberately does not do |
+| [demo-data.md](demo-data.md) | The `CashPrism.DemoData` console tool: command line, the fictional household it writes, and which special cases of a real export the data covers |
 | [benutzung.md](benutzung.md) | The user guide, in German: starting CashPrism, reaching it from another device, importing an export, reading the booking list and the import history |
