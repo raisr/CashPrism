@@ -1,0 +1,40 @@
+# Runs the same gates a commit must pass locally, so nothing reaches main
+# without them. The job names are the required status checks of main's branch
+# protection: renaming a job, or an operating system in the matrix, means
+# updating the protection as well.
+name: gates
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gates-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: gates (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Both operating systems always report, so a Windows-only failure is not
+      # hidden behind a cancelled run.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run the gates
+        shell: bash
+        run: bash .devkit/gates.sh
