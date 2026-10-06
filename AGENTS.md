@@ -167,6 +167,21 @@ with rather than omitting it.
 `Web` must stay hostable without `Shell` — that is what the integration tests
 use.
 
+## Branches and CI
+
+**`main` is the only long-lived branch.** Every change reaches it through a
+pull request from a `feature/` or `fix/` branch (`forge.branches`); `main` is
+protected so that no other way in exists, for the maintainer included.
+
+**The gates run in CI on every pull request against `main`.**
+`.github/workflows/gates.yml` runs `bash .devkit/gates.sh` on Ubuntu and on
+Windows, and a merge needs both green. This adds to `core.gates`, it does not
+replace it: the gates still pass locally before a commit.
+
+The job names, `gates (ubuntu-latest)` and `gates (windows-latest)`, are the
+required status checks of the branch protection. Renaming a job or changing the
+matrix means updating the protection in the same change.
+
 ## Language of the user interface
 
 The UI is **German**. Finanzguru, the only source CashPrism reads, is sold in
