@@ -194,7 +194,7 @@ public static class SyntheticValues
                 _ when letter == letters.BookingDate => DateText(date, value),
                 _ when letter == letters.Amount && amount is not null => NumberText(amount.Value),
                 _ when letter == letters.Balance => NumberText(Generate(value, row.Number, multiplier: 104_729, modulus: 9_999_999)),
-                _ when letter == letters.Year => PeriodLabels.Year(date),
+                _ when letter == letters.Year => FinanzguruPeriodLabels.Year(date),
                 _ => null,
             };
 
@@ -209,9 +209,9 @@ public static class SyntheticValues
 
             string? replacement = letter switch
             {
-                _ when letter == letters.Week => PeriodLabels.Week(date),
-                _ when letter == letters.Month => PeriodLabels.Month(date),
-                _ when letter == letters.Quarter => PeriodLabels.Quarter(date),
+                _ when letter == letters.Week => FinanzguruPeriodLabels.Week(date),
+                _ when letter == letters.Month => FinanzguruPeriodLabels.Month(date),
+                _ when letter == letters.Quarter => FinanzguruPeriodLabels.Quarter(date),
                 _ => null,
             };
 

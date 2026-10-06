@@ -1,8 +1,6 @@
-using CashPrism.Anonymiser.Anonymisation;
+namespace CashPrism.Infrastructure.Finanzguru.Tests.Unit;
 
-namespace CashPrism.Anonymiser.Tests.Unit.Anonymisation;
-
-public sealed class PeriodLabelsTests
+public sealed class FinanzguruPeriodLabelsTests
 {
     public sealed class Week
     {
@@ -17,14 +15,14 @@ public sealed class PeriodLabelsTests
         [InlineData(2026, 12, 31, "2026-53")]
         public void Counts_Weeks_From_Sunday_With_Week_One_Starting_On_New_Year(
             int year, int month, int day, string expected)
-            => Assert.Equal(expected, PeriodLabels.Week(new DateOnly(year, month, day)));
+            => Assert.Equal(expected, FinanzguruPeriodLabels.Week(new DateOnly(year, month, day)));
     }
 
     public sealed class Month
     {
         [Fact]
         public void Writes_Year_And_Two_Digit_Month()
-            => Assert.Equal("2001-03", PeriodLabels.Month(new DateOnly(2001, 3, 15)));
+            => Assert.Equal("2001-03", FinanzguruPeriodLabels.Month(new DateOnly(2001, 3, 15)));
     }
 
     public sealed class Quarter
@@ -35,13 +33,13 @@ public sealed class PeriodLabelsTests
         [InlineData(4, "2001-Q2")]
         [InlineData(12, "2001-Q4")]
         public void Writes_Year_And_Quarter(int month, string expected)
-            => Assert.Equal(expected, PeriodLabels.Quarter(new DateOnly(2001, month, 1)));
+            => Assert.Equal(expected, FinanzguruPeriodLabels.Quarter(new DateOnly(2001, month, 1)));
     }
 
     public sealed class Year
     {
         [Fact]
         public void Writes_The_Year_The_Way_The_Export_Does()
-            => Assert.Equal("2001.0", PeriodLabels.Year(new DateOnly(2001, 6, 1)));
+            => Assert.Equal("2001.0", FinanzguruPeriodLabels.Year(new DateOnly(2001, 6, 1)));
     }
 }
