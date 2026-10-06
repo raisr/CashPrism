@@ -84,3 +84,34 @@ The workbook is written with ClosedXML. It does not imitate the Apache POI
 internals of a real export — inline strings, a style per row — because the
 reader reads both. For a file Finanzguru itself wrote, see the fixture in
 [`finanzguru-export.md`](finanzguru-export.md#the-fixture-from-a-real-export).
+
+## The committed file
+
+The repository ships the output as
+[`samples/demo-export.xlsx`](../samples/demo-export.xlsx), generated with
+`--until 2026-10-01`. It is linked from the `README.md` and from the user guide,
+and three tests hold it to what it claims:
+
+- `DemoSampleTests` in `CashPrism.DemoData.Tests.Integration` reads it with the
+  export reader — no error, no unknown column — and compares every cell with a
+  fresh generation for the export date in its own sheet name. Bytes are not
+  compared, for the zip timestamps above.
+- `ImportEndToEndTests` in `CashPrism.Shell.Tests.Integration` imports it
+  through the host's own wiring into a throwaway database and finds every row
+  stored as a booking.
+
+The file reaches both test projects through `DemoSample` in
+`CashPrism.TestSupport`, which embeds it from `samples/` rather than copying it.
+
+**To regenerate it**, from the repository root:
+
+```
+dotnet run --project src/Tools/CashPrism.DemoData -- --out samples --until 2026-10-01
+```
+
+That is due whenever the comparison fails, which means the generator changed
+on purpose — or that a .NET upgrade changed the sequence `System.Random`
+produces for a fixed seed, which the runtime does not promise to keep. Either
+way, look at the diff the new file makes in an import before committing it.
+A newer `--until` is a deliberate refresh rather than a repair: the tests read
+the date from the file, so they follow it without a change.

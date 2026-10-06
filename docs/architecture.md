@@ -43,7 +43,7 @@ allowed to wire concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Anonymiser.Tests.Unit` | Command-line parsing, no file on disk |
 | `src/Tests/CashPrism.Anonymiser.Tests.Integration` | The file round trip, built in code — no binary fixture in the repository |
 | `src/Tests/CashPrism.DemoData.Tests.Unit` | The generator in memory: command line, identifiers, and one test per special case the data covers |
-| `src/Tests/CashPrism.DemoData.Tests.Integration` | The written workbook: repeatable cell content, and a file the export reader reads |
+| `src/Tests/CashPrism.DemoData.Tests.Integration` | The written workbook: repeatable cell content, a file the export reader reads, and the committed demo export still matching the generator |
 
 `src/Tests/CashPrism.TestSupport` sits in the same folder and is not a test
 project: it holds fixtures that more than one test project needs, contains no
@@ -52,7 +52,9 @@ test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
 Finanzguru-shaped `.xlsx` in memory, `FinanzguruTestRow`, which fills one data
 row of it, and the stand-ins the import use case runs on in a test:
 `FakeImportSource`, `FakeImportStore` and `FixedClock`; and `TestBookings`,
-which builds a booking with plain values for every field a test does not name.
+which builds a booking with plain values for every field a test does not name;
+and `DemoSample`, which embeds the committed demo export
+`samples/demo-export.xlsx`.
 No production project may reference it, and `CashPrism.Architecture.Tests`
 fails the build if one does. When a fixture belongs there is a rule rather than a description, and it
 is in [`../AGENTS.md`](../AGENTS.md#test-projects).
@@ -61,6 +63,7 @@ is in [`../AGENTS.md`](../AGENTS.md#test-projects).
 
 ```
 design/
+samples/
 src/
   CashPrism.slnx
   CashPrism.Domain/
@@ -91,6 +94,9 @@ src/
 The solution file is `src/CashPrism.slnx`. `src/Tests` and `src/Tools` are
 plain folders inside the solution root, and the `/Tests/` and `/Tools/`
 solution folders in the `.slnx` list the same projects.
+
+`samples/` holds the demo export a person without data of their own tries
+CashPrism on; see [`demo-data.md`](demo-data.md).
 
 `design/` holds the design system as exported from Claude Design: tokens,
 components, guidelines and brand assets. It is reference material for the UI

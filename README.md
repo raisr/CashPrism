@@ -71,6 +71,11 @@ Press Ctrl+C to stop.
 More than one line under *From another device* is normal — pick the one the
 other device answers on.
 
+No Finanzguru export at hand? Import
+[`samples/demo-export.xlsx`](samples/demo-export.xlsx): three years of a
+fictional household, made up from end to end, in the shape a real export has.
+[docs/demo-data.md](docs/demo-data.md) says what it contains.
+
 A different port, no browser window, a build that runs without the SDK, and the
 settings that make it stick: see [docs/hosting.md](docs/hosting.md).
 

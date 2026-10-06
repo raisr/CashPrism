@@ -1,6 +1,7 @@
 using CashPrism.Application.Imports;
 using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.Infrastructure.Persistence;
+using CashPrism.TestSupport.Samples;
 using CashPrism.TestSupport.Xlsx;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -129,6 +130,28 @@ public sealed class ImportEndToEndTests
 
             Assert.Equal(2, rows.Count);
             Assert.All(rows, row => Assert.Contains("\"Buchungs-ID\":", row.Json, StringComparison.Ordinal));
+        }
+
+        /// <summary>
+        /// The demo export is what a person without an export of their own
+        /// imports first, so it has to go through the import the host wires,
+        /// not only through the reader.
+        /// </summary>
+        [Fact]
+        public async Task Of_The_Demo_Sample_Stores_Every_Booking_It_Carries()
+        {
+            using var factory = StartHost();
+            using var sample = new MemoryStream();
+            await using (var stream = DemoSample.Open())
+            {
+                await stream.CopyToAsync(sample);
+            }
+
+            var result = await ImportAsync(factory, sample.ToArray(), DemoSample.FileName);
+
+            Assert.Equal(ImportOutcome.Imported, result.Outcome);
+            Assert.Equal(result.RowsRead, result.BookingsInserted);
+            Assert.Equal(result.RowsRead, await ReadAsync(factory, context => context.Bookings.CountAsync()));
         }
     }
 
