@@ -79,6 +79,11 @@ CashPrism liest den Finanzguru-Export „Alle Buchungen“ als `.xlsx`-Datei.
 
 Neben der Fläche steht unter *So geht’s*, wo Finanzguru den Export anbietet.
 
+Wer CashPrism ohne eigenen Export ausprobieren möchte, importiert
+[`samples/demo-export.xlsx`](../samples/demo-export.xlsx) aus dem Repository:
+drei Jahre eines erfundenen Haushalts, aufgebaut wie ein echter
+Finanzguru-Export. Alle Namen und Beträge darin sind ausgedacht.
+
 Während der Import läuft, ist die Seite abgedunkelt: Die Navigation ist nicht
 erreichbar, und ein zweiter Import lässt sich nicht starten.
 

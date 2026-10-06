@@ -1,14 +1,14 @@
 using System.Globalization;
 
-namespace CashPrism.Anonymiser.Anonymisation;
+namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
 /// The four <c>Analyse-</c> period columns, derived from a booking date the way
 /// <c>docs/finanzguru-export.md</c> measured them. They carry nothing the date
-/// does not, so a generated date takes generated labels with it — otherwise the
-/// week of a row would still say when it really happened.
+/// does not, so whatever writes a date has to write matching labels with it —
+/// otherwise the week of a row would say something its date does not.
 /// </summary>
-public static class PeriodLabels
+public static class FinanzguruPeriodLabels
 {
     /// <summary>
     /// <c>Analyse-Woche</c>, shaped <c>YYYY-WW</c>: week 1 runs from 1 January to

@@ -161,6 +161,13 @@ releases and the minor version is bumped for every notable change.
   shrinks the database file again; a fresh import then rebuilds everything,
   the same file included. No more stopping CashPrism to delete the database by
   hand.
+- A demo export to try CashPrism without data of your own:
+  [`samples/demo-export.xlsx`](samples/demo-export.xlsx) carries three years of
+  a fictional household — seven accounts, contracts, transfers, a split
+  booking — and imports like a real Finanzguru export. Every name and number in
+  it is made up. It comes from `CashPrism.DemoData`, a console tool that writes
+  the same file again for any end date; see
+  [`docs/demo-data.md`](docs/demo-data.md).
 
 ### Changed
 

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <!--
+    ClosedXML, which writes the workbook, comes with the export reader's
+    project rather than being referenced a second time here: the generated file
+    is meant for that reader, so the two share one version.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,15 +1,16 @@
 namespace CashPrism.Architecture.Tests;
 
 /// <summary>
-/// Guards the composition-root rule from Agents.md: only <c>CashPrism.Shell</c>
-/// and <c>CashPrism.Anonymiser</c> — the two entry points a process actually
-/// starts from — may reference an Infrastructure assembly. Every other project
+/// Guards the composition-root rule from Agents.md: only <c>CashPrism.Shell</c>,
+/// <c>CashPrism.Anonymiser</c> and <c>CashPrism.DemoData</c> — the three entry
+/// points a process actually starts from — may reference an Infrastructure
+/// assembly. Every other project
 /// reaches infrastructure concerns only through an interface it declares
 /// itself.
 /// </summary>
 public sealed class InfrastructureBoundaryTests
 {
-    private static readonly string[] CompositionRoots = ["CashPrism.Shell", "CashPrism.Anonymiser"];
+    private static readonly string[] CompositionRoots = ["CashPrism.Shell", "CashPrism.Anonymiser", "CashPrism.DemoData"];
 
     public static IEnumerable<object[]> NonCompositionRoots()
         => ProjectAssemblies.AllExcept(CompositionRoots);

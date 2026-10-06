@@ -13,4 +13,13 @@
     <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
   </ItemGroup>
 
+  <!--
+    The demo export the repository ships, embedded from where it is committed
+    rather than copied, so every test reads the file a user downloads. See
+    docs/demo-data.md.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\samples\demo-export.xlsx" LogicalName="demo-export.xlsx" Link="Samples\demo-export.xlsx" />
+  </ItemGroup>
+
 </Project>
