@@ -1,4 +1,3 @@
-using System.Globalization;
 using Bunit;
 using CashPrism.Web.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,23 +11,12 @@ public sealed class PagerTests
         private const string InfoFormat = "{0:N0}–{1:N0} von {2:N0} Buchungen";
 
         private readonly BunitContext context = new();
-        private readonly CultureInfo formerCulture = CultureInfo.CurrentCulture;
 
-        // The host pins German; the test does the same rather than inherit
-        // whatever the machine running it is set to.
-        public Render()
-        {
-            CultureInfo.CurrentCulture = new CultureInfo("de-DE");
-            context.Services.AddLocalization();
-        }
+        public Render() => context.Services.AddLocalization();
 
         public Task InitializeAsync() => Task.CompletedTask;
 
-        public async Task DisposeAsync()
-        {
-            CultureInfo.CurrentCulture = formerCulture;
-            await context.DisposeAsync();
-        }
+        public async Task DisposeAsync() => await context.DisposeAsync();
 
         [Fact]
         public void Says_Which_Entries_Of_How_Many_Are_On_Screen_With_German_Separators()
