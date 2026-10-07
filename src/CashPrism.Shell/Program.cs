@@ -38,7 +38,15 @@ public sealed class Program
 
         var hostArgs = HostingCommandLine.Expand(args);
 
-        var builder = WebApplication.CreateBuilder(hostArgs);
+        // The content root is where the executable lies, not the working
+        // directory: appsettings.json and wwwroot sit next to the executable,
+        // and a double-click on macOS, a shortcut or a terminal elsewhere starts
+        // it in some other directory. Every static asset was then served empty.
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            Args = hostArgs,
+            ContentRootPath = AppContext.BaseDirectory,
+        });
 
         builder.Configuration.AddCommandLine(hostArgs, HostingCommandLine.CreateSwitchMappings());
 
