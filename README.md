@@ -76,8 +76,9 @@ No Finanzguru export at hand? Import
 fictional household, made up from end to end, in the shape a real export has.
 [docs/demo-data.md](docs/demo-data.md) says what it contains.
 
-A different port, no browser window, a build that runs without the SDK, and the
-settings that make it stick: see [docs/hosting.md](docs/hosting.md).
+A different port, no browser window, a build that runs without the SDK, a
+container for a home server or a NAS, and the settings that make it stick: see
+[docs/hosting.md](docs/hosting.md).
 
 ## Using it
 
