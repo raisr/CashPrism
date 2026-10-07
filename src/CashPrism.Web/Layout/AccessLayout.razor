@@ -1,0 +1,23 @@
+@inherits LayoutComponentBase
+@inject IStringLocalizer<Strings> text
+
+@* The frame of the pages before a login: the product name and one card, with
+   no drawer and no app bar, because nothing behind them is reachable yet.
+   Rendered statically, so nothing here may depend on a circuit — no theme
+   switch and no MudBlazor component that needs interactivity. *@
+<main class="cp-access">
+  <div class="cp-access__panel">
+    @* "CashPrism" is a product name, so it stays a literal. *@
+    <div class="cp-brand cp-access__brand">
+      <span class="cp-brand__text">
+        <span class="cp-brand__name">Cash<span>Prism</span></span>
+        <span class="cp-brand__tag">@text["BrandTagline"]</span>
+      </span>
+    </div>
+    <div class="cp-card">
+      <div class="cp-card__body">
+        @Body
+      </div>
+    </div>
+  </div>
+</main>

@@ -26,6 +26,8 @@ internal sealed class ShellProcess : IDisposable
 
     private readonly StringBuilder error = new();
 
+    private readonly StringBuilder output = new();
+
     private readonly Process process;
 
     private ShellProcess(Process process)
@@ -44,6 +46,18 @@ internal sealed class ShellProcess : IDisposable
 
     /// <summary>The exit code. Only meaningful once the process has exited.</summary>
     public int ExitCode => process.ExitCode;
+
+    /// <summary>Everything the process has written to standard output so far.</summary>
+    public string Output
+    {
+        get
+        {
+            lock (output)
+            {
+                return output.ToString();
+            }
+        }
+    }
 
     /// <summary>Everything the process has written to standard error so far.</summary>
     public string Error
@@ -147,6 +161,11 @@ internal sealed class ShellProcess : IDisposable
         if (line is null)
         {
             return;
+        }
+
+        lock (output)
+        {
+            output.AppendLine(line);
         }
 
         var contentRootAt = line.IndexOf(ContentRootMarker, StringComparison.Ordinal);

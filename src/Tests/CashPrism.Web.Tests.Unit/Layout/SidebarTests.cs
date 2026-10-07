@@ -1,4 +1,5 @@
 using Bunit;
+using CashPrism.Web.Access;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
 using CashPrism.Web.StoredData;
@@ -59,6 +60,26 @@ public sealed class SidebarTests
             var sidebar = context.Render<Sidebar>();
 
             Assert.Empty(sidebar.FindAll(".cp-privacy__import"));
+        }
+    }
+
+    public sealed class Render : IAsyncLifetime
+    {
+        private readonly BunitContext context = new();
+
+        public Render() => context.AddSidebarServices(new FakeBookingReader(), new FakeImportRunReader());
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public async Task DisposeAsync() => await context.DisposeAsync();
+
+        [Fact]
+        public void Offers_A_Logout_That_Posts_To_The_Logout_Endpoint()
+        {
+            var sidebar = context.Render<Sidebar>();
+
+            var form = sidebar.Find(".cp-sidebar__logout");
+            Assert.Equal(("post", AccessPaths.Logout), (form.GetAttribute("method"), form.GetAttribute("action")));
         }
     }
 

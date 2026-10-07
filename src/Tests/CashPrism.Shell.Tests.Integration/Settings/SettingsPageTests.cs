@@ -54,7 +54,7 @@ public sealed class SettingsPageTests
         public async Task Answers_With_Ok()
         {
             using var factory = StartHost();
-            using var client = factory.CreateClient();
+            using var client = await factory.CreateSignedInClientAsync();
 
             using var response = await client.GetAsync("/settings");
 
@@ -65,7 +65,7 @@ public sealed class SettingsPageTests
         public async Task Offers_To_Delete_All_Data()
         {
             using var factory = StartHost();
-            using var client = factory.CreateClient();
+            using var client = await factory.CreateSignedInClientAsync();
 
             var html = WebUtility.HtmlDecode(await client.GetStringAsync("/settings"));
 

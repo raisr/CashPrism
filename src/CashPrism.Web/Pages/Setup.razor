@@ -1,0 +1,118 @@
+@page "/setup"
+@using CashPrism.Application.Access
+@using CashPrism.Domain.Access
+@using CashPrism.Web.Access
+@using Microsoft.AspNetCore.Authorization
+@*  Anonymous by necessity: while no password is set, nobody can have a login.
+    The setup code is what proves the person has the machine. Static like the
+    login page, which it hands over to. *@
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@layout AccessLayout
+@inject IStringLocalizer<Strings> text
+@inject PasswordSetup setup
+@inject NavigationManager navigation
+
+<PageTitle>CashPrism — @text["SetupTitle"]</PageTitle>
+
+<div class="cp-access__form">
+  <div class="cp-access__head">
+    <h1 class="cp-h2">@text["SetupTitle"]</h1>
+    <p class="cp-access__lead">@text["SetupLead"]</p>
+  </div>
+
+  @if (failure is not null)
+  {
+    <Alert Tone="AlertTone.Danger" Title="@failure" />
+  }
+
+  <EditForm Model="Input" FormName="setup" OnSubmit="SetAsync" method="post" class="cp-access__fields">
+    <label class="cp-field">
+      <span class="cp-field__label">@text["SetupCode"]</span>
+      <span class="cp-input">
+        <InputText @bind-Value="Input.Code" autocomplete="off" spellcheck="false" autofocus required />
+      </span>
+      <span class="cp-field__hint">@text["SetupCodeHint"]</span>
+    </label>
+    <label class="cp-field">
+      <span class="cp-field__label">@text["SetupPassword"]</span>
+      <span class="cp-input">
+        <InputText type="password" @bind-Value="Input.Password" autocomplete="new-password" required />
+      </span>
+      <span class="cp-field__hint">@text["SetupPasswordHint", PasswordRule.MinimumLength]</span>
+    </label>
+    <label class="cp-field">
+      <span class="cp-field__label">@text["SetupRepeat"]</span>
+      <span class="cp-input">
+        <InputText type="password" @bind-Value="Input.Repeat" autocomplete="new-password" required />
+      </span>
+    </label>
+    <button type="submit" class="cp-btn cp-btn--primary cp-btn--block">
+      <CpIcon Name="lock" />
+      @text["SetupSubmit"]
+    </button>
+  </EditForm>
+</div>
+
+@code {
+    private string? failure;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm(FormName = "setup")]
+    private SetupInput Input { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Filled from the form on a post; a plain visit starts with an empty one.
+        Input ??= new();
+
+        // Once a password is set this page has nothing left to do, and the
+        // setup code is worth nothing.
+        if (!await setup.IsPendingAsync(HttpContext.RequestAborted))
+        {
+            navigation.NavigateTo(AccessPaths.Login);
+        }
+    }
+
+    private async Task SetAsync()
+    {
+        // Asked here and not by the use case: whether two fields agree is about
+        // typing, not about what a password may be. A typo would otherwise
+        // lock the household out of a password nobody knows.
+        if (Input.Password != Input.Repeat)
+        {
+            failure = text["SetupMismatch"];
+
+            return;
+        }
+
+        var outcome = await setup.SetAsync(Input.Code, Input.Password, HttpContext.RequestAborted);
+
+        switch (outcome)
+        {
+            case PasswordSetupOutcome.Done:
+                navigation.NavigateTo(AccessPaths.LoginAfterSetup);
+                break;
+            case PasswordSetupOutcome.AlreadySet:
+                navigation.NavigateTo(AccessPaths.Login);
+                break;
+            case PasswordSetupOutcome.WrongCode:
+                failure = text["SetupWrongCode"];
+                break;
+            case PasswordSetupOutcome.TooShort:
+                failure = text["SetupTooShort", PasswordRule.MinimumLength];
+                break;
+        }
+    }
+
+    private sealed record SetupInput
+    {
+        public string Code { get; set; } = string.Empty;
+
+        public string Password { get; set; } = string.Empty;
+
+        public string Repeat { get; set; } = string.Empty;
+    }
+}

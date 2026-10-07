@@ -614,4 +614,88 @@
   <data name="MudTablePager_PreviousPage" xml:space="preserve">
     <value>Vorherige Seite</value>
   </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Anmelden</value>
+    <comment>Heading of the login page, its button, and part of the browser tab title.</comment>
+  </data>
+  <data name="LoginLead" xml:space="preserve">
+    <value>Gib das Passwort für CashPrism ein.</value>
+    <comment>Line under the login heading.</comment>
+  </data>
+  <data name="LoginPassword" xml:space="preserve">
+    <value>Passwort</value>
+    <comment>Label of the password field on the login page.</comment>
+  </data>
+  <data name="LoginRememberMe" xml:space="preserve">
+    <value>Angemeldet bleiben</value>
+    <comment>Checkbox on the login page: off ends the login with the browser, on keeps it for 30 days.</comment>
+  </data>
+  <data name="LoginSubmit" xml:space="preserve">
+    <value>Anmelden</value>
+    <comment>Button that submits the login form.</comment>
+  </data>
+  <data name="LoginRejected" xml:space="preserve">
+    <value>Das Passwort stimmt nicht.</value>
+    <comment>Shown after a wrong password.</comment>
+  </data>
+  <data name="LoginLockedOut" xml:space="preserve">
+    <value>Zu viele falsche Versuche. Anmelden geht wieder ab {0} Uhr.</value>
+    <comment>Shown while logins are refused after repeated wrong passwords. {0} is the time they are accepted again, e.g. 20:31:45.</comment>
+  </data>
+  <data name="LoginAfterSetupTitle" xml:space="preserve">
+    <value>Passwort festgelegt</value>
+    <comment>Headline on the login page right after the password was set.</comment>
+  </data>
+  <data name="LoginAfterSetupText" xml:space="preserve">
+    <value>Melde dich jetzt mit deinem neuen Passwort an.</value>
+    <comment>Line under the headline on the login page right after the password was set.</comment>
+  </data>
+  <data name="SetupTitle" xml:space="preserve">
+    <value>Passwort festlegen</value>
+    <comment>Heading of the page that sets the first password, and part of the browser tab title.</comment>
+  </data>
+  <data name="SetupLead" xml:space="preserve">
+    <value>Mit diesem Passwort öffnet jedes Gerät in eurem Netzwerk CashPrism.</value>
+    <comment>Line under the setup heading.</comment>
+  </data>
+  <data name="SetupCode" xml:space="preserve">
+    <value>Einrichtungscode</value>
+    <comment>Label of the setup code field.</comment>
+  </data>
+  <data name="SetupCodeHint" xml:space="preserve">
+    <value>Steht im Fenster, in dem CashPrism läuft – im Container in den Logs (docker logs).</value>
+    <comment>Hint under the setup code field: where the code is printed.</comment>
+  </data>
+  <data name="SetupPassword" xml:space="preserve">
+    <value>Neues Passwort</value>
+    <comment>Label of the new password field.</comment>
+  </data>
+  <data name="SetupPasswordHint" xml:space="preserve">
+    <value>Mindestens {0} Zeichen.</value>
+    <comment>Hint under the new password field. {0} is the minimum length.</comment>
+  </data>
+  <data name="SetupRepeat" xml:space="preserve">
+    <value>Passwort wiederholen</value>
+    <comment>Label of the field that repeats the new password.</comment>
+  </data>
+  <data name="SetupSubmit" xml:space="preserve">
+    <value>Passwort festlegen</value>
+    <comment>Button that submits the setup form.</comment>
+  </data>
+  <data name="SetupWrongCode" xml:space="preserve">
+    <value>Der Einrichtungscode stimmt nicht.</value>
+    <comment>Shown when the setup code is not the one this start printed.</comment>
+  </data>
+  <data name="SetupTooShort" xml:space="preserve">
+    <value>Das Passwort braucht mindestens {0} Zeichen.</value>
+    <comment>Shown when the new password is too short. {0} is the minimum length.</comment>
+  </data>
+  <data name="SetupMismatch" xml:space="preserve">
+    <value>Die beiden Passwörter stimmen nicht überein.</value>
+    <comment>Shown when the repeated password differs from the first.</comment>
+  </data>
+  <data name="SidebarLogout" xml:space="preserve">
+    <value>Abmelden</value>
+    <comment>Button in the sidebar that ends the login on this device.</comment>
+  </data>
 </root>

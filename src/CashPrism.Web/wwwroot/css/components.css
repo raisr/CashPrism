@@ -1274,6 +1274,213 @@
   }
 }
 
+/* ---------- form fields ---------- */
+
+/* From the design system's Input, for forms that are plain HTML: the pages
+   before a login render without a circuit, where MudBlazor's inputs do
+   nothing. */
+.cp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cp-field__label {
+  font-size: var(--cp-fs-label);
+  font-weight: var(--cp-fw-label);
+  letter-spacing: var(--cp-ls-label);
+  text-transform: uppercase;
+  color: var(--cp-text-3);
+}
+
+.cp-field__hint {
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--cp-control-height);
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-sm);
+  background: var(--cp-surface-2);
+  color: var(--cp-text);
+  transition: border-color var(--cp-dur-fast), box-shadow var(--cp-dur-fast), background var(--cp-dur-fast);
+}
+
+.cp-input:hover {
+  border-color: var(--cp-line-strong);
+}
+
+.cp-input:focus-within {
+  border-color: var(--cp-primary);
+  box-shadow: 0 0 0 3px var(--cp-focus);
+  background: var(--cp-surface);
+}
+
+.cp-input input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 12px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: 500 14px/1 var(--cp-font-sans);
+  color: inherit;
+}
+
+/* A native checkbox in the primary colour. The design system's Switch is a
+   button that needs a circuit to toggle. */
+.cp-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cp-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--cp-primary);
+}
+
+/* The design system's button, for the same plain forms. A MudButton carries
+   cp-btn as well and is sized above, so it is left out here. */
+.cp-btn:not(.mud-button-root) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--cp-control-height);
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--cp-radius-sm);
+  font: 700 14px/1 var(--cp-font-sans);
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--cp-dur-fast) var(--cp-ease), transform var(--cp-dur-fast) var(--cp-ease);
+}
+
+.cp-btn:not(.mud-button-root):active {
+  transform: translateY(1px);
+}
+
+.cp-btn:not(.mud-button-root):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-btn:not(.mud-button-root) .cp-icon {
+  font-size: 18px;
+}
+
+.cp-btn--primary {
+  background: var(--cp-primary);
+  color: var(--cp-on-primary);
+  box-shadow: var(--cp-shadow-button);
+}
+
+.cp-btn--primary:hover {
+  background: var(--cp-primary-hover);
+}
+
+.cp-btn--block {
+  width: 100%;
+}
+
+/* ---------- login and setup ---------- */
+
+.cp-access {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px var(--cp-page-padding-mobile);
+  background: var(--cp-bg);
+  /* Set here because the theme provider that sets it on every other page
+     needs a circuit, and these pages have none. */
+  font: 500 14px/1.5 var(--cp-font-sans);
+  color: var(--cp-text);
+}
+
+.cp-access__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.cp-access__brand {
+  justify-content: center;
+}
+
+.cp-access__form,
+.cp-access__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cp-access__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-access__head .cp-h2 {
+  margin: 0;
+}
+
+.cp-access__lead {
+  margin: 0;
+  color: var(--cp-text-2);
+}
+
+/* ---------- sidebar: logout ---------- */
+
+.cp-sidebar__logout {
+  margin: 0 0 12px;
+}
+
+/* A button, styled as the links above it. A button centres its content by
+   itself, so the start is set again. */
+.cp-sidebar__logout .cp-nav__item {
+  justify-content: flex-start;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cp-sidebar__logout .cp-nav__item:hover {
+  background: var(--cp-hover);
+  color: var(--cp-text);
+}
+
+/* On the rail the foot stacks the logout above the lock, both centred. Same
+   breakpoint as the rail itself above. */
+@media (min-width: 960px) {
+  .cp-sidebar--collapsed .cp-sidebar__foot {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cp-sidebar--collapsed .cp-sidebar__logout {
+    align-self: stretch;
+  }
+
+  .cp-sidebar--collapsed .cp-sidebar__logout .cp-nav__item {
+    justify-content: center;
+  }
+}
+
 /* ---------- settings ---------- */
 
 .cp-settings-erase {

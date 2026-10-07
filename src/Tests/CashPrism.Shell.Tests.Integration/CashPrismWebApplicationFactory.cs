@@ -1,6 +1,10 @@
+using CashPrism.Application.Access;
+using CashPrism.Shell.Tests.Integration.Access;
+using CashPrism.Web.Access;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Program = CashPrism.Shell.Program;
 
@@ -30,6 +34,54 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
     /// outside Visual Studio runs as.
     /// </summary>
     public string? EnvironmentName { get; init; }
+
+    /// <summary>The password <see cref="SetPasswordAsync"/> sets.</summary>
+    public const string Password = "korrekt pferd batterie";
+
+    /// <summary>
+    /// Sets <see cref="Password"/> through the setup the host wired, with the
+    /// setup code of this start, unless a password is set already.
+    /// </summary>
+    public async Task SetPasswordAsync()
+    {
+        await using var scope = Services.CreateAsyncScope();
+        var setup = scope.ServiceProvider.GetRequiredService<PasswordSetup>();
+
+        if (await setup.IsPendingAsync())
+        {
+            await setup.SetAsync(Services.GetRequiredService<SetupCode>().Display, Password);
+        }
+    }
+
+    /// <summary>
+    /// A client that does not follow redirects, so a test sees where it was
+    /// sent. It keeps cookies, so a login through it lasts.
+    /// </summary>
+    public HttpClient CreateClientThatStops()
+        => CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+    /// <summary>
+    /// A client that has logged in through the login page, with
+    /// <see cref="Password"/> set first if it is not.
+    /// </summary>
+    public async Task<HttpClient> CreateSignedInClientAsync()
+    {
+        await SetPasswordAsync();
+
+        var client = CreateClientThatStops();
+        using var response = await HtmlForm.SubmitAsync(
+            client,
+            AccessPaths.Login,
+            new Dictionary<string, string> { ["Input.Password"] = Password });
+
+        if (response.Target() != ReturnUrl.Fallback)
+        {
+            client.Dispose();
+            throw new InvalidOperationException($"The login did not succeed: {response.StatusCode}.");
+        }
+
+        return client;
+    }
 
     protected override IHost CreateHost(IHostBuilder builder)
     {

@@ -64,7 +64,7 @@ public sealed class BookingListPageTests
     /// </summary>
     private static async Task<string> GetAsync(CashPrismWebApplicationFactory factory)
     {
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateSignedInClientAsync();
 
         return WebUtility.HtmlDecode(await client.GetStringAsync("/bookings"));
     }
@@ -75,7 +75,7 @@ public sealed class BookingListPageTests
         public async Task Answers_With_Ok()
         {
             using var factory = StartHost();
-            using var client = factory.CreateClient();
+            using var client = await factory.CreateSignedInClientAsync();
 
             using var response = await client.GetAsync("/bookings");
 

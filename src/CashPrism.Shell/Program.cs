@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using CashPrism.Application.Access;
 using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
 using CashPrism.Infrastructure.Configuration;
@@ -124,6 +126,17 @@ public sealed class Program
         builder.Services.AddScoped<IImportSource, FinanzguruImportSource>();
         builder.Services.AddScoped<Importer>();
 
+        // A new code on every start, made here because it is random: until a
+        // password is set, the banner prints it, and only who sees the console
+        // or the container's log can set one.
+        builder.Services.AddSingleton(
+            new SetupCode(RandomNumberGenerator.GetString(SetupCode.Alphabet, SetupCode.Length)));
+        builder.Services.AddScoped<PasswordSetup>();
+        builder.Services.AddScoped<PasswordCheck>();
+
+        // One for the process: wrong passwords are counted across every request.
+        builder.Services.AddSingleton<LoginThrottle>();
+
         var app = builder.Build();
 
         app.MapCashPrismWeb();
@@ -147,10 +160,18 @@ public sealed class Program
 
         // The schema is brought up to date before the server listens, so no request
         // can arrive at a database this build does not fit.
+        bool setupPending;
+
         await using (var scope = app.Services.CreateAsyncScope())
         {
             await scope.ServiceProvider.GetRequiredService<IDatabaseMigrator>().MigrateAsync();
+
+            setupPending = await scope.ServiceProvider.GetRequiredService<PasswordSetup>().IsPendingAsync();
         }
+
+        // Printed only while it is worth something: once a password is set, the
+        // code opens nothing.
+        var setupCode = setupPending ? app.Services.GetRequiredService<SetupCode>() : null;
 
         // Set by every official .NET container image. Inside one, the addresses
         // of the machine are those of the container network, which no other
@@ -161,8 +182,8 @@ public sealed class Program
         app.Lifetime.ApplicationStarted.Register(() =>
         {
             StartBanner.Print(runningInContainer
-                ? StartBanner.ComposeForContainer(hosting.Port)
-                : StartBanner.Compose(hosting.Port, NetworkAddresses.Local()));
+                ? StartBanner.ComposeForContainer(hosting.Port, setupCode)
+                : StartBanner.Compose(hosting.Port, NetworkAddresses.Local(), setupCode));
 
             if (hosting.LaunchBrowser)
             {

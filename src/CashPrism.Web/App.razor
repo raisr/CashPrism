@@ -23,13 +23,24 @@
   @* The SVG for every browser that takes one, the ICO for the rest. *@
   <link rel="icon" type="image/svg+xml" href="_content/CashPrism.Web/favicon.svg" />
   <link rel="icon" sizes="16x16 32x32 48x48" href="_content/CashPrism.Web/favicon.ico" />
-  <HeadOutlet @rendermode="InteractiveServer" />
+  <HeadOutlet @rendermode="PageRenderMode" />
 </head>
 
 <body>
-  <Routes @rendermode="InteractiveServer" />
+  <Routes @rendermode="PageRenderMode" />
   <script src="_framework/blazor.web.js"></script>
   <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
 
 </html>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    // Interactive everywhere except the pages that log a person in: a cookie
+    // can only be set on an HTTP response, and a page running in a circuit
+    // has none. Those pages opt out with [ExcludeFromInteractiveRouting].
+    private IComponentRenderMode? PageRenderMode
+        => HttpContext.AcceptsInteractiveRouting() ? InteractiveServer : null;
+}

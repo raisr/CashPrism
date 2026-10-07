@@ -1,3 +1,4 @@
+@using CashPrism.Web.Access
 @using CashPrism.Web.Bookings
 @using CashPrism.Web.Imports
 @using CashPrism.Web.StoredData
@@ -36,6 +37,17 @@
   <NavMenu Collapsed="Collapsed" Counts="Counts" />
 
   <div class="cp-sidebar__foot">
+    @* A form that posts, not a link: see the logout endpoint. Submitted as a
+       plain form, so the response replaces the page and the circuit with it. *@
+    <form method="post" action="@AccessPaths.Logout" class="cp-sidebar__logout">
+      <AntiforgeryToken />
+      <button type="submit" class="cp-nav__item"
+              title="@(Collapsed ? text["SidebarLogout"].Value : null)"
+              aria-label="@(Collapsed ? text["SidebarLogout"].Value : null)">
+        <CpIcon Name="log-out" />
+        <span>@text["SidebarLogout"]</span>
+      </button>
+    </form>
     <div class="cp-privacy">
       <div class="cp-privacy__title"><CpIcon Name="lock" Size="16" />@text["PrivacyTitle"]</div>
       <div class="cp-privacy__text">@text["PrivacyText"]</div>

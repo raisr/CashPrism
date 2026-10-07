@@ -61,7 +61,7 @@ public sealed class HostBootTests
     {
         private async Task<string> GetStartPageAsync()
         {
-            using var client = factory.CreateClient();
+            using var client = await factory.CreateSignedInClientAsync();
 
             return await client.GetStringAsync("/");
         }
@@ -69,7 +69,7 @@ public sealed class HostBootTests
         [Fact]
         public async Task Answers_The_Root_Request_With_Ok()
         {
-            using var client = factory.CreateClient();
+            using var client = await factory.CreateSignedInClientAsync();
 
             using var response = await client.GetAsync("/");
 
