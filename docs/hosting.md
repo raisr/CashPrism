@@ -91,6 +91,36 @@ created them, so a data directory copied to another account or machine starts
 with a new key ring. Elsewhere they are stored unencrypted, like the database
 beside them.
 
+## The password
+
+Every page asks for one password the household shares; how to set it and log
+in is in [`benutzung.md`](benutzung.md#passwort-festlegen).
+
+- **The first password is set with a setup code.** While none is set, the start
+  banner prints a random code, and every page leads to the setup page, which
+  asks for it. Whoever reads the console — or the container's log — has the
+  machine, which is what the code proves. A new code is made on every start
+  until a password is set; after that the banner prints none and the code
+  opens nothing.
+- **The setup code reaches a log.** In a container the console is the log, so
+  the code lands in `docker logs` and wherever that is shipped. This departs
+  from the rule that secrets stay out of logs on purpose; it is recorded in
+  `AGENTS.md`.
+- **Only a hash is stored**, PBKDF2 with SHA-512, in the `Credentials` table of
+  the database.
+- **The login is a cookie**, for the browser session or — with *Angemeldet
+  bleiben* — for 30 days, renewed while it is used. It is signed with the
+  [keys in the data directory](#the-keys-in-the-data-directory), so a restart
+  or a recreated container keeps every device logged in.
+- **Wrong passwords are throttled** for the whole application rather than per
+  address: behind a container's published port every device arrives from the
+  same gateway address. Five in a row lock the login for a minute, doubling per
+  further lockout up to 15 minutes. The count lives in memory, so a restart
+  clears it.
+
+Connections are plain HTTP, see [Settings](#settings), so the password crosses
+the home network unencrypted when it is typed.
+
 ## In a container
 
 For a home server or a NAS, CashPrism also runs as a container image, built
@@ -127,7 +157,9 @@ What differs from a start on the desktop is set by the image, not by a switch:
 - **No browser opens**, and the start banner names the port rather than
   addresses: the addresses inside a container belong to the container network,
   and only the host port it is published on is reachable from another device.
-  Type the host's own address and that port.
+  Type the host's own address and that port. Until a password is set, the
+  [setup code](#the-password) is in the banner as well: `docker logs
+  cashprism` shows it.
 - **The image runs as a non-root user.** A bind mount instead of a named volume
   therefore has to be writable by user ID 1654.
 - **`TZ` decides what "today" is.** Without it the container runs on UTC, and a

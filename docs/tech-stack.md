@@ -35,7 +35,9 @@ source tree today:
   file keeps MudBlazor's English
 - The import page is tested with bUnit: a refused upload is rendered and the
   German reason checked on the page
-- Authentication is not built yet
+- Every page sits behind one shared password: a cookie login, the password
+  stored as a PBKDF2 hash, the first one set with a setup code from the start
+  banner. See [hosting.md](hosting.md#the-password)
 - Delivery is still "run it from the source tree", or as a container image
   built from the `Dockerfile` — see [hosting.md](hosting.md) for the ways to
   start it

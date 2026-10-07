@@ -71,8 +71,9 @@ today, a demo export to try them on, and the application secured and packaged.
 - What grew markedly between two periods.
 - Auth:
   - One shared password, PBKDF2, cookie authentication.
-  - Password supplied out of band (environment variable / user secret), never
-    in the repository.
+  - The first password is set in the browser with a setup code the start
+    banner prints, so only who sees the console or the container's log can
+    set it. Never in the repository.
   - `[Authorize]` is the default; `[AllowAnonymous]` is the justified
     exception.
 - Delivery:

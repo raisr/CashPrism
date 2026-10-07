@@ -101,7 +101,7 @@ not, English documentation becomes worth adding.
 
 Early development. You can upload a Finanzguru export, page and sort through
 the bookings it stored, and see what was imported when. There is no filtering,
-no searching, no chart and no password yet. See
+no searching and no chart yet. See
 [ROADMAP.md](ROADMAP.md) for the planned phases and
 [CHANGELOG.md](CHANGELOG.md) for what has landed.
 
