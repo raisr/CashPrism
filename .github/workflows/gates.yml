@@ -1,6 +1,6 @@
 # Runs the same gates a commit must pass locally, so nothing reaches main
 # without them. The job names are the required status checks of main's branch
-# protection: renaming a job, or an operating system in the matrix, means
+# protection: renaming a job, or an entry of a job's matrix, means
 # updating the protection as well.
 name: gates
 
@@ -38,3 +38,58 @@ jobs:
       - name: Run the gates
         shell: bash
         run: bash .devkit/gates.sh
+
+  # The container image, built and started natively on each architecture it is
+  # published for. Starting it on both, not only building it, is the point: a
+  # build stage that leaks something of its own architecture into the image
+  # builds fine and fails only on start.
+  image:
+    name: image (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build the image
+        run: docker build -t cashprism .
+
+      - name: Check that it runs as a non-root user
+        run: |
+          user="$(docker inspect cashprism --format '{{.Config.User}}')"
+          echo "Config.User: '${user}'"
+          [ -n "${user}" ] && [ "${user}" != "root" ] && [ "${user}" != "0" ]
+
+      - name: Start it and wait for an answer on port 5080
+        run: |
+          docker run -d --name cashprism -p 5080:5080 -v cashprism-data:/data cashprism
+          for _ in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://localhost:5080/; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs cashprism
+          exit 1
+
+      - name: Check the start banner
+        run: |
+          docker logs cashprism > banner.txt 2>&1
+          grep -F "Listening on port 5080 inside the container." banner.txt
+          ! grep -E '172\.[0-9]+\.[0-9]+\.[0-9]+' banner.txt
+
+      - name: Check that the database is in the volume
+        run: docker cp cashprism:/data/cashprism.db - > /dev/null
+
+      - name: Check that a second container on the same volume refuses to start
+        run: |
+          status=0
+          timeout 120 docker run --rm -v cashprism-data:/data cashprism || status=$?
+          echo "Exit code: ${status}"
+          [ "${status}" -eq 1 ]

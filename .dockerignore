@@ -1,0 +1,9 @@
+# Only what the Dockerfile copies is needed; everything else would only slow
+# the build context down or, as with bin/ and obj/, break the restore with
+# assets from another platform.
+*
+!.editorconfig
+!THIRD-PARTY-NOTICES.md
+!src/
+**/bin/
+**/obj/
