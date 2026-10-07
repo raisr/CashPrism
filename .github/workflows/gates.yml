@@ -2,17 +2,21 @@
 # without them. The job names are the required status checks of main's branch
 # protection: renaming a job, or an entry of a job's matrix, means
 # updating the protection as well.
+#
+# The release workflow calls this one as well, so a release is built only
+# from a commit that passes the same checks again.
 name: gates
 
 on:
   pull_request:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: gates-${{ github.event.pull_request.number }}
+  group: gates-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:

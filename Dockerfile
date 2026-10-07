@@ -13,7 +13,11 @@ WORKDIR /source
 COPY .editorconfig THIRD-PARTY-NOTICES.md ./
 COPY src/ src/
 
-RUN dotnet publish src/CashPrism.Shell/CashPrism.Shell.csproj -c Release -o /app
+# The version comes from the release tag, like every other build's; a build
+# from source carries the same placeholder as src/Directory.Build.props.
+ARG VERSION=0.0.0-dev
+
+RUN dotnet publish src/CashPrism.Shell/CashPrism.Shell.csproj -c Release -p:Version=$VERSION -o /app
 
 # The volume's mount point, created here because the runtime image has no
 # shell. Copied with the non-root user as owner, so a fresh named volume
@@ -25,6 +29,13 @@ RUN mkdir /data
 # pins does not exist; without the time zone database, TZ is ignored and every
 # date is UTC.
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled-extra
+
+ARG VERSION=0.0.0-dev
+
+LABEL org.opencontainers.image.title="CashPrism" \
+      org.opencontainers.image.source="https://github.com/raisr/CashPrism" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.version="$VERSION"
 
 ENV Hosting__DataDirectory=/data \
     Hosting__LaunchBrowser=false \
