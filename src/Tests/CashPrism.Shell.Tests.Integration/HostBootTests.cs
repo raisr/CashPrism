@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CashPrism.Web.Configuration;
 using Microsoft.Data.Sqlite;
 
 namespace CashPrism.Shell.Tests.Integration;
@@ -80,7 +81,7 @@ public sealed class HostBootTests
         {
             var html = await GetStartPageAsync();
 
-            Assert.Contains("0.1.0", html);
+            Assert.Contains(AppVersion.Current, html);
         }
 
         [Fact]
