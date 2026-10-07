@@ -33,10 +33,11 @@ that are new or changed are stored; the export file itself is not kept.
 
 ## Running it
 
-One machine runs CashPrism. It will be a single executable — no setup, no runtime
-to install. On a home server or a NAS it also runs as a container, see
-[docs/hosting.md](docs/hosting.md#in-a-container). Until the executable exists
-it is started from the source tree, see [Getting started](#getting-started).
+One machine runs CashPrism. It will be a download per platform with a single
+executable inside — no setup, no runtime to install. On a home server or a NAS
+it also runs as a container, see
+[docs/hosting.md](docs/hosting.md#in-a-container). Until the first release it is
+started from the source tree, see [Getting started](#getting-started).
 
 Every other device on the home network opens the URL in a browser: laptop,
 tablet, phone.

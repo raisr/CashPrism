@@ -156,13 +156,23 @@ carries the concerns a web project normally does not have:
 - Refuse to start a second instance against the same database file.
 
 **The shape of the published build is set in `CashPrism.Shell.csproj`, never on
-a publish command line.** A runtime identifier, `SelfContained` or
-`PublishSingleFile` changes which packages are resolved, and
-`THIRD-PARTY-NOTICES.md` is generated from exactly that set — a flag passed on
-the command line would leave the notices describing a build nobody
-distributes. Turning the project self-contained therefore also means naming the
-.NET runtime's own licence; the generator refuses to run until that is dealt
-with rather than omitting it.
+a publish command line.** `SelfContained`, `PublishSingleFile` and the like
+change which packages are resolved, and `THIRD-PARTY-NOTICES.md` is generated
+from exactly that set — a flag passed on the command line would leave the
+notices describing a build nobody distributes.
+
+- **The one input a publish takes is `-r <rid>`**, with a runtime identifier
+  from the project's `RuntimeIdentifiers`: `win-x64`, `linux-x64`, `osx-x64`,
+  `osx-arm64`. That publish is a self-contained single file. Any other
+  identifier fails the build; a new platform is a change to that list.
+- **Without `-r`, the publish is portable and framework-dependent** — the build
+  the container image runs.
+- The notices generator publishes for every identifier in the list and once
+  without one, and fails when they ship different packages. One notices file
+  covers every build, the .NET runtime of the self-contained ones included.
+- **The version comes from the tag only.** `src/Directory.Build.props` carries
+  the placeholder `0.0.0-dev`; a release passes `-p:Version=<version>`. The
+  version does not change what is resolved, so it is not a shape.
 
 `Web` must stay hostable without `Shell` — that is what the integration tests
 use.

@@ -8,6 +8,34 @@
       circuit never starts.
     -->
     <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
+
+    <!--
+      The platforms a release is built for. The shape of the shipped build is
+      set here, never on a publish command line, because it decides which
+      packages are resolved and THIRD-PARTY-NOTICES.md is generated from exactly
+      that set. The one input a command line gives is `-r` with one of these;
+      without it, the publish is the portable, framework-dependent build the
+      container image runs.
+    -->
+    <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
+
+    <!-- IIS is not a host CashPrism runs under. -->
+    <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+  </PropertyGroup>
+
+  <!--
+    A platform build is what a person double-clicks without .NET installed: the
+    runtime and every assembly inside one executable. The Web SDK keeps wwwroot,
+    the static asset manifest and appsettings.json beside it on purpose, so a
+    release is the executable together with those, not the executable alone.
+  -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- No debug symbols in a release, neither this project's nor its references'. -->
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+    <AllowedReferenceRelatedFileExtensions>.xml;.pri;.dll.config;.exe.config</AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,13 +70,24 @@
       background design-time builds and spawned the application in a loop until
       killed by hand.
 
-      Neither RuntimeIdentifier nor SelfContained is set here, so the
-      release publish is `dotnet publish -c Release` (see docs/hosting.md) and
-      resolves the same package graph the generator reads. Changing the shape
-      of the shipped build belongs in this file, never on a publish command
-      line, or the notices would be generated for a build nobody distributes.
+      The generator publishes for every runtime identifier listed above and
+      once without one, and fails when they ship different packages, so one
+      notices file holds for every build. Kept out of the single-file bundle:
+      a licence notice belongs where a person can read it.
     -->
-    <Content Include="..\..\THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+
+    <!-- Development settings are for `dotnet run`, never part of a release. -->
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
+
+  <!--
+    A runtime identifier outside the list would publish a build no notices
+    file was generated for. Restore resolves the list anyway; this says so
+    before anything is built.
+  -->
+  <Target Name="RejectUnlistedRuntimeIdentifier" BeforeTargets="Restore;_CheckForInvalidConfigurationAndPlatform" Condition="'$(RuntimeIdentifier)' != '' and !$([System.String]::Copy(';$(RuntimeIdentifiers);').Contains(';$(RuntimeIdentifier);'))">
+    <Error Text="CashPrism is published for $(RuntimeIdentifiers) only, not for '$(RuntimeIdentifier)'. A new platform is added to RuntimeIdentifiers in CashPrism.Shell.csproj, so THIRD-PARTY-NOTICES.md is generated for it too." />
+  </Target>
 
 </Project>

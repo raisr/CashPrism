@@ -19,14 +19,26 @@ using System.Threading.Tasks;
 // that. `nuget-license` (pinned in .config/dotnet-tools.json) supplies the
 // licence and copyright metadata for the packages deps.json names.
 //
-// The publish below deliberately passes nothing that could change the resolved
-// package graph — no runtime identifier, no --self-contained. The shape of the
-// shipped build lives in CashPrism.Shell.csproj, so this publish resolves
-// whatever the release publish resolves and cannot drift from it by carrying
-// its own flags. ReadShippedPackages backs that up: it rejects any deps.json
-// library type it was not written for, so making the project self-contained
-// fails here — loudly — instead of silently leaving the .NET runtime's own
-// licence out of a file that claims to be complete.
+// The shape of the shipped build lives in CashPrism.Shell.csproj. The only
+// input a publish takes on the command line is `-r` with one of the runtime
+// identifiers listed there, so this publishes once for each of them — the
+// self-contained platform builds — and once without one — the portable build
+// the container image runs. It passes nothing else that could change the
+// resolved package graph, and it fails when two of those publishes ship
+// different packages: one notices file is only true if it is true for every
+// build.
+//
+// A self-contained publish also carries the .NET runtime, which deps.json
+// names as runtime packs, one per shared framework and runtime identifier.
+// Each pack ships its own MIT licence and a THIRD-PARTY-NOTICES file for the
+// code inside it; both are read from the pack in the NuGet cache. A pack is
+// listed by its major and minor version, without the runtime identifier: the
+// patch is whichever the SDK on the build machine knows, so the file would
+// otherwise change with every SDK update while saying nothing new, and the
+// texts are compared across runtime identifiers so a difference still fails.
+// ReadShippedPackages rejects any other deps.json library type it was not
+// written for, so a new publish shape fails here — loudly — instead of
+// silently leaving a licence out of a file that claims to be complete.
 //
 // Not everything shipped is a package. The fonts and the icon font under the
 // web project's wwwroot are plain files no deps.json names, so they are listed
@@ -59,6 +71,9 @@ internal static class Program
     private const string LicenseTextDirectory = ".devkit/licenses";
     private const string NotDeclared = "— not declared by the package";
 
+    // What deps.json puts in front of a runtime pack's package id.
+    private const string RuntimePackPrefix = "runtimepack.";
+
     private static async Task<int> Main(string[] args)
     {
         // A maintenance command that fails says why in one line. A stack trace
@@ -88,17 +103,41 @@ internal static class Program
 
         await RunAsync("dotnet", "tool", "restore");
 
+        var runtimeIdentifiers = (await RunAsync("dotnet", "msbuild", ShellProject, "-getProperty:RuntimeIdentifiers"))
+            .Trim()
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var targetFramework = (await RunAsync("dotnet", "msbuild", ShellProject, "-getProperty:TargetFramework")).Trim();
+        var packageRoot = ParseGlobalPackages(await RunAsync("dotnet", "nuget", "locals", "global-packages", "--list"));
+
         var publishDir = Directory.CreateTempSubdirectory("cashprism-notices-");
         try
         {
-            await RunAsync("dotnet", "publish", ShellProject, "-c", "Release", "-o", publishDir.FullName, "--nologo");
+            var problems = new List<string>();
 
-            var shipped = ReadShippedPackages(Path.Combine(publishDir.FullName, "CashPrism.Shell.deps.json"));
+            var portable = await PublishAsync(publishDir.FullName, targetFramework, runtimeIdentifier: null);
+            var platforms = new List<(string RuntimeIdentifier, PublishContents Contents)>();
+            foreach (var runtimeIdentifier in runtimeIdentifiers)
+            {
+                platforms.Add((runtimeIdentifier, await PublishAsync(publishDir.FullName, targetFramework, runtimeIdentifier)));
+            }
+
+            if (portable.RuntimePacks.Count > 0)
+            {
+                problems.Add("The publish without a runtime identifier carries the .NET runtime. It is meant to be "
+                    + "the portable build the container image runs; establish why before shipping it.");
+            }
+
+            foreach (var (runtimeIdentifier, contents) in platforms)
+            {
+                problems.AddRange(Differences("the portable build", portable.Packages, runtimeIdentifier, contents.Packages));
+            }
+
+            var runtimeNotices = ReadRuntimeNotices(packageRoot, platforms, problems);
+
+            var shipped = portable.Packages;
             var metadata = await ReadLicenseMetadataAsync();
             var overrides = ReadCopyrightOverrides();
             var assets = ReadAssets();
-
-            var problems = new List<string>();
 
             foreach (var file in assets.SelectMany(asset => asset.Files).Where(file => !File.Exists(file)))
             {
@@ -130,6 +169,8 @@ internal static class Program
                 {
                     Copyright = overrides.TryGetValue(notice.Id, out var recovered) ? recovered : notice.Copyright,
                 })
+                .Concat(runtimeNotices.Select(runtime => new PackageNotice(
+                    runtime.Id, runtime.Version, runtime.License, runtime.Copyright)))
                 .OrderBy(notice => notice.Id, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
@@ -163,11 +204,12 @@ internal static class Program
             // notices gate would be red with a whole-file diff and no hint why.
             using (var writer = new StreamWriter(outputPath) { NewLine = "\n" })
             {
-                Render(writer, rows, assets, licenseTexts);
+                Render(writer, rows, assets, runtimeNotices, licenseTexts);
             }
 
             Console.WriteLine(
-                $"Wrote {rows.Count} packages, {assets.Count} assets and {licenseTexts.Count} licence texts to {outputPath}.");
+                $"Wrote {rows.Count} packages, {assets.Count} assets and {licenseTexts.Count} licence texts, "
+                + $"checked against {runtimeIdentifiers.Length + 1} publishes, to {outputPath}.");
             return 0;
         }
         finally
@@ -202,15 +244,40 @@ internal static class Program
         return true;
     }
 
-    // Accepts only the library types a framework-dependent publish produces and
-    // rejects every other one rather than skipping what it does not know: a
-    // self-contained publish adds the runtime pack, and its licence would
-    // otherwise go unnamed with nothing saying so.
-    private static IReadOnlyList<PackageIdentity> ReadShippedPackages(string depsJsonPath)
+    // A self-contained publish is a single file, but it still writes no deps.json
+    // beside it; one is produced only in the intermediate output. Publishing the
+    // single file switched off is not an option — it would be a shape passed on
+    // the command line — so the deps.json is read from obj/, where the publish
+    // that just ran left it.
+    private static async Task<PublishContents> PublishAsync(string root, string targetFramework, string? runtimeIdentifier)
+    {
+        var output = Path.Combine(root, runtimeIdentifier ?? "portable");
+        var arguments = new List<string> { "publish", ShellProject, "-c", "Release", "-o", output, "--nologo" };
+        if (runtimeIdentifier is not null)
+        {
+            arguments.AddRange(["-r", runtimeIdentifier]);
+        }
+
+        await RunAsync("dotnet", [.. arguments]);
+
+        var depsJson = runtimeIdentifier is null
+            ? Path.Combine(output, "CashPrism.Shell.deps.json")
+            : Path.Combine(
+                Path.GetDirectoryName(ShellProject)!, "obj", "Release", targetFramework, runtimeIdentifier, "CashPrism.Shell.deps.json");
+
+        return ReadShippedPackages(depsJson);
+    }
+
+    // Accepts only the library types a publish of this project produces —
+    // packages, and the runtime packs a self-contained publish adds — and
+    // rejects every other one rather than skipping what it does not know: its
+    // licence would otherwise go unnamed with nothing saying so.
+    private static PublishContents ReadShippedPackages(string depsJsonPath)
     {
         using var document = JsonDocument.Parse(File.ReadAllText(depsJsonPath));
 
         var packages = new List<PackageIdentity>();
+        var runtimePacks = new List<PackageIdentity>();
         foreach (var library in document.RootElement.GetProperty("libraries").EnumerateObject())
         {
             var type = library.Value.TryGetProperty("type", out var typeProperty) ? typeProperty.GetString() : null;
@@ -219,7 +286,7 @@ internal static class Program
                 continue;
             }
 
-            if (type != "package")
+            if (type is not ("package" or "runtimepack"))
             {
                 throw new InvalidOperationException(
                     $"deps.json library '{library.Name}' has the unhandled type '{type ?? "(none)"}'. The publish "
@@ -234,10 +301,112 @@ internal static class Program
                     $"deps.json library '{library.Name}' is not in the expected '<id>/<version>' form.");
             }
 
-            packages.Add(new PackageIdentity(library.Name[..separator], library.Name[(separator + 1)..]));
+            var identity = new PackageIdentity(library.Name[..separator], library.Name[(separator + 1)..]);
+            if (type == "package")
+            {
+                packages.Add(identity);
+            }
+            else
+            {
+                runtimePacks.Add(identity with { Id = identity.Id[RuntimePackPrefix.Length..] });
+            }
         }
 
-        return packages;
+        return new PublishContents(packages, runtimePacks);
+    }
+
+    private static IEnumerable<string> Differences(
+        string expectedName,
+        IReadOnlyList<PackageIdentity> expected,
+        string actualName,
+        IReadOnlyList<PackageIdentity> actual)
+    {
+        foreach (var package in actual.Except(expected))
+        {
+            yield return $"The {actualName} build ships {package.Id} {package.Version}, {expectedName} does not. "
+                + "One notices file covers every build, so every build has to ship the same packages.";
+        }
+
+        foreach (var package in expected.Except(actual))
+        {
+            yield return $"{expectedName} ships {package.Id} {package.Version}, the {actualName} build does not. "
+                + "One notices file covers every build, so every build has to ship the same packages.";
+        }
+    }
+
+    // One notice per shared framework, read from the runtime pack of every
+    // runtime identifier and required to be the same in all of them. The licence
+    // must be MIT and its copyright line is taken from the pack's own licence
+    // file, so nothing about the runtime is written down by hand.
+    private static IReadOnlyList<RuntimeNotice> ReadRuntimeNotices(
+        string packageRoot,
+        IReadOnlyList<(string RuntimeIdentifier, PublishContents Contents)> platforms,
+        List<string> problems)
+    {
+        var notices = new Dictionary<string, (string RuntimeIdentifier, RuntimeNotice Notice)>();
+        foreach (var (runtimeIdentifier, contents) in platforms)
+        {
+            if (contents.RuntimePacks.Count == 0)
+            {
+                problems.Add($"The {runtimeIdentifier} build carries no .NET runtime, although it is meant to be self-contained.");
+            }
+
+            foreach (var pack in contents.RuntimePacks)
+            {
+                var suffix = "." + runtimeIdentifier;
+                if (!pack.Id.EndsWith(suffix, StringComparison.Ordinal))
+                {
+                    problems.Add($"The runtime pack {pack.Id} of the {runtimeIdentifier} build does not end in {suffix}.");
+                    continue;
+                }
+
+                var id = pack.Id[..^suffix.Length];
+                var directory = Path.Combine(packageRoot, pack.Id.ToLowerInvariant(), pack.Version);
+                var license = ReadPackFile(directory, "LICENSE.TXT").Split('\n');
+                var copyright = license.FirstOrDefault(line => line.StartsWith("Copyright", StringComparison.Ordinal));
+                if (license[0].Trim() != "The MIT License (MIT)" || copyright is null)
+                {
+                    problems.Add($"The licence of {pack.Id} {pack.Version} is not the MIT licence with a copyright "
+                        + "line this generator expects; establish what it is before shipping it.");
+                    continue;
+                }
+
+                var version = string.Join('.', pack.Version.Split('.').Take(2));
+                var notice = new RuntimeNotice(id, version, "MIT", copyright.Trim(), ReadPackFile(directory, "THIRD-PARTY-NOTICES.TXT"));
+
+                if (!notices.TryGetValue(id, out var first))
+                {
+                    notices[id] = (runtimeIdentifier, notice);
+                }
+                else if (first.Notice != notice)
+                {
+                    problems.Add($"The {id} notices of the {runtimeIdentifier} build differ from those of the "
+                        + $"{first.RuntimeIdentifier} build. One notices file covers every build.");
+                }
+            }
+        }
+
+        return [.. notices.Values.Select(entry => entry.Notice).OrderBy(notice => notice.Id, StringComparer.Ordinal)];
+    }
+
+    // The file names differ in case between packs (LICENSE.TXT, LICENSE.txt),
+    // and the NuGet cache sits on a case-sensitive file system on Linux.
+    private static string ReadPackFile(string directory, string name)
+    {
+        var path = Directory.EnumerateFiles(directory)
+            .FirstOrDefault(file => string.Equals(Path.GetFileName(file), name, StringComparison.OrdinalIgnoreCase))
+            ?? throw new InvalidOperationException($"{directory} has no {name}.");
+
+        return File.ReadAllText(path).ReplaceLineEndings("\n").TrimEnd('\n');
+    }
+
+    private static string ParseGlobalPackages(string output)
+    {
+        const string Prefix = "global-packages:";
+        var line = output.Split('\n').Select(entry => entry.Trim()).FirstOrDefault(entry => entry.StartsWith(Prefix, StringComparison.Ordinal))
+            ?? throw new InvalidOperationException($"'dotnet nuget locals' named no global packages folder:{Environment.NewLine}{output}");
+
+        return line[Prefix.Length..].Trim();
     }
 
     private static async Task<Dictionary<PackageIdentity, PackageNotice>> ReadLicenseMetadataAsync()
@@ -298,6 +467,7 @@ internal static class Program
         TextWriter writer,
         IReadOnlyList<PackageNotice> rows,
         IReadOnlyList<AssetNotice> assets,
+        IReadOnlyList<RuntimeNotice> runtimeNotices,
         IReadOnlyDictionary<string, string> licenseTexts)
     {
         writer.WriteLine("# Third-party notices");
@@ -331,6 +501,14 @@ internal static class Program
             writer.WriteLine("with the source it was copied from.");
         }
 
+        if (runtimeNotices.Count > 0)
+        {
+            writer.WriteLine();
+            writer.WriteLine("The `.App.Runtime` rows are the .NET runtime, which the builds for a platform");
+            writer.WriteLine("carry inside the executable. They are listed by major and minor version: a");
+            writer.WriteLine("build carries the latest patch of that runtime the SDK it was built with knows.");
+        }
+
         writer.WriteLine();
         writer.WriteLine("## Assets");
         writer.WriteLine();
@@ -342,6 +520,29 @@ internal static class Program
         foreach (var asset in assets)
         {
             writer.WriteLine($"| {asset.Name} | {asset.Version} | {asset.License} | {Cell(asset.Copyright)} |");
+        }
+
+        if (runtimeNotices.Count > 0)
+        {
+            writer.WriteLine();
+            writer.WriteLine("## .NET runtime notices");
+            writer.WriteLine();
+            writer.WriteLine("The .NET runtime contains code from third parties of its own. Each runtime pack");
+            writer.WriteLine("ships the notices for that code, reproduced here as they come.");
+
+            foreach (var runtime in runtimeNotices)
+            {
+                writer.WriteLine();
+                writer.WriteLine($"### {runtime.Id}");
+                writer.WriteLine();
+                writer.WriteLine("```text");
+                foreach (var line in runtime.ThirdPartyNotices.Split('\n'))
+                {
+                    writer.WriteLine(line);
+                }
+
+                writer.WriteLine("```");
+            }
         }
 
         writer.WriteLine();
@@ -407,6 +608,10 @@ internal static class Program
     }
 
     private sealed record PackageIdentity(string Id, string Version);
+
+    private sealed record PublishContents(IReadOnlyList<PackageIdentity> Packages, IReadOnlyList<PackageIdentity> RuntimePacks);
+
+    private sealed record RuntimeNotice(string Id, string Version, string License, string Copyright, string ThirdPartyNotices);
 
     private sealed record PackageNotice(string Id, string Version, string License, string Copyright);
 
