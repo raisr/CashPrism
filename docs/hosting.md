@@ -66,7 +66,7 @@ its tag, for example `-p:Version=0.1.0`; the UI and the start banner show it.
 | Key | Default | Meaning |
 |---|---|---|
 | `Hosting:Port` | `5080` | The port to listen on. CashPrism binds every network interface, otherwise no other device could reach it |
-| `Hosting:DataDirectory` | `data` | Where the database and the stored imports live. A relative path sits next to the executable |
+| `Hosting:DataDirectory` | `data` | Where the database, the stored imports and the [keys](#the-keys-in-the-data-directory) live. A relative path sits next to the executable |
 | `Hosting:LaunchBrowser` | `true` | Whether the local browser opens on start |
 
 If the port is already taken, CashPrism says so and stops — it does not quietly
@@ -75,6 +75,21 @@ move to another one, because then nobody would know which address to type.
 Connections are plain HTTP. A self-signed certificate would mean a security
 warning on every phone and tablet in the house, so CashPrism does not pretend to
 offer encryption it cannot deliver on a home network.
+
+### The keys in the data directory
+
+ASP.NET Core signs and encrypts what it hands a browser — the tokens on a form
+and the state of a page — with a key ring. CashPrism keeps it in `keys/` inside
+the data directory, so the directory carries everything a running CashPrism
+needs: a container recreated on the same volume, or a data directory copied to
+another machine, reads what the previous start protected. Without them, a new
+key ring is created and everything protected with the old one stops being
+accepted.
+
+On Windows the key files are encrypted with DPAPI for the user account that
+created them, so a data directory copied to another account or machine starts
+with a new key ring. Elsewhere they are stored unencrypted, like the database
+beside them.
 
 ## In a container
 
@@ -107,7 +122,8 @@ volumes:
 What differs from a start on the desktop is set by the image, not by a switch:
 
 - **The data lives in `/data`.** Mount a volume there, or every import is gone
-  with the container. The database file is `cashprism.db` in that volume.
+  with the container. The database file is `cashprism.db` in that volume, the
+  keys are in `keys/` beside it.
 - **No browser opens**, and the start banner names the port rather than
   addresses: the addresses inside a container belong to the container network,
   and only the host port it is published on is reachable from another device.
