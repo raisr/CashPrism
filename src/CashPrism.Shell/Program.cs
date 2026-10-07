@@ -6,6 +6,7 @@ using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.Shell.Hosting;
 using CashPrism.Web.Configuration;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace CashPrism.Shell;
 
@@ -22,6 +23,21 @@ public sealed class Program
     /// what a person may move is the directory.
     /// </summary>
     private const string DatabaseFileName = "cashprism.db";
+
+    /// <summary>
+    /// The data protection key ring, inside the data directory, so the directory
+    /// carries everything a running CashPrism needs: a container recreated on the
+    /// same volume, or a data directory moved to another machine, keeps it.
+    /// </summary>
+    private const string KeysDirectoryName = "keys";
+
+    /// <summary>
+    /// Isolates the key ring's payloads from other applications. Left to itself,
+    /// ASP.NET Core derives it from the content root, so the same keys would no
+    /// longer read what they protected once a release is unpacked into another
+    /// folder.
+    /// </summary>
+    private const string DataProtectionApplicationName = "CashPrism";
 
     private Program()
     {
@@ -85,6 +101,18 @@ public sealed class Program
         Directory.CreateDirectory(dataDirectory);
 
         var databaseFile = Path.Combine(dataDirectory, DatabaseFileName);
+
+        var dataProtection = builder.Services.AddDataProtection()
+            .SetApplicationName(DataProtectionApplicationName)
+            .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDirectory, KeysDirectoryName)));
+
+        // The default location is encrypted with DPAPI on Windows; naming the
+        // location drops that, so it is asked for again here. Elsewhere the keys
+        // stay unencrypted, like the database next to them.
+        if (OperatingSystem.IsWindows())
+        {
+            dataProtection.ProtectKeysWithDpapi();
+        }
 
         builder.Services.AddCashPrismWeb();
         builder.Services.AddCashPrismPersistence(databaseFile);

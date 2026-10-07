@@ -4,7 +4,8 @@ namespace CashPrism.Shell.Tests.Integration;
 
 /// <summary>
 /// The executable as a real process, where what is under test only exists in
-/// one: the directory it is started in.
+/// one: the directory it is started in, and what a start leaves behind for the
+/// next one.
 /// </summary>
 public sealed class ProgramTests
 {
@@ -22,11 +23,18 @@ public sealed class ProgramTests
             "cashprism-tests",
             Guid.NewGuid().ToString("n"));
 
-        private ShellProcess? started;
+        private readonly List<ShellProcess> started = [];
+
+        private string DataDirectory => Path.Combine(root, "data");
+
+        private string KeysDirectory => Path.Combine(DataDirectory, "keys");
 
         public void Dispose()
         {
-            started?.Dispose();
+            foreach (var process in started)
+            {
+                process.Dispose();
+            }
 
             if (Directory.Exists(root))
             {
@@ -42,16 +50,69 @@ public sealed class ProgramTests
         public async Task Takes_The_Directory_Of_The_Executable_As_Content_Root_When_Started_Elsewhere()
         {
             var elsewhere = Directory.CreateDirectory(Path.Combine(root, "elsewhere")).FullName;
-            started = ShellProcess.Start(Path.Combine(root, "data"), workingDirectory: elsewhere);
+            var instance = Start(workingDirectory: elsewhere);
 
-            var finished = await Task.WhenAny(started.ContentRoot, Task.Delay(Patience));
+            var finished = await Task.WhenAny(instance.ContentRoot, Task.Delay(Patience));
 
             Assert.True(
-                finished == started.ContentRoot,
-                $"The instance never reported its content root. {started.Error}");
+                finished == instance.ContentRoot,
+                $"The instance never reported its content root. {instance.Error}");
             Assert.Equal(
                 Path.TrimEndingDirectorySeparator(AppContext.BaseDirectory),
-                Path.TrimEndingDirectorySeparator(await started.ContentRoot));
+                Path.TrimEndingDirectorySeparator(await instance.ContentRoot));
+        }
+
+        [Fact]
+        public async Task Writes_A_Data_Protection_Key_Into_The_Data_Directory()
+        {
+            await StartListeningAsync();
+
+            Assert.NotEmpty(KeyFiles());
+        }
+
+        // Every new key ring invalidates what the old one protected, so a key
+        // created on every start would sign out every device on every restart.
+        [Fact]
+        public async Task Reuses_The_Data_Protection_Key_Of_The_Previous_Start()
+        {
+            var first = await StartListeningAsync();
+            var keysAfterFirstStart = KeyFiles();
+            await first.KillAsync(Patience);
+
+            await StartListeningAsync();
+
+            // Two empty directories are equal as well, and prove nothing.
+            Assert.NotEmpty(keysAfterFirstStart);
+            Assert.Equal(keysAfterFirstStart, KeyFiles());
+        }
+
+        private ShellProcess Start(string? workingDirectory = null)
+        {
+            var instance = ShellProcess.Start(DataDirectory, workingDirectory);
+
+            started.Add(instance);
+
+            return instance;
+        }
+
+        private async Task<ShellProcess> StartListeningAsync()
+        {
+            var instance = Start();
+
+            var finished = await Task.WhenAny(instance.Listening, Task.Delay(Patience));
+
+            Assert.True(
+                finished == instance.Listening,
+                $"The instance never reported that it was listening. {instance.Error}");
+
+            return instance;
+        }
+
+        private string[] KeyFiles()
+        {
+            return Directory.Exists(KeysDirectory)
+                ? [.. Directory.GetFiles(KeysDirectory, "key-*.xml").Order(StringComparer.Ordinal)]
+                : [];
         }
     }
 }

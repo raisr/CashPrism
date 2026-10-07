@@ -239,6 +239,13 @@ releases and the minor version is bumped for every notable change.
   this machine is pinned to the bottom of the navigation, together with the
   version. The start page says plainly that nothing has been imported yet and
   leads to the import.
+- The keys CashPrism signs its forms and sessions with now live in `keys/`
+  inside the data directory instead of the user profile, so the data directory
+  carries everything a running CashPrism needs. A recreated container — an
+  image update — keeps them, and so does a data directory moved to another
+  folder. The container no longer warns about them on every start. On Windows
+  they stay encrypted for the user account that created them, so there a data
+  directory moved to another account or machine starts with new keys.
 
 ### Fixed
 
