@@ -168,6 +168,12 @@ releases and the minor version is bumped for every notable change.
   it is made up. It comes from `CashPrism.DemoData`, a console tool that writes
   the same file again for any end date; see
   [`docs/demo-data.md`](docs/demo-data.md).
+- CashPrism runs as a container, for a home server or a NAS where Windows
+  Smart App Control does not get in the way: the `Dockerfile` in the repository
+  root builds an image for `linux/amd64` and `linux/arm64` that keeps its data
+  in a `/data` volume and runs as a non-root user.
+  [`docs/hosting.md`](docs/hosting.md) shows how to start it, with a
+  `compose.yaml` example.
 
 ### Changed
 

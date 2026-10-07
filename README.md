@@ -34,8 +34,9 @@ that are new or changed are stored; the export file itself is not kept.
 ## Running it
 
 One machine runs CashPrism. It will be a single executable — no setup, no runtime
-to install, no Docker. Until then it is started from the source tree, see
-[Getting started](#getting-started).
+to install. On a home server or a NAS it also runs as a container, see
+[docs/hosting.md](docs/hosting.md#in-a-container). Until the executable exists
+it is started from the source tree, see [Getting started](#getting-started).
 
 Every other device on the home network opens the URL in a browser: laptop,
 tablet, phone.
@@ -76,8 +77,9 @@ No Finanzguru export at hand? Import
 fictional household, made up from end to end, in the shape a real export has.
 [docs/demo-data.md](docs/demo-data.md) says what it contains.
 
-A different port, no browser window, a build that runs without the SDK, and the
-settings that make it stick: see [docs/hosting.md](docs/hosting.md).
+A different port, no browser window, a build that runs without the SDK, a
+container for a home server or a NAS, and the settings that make it stick: see
+[docs/hosting.md](docs/hosting.md).
 
 ## Using it
 

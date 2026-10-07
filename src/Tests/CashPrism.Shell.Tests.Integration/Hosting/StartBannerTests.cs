@@ -38,4 +38,23 @@ public sealed class StartBannerTests
             Assert.DoesNotContain(lines, line => line.Contains("169.254.1.1"));
         }
     }
+
+    public sealed class ComposeForContainer
+    {
+        [Fact]
+        public void Names_The_Port_The_Server_Listens_On()
+        {
+            var lines = StartBanner.ComposeForContainer(5080);
+
+            Assert.Contains("Listening on port 5080 inside the container.", lines);
+        }
+
+        [Fact]
+        public void Shows_How_The_Port_Is_Reached_From_The_Host()
+        {
+            var lines = StartBanner.ComposeForContainer(5080);
+
+            Assert.Contains("  http://localhost:5080 when started with -p 5080:5080", lines);
+        }
+    }
 }

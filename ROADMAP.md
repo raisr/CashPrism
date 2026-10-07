@@ -77,6 +77,8 @@ today, a demo export to try them on, and the application secured and packaged.
     exception.
 - Delivery:
   - Self-contained single-file binary per platform (Windows, Linux, macOS).
+  - A container image for `linux/amd64` and `linux/arm64`, for a home server or
+    a NAS.
   - A repeatable release process, including cutting a `CHANGELOG.md` version
     at the tag.
   - The demo export attached to every release.

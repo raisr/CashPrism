@@ -167,6 +167,26 @@ with rather than omitting it.
 `Web` must stay hostable without `Shell` — that is what the integration tests
 use.
 
+**In a container, the image sets what a double-click would otherwise decide.**
+The `Dockerfile` is the only place that differs from a desktop start; `Shell`
+keeps one code path for both.
+
+- The data directory is `/data`, a volume, writable by the image's non-root
+  user. The image never runs as root.
+- The browser is never opened, and the start banner names the port instead of
+  addresses: inside a container those belong to the container network, which no
+  other device reaches. `Shell` tells the two apart by
+  `DOTNET_RUNNING_IN_CONTAINER`, which the official .NET images set.
+- The port stays 5080, and the single-instance guard and every other hosting
+  rule hold unchanged — a second container on the same volume is refused like a
+  second process.
+- **The image is built from a portable publish**, `dotnet publish -c Release`,
+  never with a runtime identifier on the command line, for the reason above. It
+  starts through `dotnet CashPrism.Shell.dll`, because the apphost a portable
+  publish carries is native to the build machine.
+- The image is built and started on every architecture it is published for.
+  Building alone does not show that it starts.
+
 ## Branches and CI
 
 **`main` is the only long-lived branch.** Every change reaches it through a
@@ -178,9 +198,10 @@ protected so that no other way in exists, for the maintainer included.
 Windows, and a merge needs both green. This adds to `core.gates`, it does not
 replace it: the gates still pass locally before a commit.
 
-The job names, `gates (ubuntu-latest)` and `gates (windows-latest)`, are the
-required status checks of the branch protection. Renaming a job or changing the
-matrix means updating the protection in the same change.
+The job names are the required status checks of the branch protection:
+`gates (ubuntu-latest)`, `gates (windows-latest)`, `image (linux/amd64)` and
+`image (linux/arm64)`. Renaming a job or changing a matrix means updating the
+protection in the same change.
 
 ## Language of the user interface
 

@@ -116,10 +116,17 @@ public sealed class Program
             await scope.ServiceProvider.GetRequiredService<IDatabaseMigrator>().MigrateAsync();
         }
 
+        // Set by every official .NET container image. Inside one, the addresses
+        // of the machine are those of the container network, which no other
+        // device in the house can reach.
+        var runningInContainer = builder.Configuration.GetValue<bool>("DOTNET_RUNNING_IN_CONTAINER");
+
         // Only once the server actually listens is the address worth printing.
         app.Lifetime.ApplicationStarted.Register(() =>
         {
-            StartBanner.Print(hosting.Port, NetworkAddresses.Local());
+            StartBanner.Print(runningInContainer
+                ? StartBanner.ComposeForContainer(hosting.Port)
+                : StartBanner.Compose(hosting.Port, NetworkAddresses.Local()));
 
             if (hosting.LaunchBrowser)
             {
