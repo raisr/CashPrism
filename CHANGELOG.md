@@ -180,6 +180,11 @@ releases and the minor version is bumped for every notable change.
   runtime inside, next to the web files it serves. Builds from source show the
   version `0.0.0-dev`; a release sets its own. `THIRD-PARTY-NOTICES.md` now
   also names the .NET runtime and reproduces its notices.
+- Releases: every version comes as a download per platform on the GitHub
+  releases page, with checksums and the demo export, and as the container
+  image `ghcr.io/raisr/cashprism`. The user guide explains downloading,
+  checking and starting it, and what to do when Windows or macOS warns about
+  an unsigned program.
 
 ### Changed
 
