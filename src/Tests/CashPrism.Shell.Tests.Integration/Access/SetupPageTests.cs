@@ -1,7 +1,9 @@
 using System.Net;
+using System.Runtime.ExceptionServices;
 using CashPrism.Application.Access;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.Web.Access;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -106,6 +108,38 @@ public sealed class SetupPageTests
             using var response = await SubmitAsync(client, TheCode(factory), AGoodPassword);
 
             Assert.Equal(AccessPaths.LoginAfterSetup, response.Target());
+        }
+
+        // A debugger breaks on every exception thrown, caught or not. The
+        // redirect after setting the password must not throw one, or every
+        // setup under a debugger stops here.
+        [Fact]
+        public async Task Redirects_Without_Throwing_A_Navigation_Exception()
+        {
+            using var client = factory.CreateClientThatStops();
+            var thrown = new List<Exception>();
+            void Record(object? sender, FirstChanceExceptionEventArgs e)
+            {
+                if (e.Exception is NavigationException)
+                {
+                    lock (thrown)
+                    {
+                        thrown.Add(e.Exception);
+                    }
+                }
+            }
+
+            AppDomain.CurrentDomain.FirstChanceException += Record;
+            try
+            {
+                using var response = await SubmitAsync(client, TheCode(factory), AGoodPassword);
+            }
+            finally
+            {
+                AppDomain.CurrentDomain.FirstChanceException -= Record;
+            }
+
+            Assert.Empty(thrown);
         }
 
         [Fact]

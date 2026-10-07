@@ -5,6 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--
+      The switch CashPrism.Shell.csproj sets as BlazorDisableThrowNavigationException.
+      The host runs inside this process here, with this project's runtime
+      configuration, so without it the tests would redirect the way the shipped
+      application does not. Spelled out as the runtime option, because only the
+      Web SDK translates the property and this project uses the plain one.
+    -->
+    <RuntimeHostConfigurationOption Include="Microsoft.AspNetCore.Components.Endpoints.NavigationManager.DisableThrowNavigationException" Value="true" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />

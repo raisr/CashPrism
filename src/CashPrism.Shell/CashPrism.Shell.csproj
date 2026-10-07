@@ -21,6 +21,17 @@
 
     <!-- IIS is not a host CashPrism runs under. -->
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+
+    <!--
+      A page rendered without a circuit - the login and the setup - redirects
+      with NavigationManager.NavigateTo. By default that throws a
+      NavigationException which the framework catches and turns into the
+      redirect, so a debugger breaks on every login. With this switch the
+      redirect is recorded instead and the method carries on, which is why
+      every NavigateTo on those pages is the last thing its method does. A
+      runtime switch, so it is set by the host and not by CashPrism.Web.
+    -->
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
   <!--
