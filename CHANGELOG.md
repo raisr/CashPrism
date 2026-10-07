@@ -174,6 +174,12 @@ releases and the minor version is bumped for every notable change.
   in a `/data` volume and runs as a non-root user.
   [`docs/hosting.md`](docs/hosting.md) shows how to start it, with a
   `compose.yaml` example.
+- A build per platform that runs without .NET installed:
+  `dotnet publish src/CashPrism.Shell -c Release -r <platform>` for `win-x64`,
+  `linux-x64`, `osx-x64` or `osx-arm64` produces one executable with the
+  runtime inside, next to the web files it serves. Builds from source show the
+  version `0.0.0-dev`; a release sets its own. `THIRD-PARTY-NOTICES.md` now
+  also names the .NET runtime and reproduces its notices.
 
 ### Changed
 
@@ -234,5 +240,9 @@ releases and the minor version is bumped for every notable change.
 - The interface spells Finanzguru the way its owner does, with a lower-case g.
 - On a device set to dark mode, CashPrism now opens dark. It used to open light
   and only followed the system setting once that setting changed.
+- A published CashPrism started from another directory — a shortcut, a
+  terminal elsewhere, a double-click on macOS — served every stylesheet and
+  script empty and ignored `appsettings.json`. It now finds both next to the
+  executable, wherever it is started from.
 
 [Unreleased]: https://github.com/raisr/CashPrism/commits/main
