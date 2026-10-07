@@ -6,14 +6,78 @@ Wie CashPrism gebaut ist und warum, steht in den anderen Dokumenten unter
 
 ## CashPrism starten
 
-Ein Rechner im Heimnetz führt CashPrism aus. Solange es noch keine fertige
-Programmdatei zum Herunterladen gibt, wird CashPrism aus dem Quellcode
-gestartet; was dafür nötig ist, steht unter
-[Getting started](../README.md#getting-started) in der README:
+Ein Rechner im Heimnetz führt CashPrism aus. Installiert wird nichts, auch kein
+.NET.
+
+### Herunterladen
+
+Unter [Releases](https://github.com/raisr/CashPrism/releases) liegt zu jeder
+Version ein Archiv pro Betriebssystem:
+
+| Rechner | Archiv |
+|---|---|
+| Windows | `cashprism-<version>-win-x64.zip` |
+| Linux | `cashprism-<version>-linux-x64.tar.gz` |
+| Mac mit Apple-Chip (M1 und neuer) | `cashprism-<version>-osx-arm64.tar.gz` |
+| Mac mit Intel-Prozessor | `cashprism-<version>-osx-x64.tar.gz` |
+
+Daneben liegen `SHA256SUMS`, die Prüfsummen aller Dateien, und
+`demo-export.xlsx`, ein erfundener Finanzguru-Export zum Ausprobieren.
+
+Ob der Download unverändert angekommen ist, zeigt die Prüfsumme. Im Ordner mit
+dem Archiv und `SHA256SUMS`:
+
+| Rechner | Befehl | Erwartet |
+|---|---|---|
+| Linux | `sha256sum -c SHA256SUMS --ignore-missing` | `OK` hinter dem Archiv |
+| Mac | `shasum -a 256 -c SHA256SUMS --ignore-missing` | `OK` hinter dem Archiv |
+| Windows (PowerShell) | `Get-FileHash .\cashprism-<version>-win-x64.zip` | derselbe Wert wie in `SHA256SUMS` |
+
+### Entpacken und starten
+
+Das Archiv enthält einen Ordner. Er gehört als Ganzes zusammen: Neben dem
+Programm `CashPrism.Shell` (unter Windows `CashPrism.Shell.exe`) liegen die
+Dateien, die der Browser lädt. Den Ordner an einen festen Platz legen und das
+Programm darin starten. Die Daten landen im Unterordner `data` daneben.
+
+Das Programm ist nicht signiert. Deshalb warnt das Betriebssystem beim ersten
+Start:
+
+- **Windows** zeigt *Der Computer wurde durch Windows geschützt*. *Weitere
+  Informationen* und dann *Trotzdem ausführen* startet CashPrism.
+- **macOS** verweigert das Öffnen. Unter *Systemeinstellungen* → *Datenschutz &
+  Sicherheit* erscheint danach *Dennoch öffnen*. Alternativ im Terminal einmal
+  `xattr -dr com.apple.quarantine <Ordner>` auf den entpackten Ordner.
+- **Linux** braucht die Bibliothek ICU (`libicu`), die Desktop-Distributionen
+  mitbringen.
+
+**Intelligente App-Steuerung (Smart App Control) unter Windows** blockiert
+nicht signierte Programme ohne jede Möglichkeit, eine Ausnahme zu machen. Ist
+sie auf dem Rechner eingeschaltet, startet CashPrism dort nicht. Dann läuft
+CashPrism auf einem anderen Rechner im Haus, oder als Container.
+
+### Als Container
+
+Auf einem Heimserver oder NAS mit Docker:
+
+```bash
+docker run -d -p 5080:5080 -v cashprism-data:/data -e TZ=Europe/Berlin ghcr.io/raisr/cashprism
+```
+
+Mehr dazu, auch mit `compose.yaml`, steht in
+[`hosting.md`](hosting.md#in-a-container).
+
+### Aus dem Quellcode
+
+Wer CashPrism selbst baut, startet es mit dem .NET SDK aus dem Quellcode; was
+dafür nötig ist, steht unter [Getting started](../README.md#getting-started) in
+der README:
 
 ```bash
 dotnet run --project src/CashPrism.Shell
 ```
+
+### Nach dem Start
 
 Beim Start öffnet CashPrism den Browser auf diesem Rechner und schreibt ins
 Konsolenfenster, unter welchen Adressen es erreichbar ist:

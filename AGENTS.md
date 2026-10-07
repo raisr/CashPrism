@@ -213,6 +213,15 @@ The job names are the required status checks of the branch protection:
 `image (linux/arm64)`. Renaming a job or changing a matrix means updating the
 protection in the same change.
 
+**A release comes only from a version tag on `main`**, created by hand and
+never on merge, because it publishes. `.github/workflows/release.yml` refuses a
+tag that is not on `main`, runs the gates again, and builds every platform and
+the container image from that commit. `vX.Y.Z` needs its `CHANGELOG.md` section,
+cut in a release pull request beforehand; `vX.Y.Z-rc.N` needs none and only
+creates a draft. The one exception to `main` is a fix to an old release: it is
+made on a `release/X.Y` branch, created only then, and tagged there. The steps
+are in [`docs/releasing.md`](docs/releasing.md).
+
 ## Language of the user interface
 
 The UI is **German**. Finanzguru, the only source CashPrism reads, is sold in
