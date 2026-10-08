@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 namespace CashPrism.Shell.Tests.Integration.Hosting;
 
 /// <summary>
-/// The command-line provider silently mis-parses a valueless flag, so the two
+/// The command-line provider silently mis-parses a valueless flag, so the
 /// switches are only safe in combination. These tests pin that combination.
 /// </summary>
 public sealed class HostingCommandLineTests
@@ -17,6 +17,14 @@ public sealed class HostingCommandLineTests
             var expanded = HostingCommandLine.Expand(["--no-browser"]);
 
             Assert.Equal(["--Hosting:LaunchBrowser=false"], expanded);
+        }
+
+        [Fact]
+        public void Rewrites_The_Reset_Flag_Into_A_Key_Value_Argument()
+        {
+            var expanded = HostingCommandLine.Expand(["--reset-password"]);
+
+            Assert.Equal(["--Hosting:ResetPassword=true"], expanded);
         }
 
         [Fact]
@@ -61,6 +69,14 @@ public sealed class HostingCommandLineTests
             var configuration = Configure("--port", "5099", "--no-browser");
 
             Assert.Equal("false", configuration["Hosting:LaunchBrowser"]);
+        }
+
+        [Fact]
+        public void Keeps_The_Port_When_The_Reset_Flag_Comes_First()
+        {
+            var configuration = Configure("--reset-password", "--port", "5099");
+
+            Assert.Equal(("5099", "true"), (configuration["Hosting:Port"], configuration["Hosting:ResetPassword"]));
         }
     }
 }

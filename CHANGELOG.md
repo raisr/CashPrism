@@ -194,6 +194,11 @@ releases and the minor version is bumped for every notable change.
   days, otherwise the login ends with the browser. After five wrong passwords
   logins pause for a minute, longer if it goes on. *Abmelden* sits at the
   bottom of the navigation.
+- The password can be changed under *Einstellungen*, with the current one, and
+  a forgotten one is reset by starting CashPrism once with `--reset-password`,
+  which prints a new setup code and leaves every booking and import in place.
+  Either way every device is signed out and logs in again with the new
+  password.
 
 ### Changed
 

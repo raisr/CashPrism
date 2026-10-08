@@ -1,6 +1,9 @@
 using CashPrism.Domain.Access;
+using CashPrism.Domain.Imports;
 using CashPrism.Infrastructure.Persistence;
+using CashPrism.Shell.Hosting;
 using CashPrism.Shell.Tests.Integration.Hosting;
+using CashPrism.TestSupport.Bookings;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -112,13 +115,104 @@ public sealed class ProgramTests
             Assert.DoesNotContain("No password is set yet.", second.Output, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public async Task Shows_A_Setup_Code_Again_When_Started_To_Reset_The_Password()
+        {
+            await PrepareAsync();
+            await StoreACredentialAsync();
+
+            var instance = await StartListeningAsync(HostingCommandLine.ResetPasswordSwitch);
+
+            Assert.Contains("No password is set yet.", instance.Output, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task Drops_The_Stored_Password_When_Started_To_Reset_It()
+        {
+            await PrepareAsync();
+            await StoreACredentialAsync();
+
+            var instance = await StartListeningAsync(HostingCommandLine.ResetPasswordSwitch);
+            await instance.KillAsync(Patience);
+
+            Assert.Equal(false, (await ReadCredentialAsync())?.IsPasswordSet);
+        }
+
+        [Fact]
+        public async Task Keeps_Every_Booking_And_Import_When_Started_To_Reset_The_Password()
+        {
+            await PrepareAsync();
+            await StoreACredentialAsync();
+            await StoreAnImportAsync();
+
+            var instance = await StartListeningAsync(HostingCommandLine.ResetPasswordSwitch);
+            await instance.KillAsync(Patience);
+
+            Assert.Equal((1, 1), await CountBookingsAndImportsAsync());
+        }
+
+        // A database exists only once a start has migrated it; what a test stores
+        // before the start under test goes into that one.
+        private async Task PrepareAsync()
+        {
+            var first = await StartListeningAsync();
+            await first.KillAsync(Patience);
+        }
+
+        private CashPrismDbContext CreateContext()
+            => new(new DbContextOptionsBuilder<CashPrismDbContext>()
+                .UseSqlite($"Data Source={Path.Combine(DataDirectory, "cashprism.db")}")
+                .Options);
+
+        private async Task StoreAnImportAsync()
+        {
+            await using (var context = CreateContext())
+            {
+                context.ImportRuns.Add(new ImportRun(
+                    TestBookings.AnImportRunId,
+                    "export.xlsx",
+                    "3b8f1c",
+                    "20261005_Export_Alle_Buchungen",
+                    new DateOnly(2026, 10, 5),
+                    DateTimeOffset.UnixEpoch));
+                context.Bookings.Add(TestBookings.Create());
+                await context.SaveChangesAsync();
+            }
+
+            SqliteConnection.ClearAllPools();
+        }
+
+        private async Task<Credential?> ReadCredentialAsync()
+        {
+            Credential? credential;
+
+            await using (var context = CreateContext())
+            {
+                credential = await new CredentialStore(context).GetAsync();
+            }
+
+            SqliteConnection.ClearAllPools();
+
+            return credential;
+        }
+
+        private async Task<(int Bookings, int Imports)> CountBookingsAndImportsAsync()
+        {
+            (int, int) counts;
+
+            await using (var context = CreateContext())
+            {
+                counts = (await context.Bookings.CountAsync(), await context.ImportRuns.CountAsync());
+            }
+
+            SqliteConnection.ClearAllPools();
+
+            return counts;
+        }
+
         private async Task StoreACredentialAsync()
         {
-            var options = new DbContextOptionsBuilder<CashPrismDbContext>()
-                .UseSqlite($"Data Source={Path.Combine(DataDirectory, "cashprism.db")}")
-                .Options;
-
-            await using (var context = new CashPrismDbContext(options))
+            await using (var context = CreateContext())
             {
                 await new CredentialStore(context).AddAsync(new Credential("a-hash", DateTimeOffset.UnixEpoch));
             }
@@ -127,18 +221,18 @@ public sealed class ProgramTests
             SqliteConnection.ClearAllPools();
         }
 
-        private ShellProcess Start(string? workingDirectory = null)
+        private ShellProcess Start(string? workingDirectory = null, params string[] arguments)
         {
-            var instance = ShellProcess.Start(DataDirectory, workingDirectory);
+            var instance = ShellProcess.Start(DataDirectory, workingDirectory, arguments);
 
             started.Add(instance);
 
             return instance;
         }
 
-        private async Task<ShellProcess> StartListeningAsync()
+        private async Task<ShellProcess> StartListeningAsync(params string[] arguments)
         {
-            var instance = Start();
+            var instance = Start(arguments: arguments);
 
             var finished = await Task.WhenAny(instance.Listening, Task.Delay(Patience));
 

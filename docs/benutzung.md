@@ -139,8 +139,8 @@ mehr.
 Das Passwort braucht mindestens 10 Zeichen, sonst nichts — keine Ziffern- oder
 Sonderzeichenpflicht. Ein Satz aus ein paar Wörtern ist leichter zu merken und
 schwerer zu erraten als ein kurzes Passwort voller Sonderzeichen. Es wird
-zweimal eingegeben, damit sich kein Tippfehler einschleicht: Ändern lässt es
-sich in CashPrism noch nicht.
+zweimal eingegeben, damit sich kein Tippfehler einschleicht. Ändern lässt es
+sich später unter *Einstellungen* — siehe [Passwort ändern](#passwort-ändern).
 
 ## Anmelden
 
@@ -164,6 +164,54 @@ nach Ablauf der Sperre setzt alles zurück.
 Rechner*. Es beendet die Anmeldung auf diesem Gerät; die anderen bleiben
 angemeldet.
 
+## Passwort ändern
+
+Unter *Einstellungen* führt *Passwort ändern* zu einer eigenen Seite. Dort
+stehen das bisherige Passwort und zweimal das neue, mit denselben Regeln wie
+beim Festlegen. Ein falsches bisheriges Passwort zählt wie ein falsches beim
+Anmelden, auch für die Sperre.
+
+Nach der Änderung ist **jedes Gerät abgemeldet**, auch das, auf dem geändert
+wurde: Es landet auf *Anmelden* und meldet sich mit dem neuen Passwort an.
+Eine Seite, die auf einem anderen Gerät gerade offen ist, merkt das erst, wenn
+sie neu geladen wird.
+
+## Passwort vergessen
+
+CashPrism kennt kein Konto und keine E-Mail-Adresse, über die sich ein
+vergessenes Passwort zurückholen ließe. Zurücksetzen kann es deshalb nur, wer
+CashPrism startet: CashPrism beenden und einmal mit `--reset-password` starten.
+
+- **Windows**, in PowerShell im Ordner von CashPrism:
+
+  ```powershell
+  .CashPrism.Shell.exe --reset-password
+  ```
+
+- **macOS und Linux**, im Terminal im Ordner von CashPrism:
+
+  ```bash
+  ./CashPrism.Shell --reset-password
+  ```
+
+- **Container:** den laufenden anhalten, denn zwei Container auf denselben
+  Daten gehen nicht, und einmal mit dem Schalter im Vordergrund starten:
+
+  ```bash
+  docker stop <Name des Containers>
+  docker run --rm -p 5080:5080 -v cashprism-data:/data -e TZ=Europe/Berlin ghcr.io/raisr/cashprism --reset-password
+  ```
+
+  Ist das neue Passwort festgelegt, beendet `Strg+C` diesen Container, und
+  `docker start <Name des Containers>` startet den gewohnten wieder.
+
+- **Aus dem Quellcode:** `dotnet run --project src/CashPrism.Shell -- --reset-password`
+
+Danach steht im Fenster wieder ein Einrichtungscode, und es geht weiter wie
+unter [Passwort festlegen](#passwort-festlegen). Buchungen und Importe bleiben
+dabei erhalten; jedes Gerät ist abgemeldet. Der nächste Start ohne den Schalter
+setzt nichts mehr zurück.
+
 ## Die Navigation
 
 Links steht die Navigation mit fünf Zielen. Auf einem schmalen Bildschirm ist
@@ -179,7 +227,7 @@ Symbolen ein und wieder auf.
 | Übersicht | `/` | Noch nichts außer einem Hinweis und dem Weg zum Import |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
-| Einstellungen | `/settings` | Alle gespeicherten Daten löschen |
+| Einstellungen | `/settings` | Alle gespeicherten Daten löschen, Passwort ändern |
 
 Solange nichts importiert ist, zeigt *Buchungen* statt einer leeren Tabelle
 einen Hinweis und eine Schaltfläche zur Seite *Import*.

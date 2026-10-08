@@ -17,4 +17,10 @@ public static class AccessPaths
 
     /// <summary>The login page, telling the person that the password was just set.</summary>
     public const string LoginAfterSetup = Login + "?setup=done";
+
+    /// <summary>The page that changes the password.</summary>
+    public const string ChangePassword = "/settings/password";
+
+    /// <summary>The login page, telling the person that the password was just changed.</summary>
+    public const string LoginAfterChange = Login + "?password=changed";
 }

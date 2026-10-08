@@ -133,6 +133,9 @@ public sealed class Program
             new SetupCode(RandomNumberGenerator.GetString(SetupCode.Alphabet, SetupCode.Length)));
         builder.Services.AddScoped<PasswordSetup>();
         builder.Services.AddScoped<PasswordCheck>();
+        builder.Services.AddScoped<LoginValidation>();
+        builder.Services.AddScoped<PasswordChange>();
+        builder.Services.AddScoped<PasswordReset>();
 
         // One for the process: wrong passwords are counted across every request.
         builder.Services.AddSingleton<LoginThrottle>();
@@ -165,6 +168,14 @@ public sealed class Program
         await using (var scope = app.Services.CreateAsyncScope())
         {
             await scope.ServiceProvider.GetRequiredService<IDatabaseMigrator>().MigrateAsync();
+
+            // Here, and not in the browser: whoever can start CashPrism has the
+            // machine, which is all a forgotten password can still be checked
+            // against. The banner below then prints a setup code.
+            if (hosting.ResetPassword)
+            {
+                await scope.ServiceProvider.GetRequiredService<PasswordReset>().ResetAsync();
+            }
 
             setupPending = await scope.ServiceProvider.GetRequiredService<PasswordSetup>().IsPendingAsync();
         }

@@ -42,4 +42,18 @@ public sealed class CredentialStore : ICredentialStore
 
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task UpdateAsync(Credential credential, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(credential);
+
+        // The credential comes back untracked from GetAsync, so the key it
+        // lives under is not known to the context until it is named here.
+        var entry = context.Entry(credential);
+        entry.Property(CredentialConfiguration.KeyProperty).CurrentValue = CredentialConfiguration.TheOnlyKey;
+        entry.State = EntityState.Modified;
+
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

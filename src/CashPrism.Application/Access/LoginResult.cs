@@ -7,4 +7,8 @@ namespace CashPrism.Application.Access;
 /// <see cref="LoginOutcome.Rejected"/> as well, when that wrong password was the
 /// one that started a lockout.
 /// </param>
-public sealed record LoginResult(LoginOutcome Outcome, DateTimeOffset? LockedUntil);
+/// <param name="Generation">
+/// On <see cref="LoginOutcome.Accepted"/>, the generation of the password that
+/// was right, for the login to carry; <c>null</c> otherwise.
+/// </param>
+public sealed record LoginResult(LoginOutcome Outcome, DateTimeOffset? LockedUntil, int? Generation = null);

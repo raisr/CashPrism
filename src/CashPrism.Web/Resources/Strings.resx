@@ -648,7 +648,7 @@
   </data>
   <data name="LoginAfterSetupText" xml:space="preserve">
     <value>Melde dich jetzt mit deinem neuen Passwort an.</value>
-    <comment>Line under the headline on the login page right after the password was set.</comment>
+    <comment>Line under the headline on the login page right after the password was set or changed.</comment>
   </data>
   <data name="SetupTitle" xml:space="preserve">
     <value>Passwort festlegen</value>
@@ -693,6 +693,50 @@
   <data name="SetupMismatch" xml:space="preserve">
     <value>Die beiden Passwörter stimmen nicht überein.</value>
     <comment>Shown when the repeated password differs from the first.</comment>
+  </data>
+  <data name="LoginAfterChangeTitle" xml:space="preserve">
+    <value>Passwort geändert</value>
+    <comment>Headline on the login page right after the password was changed.</comment>
+  </data>
+  <data name="SettingsPasswordTitle" xml:space="preserve">
+    <value>Passwort</value>
+    <comment>Title of the password card on the settings page.</comment>
+  </data>
+  <data name="SettingsPasswordLead" xml:space="preserve">
+    <value>Das Passwort, mit dem jedes Gerät CashPrism öffnet. Nach einer Änderung meldet sich jedes Gerät neu an.</value>
+    <comment>Line under the title of the password card on the settings page.</comment>
+  </data>
+  <data name="SettingsPasswordChange" xml:space="preserve">
+    <value>Passwort ändern</value>
+    <comment>Link on the settings page that opens the page changing the password.</comment>
+  </data>
+  <data name="ChangePasswordTitle" xml:space="preserve">
+    <value>Passwort ändern</value>
+    <comment>Heading of the page that changes the password, and part of the browser tab title.</comment>
+  </data>
+  <data name="ChangePasswordLead" xml:space="preserve">
+    <value>Danach meldet sich jedes Gerät mit dem neuen Passwort an – auch dieses.</value>
+    <comment>Line under the heading of the page that changes the password.</comment>
+  </data>
+  <data name="ChangePasswordCurrent" xml:space="preserve">
+    <value>Bisheriges Passwort</value>
+    <comment>Label of the field for the current password.</comment>
+  </data>
+  <data name="ChangePasswordSubmit" xml:space="preserve">
+    <value>Passwort ändern</value>
+    <comment>Button that submits the form changing the password.</comment>
+  </data>
+  <data name="ChangePasswordBack" xml:space="preserve">
+    <value>Zurück zu den Einstellungen</value>
+    <comment>Link under the form changing the password that leaves it without a change.</comment>
+  </data>
+  <data name="ChangePasswordRejected" xml:space="preserve">
+    <value>Das bisherige Passwort stimmt nicht.</value>
+    <comment>Shown when the current password typed on the change page is wrong.</comment>
+  </data>
+  <data name="ChangePasswordLockedOut" xml:space="preserve">
+    <value>Zu viele falsche Versuche. Weiter geht es ab {0} Uhr.</value>
+    <comment>Shown on the change page while wrong passwords lock it. {0} is the time it works again, e.g. 20:31:45.</comment>
   </data>
   <data name="SidebarLogout" xml:space="preserve">
     <value>Abmelden</value>

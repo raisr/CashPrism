@@ -81,7 +81,11 @@ internal sealed class ShellProcess : IDisposable
     /// The directory to start in. Defaults to the one holding the executable,
     /// which is what a double-click on Windows does.
     /// </param>
-    public static ShellProcess Start(string dataDirectory, string? workingDirectory = null)
+    /// <param name="arguments">Further switches, as a person would type them.</param>
+    public static ShellProcess Start(
+        string dataDirectory,
+        string? workingDirectory = null,
+        IEnumerable<string>? arguments = null)
     {
         var startInfo = new ProcessStartInfo(Executable())
         {
@@ -103,6 +107,11 @@ internal sealed class ShellProcess : IDisposable
             RedirectStandardOutput = true,
             RedirectStandardError = true,
         };
+
+        foreach (var argument in arguments ?? [])
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
 
         var process = new Process { StartInfo = startInfo };
         var started = new ShellProcess(process);

@@ -1,5 +1,4 @@
 @page "/login"
-@using System.Security.Claims
 @using CashPrism.Application.Access
 @using CashPrism.Web.Access
 @using Microsoft.AspNetCore.Authentication
@@ -26,7 +25,11 @@
 
   @if (JustSetUp == "done" && failure is null)
   {
-    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterSetupTitle"]" Details="AfterSetupDetails" />
+    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterSetupTitle"]" Details="NewPasswordDetails" />
+  }
+  else if (JustChanged == "changed" && failure is null)
+  {
+    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterChangeTitle"]" Details="NewPasswordDetails" />
   }
 
   @if (failure is not null)
@@ -67,7 +70,10 @@
     [SupplyParameterFromQuery(Name = "setup")]
     private string? JustSetUp { get; set; }
 
-    private IReadOnlyList<string> AfterSetupDetails => [text["LoginAfterSetupText"]];
+    [SupplyParameterFromQuery(Name = "password")]
+    private string? JustChanged { get; set; }
+
+    private IReadOnlyList<string> NewPasswordDetails => [text["LoginAfterSetupText"]];
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,9 +92,9 @@
     {
         var result = await check.CheckAsync(Input.Password, HttpContext.RequestAborted);
 
-        if (result.Outcome is LoginOutcome.Accepted)
+        if (result is { Outcome: LoginOutcome.Accepted, Generation: { } generation })
         {
-            await SignInAsync();
+            await SignInAsync(generation);
             navigation.NavigateTo(Access.ReturnUrl.Resolve(ReturnUrl));
 
             return;
@@ -99,17 +105,11 @@
             : text["LoginRejected"];
     }
 
-    // The household shares one password, so there is nobody to name: the
-    // cookie only says that whoever holds it knew the password.
-    private Task SignInAsync()
+    private Task SignInAsync(int generation)
     {
-        var identity = new ClaimsIdentity(
-            [new Claim(ClaimTypes.Name, "CashPrism")],
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
         return HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity),
+            AccessCookie.CreatePrincipal(generation),
             new AuthenticationProperties { IsPersistent = Input.RememberMe });
     }
 

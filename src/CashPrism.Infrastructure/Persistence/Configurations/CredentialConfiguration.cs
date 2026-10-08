@@ -33,6 +33,7 @@ public sealed class CredentialConfiguration : IEntityTypeConfiguration<Credentia
         // Declared rather than left to convention: a get-only property is not picked
         // up automatically, and the constructor can only be bound to mapped ones.
         builder.Property(credential => credential.PasswordHash);
+        builder.Property(credential => credential.Generation);
 
         // Stored as a UTC DateTime for the reason given on ImportRun.ImportedAt.
         builder.Property(credential => credential.SetAt)

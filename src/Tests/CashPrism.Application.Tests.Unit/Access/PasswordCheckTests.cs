@@ -1,4 +1,5 @@
 using CashPrism.Application.Access;
+using CashPrism.Domain.Access;
 
 namespace CashPrism.Application.Tests.Unit.Access;
 
@@ -31,6 +32,16 @@ public sealed class PasswordCheckTests
         }
 
         [Fact]
+        public async Task Hands_Out_The_Generation_Of_The_Password_That_Was_Right()
+        {
+            var check = CreateCheck(new LoginThrottle(new SteppingClock()));
+
+            var result = await check.CheckAsync(ThePassword);
+
+            Assert.Equal(Credential.FirstGeneration, result.Generation);
+        }
+
+        [Fact]
         public async Task Rejects_A_Wrong_Password()
         {
             var check = CreateCheck(new LoginThrottle(new SteppingClock()));
@@ -45,6 +56,17 @@ public sealed class PasswordCheckTests
         {
             var check = new PasswordCheck(
                 new FakeCredentialStore(), new FakePasswordHasher(), new LoginThrottle(new SteppingClock()));
+
+            var result = await check.CheckAsync(ThePassword);
+
+            Assert.Equal(LoginOutcome.Rejected, result.Outcome);
+        }
+
+        [Fact]
+        public async Task Rejects_Every_Password_After_A_Reset()
+        {
+            var check = new PasswordCheck(
+                FakeCredentialStore.HoldingAReset(), new FakePasswordHasher(), new LoginThrottle(new SteppingClock()));
 
             var result = await check.CheckAsync(ThePassword);
 

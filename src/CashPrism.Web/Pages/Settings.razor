@@ -2,6 +2,7 @@
 @using CashPrism.Application.Bookings
 @using CashPrism.Application.Imports
 @using CashPrism.Application.Persistence
+@using CashPrism.Web.Access
 @using CashPrism.Web.Bookings
 @using CashPrism.Web.StoredData
 @using Microsoft.Extensions.Logging
@@ -13,62 +14,81 @@
 @inject ILogger<Settings> log
 
 <PageFrame Title="@text["NavSettings"]" Lead="@text["SettingsLead"]">
-  @* The card stands above the overlay while the data is deleted, like the
-     drop zone during an import (cp-card--busy). *@
-  <div class="@(erasing ? "cp-card cp-card--busy" : "cp-card")">
-    <div class="cp-card__head">
-      <div class="cp-card__title">
-        <div class="cp-h3">@text["SettingsDataTitle"]</div>
-        <div class="cp-card__sub">@text["SettingsDataLead"]</div>
+  <div class="cp-settings">
+    @* The card stands above the overlay while the data is deleted, like the
+       drop zone during an import (cp-card--busy). *@
+    <div class="@(erasing ? "cp-card cp-card--busy" : "cp-card")">
+      <div class="cp-card__head">
+        <div class="cp-card__title">
+          <div class="cp-h3">@text["SettingsDataTitle"]</div>
+          <div class="cp-card__sub">@text["SettingsDataLead"]</div>
+        </div>
+      </div>
+      <div class="cp-card__body cp-settings-erase">
+        @if (erasing)
+        {
+          <div class="cp-settings-erase__busy">
+            <span class="cp-spinner" role="progressbar"></span>
+            @text["SettingsErasing"]
+          </div>
+        }
+        else if (confirming)
+        {
+          @* Asked here rather than in a dialog of the browser: the warning stands
+             where the button was, and deleting takes a second, differently
+             labelled click. *@
+          <Alert Tone="AlertTone.Danger"
+                 Title="@text["SettingsEraseConfirmTitle"]"
+                 Details="ConfirmDetails" />
+          <div class="cp-settings-erase__actions">
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Class="cp-btn cp-settings-erase__confirm"
+                       OnClick="EraseAsync">
+              <CpIcon Name="trash-2" />
+              @text["SettingsEraseConfirm"]
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Class="cp-btn cp-settings-erase__cancel" OnClick="Cancel">
+              @text["SettingsEraseCancel"]
+            </MudButton>
+          </div>
+        }
+        else
+        {
+          @if (erased)
+          {
+            <Alert Tone="AlertTone.Success" Title="@text["SettingsErasedTitle"]" Details="ErasedDetails" />
+          }
+          <div class="cp-settings-erase__actions">
+            @* Nothing to delete is said rather than offered: an empty database
+               gets a disabled button and the reason beside it. *@
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="cp-btn cp-settings-erase__start"
+                       Disabled="@(!HasData)" OnClick="AskAsync">
+              <CpIcon Name="trash-2" />
+              @text["SettingsErase"]
+            </MudButton>
+            @if (!HasData && !erased)
+            {
+              <span class="cp-settings-erase__hint">@text["SettingsEraseNothing"]</span>
+            }
+          </div>
+        }
       </div>
     </div>
-    <div class="cp-card__body cp-settings-erase">
-      @if (erasing)
-      {
-        <div class="cp-settings-erase__busy">
-          <span class="cp-spinner" role="progressbar"></span>
-          @text["SettingsErasing"]
+
+    <div class="cp-card">
+      <div class="cp-card__head">
+        <div class="cp-card__title">
+          <div class="cp-h3">@text["SettingsPasswordTitle"]</div>
+          <div class="cp-card__sub">@text["SettingsPasswordLead"]</div>
         </div>
-      }
-      else if (confirming)
-      {
-        @* Asked here rather than in a dialog of the browser: the warning stands
-           where the button was, and deleting takes a second, differently
-           labelled click. *@
-        <Alert Tone="AlertTone.Danger"
-               Title="@text["SettingsEraseConfirmTitle"]"
-               Details="ConfirmDetails" />
-        <div class="cp-settings-erase__actions">
-          <MudButton Variant="Variant.Filled" Color="Color.Error" Class="cp-btn cp-settings-erase__confirm"
-                     OnClick="EraseAsync">
-            <CpIcon Name="trash-2" />
-            @text["SettingsEraseConfirm"]
-          </MudButton>
-          <MudButton Variant="Variant.Outlined" Class="cp-btn cp-settings-erase__cancel" OnClick="Cancel">
-            @text["SettingsEraseCancel"]
-          </MudButton>
-        </div>
-      }
-      else
-      {
-        @if (erased)
-        {
-          <Alert Tone="AlertTone.Success" Title="@text["SettingsErasedTitle"]" Details="ErasedDetails" />
-        }
-        <div class="cp-settings-erase__actions">
-          @* Nothing to delete is said rather than offered: an empty database
-             gets a disabled button and the reason beside it. *@
-          <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="cp-btn cp-settings-erase__start"
-                     Disabled="@(!HasData)" OnClick="AskAsync">
-            <CpIcon Name="trash-2" />
-            @text["SettingsErase"]
-          </MudButton>
-          @if (!HasData && !erased)
-          {
-            <span class="cp-settings-erase__hint">@text["SettingsEraseNothing"]</span>
-          }
-        </div>
-      }
+      </div>
+      <div class="cp-card__body cp-settings-password">
+        @* A link, not a button: the page it opens runs without a circuit, see
+           ChangePassword.razor. *@
+        <a href="@AccessPaths.ChangePassword" class="cp-btn cp-btn--secondary">
+          <CpIcon Name="key-round" />
+          @text["SettingsPasswordChange"]
+        </a>
+      </div>
     </div>
   </div>
 </PageFrame>
