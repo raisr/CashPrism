@@ -16,10 +16,26 @@ internal sealed class FakeCredentialStore : ICredentialStore
         return store;
     }
 
+    /// <summary>A store whose credential had a password once and was reset.</summary>
+    public static FakeCredentialStore HoldingAReset()
+    {
+        var store = Holding("a-hash-from-before-the-reset");
+        store.Credential!.Reset();
+
+        return store;
+    }
+
     public Task<Credential?> GetAsync(CancellationToken cancellationToken = default)
         => Task.FromResult(Credential);
 
     public Task AddAsync(Credential credential, CancellationToken cancellationToken = default)
+    {
+        Credential = credential;
+
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateAsync(Credential credential, CancellationToken cancellationToken = default)
     {
         Credential = credential;
 

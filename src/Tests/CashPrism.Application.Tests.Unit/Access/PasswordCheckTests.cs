@@ -52,6 +52,17 @@ public sealed class PasswordCheckTests
         }
 
         [Fact]
+        public async Task Rejects_Every_Password_After_A_Reset()
+        {
+            var check = new PasswordCheck(
+                FakeCredentialStore.HoldingAReset(), new FakePasswordHasher(), new LoginThrottle(new SteppingClock()));
+
+            var result = await check.CheckAsync(ThePassword);
+
+            Assert.Equal(LoginOutcome.Rejected, result.Outcome);
+        }
+
+        [Fact]
         public async Task Says_When_The_Fifth_Wrong_Password_Started_A_Lockout()
         {
             var clock = new SteppingClock();

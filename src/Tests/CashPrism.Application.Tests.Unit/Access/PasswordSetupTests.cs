@@ -26,6 +26,12 @@ public sealed class PasswordSetupTests
         {
             Assert.False(await CreateSetup(FakeCredentialStore.Holding("a-hash")).IsPendingAsync());
         }
+
+        [Fact]
+        public async Task Is_Pending_After_A_Reset()
+        {
+            Assert.True(await CreateSetup(FakeCredentialStore.HoldingAReset()).IsPendingAsync());
+        }
     }
 
     public sealed class SetAsync
@@ -90,6 +96,28 @@ public sealed class PasswordSetupTests
 
             Assert.Equal(PasswordSetupOutcome.AlreadySet, outcome);
             Assert.Equal("the-first-hash", store.Credential?.PasswordHash);
+        }
+
+        [Fact]
+        public async Task Sets_The_Password_Again_After_A_Reset()
+        {
+            var store = FakeCredentialStore.HoldingAReset();
+
+            var outcome = await CreateSetup(store).SetAsync(TheCode, AGoodPassword);
+
+            Assert.Equal(PasswordSetupOutcome.Done, outcome);
+            Assert.Equal(FakePasswordHasher.HashOf(AGoodPassword), store.Credential?.PasswordHash);
+        }
+
+        [Fact]
+        public async Task Keeps_Counting_Generations_After_A_Reset()
+        {
+            var store = FakeCredentialStore.HoldingAReset();
+            var generationAfterReset = store.Credential!.Generation;
+
+            await CreateSetup(store).SetAsync(TheCode, AGoodPassword);
+
+            Assert.Equal(generationAfterReset + 1, store.Credential.Generation);
         }
     }
 }

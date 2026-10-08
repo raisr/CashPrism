@@ -34,11 +34,11 @@ public sealed class PasswordSetup
         this.clock = clock;
     }
 
-    /// <summary>Whether no password is set yet, so CashPrism waits for one.</summary>
+    /// <summary>Whether no password is set — yet, or since a reset — so CashPrism waits for one.</summary>
     /// <param name="cancellationToken">Cancels the query.</param>
     public async Task<bool> IsPendingAsync(CancellationToken cancellationToken = default)
     {
-        return await store.GetAsync(cancellationToken) is null;
+        return await store.GetAsync(cancellationToken) is not { IsPasswordSet: true };
     }
 
     /// <summary>
@@ -70,6 +70,16 @@ public sealed class PasswordSetup
         if (!PasswordRule.IsAcceptable(password))
         {
             return PasswordSetupOutcome.TooShort;
+        }
+
+        // After a reset the credential is still there, without a password, and
+        // keeps counting its generations from where it was.
+        if (await store.GetAsync(cancellationToken) is { } credential)
+        {
+            credential.SetPassword(hasher.Hash(password), clock.UtcNow);
+            await store.UpdateAsync(credential, cancellationToken);
+
+            return PasswordSetupOutcome.Done;
         }
 
         await store.AddAsync(new Credential(hasher.Hash(password), clock.UtcNow), cancellationToken);
