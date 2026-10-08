@@ -3,7 +3,7 @@ namespace CashPrism.Shell.Hosting;
 /// <summary>
 /// The hosting settings a person can change without recompiling: the port the
 /// server listens on, where the data directory lives and whether the local
-/// browser opens on start. Bound from the <c>Hosting</c> configuration section.
+/// browser opens on start, and whether the password is reset. Bound from the <c>Hosting</c> configuration section.
 /// </summary>
 public sealed record HostingOptions
 {
@@ -30,6 +30,13 @@ public sealed record HostingOptions
     /// with <c>--no-browser</c>.
     /// </summary>
     public bool LaunchBrowser { get; init; } = true;
+
+    /// <summary>
+    /// Whether to drop the password before serving, so the setup code of this
+    /// start applies again. Switched on with <c>--reset-password</c>, for a
+    /// password nobody remembers.
+    /// </summary>
+    public bool ResetPassword { get; init; }
 
     /// <summary>
     /// The address Kestrel listens on: every network interface, on <see cref="Port"/>.
