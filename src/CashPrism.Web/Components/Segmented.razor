@@ -1,0 +1,35 @@
+@typeparam TValue
+
+@* A short row of mutually exclusive choices, the selected one raised. Plain
+   buttons that say whether they are pressed, rather than tabs: choosing one
+   changes what the page shows, it does not switch to another panel. *@
+<div class="cp-seg" role="group" aria-label="@Label">
+  @foreach (var option in Options)
+  {
+    var selected = EqualityComparer<TValue>.Default.Equals(option.Value, Value);
+    <button type="button"
+            class="@(selected ? "cp-seg__opt cp-seg__opt--on" : "cp-seg__opt")"
+            aria-pressed="@(selected ? "true" : "false")"
+            @onclick="() => ValueChanged.InvokeAsync(option.Value)">
+      @option.Label
+    </button>
+  }
+</div>
+
+@code {
+    /// <summary>The choices, in the order they are shown.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<SegmentedOption<TValue>> Options { get; set; } = [];
+
+    /// <summary>The value of the selected choice.</summary>
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    /// <summary>Raised with the value of the choice a person picked.</summary>
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    /// <summary>What the group chooses, for assistive technology; already localised.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+}

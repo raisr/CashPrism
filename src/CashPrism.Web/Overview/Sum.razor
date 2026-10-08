@@ -1,0 +1,13 @@
+@* A sum to the cent with the cents faded, as a tile shows it: no plus in
+   front, because a sum is not a booking. *@
+<span class="cp-amount">@parts.Whole<span class="cp-amount__cents">@parts.Cents</span></span>
+
+@code {
+    private (string Whole, string Cents) parts;
+
+    /// <summary>The sum in whole cents.</summary>
+    [Parameter, EditorRequired]
+    public long AmountInCents { get; set; }
+
+    protected override void OnParametersSet() => parts = OverviewFormat.SumParts(AmountInCents);
+}

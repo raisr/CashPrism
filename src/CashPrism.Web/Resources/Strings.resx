@@ -195,6 +195,94 @@
     <value>Lade einen Finanzguru-Export hoch, um anzufangen.</value>
     <comment>Second line under OverviewEmpty, pointing at the upload page.</comment>
   </data>
+  <data name="OverviewLeadMore" xml:space="preserve">
+    <value>So steht es um dein Geld im {0}. Du hast {1} mehr eingenommen als ausgegeben.</value>
+    <comment>Lead of the overview when more came in than went out in the last complete month. {0} is the month and year, {1} the difference in whole euros.</comment>
+  </data>
+  <data name="OverviewLeadLess" xml:space="preserve">
+    <value>So steht es um dein Geld im {0}. Du hast {1} mehr ausgegeben als eingenommen.</value>
+    <comment>Lead of the overview when more went out than came in in the last complete month. {0} is the month and year, {1} the difference in whole euros.</comment>
+  </data>
+  <data name="OverviewLeadEven" xml:space="preserve">
+    <value>So steht es um dein Geld im {0}. Du hast genau so viel ausgegeben wie eingenommen.</value>
+    <comment>Lead of the overview when income and spending of the last complete month were equal. {0} is the month and year.</comment>
+  </data>
+  <data name="OverviewSpanLabel" xml:space="preserve">
+    <value>Zeitraum</value>
+    <comment>Accessible name of the choice of how many months the overview's chart shows.</comment>
+  </data>
+  <data name="OverviewSpan6" xml:space="preserve">
+    <value>6 Monate</value>
+    <comment>Choice on the overview: the chart shows six months.</comment>
+  </data>
+  <data name="OverviewSpan12" xml:space="preserve">
+    <value>12 Monate</value>
+    <comment>Choice on the overview: the chart shows twelve months.</comment>
+  </data>
+  <data name="OverviewSpan24" xml:space="preserve">
+    <value>2 Jahre</value>
+    <comment>Choice on the overview: the chart shows twenty-four months.</comment>
+  </data>
+  <data name="OverviewIncome" xml:space="preserve">
+    <value>Einnahmen im {0}</value>
+    <comment>Label of the overview tile with the income of the last complete month. {0} is the month's name.</comment>
+  </data>
+  <data name="OverviewSpending" xml:space="preserve">
+    <value>Ausgaben im {0}</value>
+    <comment>Label of the overview tile with the spending of the last complete month. {0} is the month's name.</comment>
+  </data>
+  <data name="OverviewLeft" xml:space="preserve">
+    <value>Übrig geblieben im {0}</value>
+    <comment>Label of the overview tile with what was left of the last complete month. {0} is the month's name.</comment>
+  </data>
+  <data name="OverviewAgainstMonthBefore" xml:space="preserve">
+    <value>ggü. Vormonat</value>
+    <comment>Behind the change a tile on the overview shows: what it is measured against.</comment>
+  </data>
+  <data name="OverviewChartTitle" xml:space="preserve">
+    <value>Einnahmen und Ausgaben</value>
+    <comment>Title of the chart on the overview.</comment>
+  </data>
+  <data name="OverviewChartSubtitle" xml:space="preserve">
+    <value>Pro Monat, ohne Umbuchungen zwischen deinen Konten</value>
+    <comment>Line under the title of the chart on the overview.</comment>
+  </data>
+  <data name="OverviewIncomeSeries" xml:space="preserve">
+    <value>Einnahmen</value>
+    <comment>Legend and tooltip name of the income line in the overview's chart.</comment>
+  </data>
+  <data name="OverviewSpendingSeries" xml:space="preserve">
+    <value>Ausgaben</value>
+    <comment>Legend and tooltip name of the spending line in the overview's chart.</comment>
+  </data>
+  <data name="OverviewRunningMonthLabel" xml:space="preserve">
+    <value>{0}*</value>
+    <comment>Axis label of the running month in the overview's chart; the star refers to OverviewRunningMonth. {0} is the short month.</comment>
+  </data>
+  <data name="OverviewRunningMonth" xml:space="preserve">
+    <value>* {0} läuft noch: Der jüngste Export ist vom {1}.</value>
+    <comment>Note under the overview's chart explaining the running month. {0} is the month and year, {1} the export date.</comment>
+  </data>
+  <data name="OverviewCategoriesTitle" xml:space="preserve">
+    <value>Wofür ging dein Geld?</value>
+    <comment>Title of the overview card with spending per main category.</comment>
+  </data>
+  <data name="OverviewCategoriesTotal" xml:space="preserve">
+    <value>Ausgaben</value>
+    <comment>Label in the middle of the ring on the overview, above the month's total spending.</comment>
+  </data>
+  <data name="OverviewCategoriesRest" xml:space="preserve">
+    <value>Übrige</value>
+    <comment>Name of the slice that puts together every category after the largest ones.</comment>
+  </data>
+  <data name="OverviewCategoriesNone" xml:space="preserve">
+    <value>Im {0} wurde nichts ausgegeben.</value>
+    <comment>Shown instead of the ring when nothing was spent in the month. {0} is the month's name.</comment>
+  </data>
+  <data name="MainCategoryMobility" xml:space="preserve">
+    <value>Mobilität</value>
+    <comment>Finanzguru's main category "Mobilitaet", spelled as it is read.</comment>
+  </data>
   <data name="BookingsLead" xml:space="preserve">
     <value>Alle Buchungen aus den importierten Exporten.</value>
     <comment>One line under the heading of the booking list.</comment>

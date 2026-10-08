@@ -1,15 +1,107 @@
 @page "/"
+@using CashPrism.Application.CashFlow
+@using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
+@inject CashFlowOverviewReader reader
 
-<PageFrame Title="@text["NavOverview"]" Lead="@text["OverviewLead"]">
-  <section class="cp-card">
-    <EmptyState Icon="layout-dashboard" Title="@text["OverviewEmpty"]" Text="@text["OverviewEmptyHint"]">
-      <Actions>
-        <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
-          <CpIcon Name="upload" />
-          @text["NavImport"]
-        </MudButton>
-      </Actions>
-    </EmptyState>
-  </section>
-</PageFrame>
+@if (overview is null)
+{
+  <PageFrame Title="@text["NavOverview"]" Lead="@(loaded ? text["OverviewLead"].Value : null)">
+    @if (loaded)
+    {
+      <section class="cp-card">
+        <EmptyState Icon="layout-dashboard" Title="@text["OverviewEmpty"]" Text="@text["OverviewEmptyHint"]">
+          <Actions>
+            <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
+              <CpIcon Name="upload" />
+              @text["NavImport"]
+            </MudButton>
+          </Actions>
+        </EmptyState>
+      </section>
+    }
+  </PageFrame>
+}
+else
+{
+  var month = overview.LastCompleteMonth;
+  var monthName = OverviewFormat.MonthName(month.Month);
+
+  <PageFrame Title="@text["NavOverview"]" Lead="@Lead(overview)">
+    <Actions>
+      <Segmented TValue="int" Options="@spans" @bind-Value="span" Label="@text["OverviewSpanLabel"]" />
+    </Actions>
+    <ChildContent>
+      <div class="cp-overview__tiles">
+        <StatTile Icon="arrow-down-left" Colour="var(--cp-income)"
+                  Label="@text["OverviewIncome", monthName]"
+                  Delta="@Percent(overview.IncomeChange)"
+                  DeltaUp="@(overview.IncomeChange > 0)"
+                  DeltaGood="@(overview.IncomeChange >= 0)"
+                  DeltaLabel="@text["OverviewAgainstMonthBefore"]">
+          <Sum AmountInCents="@month.IncomeInCents" />
+        </StatTile>
+        <StatTile Icon="arrow-up-right" Colour="var(--cp-expense)"
+                  Label="@text["OverviewSpending", monthName]"
+                  Delta="@Percent(overview.SpendingChange)"
+                  DeltaUp="@(overview.SpendingChange > 0)"
+                  DeltaGood="@(overview.SpendingChange <= 0)"
+                  DeltaLabel="@text["OverviewAgainstMonthBefore"]">
+          <Sum AmountInCents="@month.SpendingInCents" />
+        </StatTile>
+        <StatTile Icon="piggy-bank" Colour="var(--cp-prism-teal)"
+                  Label="@text["OverviewLeft", monthName]"
+                  Delta="@OverviewFormat.SignedWholeEuros(overview.LeftChangeInCents)"
+                  DeltaUp="@(overview.LeftChangeInCents > 0)"
+                  DeltaGood="@(overview.LeftChangeInCents >= 0)"
+                  DeltaLabel="@text["OverviewAgainstMonthBefore"]">
+          <Sum AmountInCents="@month.LeftInCents" />
+        </StatTile>
+      </div>
+      <div class="cp-overview__panels">
+        <CashFlowChart Months="@overview.Months.TakeLast(span).ToList()" CurrentTo="@overview.CurrentTo" />
+        <SpendingBreakdown Month="@month.Month" Categories="@overview.SpendingByCategory" />
+      </div>
+    </ChildContent>
+  </PageFrame>
+}
+
+@code {
+    private CashFlowOverview? overview;
+    private bool loaded;
+
+    // Twelve months unless the person picks another span; the longest one is
+    // what the reader reads, so a switch only redraws.
+    private int span = 12;
+
+    private IReadOnlyList<SegmentedOption<int>> spans = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        spans =
+        [
+            new(6, text["OverviewSpan6"]),
+            new(12, text["OverviewSpan12"]),
+            new(CashFlowOverviewReader.MonthsShown, text["OverviewSpan24"]),
+        ];
+
+        overview = await reader.ReadAsync();
+        loaded = true;
+    }
+
+    private string Lead(CashFlowOverview figures)
+    {
+        var month = OverviewFormat.MonthLong(figures.LastCompleteMonth.Month);
+        var left = figures.LastCompleteMonth.LeftInCents;
+
+        return left switch
+        {
+            > 0 => text["OverviewLeadMore", month, OverviewFormat.WholeEuros(left)],
+            < 0 => text["OverviewLeadLess", month, OverviewFormat.WholeEuros(-left)],
+            _ => text["OverviewLeadEven", month],
+        };
+    }
+
+    private static string? Percent(decimal? change)
+        => change is { } value ? OverviewFormat.Percent(value) : null;
+}
