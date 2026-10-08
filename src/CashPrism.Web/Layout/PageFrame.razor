@@ -9,7 +9,11 @@
       @* Routes.razor moves focus to the h1 after navigating, so the heading has
          to be a real h1 and not just look like one. *@
       <h1 class="cp-h1" tabindex="-1">@Title</h1>
-      @if (!string.IsNullOrWhiteSpace(Lead))
+      @if (LeadContent is not null)
+      {
+        <p class="cp-pagehead__lead">@LeadContent</p>
+      }
+      else if (!string.IsNullOrWhiteSpace(Lead))
       {
         <p class="cp-pagehead__lead">@Lead</p>
       }
@@ -31,6 +35,13 @@
     /// <summary>One sentence under the heading that already says something.</summary>
     [Parameter]
     public string? Lead { get; set; }
+
+    /// <summary>
+    /// The lead with markup in it — a figure set apart in colour, say. Wins
+    /// over <see cref="Lead"/> when both are given.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? LeadContent { get; set; }
 
     /// <summary>Controls that act on the whole page, set against the heading's right edge.</summary>
     [Parameter]

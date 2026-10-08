@@ -65,7 +65,10 @@
 
     private const string RestColour = "var(--cp-prism-slate)";
 
-    private readonly DonutChartOptions options = new() { ShowLegend = false };
+    // No tooltip, as in the design: the legend beside the ring already names
+    // every slice with its amount, and MudChart draws its tooltip inside the
+    // scaled-down ring, too small to read.
+    private readonly DonutChartOptions options = new() { ShowLegend = false, ShowToolTips = false };
 
     private List<Slice> slices = [];
     private List<ChartSeries<double>> series = [];

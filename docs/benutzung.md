@@ -249,8 +249,10 @@ ausnimmt, spielt hier keine Rolle.
   gegenüber dem Monat davor — bei Einnahmen und Ausgaben in Prozent, beim
   Übriggebliebenen in Euro, weil ein Prozentwert auf einen kleinen oder
   negativen Betrag nichts sagt. Hatte der Vormonat keine Einnahmen oder keine
-  Ausgaben, fehlt die Prozentangabe. Grün heißt: mehr Einnahmen, weniger
-  Ausgaben, mehr übrig.
+  Ausgaben, fehlt die Prozentangabe. Der Pfeil im runden Symbol zeigt, in
+  welche Richtung sich der Wert bewegt hat; grün heißt mehr Einnahmen, weniger
+  Ausgaben oder mehr übrig, rot das Gegenteil, grau keine Veränderung oder
+  nichts zum Vergleichen.
 - **Diagramm:** Einnahmen und Ausgaben pro Monat. Oben rechts wählst du
   *6 Monate*, *12 Monate* oder *2 Jahre*. Der letzte Punkt ist der laufende
   Monat; er trägt auf der Achse einen Stern und fällt meist steil ab, weil der

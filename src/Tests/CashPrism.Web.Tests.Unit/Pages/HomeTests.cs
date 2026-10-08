@@ -114,6 +114,42 @@ public sealed class HomeTests
         }
 
         [Fact]
+        public void Colours_The_Difference_In_The_Lead_Green_When_More_Came_In()
+        {
+            var page = RenderWith(new MonthlyCashFlow(September, 408250, 264363), new MonthlyCashFlow(August, 400000, 250000));
+
+            var figure = page.Find(".cp-pagehead__lead b");
+            Assert.Equal(("1.439 €", true), (figure.TextContent, figure.ClassList.Contains("cp-delta--good")));
+        }
+
+        [Fact]
+        public void Colours_The_Difference_In_The_Lead_Red_When_More_Went_Out()
+        {
+            var page = RenderWith(new MonthlyCashFlow(September, 200000, 231200), new MonthlyCashFlow(August, 400000, 250000));
+
+            var figure = page.Find(".cp-pagehead__lead b");
+            Assert.Equal(("312 €", true), (figure.TextContent, figure.ClassList.Contains("cp-delta--bad")));
+        }
+
+        [Fact]
+        public void Points_Each_Tile_The_Way_Its_Figure_Moved()
+        {
+            var page = RenderWith(new MonthlyCashFlow(September, 408000, 150000), new MonthlyCashFlow(August, 400000, 200000));
+
+            var icons = page.FindAll(".cp-stat > .cp-caticon .cp-icon")
+                .Select(icon => icon.ClassList.Single(name => name.StartsWith("icon-", StringComparison.Ordinal)));
+            Assert.Equal(["icon-arrow-up-right", "icon-arrow-down-right", "icon-arrow-up-right"], icons);
+        }
+
+        [Fact]
+        public void Colours_Less_Spending_Green_On_Its_Tile()
+        {
+            var page = RenderWith(new MonthlyCashFlow(September, 400000, 150000), new MonthlyCashFlow(August, 400000, 200000));
+
+            Assert.StartsWith("--c:var(--cp-income)", page.FindAll(".cp-stat > .cp-caticon")[1].GetAttribute("style"));
+        }
+
+        [Fact]
         public void Shows_Twelve_Months_To_Begin_With()
         {
             var page = RenderWith(new MonthlyCashFlow(September, 400000, 250000), new MonthlyCashFlow(August, 400000, 250000));

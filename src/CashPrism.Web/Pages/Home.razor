@@ -1,5 +1,6 @@
 @page "/"
 @using CashPrism.Application.CashFlow
+@using System.Net
 @using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
 @inject CashFlowOverviewReader reader
@@ -27,33 +28,31 @@ else
   var month = overview.LastCompleteMonth;
   var monthName = OverviewFormat.MonthName(month.Month);
 
-  <PageFrame Title="@text["NavOverview"]" Lead="@Lead(overview)">
+  <PageFrame Title="@text["NavOverview"]">
+    <LeadContent>@Lead(overview)</LeadContent>
     <Actions>
       <Segmented TValue="int" Options="@spans" @bind-Value="span" Label="@text["OverviewSpanLabel"]" />
     </Actions>
     <ChildContent>
       <div class="cp-overview__tiles">
-        <StatTile Icon="arrow-down-left" Colour="var(--cp-income)"
-                  Label="@text["OverviewIncome", monthName]"
+        <StatTile Label="@text["OverviewIncome", monthName]"
+                  Trend="@OverviewTrend.OfChange(overview.IncomeChange)"
+                  DeltaGood="@(overview.IncomeChange > 0)"
                   Delta="@Percent(overview.IncomeChange)"
-                  DeltaUp="@(overview.IncomeChange > 0)"
-                  DeltaGood="@(overview.IncomeChange >= 0)"
                   DeltaLabel="@text["OverviewAgainstMonthBefore"]">
           <Sum AmountInCents="@month.IncomeInCents" />
         </StatTile>
-        <StatTile Icon="arrow-up-right" Colour="var(--cp-expense)"
-                  Label="@text["OverviewSpending", monthName]"
+        <StatTile Label="@text["OverviewSpending", monthName]"
+                  Trend="@OverviewTrend.OfChange(overview.SpendingChange)"
+                  DeltaGood="@(overview.SpendingChange < 0)"
                   Delta="@Percent(overview.SpendingChange)"
-                  DeltaUp="@(overview.SpendingChange > 0)"
-                  DeltaGood="@(overview.SpendingChange <= 0)"
                   DeltaLabel="@text["OverviewAgainstMonthBefore"]">
           <Sum AmountInCents="@month.SpendingInCents" />
         </StatTile>
-        <StatTile Icon="piggy-bank" Colour="var(--cp-prism-teal)"
-                  Label="@text["OverviewLeft", monthName]"
+        <StatTile Label="@text["OverviewLeft", monthName]"
+                  Trend="@OverviewTrend.OfDifference(overview.LeftChangeInCents)"
+                  DeltaGood="@(overview.LeftChangeInCents > 0)"
                   Delta="@OverviewFormat.SignedWholeEuros(overview.LeftChangeInCents)"
-                  DeltaUp="@(overview.LeftChangeInCents > 0)"
-                  DeltaGood="@(overview.LeftChangeInCents >= 0)"
                   DeltaLabel="@text["OverviewAgainstMonthBefore"]">
           <Sum AmountInCents="@month.LeftInCents" />
         </StatTile>
@@ -89,17 +88,28 @@ else
         loaded = true;
     }
 
-    private string Lead(CashFlowOverview figures)
+    /// <summary>
+    /// The lead, with the difference set apart in green when more came in and
+    /// in red when more went out. The sentence comes from the resource file
+    /// with the figure as a placeholder, so the markup is put together here:
+    /// every piece of text is encoded before it joins the one element added.
+    /// </summary>
+    private MarkupString Lead(CashFlowOverview figures)
     {
-        var month = OverviewFormat.MonthLong(figures.LastCompleteMonth.Month);
+        var month = WebUtility.HtmlEncode(OverviewFormat.MonthLong(figures.LastCompleteMonth.Month));
         var left = figures.LastCompleteMonth.LeftInCents;
 
-        return left switch
+        var (key, tone) = left switch
         {
-            > 0 => text["OverviewLeadMore", month, OverviewFormat.WholeEuros(left)],
-            < 0 => text["OverviewLeadLess", month, OverviewFormat.WholeEuros(-left)],
-            _ => text["OverviewLeadEven", month],
+            > 0 => ("OverviewLeadMore", "cp-delta--good"),
+            < 0 => ("OverviewLeadLess", "cp-delta--bad"),
+            _ => ("OverviewLeadEven", string.Empty),
         };
+
+        var figure = $"<b class=\"cp-overview__lead-figure {tone}\">{WebUtility.HtmlEncode(OverviewFormat.WholeEuros(Math.Abs(left)))}</b>";
+        var sentence = WebUtility.HtmlEncode(text[key].Value);
+
+        return new MarkupString(string.Format(CultureInfo.CurrentCulture, sentence, month, figure));
     }
 
     private static string? Percent(decimal? change)

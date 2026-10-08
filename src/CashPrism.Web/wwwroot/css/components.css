@@ -1712,6 +1712,10 @@
   }
 }
 
+.cp-overview__lead-figure {
+  font-weight: 700;
+}
+
 .cp-cashflow__note {
   margin: 8px 0 0;
   font-size: var(--cp-fs-caption);

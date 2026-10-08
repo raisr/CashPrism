@@ -79,6 +79,14 @@ public sealed class SpendingBreakdownTests
         }
 
         [Fact]
+        public void Draws_The_Ring_Without_A_Tooltip()
+        {
+            var breakdown = RenderWith(new CategorySpending("Wohnen", 49907));
+
+            Assert.False(breakdown.FindComponent<MudChart<double>>().Instance.ChartOptions?.ShowToolTips);
+        }
+
+        [Fact]
         public void Says_So_When_Nothing_Was_Spent()
         {
             var breakdown = RenderWith();
