@@ -59,7 +59,7 @@ public sealed class ImportPageTests
     /// </summary>
     private static async Task<string> GetAsync(CashPrismWebApplicationFactory factory, string path = "/import")
     {
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateSignedInClientAsync();
 
         return WebUtility.HtmlDecode(await client.GetStringAsync(path));
     }
@@ -70,7 +70,7 @@ public sealed class ImportPageTests
         public async Task Answers_With_Ok()
         {
             using var factory = StartHost();
-            using var client = factory.CreateClient();
+            using var client = await factory.CreateSignedInClientAsync();
 
             using var response = await client.GetAsync("/import");
 

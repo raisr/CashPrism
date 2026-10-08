@@ -91,8 +91,14 @@ On this machine:
 From another device in the same network:
   http://192.168.1.7:5080
 
+No password is set yet. Open CashPrism and enter this setup code:
+  K7QF-M2XP-9HTR
+
 Press Ctrl+C to stop.
 ```
+
+Die letzten beiden Zeilen vor *Press Ctrl+C* stehen nur da, solange noch kein
+Passwort festgelegt ist — siehe [Passwort festlegen](#passwort-festlegen).
 
 Das Konsolenfenster bleibt offen, solange CashPrism läuft. `Strg+C` beendet
 CashPrism. Die Daten liegen in einer Datei neben der Anwendung und bleiben
@@ -108,8 +114,55 @@ Laptop, Tablet oder Handy im selben Netz öffnen die Adresse unter
 Zeilen, ist das normal — VPN- oder Docker-Adapter bringen eigene Adressen mit.
 Man probiert sie der Reihe nach, bis eine antwortet.
 
-Es gibt noch kein Passwort. Wer im Heimnetz die Adresse kennt, sieht die
-Buchungen.
+Jedes Gerät meldet sich mit dem gemeinsamen Passwort an — siehe
+[Anmelden](#anmelden).
+
+## Passwort festlegen
+
+CashPrism ist mit einem Passwort geschützt, das sich der ganze Haushalt teilt.
+Beim allerersten Start gibt es noch keins: Jede Seite führt dann zu
+*Passwort festlegen*.
+
+Dort braucht es den **Einrichtungscode**. Er steht im Konsolenfenster, in dem
+CashPrism läuft, unter *No password is set yet* — beim Container in den Logs:
+
+```bash
+docker logs <Name des Containers>
+```
+
+Der Code beweist, dass hier jemand das Passwort festlegt, der Zugriff auf den
+Rechner hat, und nicht irgendwer im WLAN. Er gilt nur bis zum nächsten Start:
+Jeder Start, solange noch kein Passwort festgelegt ist, schreibt einen neuen.
+Sobald das Passwort festgelegt ist, gilt er nicht mehr und erscheint auch nicht
+mehr.
+
+Das Passwort braucht mindestens 10 Zeichen, sonst nichts — keine Ziffern- oder
+Sonderzeichenpflicht. Ein Satz aus ein paar Wörtern ist leichter zu merken und
+schwerer zu erraten als ein kurzes Passwort voller Sonderzeichen. Es wird
+zweimal eingegeben, damit sich kein Tippfehler einschleicht: Ändern lässt es
+sich in CashPrism noch nicht.
+
+## Anmelden
+
+Jedes Gerät meldet sich einmal mit dem Passwort an. *Angemeldet bleiben* ist
+ausgeschaltet:
+
+- **Aus:** Die Anmeldung endet, wenn der Browser geschlossen wird.
+- **An:** Die Anmeldung hält 30 Tage und verlängert sich mit jeder Benutzung.
+  Das ist für das eigene Handy oder den eigenen Laptop gedacht, nicht für ein
+  Gerät, das auch andere benutzen.
+
+Nach fünf falschen Passwörtern hintereinander nimmt CashPrism eine Minute lang
+keine Anmeldung an, auch nicht das richtige Passwort. Jede weitere Sperre
+dauert doppelt so lange, höchstens 15 Minuten. Die Sperre gilt für alle Geräte
+zugleich, und ein Neustart von CashPrism hebt sie auf. Das richtige Passwort
+nach Ablauf der Sperre setzt alles zurück.
+
+## Abmelden
+
+*Abmelden* steht unten in der Navigation, über dem Hinweis *Nur auf diesem
+Rechner*. Es beendet die Anmeldung auf diesem Gerät; die anderen bleiben
+angemeldet.
 
 ## Die Navigation
 

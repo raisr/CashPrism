@@ -17,6 +17,23 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.11");
 
+            modelBuilder.Entity("CashPrism.Domain.Access.Credential", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SetAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Credentials", (string)null);
+                });
+
             modelBuilder.Entity("CashPrism.Domain.Bookings.Booking", b =>
                 {
                     b.Property<string>("Fingerprint")

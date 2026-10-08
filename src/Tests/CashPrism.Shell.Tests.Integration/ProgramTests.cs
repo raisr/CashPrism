@@ -1,4 +1,8 @@
+using CashPrism.Domain.Access;
+using CashPrism.Infrastructure.Persistence;
 using CashPrism.Shell.Tests.Integration.Hosting;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 
 namespace CashPrism.Shell.Tests.Integration;
 
@@ -84,6 +88,43 @@ public sealed class ProgramTests
             // Two empty directories are equal as well, and prove nothing.
             Assert.NotEmpty(keysAfterFirstStart);
             Assert.Equal(keysAfterFirstStart, KeyFiles());
+        }
+
+        [Fact]
+        public async Task Shows_A_Setup_Code_On_A_Fresh_Database()
+        {
+            var instance = await StartListeningAsync();
+
+            Assert.Contains("No password is set yet.", instance.Output, StringComparison.Ordinal);
+        }
+
+        // The banner reads the database on every start, so a password set in
+        // between is what decides — not anything the first start remembered.
+        [Fact]
+        public async Task Shows_No_Setup_Code_Once_A_Password_Is_Set()
+        {
+            var first = await StartListeningAsync();
+            await first.KillAsync(Patience);
+            await StoreACredentialAsync();
+
+            var second = await StartListeningAsync();
+
+            Assert.DoesNotContain("No password is set yet.", second.Output, StringComparison.Ordinal);
+        }
+
+        private async Task StoreACredentialAsync()
+        {
+            var options = new DbContextOptionsBuilder<CashPrismDbContext>()
+                .UseSqlite($"Data Source={Path.Combine(DataDirectory, "cashprism.db")}")
+                .Options;
+
+            await using (var context = new CashPrismDbContext(options))
+            {
+                await new CredentialStore(context).AddAsync(new Credential("a-hash", DateTimeOffset.UnixEpoch));
+            }
+
+            // The pool would keep the file open, and the next start wants it.
+            SqliteConnection.ClearAllPools();
         }
 
         private ShellProcess Start(string? workingDirectory = null)

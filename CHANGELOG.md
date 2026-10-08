@@ -185,6 +185,15 @@ releases and the minor version is bumped for every notable change.
   image `ghcr.io/raisr/cashprism`. The user guide explains downloading,
   checking and starting it, and what to do when Windows or macOS warns about
   an unsigned program.
+- A password protects CashPrism, so not everyone on the Wi-Fi sees the
+  finances. On the first start the console — or `docker logs` for the
+  container — shows a setup code, and every page leads to *Passwort
+  festlegen*, which asks for it: whoever sets the password has to have the
+  machine. The household shares one password of at least 10 characters; only
+  a hash of it is stored. *Angemeldet bleiben* keeps a device logged in for 30
+  days, otherwise the login ends with the browser. After five wrong passwords
+  logins pause for a minute, longer if it goes on. *Abmelden* sits at the
+  bottom of the navigation.
 
 ### Changed
 

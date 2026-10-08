@@ -1,7 +1,10 @@
+using CashPrism.Web.Access;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.StoredData;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -46,6 +49,15 @@ public static class CashPrismWebServiceCollectionExtensions
         // Scoped like the readers it is built on. The drawer resolves it in a
         // scope of its own, so it never shares a database context with a page.
         services.AddScoped<LibrarySummaryReader>();
+
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(AccessCookie.Configure);
+
+        // Every endpoint needs a login unless it says otherwise. The exceptions
+        // are declared where they are mapped, each with its reason: the login
+        // and setup pages and the static assets.
+        services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
         services.AddRazorComponents()
             .AddInteractiveServerComponents();

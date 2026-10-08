@@ -1,0 +1,124 @@
+@page "/login"
+@using System.Security.Claims
+@using CashPrism.Application.Access
+@using CashPrism.Web.Access
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Authorization
+@*  Anonymous by necessity: this is where a person without a login is sent.
+    Static, because the login ends in a cookie, and only an HTTP response can
+    set one — see App.razor. *@
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@layout AccessLayout
+@inject IStringLocalizer<Strings> text
+@inject PasswordSetup setup
+@inject PasswordCheck check
+@inject NavigationManager navigation
+
+<PageTitle>CashPrism — @text["LoginTitle"]</PageTitle>
+
+<div class="cp-access__form">
+  <div class="cp-access__head">
+    <h1 class="cp-h2">@text["LoginTitle"]</h1>
+    <p class="cp-access__lead">@text["LoginLead"]</p>
+  </div>
+
+  @if (JustSetUp == "done" && failure is null)
+  {
+    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterSetupTitle"]" Details="AfterSetupDetails" />
+  }
+
+  @if (failure is not null)
+  {
+    <Alert Tone="AlertTone.Danger" Title="@failure" />
+  }
+
+  <EditForm Model="Input" FormName="login" OnSubmit="LoginAsync" method="post" class="cp-access__fields">
+    <label class="cp-field">
+      <span class="cp-field__label">@text["LoginPassword"]</span>
+      <span class="cp-input">
+        <InputText type="password" @bind-Value="Input.Password" autocomplete="current-password" autofocus required />
+      </span>
+    </label>
+    <label class="cp-check">
+      <InputCheckbox @bind-Value="Input.RememberMe" />
+      <span>@text["LoginRememberMe"]</span>
+    </label>
+    <button type="submit" class="cp-btn cp-btn--primary cp-btn--block">
+      <CpIcon Name="log-in" />
+      @text["LoginSubmit"]
+    </button>
+  </EditForm>
+</div>
+
+@code {
+    private string? failure;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm(FormName = "login")]
+    private LoginInput Input { get; set; } = default!;
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromQuery(Name = "setup")]
+    private string? JustSetUp { get; set; }
+
+    private IReadOnlyList<string> AfterSetupDetails => [text["LoginAfterSetupText"]];
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Filled from the form on a post; a plain visit starts with an empty one.
+        Input ??= new();
+
+        // Nothing to log in with yet: the person belongs on the page that sets
+        // the password.
+        if (await setup.IsPendingAsync(HttpContext.RequestAborted))
+        {
+            navigation.NavigateTo(AccessPaths.Setup);
+        }
+    }
+
+    private async Task LoginAsync()
+    {
+        var result = await check.CheckAsync(Input.Password, HttpContext.RequestAborted);
+
+        if (result.Outcome is LoginOutcome.Accepted)
+        {
+            await SignInAsync();
+            navigation.NavigateTo(Access.ReturnUrl.Resolve(ReturnUrl));
+
+            return;
+        }
+
+        failure = result.LockedUntil is { } lockedUntil
+            ? text["LoginLockedOut", lockedUntil.ToLocalTime().ToString("T", CultureInfo.CurrentCulture)]
+            : text["LoginRejected"];
+    }
+
+    // The household shares one password, so there is nobody to name: the
+    // cookie only says that whoever holds it knew the password.
+    private Task SignInAsync()
+    {
+        var identity = new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "CashPrism")],
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity),
+            new AuthenticationProperties { IsPersistent = Input.RememberMe });
+    }
+
+    private sealed record LoginInput
+    {
+        public string Password { get; set; } = string.Empty;
+
+        // Off unless asked for: a cookie that outlives the browser is the
+        // choice of whoever uses this device, not a default.
+        public bool RememberMe { get; set; }
+    }
+}

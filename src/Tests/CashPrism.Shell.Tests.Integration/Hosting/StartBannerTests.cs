@@ -1,4 +1,5 @@
 using System.Net;
+using CashPrism.Application.Access;
 using CashPrism.Shell.Hosting;
 
 namespace CashPrism.Shell.Tests.Integration.Hosting;
@@ -9,8 +10,26 @@ namespace CashPrism.Shell.Tests.Integration.Hosting;
 /// </summary>
 public sealed class StartBannerTests
 {
+    private static readonly SetupCode ACode = new("K7QFM2XP9HTR");
+
     public sealed class Compose
     {
+        [Fact]
+        public void Shows_The_Setup_Code_While_No_Password_Is_Set()
+        {
+            var lines = StartBanner.Compose(5080, [], ACode);
+
+            Assert.Contains("  K7QF-M2XP-9HTR", lines);
+        }
+
+        [Fact]
+        public void Shows_No_Setup_Code_Once_A_Password_Is_Set()
+        {
+            var lines = StartBanner.Compose(5080, [], setupCode: null);
+
+            Assert.DoesNotContain(lines, line => line.Contains("setup code", StringComparison.Ordinal));
+        }
+
         [Fact]
         public void Lists_The_Loopback_Url_For_The_Configured_Port()
         {
@@ -55,6 +74,16 @@ public sealed class StartBannerTests
             var lines = StartBanner.ComposeForContainer(5080);
 
             Assert.Contains("  http://localhost:5080 when started with -p 5080:5080", lines);
+        }
+
+        // In a container the console is the log, and the log is the only place
+        // the code can be read from.
+        [Fact]
+        public void Shows_The_Setup_Code_While_No_Password_Is_Set()
+        {
+            var lines = StartBanner.ComposeForContainer(5080, ACode);
+
+            Assert.Contains("  K7QF-M2XP-9HTR", lines);
         }
     }
 }
