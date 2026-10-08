@@ -1,5 +1,4 @@
 @page "/login"
-@using System.Security.Claims
 @using CashPrism.Application.Access
 @using CashPrism.Web.Access
 @using Microsoft.AspNetCore.Authentication
@@ -86,9 +85,9 @@
     {
         var result = await check.CheckAsync(Input.Password, HttpContext.RequestAborted);
 
-        if (result.Outcome is LoginOutcome.Accepted)
+        if (result is { Outcome: LoginOutcome.Accepted, Generation: { } generation })
         {
-            await SignInAsync();
+            await SignInAsync(generation);
             navigation.NavigateTo(Access.ReturnUrl.Resolve(ReturnUrl));
 
             return;
@@ -99,17 +98,11 @@
             : text["LoginRejected"];
     }
 
-    // The household shares one password, so there is nobody to name: the
-    // cookie only says that whoever holds it knew the password.
-    private Task SignInAsync()
+    private Task SignInAsync(int generation)
     {
-        var identity = new ClaimsIdentity(
-            [new Claim(ClaimTypes.Name, "CashPrism")],
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
         return HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity),
+            AccessCookie.CreatePrincipal(generation),
             new AuthenticationProperties { IsPersistent = Input.RememberMe });
     }
 

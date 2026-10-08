@@ -41,7 +41,7 @@ public sealed class PasswordCheck
 
         // No password set means none can be right. Not counted: there is
         // nothing to guess yet, and the setup page is where this ends.
-        if (await store.GetAsync(cancellationToken) is not { PasswordHash: { } passwordHash })
+        if (await store.GetAsync(cancellationToken) is not { PasswordHash: { } passwordHash } credential)
         {
             return new LoginResult(LoginOutcome.Rejected, LockedUntil: null);
         }
@@ -50,7 +50,7 @@ public sealed class PasswordCheck
         {
             throttle.RecordSuccess();
 
-            return new LoginResult(LoginOutcome.Accepted, LockedUntil: null);
+            return new LoginResult(LoginOutcome.Accepted, LockedUntil: null, credential.Generation);
         }
 
         throttle.RecordFailure();

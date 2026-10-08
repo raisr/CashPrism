@@ -1,4 +1,5 @@
 using CashPrism.Application.Access;
+using CashPrism.Domain.Access;
 
 namespace CashPrism.Application.Tests.Unit.Access;
 
@@ -28,6 +29,16 @@ public sealed class PasswordCheckTests
             var result = await check.CheckAsync(ThePassword);
 
             Assert.Equal(LoginOutcome.Accepted, result.Outcome);
+        }
+
+        [Fact]
+        public async Task Hands_Out_The_Generation_Of_The_Password_That_Was_Right()
+        {
+            var check = CreateCheck(new LoginThrottle(new SteppingClock()));
+
+            var result = await check.CheckAsync(ThePassword);
+
+            Assert.Equal(Credential.FirstGeneration, result.Generation);
         }
 
         [Fact]

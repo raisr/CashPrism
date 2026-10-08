@@ -133,6 +133,7 @@ public sealed class Program
             new SetupCode(RandomNumberGenerator.GetString(SetupCode.Alphabet, SetupCode.Length)));
         builder.Services.AddScoped<PasswordSetup>();
         builder.Services.AddScoped<PasswordCheck>();
+        builder.Services.AddScoped<LoginValidation>();
 
         // One for the process: wrong passwords are counted across every request.
         builder.Services.AddSingleton<LoginThrottle>();
