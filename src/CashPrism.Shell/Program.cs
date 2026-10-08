@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using CashPrism.Application.Access;
+using CashPrism.Application.CashFlow;
 using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
 using CashPrism.Infrastructure.Configuration;
@@ -125,6 +126,8 @@ public sealed class Program
         // to save two lines. A second source replaces the first of these two.
         builder.Services.AddScoped<IImportSource, FinanzguruImportSource>();
         builder.Services.AddScoped<Importer>();
+
+        builder.Services.AddScoped<CashFlowOverviewReader>();
 
         // A new code on every start, made here because it is random: until a
         // password is set, the banner prints it, and only who sees the console
