@@ -57,8 +57,8 @@ the image:
 docker run --rm -p 5080:5080 ghcr.io/raisr/cashprism:0.1.0-rc.1
 ```
 
-Unlike the release, the image has no draft: once the package is public, anyone
-can pull a candidate's tag. A candidate that is not needed any more is removed
+Unlike the release, the image has no draft: the package takes the visibility of
+the public repository, so anyone can pull a candidate's tag. A candidate that is not needed any more is removed
 with its tag:
 
 ```sh
@@ -92,13 +92,6 @@ gh release delete v0.1.0-rc.1 --cleanup-tag --yes
 The workflow fails before building anything if the section is missing — cut
 the changelog, merge, and push the tag again after deleting it with
 `git push origin :refs/tags/vX.Y.Z` and `git tag -d vX.Y.Z`.
-
-## The first push to GHCR
-
-A container package GHCR creates on the first push is private. Make it public
-once, under *Package settings* → *Change visibility* on
-`https://github.com/users/raisr/packages/container/cashprism/settings`.
-Later pushes keep the visibility.
 
 ## A fix to an old release
 
