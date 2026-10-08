@@ -10,6 +10,7 @@ section of the README.
 |---|---|
 | A different port | `dotnet run --project src/CashPrism.Shell -- --port 5099` |
 | No browser window | `dotnet run --project src/CashPrism.Shell -- --no-browser` |
+| A forgotten password dropped | `dotnet run --project src/CashPrism.Shell -- --reset-password` — see [The password](#the-password) |
 | A build that runs without .NET on the machine | `dotnet publish src/CashPrism.Shell -c Release -r win-x64 -o out`, then start `out/CashPrism.Shell.exe` — see [A build per platform](#a-build-per-platform) |
 | A container on a home server or NAS | See [In a container](#in-a-container) |
 | The settings to stick | The `Hosting` section of `src/CashPrism.Shell/appsettings.json` |
@@ -117,6 +118,25 @@ in is in [`benutzung.md`](benutzung.md#passwort-festlegen).
   same gateway address. Five in a row lock the login for a minute, doubling per
   further lockout up to 15 minutes. The count lives in memory, so a restart
   clears it.
+- **A change signs out every device.** The password is changed under
+  *Einstellungen*, with the current one; a wrong current password counts
+  towards the throttle like a wrong login. The credential carries a
+  generation that every change and every reset raises, and each login cookie
+  carries the generation it was issued under. A cookie with an older one is
+  turned away on its next request — the device that changed the password
+  included. A page already open on another device keeps its connection until it
+  is reloaded, because nothing on that connection is a request the cookie is
+  checked on.
+- **A forgotten password is reset by starting with `--reset-password`.** The
+  start drops the hash, keeps the generation counting, and prints a setup code
+  as on the very first start; bookings and imports stay. It is a start switch
+  and nothing in the browser offers it, because whoever can start CashPrism has
+  the machine. Leave it out of `appsettings.json` and the container's
+  environment: there it would drop the password on every start. In a container,
+  stop the running one and start the image once in the foreground with the
+  switch appended — `docker run --rm -p 5080:5080 -v cashprism-data:/data
+  cashprism --reset-password` — then start the usual one again once the new
+  password is set.
 
 Connections are plain HTTP, see [Settings](#settings), so the password crosses
 the home network unencrypted when it is typed.
