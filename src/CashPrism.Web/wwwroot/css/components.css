@@ -1365,6 +1365,8 @@
   letter-spacing: -0.005em;
   cursor: pointer;
   white-space: nowrap;
+  /* A link drawn as a button is still a link to the browser. */
+  text-decoration: none;
   transition: background-color var(--cp-dur-fast) var(--cp-ease), transform var(--cp-dur-fast) var(--cp-ease);
 }
 
@@ -1389,6 +1391,18 @@
 
 .cp-btn--primary:hover {
   background: var(--cp-primary-hover);
+}
+
+/* Doubled, to outweigh the transparent border the plain button sets above. */
+.cp-btn.cp-btn--secondary {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border-color: var(--cp-line-strong);
+}
+
+.cp-btn.cp-btn--secondary:hover {
+  background: var(--cp-surface-2);
+  color: var(--cp-text);
 }
 
 .cp-btn--block {
@@ -1483,6 +1497,13 @@
 
 /* ---------- settings ---------- */
 
+/* The settings stand one card under the other. */
+.cp-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .cp-settings-erase {
   display: flex;
   flex-direction: column;
@@ -1499,6 +1520,13 @@
 .cp-settings-erase__hint {
   font-size: var(--cp-fs-small);
   color: var(--cp-text-2);
+}
+
+.cp-settings-password {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 
 .cp-settings-erase__busy {

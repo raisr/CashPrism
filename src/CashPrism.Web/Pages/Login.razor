@@ -25,7 +25,11 @@
 
   @if (JustSetUp == "done" && failure is null)
   {
-    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterSetupTitle"]" Details="AfterSetupDetails" />
+    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterSetupTitle"]" Details="NewPasswordDetails" />
+  }
+  else if (JustChanged == "changed" && failure is null)
+  {
+    <Alert Tone="AlertTone.Success" Title="@text["LoginAfterChangeTitle"]" Details="NewPasswordDetails" />
   }
 
   @if (failure is not null)
@@ -66,7 +70,10 @@
     [SupplyParameterFromQuery(Name = "setup")]
     private string? JustSetUp { get; set; }
 
-    private IReadOnlyList<string> AfterSetupDetails => [text["LoginAfterSetupText"]];
+    [SupplyParameterFromQuery(Name = "password")]
+    private string? JustChanged { get; set; }
+
+    private IReadOnlyList<string> NewPasswordDetails => [text["LoginAfterSetupText"]];
 
     protected override async Task OnInitializedAsync()
     {

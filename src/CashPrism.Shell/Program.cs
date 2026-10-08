@@ -134,6 +134,7 @@ public sealed class Program
         builder.Services.AddScoped<PasswordSetup>();
         builder.Services.AddScoped<PasswordCheck>();
         builder.Services.AddScoped<LoginValidation>();
+        builder.Services.AddScoped<PasswordChange>();
 
         // One for the process: wrong passwords are counted across every request.
         builder.Services.AddSingleton<LoginThrottle>();
