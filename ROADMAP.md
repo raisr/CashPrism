@@ -88,6 +88,8 @@ today, a demo export to try them on, and the application secured and packaged.
 
 - Booking list with filters (account, category, period), search, and the
   remaining detail fields.
+- Spending per counterparty over a selectable period, opening the booking list
+  filtered to that counterparty (#138).
 - Accounts in user-defined groups, with a balance per account.
 - Contracts grouped by interval.
 - Forecasts of contract bookings, with an overdue marker.
