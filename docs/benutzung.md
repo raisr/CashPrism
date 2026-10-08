@@ -224,13 +224,41 @@ Symbolen ein und wieder auf.
 
 | Ziel | Adresse | Was dort ist |
 |---|---|---|
-| Übersicht | `/` | Noch nichts außer einem Hinweis und dem Weg zum Import |
+| Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, Passwort ändern |
 
-Solange nichts importiert ist, zeigt *Buchungen* statt einer leeren Tabelle
-einen Hinweis und eine Schaltfläche zur Seite *Import*.
+Solange nichts importiert ist, zeigen *Übersicht* und *Buchungen* statt leerer
+Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
+
+## Die Übersicht
+
+Die Übersicht rechnet vom Datum des jüngsten Exports aus, nicht vom heutigen
+Tag. Der Monat, in dem der Export gezogen wurde, läuft noch; der Monat davor
+ist der letzte vollständige.
+
+**Was zählt:** Eine Umbuchung zwischen deinen eigenen Konten ist weder Einnahme
+noch Ausgabe. Von einer geteilten Buchung zählen die Teile, nicht die
+ursprüngliche Buchung. Ein positiver Betrag ist eine Einnahme, ein negativer
+eine Ausgabe. Ob Finanzguru eine Buchung vom frei verfügbaren Einkommen
+ausnimmt, spielt hier keine Rolle.
+
+- **Kacheln:** *Einnahmen*, *Ausgaben* und was *übrig geblieben* ist, jeweils im
+  letzten vollständigen Monat und auf den Cent. Darunter steht die Veränderung
+  gegenüber dem Monat davor — bei Einnahmen und Ausgaben in Prozent, beim
+  Übriggebliebenen in Euro, weil ein Prozentwert auf einen kleinen oder
+  negativen Betrag nichts sagt. Hatte der Vormonat keine Einnahmen oder keine
+  Ausgaben, fehlt die Prozentangabe. Grün heißt: mehr Einnahmen, weniger
+  Ausgaben, mehr übrig.
+- **Diagramm:** Einnahmen und Ausgaben pro Monat. Oben rechts wählst du
+  *6 Monate*, *12 Monate* oder *2 Jahre*. Der letzte Punkt ist der laufende
+  Monat; er trägt auf der Achse einen Stern und fällt meist steil ab, weil der
+  Export vor seinem Ende gezogen wurde.
+- **Wofür ging dein Geld?** Die Ausgaben des letzten vollständigen Monats nach
+  den Hauptkategorien aus Finanzguru: die fünf größten einzeln, alle weiteren
+  zusammen als *Übrige*. Das sind Finanzgurus eigene Kategorien, nicht die
+  zusammengefassten der Buchungsliste.
 
 ## Einen Export importieren
 
