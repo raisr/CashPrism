@@ -211,7 +211,8 @@ releases and the minor version is bumped for every notable change.
   a refund lowers its category's spending instead of counting as income.
 - *Analyse*, a new page under *Auswerten*, compares spending by Finanzguru's
   main categories over the last three, six or twelve complete months. Stacked
-  bars show each month's spending per category; *Kategorien im Vergleich*
+  bars show each month's spending per category, and pointing at a block names
+  its category, month and amount; *Kategorien im Vergleich*
   lists every category with its average per month, its share, a small trend
   line and how it changed against the period of the same length before. It
   counts the way the overview does. A category's colour follows its rank over

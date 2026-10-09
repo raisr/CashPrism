@@ -1,4 +1,5 @@
 using Bunit;
+using Bunit.Rendering;
 using CashPrism.Application.CashFlow;
 using CashPrism.Web.Analysis;
 using CashPrism.Web.Localisation;
@@ -92,6 +93,55 @@ public sealed class SpendingByCategoryChartTests
             var chart = RenderWith(Category("Wohnen", 0, 100, 100));
 
             Assert.Equal(["Aug 26", "Sep 26"], chart.FindComponent<MudChart<double>>().Instance.ChartLabels);
+        }
+
+        /// <summary>
+        /// Renders the box MudChart would show over one block. The pointer
+        /// itself is the browser's; which block it is over is what MudChart
+        /// hands the template.
+        /// </summary>
+        private IRenderedComponent<ContainerFragment> TipOver(IRenderedComponent<SpendingByCategoryChart> chart, int series, string month)
+            => context.Render(chart.FindComponent<MudChart<double>>().Instance.TooltipTemplate!(
+                (new SvgPath { Index = series, LabelXValue = month }, "var(--cp-prism-violet)")));
+
+        [Fact]
+        public void Names_The_Category_And_The_Month_Of_The_Block_Under_The_Pointer()
+        {
+            var chart = RenderWith(Category("Wohnen", 0, 48999, 44399), Category("Lifestyle", 1, 100, 200));
+
+            var tip = TipOver(chart, 0, "Sep 26");
+
+            Assert.Equal("Wohnen · Sep 26", tip.Find(".cp-chart-tip__title").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Gives_What_The_Block_Cost_In_Whole_Euros()
+        {
+            var chart = RenderWith(Category("Wohnen", 0, 48999, 44399));
+
+            var tip = TipOver(chart, 0, "Sep 26");
+
+            Assert.Equal("444 €", tip.Find(".cp-chart-tip__value").TextContent);
+        }
+
+        [Fact]
+        public void Leans_The_Box_Of_The_First_Month_Inwards()
+        {
+            var chart = RenderWith(Category("Wohnen", 0, 48999, 44399));
+
+            var tip = TipOver(chart, 0, "Aug 26");
+
+            Assert.Contains("cp-chart-tip--start", tip.Find(".cp-chart-tip").ClassList);
+        }
+
+        [Fact]
+        public void Shows_Nothing_For_A_Block_It_Does_Not_Know()
+        {
+            var chart = RenderWith(Category("Wohnen", 0, 48999, 44399));
+
+            var tip = TipOver(chart, 5, "Sep 26");
+
+            Assert.Empty(tip.FindAll(".cp-chart-tip"));
         }
     }
 }

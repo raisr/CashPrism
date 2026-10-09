@@ -283,7 +283,8 @@ Strich ein Plus hatte, hat in diesem Monat nichts gekostet.
   Hauptkategorien übereinander stehen. Darüber steht, was du im gewählten
   Zeitraum im Schnitt pro Monat ausgegeben hast. Die acht Kategorien mit den
   höchsten Ausgaben der letzten zwölf Monate haben je eine eigene Farbe, alle
-  weiteren stehen zusammen als *Übrige*.
+  weiteren stehen zusammen als *Übrige*. Zeigst du auf einen Block, nennt ein
+  Kästchen darüber Kategorie, Monat und Betrag.
 - **Kategorien im Vergleich:** Jede Hauptkategorie, die im Zeitraum oder im
   gleich langen Zeitraum davor Geld gekostet hat, die teuerste zuerst. Zu
   sehen sind ihr Anteil an allen Ausgaben, eine kleine Verlaufslinie über die

@@ -1919,3 +1919,57 @@
     display: none;
   }
 }
+
+/* ---------- chart tip ---------- */
+
+/* The frame only reserves room inside the chart; it never takes the pointer,
+   or the box would hide the mark it describes and flicker. */
+.cp-chart-tip-frame {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cp-chart-tip {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.cp-chart-tip--start {
+  justify-content: flex-start;
+}
+
+.cp-chart-tip--end {
+  justify-content: flex-end;
+}
+
+.cp-chart-tip__box {
+  padding: 8px 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-md);
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow-pop);
+  font-family: var(--cp-font-sans);
+  white-space: nowrap;
+}
+
+.cp-chart-tip__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-chart-tip__value {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text);
+}

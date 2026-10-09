@@ -1,0 +1,52 @@
+@* The box a chart shows for the mark under the pointer, for MudChart's
+   TooltipTemplate. MudChart's own tooltip is drawn as SVG text in the mark's
+   colour at a fixed small size, which on a blue or violet bar is barely
+   legible; this one is HTML inside a foreignObject, so it takes the design
+   system's type, surface and border and grows with its text.
+
+   MudChart moves the template to the mark, so the box is placed relative to
+   the origin: above it, and centred or leaning inwards so a mark at the edge
+   of the chart does not push it out of the card. The frame is wider than any
+   box needs and transparent; only the box inside it shows. *@
+<foreignObject class="cp-chart-tip-frame" x="@FrameX" y="@(-FrameHeight)" width="@FrameWidth" height="@FrameHeight">
+  <div xmlns="http://www.w3.org/1999/xhtml" class="@($"cp-chart-tip cp-chart-tip--{Anchor.ToString().ToLowerInvariant()}")">
+    <div class="cp-chart-tip__box">
+      <div class="cp-chart-tip__title">
+        <span class="cp-legend__swatch" style="--c:@Colour"></span>
+        @Title
+      </div>
+      <div class="cp-chart-tip__value">@Value</div>
+    </div>
+  </div>
+</foreignObject>
+
+@code {
+    private const int FrameWidth = 260;
+    private const int FrameHeight = 80;
+
+    // How far a box that leans inwards still reaches past its mark.
+    private const int Overhang = 24;
+
+    /// <summary>What the mark stands for, already localised: a category and a month, say.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>The figure, already formatted.</summary>
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = string.Empty;
+
+    /// <summary>The mark's colour, shown as a swatch beside the title.</summary>
+    [Parameter, EditorRequired]
+    public string Colour { get; set; } = string.Empty;
+
+    /// <summary>Where the box sits against its mark.</summary>
+    [Parameter]
+    public ChartTipAnchor Anchor { get; set; } = ChartTipAnchor.Centre;
+
+    private int FrameX => Anchor switch
+    {
+        ChartTipAnchor.Start => -Overhang,
+        ChartTipAnchor.End => Overhang - FrameWidth,
+        _ => -FrameWidth / 2,
+    };
+}

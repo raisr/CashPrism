@@ -23,7 +23,14 @@
               Width="100%"
               Height="280px"
               MatchBoundsToSize="true"
-              Class="cp-category-chart__chart" />
+              Class="cp-category-chart__chart">
+      <TooltipTemplate>
+        @if (Tip(context.Item1) is { } tip)
+        {
+          <ChartTip Title="@tip.Title" Value="@tip.Value" Colour="@tip.Colour" Anchor="@tip.Anchor" />
+        }
+      </TooltipTemplate>
+    </MudChart>
     <ul class="cp-legend cp-category-chart__legend">
       @foreach (var stack in stacks)
       {
@@ -88,6 +95,35 @@
         labels = Period.Months.Select(month => OverviewFormat.MonthShort(month)).ToArray();
         options.ChartPalette = stacks.Select(stack => stack.Colour).ToArray();
     }
+
+    /// <summary>
+    /// What the box over a block says: its category, its month and what it
+    /// cost there. MudChart hands over which series and which axis label the
+    /// block belongs to; the amount is taken from the stack itself, to the
+    /// cent, rather than read back from the text MudChart made of it.
+    /// </summary>
+    private TipContent? Tip(SvgPath block)
+    {
+        var month = Array.IndexOf(labels, block.LabelXValue);
+
+        if (block.Index < 0 || block.Index >= stacks.Count || month < 0)
+        {
+            return null;
+        }
+
+        var stack = stacks[block.Index];
+        var anchor = month == 0
+            ? ChartTipAnchor.Start
+            : month == labels.Length - 1 ? ChartTipAnchor.End : ChartTipAnchor.Centre;
+
+        return new TipContent(
+            text["AnalysisChartTip", stack.Name, labels[month]],
+            OverviewFormat.WholeEuros(stack.MonthlySpendingInCents[month]),
+            stack.Colour,
+            anchor);
+    }
+
+    private sealed record TipContent(string Title, string Value, string Colour, ChartTipAnchor Anchor);
 
     private sealed record Stack(string Name, string Colour, IReadOnlyList<long> MonthlySpendingInCents);
 }

@@ -323,6 +323,10 @@
     <value>Ø {0} pro Monat</value>
     <comment>Subtitle of the stacked bars. {0} is the average spending per month in whole euros.</comment>
   </data>
+  <data name="AnalysisChartTip" xml:space="preserve">
+    <value>{0} · {1}</value>
+    <comment>Title of the box over a block of the stacked bars. {0} is the category, {1} the short month.</comment>
+  </data>
   <data name="AnalysisTableTitle" xml:space="preserve">
     <value>Kategorien im Vergleich</value>
     <comment>Title of the analysis card with the table of main categories.</comment>
