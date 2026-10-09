@@ -41,42 +41,25 @@ public sealed class CashFlowRuleTests
             => Assert.True(Rule(TestBookings.Create(isExcludedFromDisposableIncome: true)));
     }
 
-    public sealed class ToEntry
+    public sealed class IncomeInCents
     {
-        private static readonly Func<Booking, CashFlowEntry> Rule = CashFlowRule.ToEntry.Compile();
+        [Fact]
+        public void Adds_Up_The_Categories_That_Came_Out_Positive()
+            => Assert.Equal(1219566, CashFlowRule.IncomeInCents([841607, 377959, -56800]));
 
         [Fact]
-        public void Counts_A_Positive_Amount_As_Income()
-        {
-            var entry = Rule(TestBookings.Create(amountInCents: 408250));
+        public void Is_Zero_When_Every_Category_Cost_More_Than_It_Brought_In()
+            => Assert.Equal(0, CashFlowRule.IncomeInCents([-56800, -2100]));
+    }
 
-            Assert.Equal((408250L, 0L), (entry.IncomeInCents, entry.SpendingInCents));
-        }
+    public sealed class SpendingInCents
+    {
+        [Fact]
+        public void Adds_Up_The_Categories_That_Came_Out_Negative_As_A_Positive_Number()
+            => Assert.Equal(58900, CashFlowRule.SpendingInCents([841607, -56800, -2100]));
 
         [Fact]
-        public void Counts_A_Negative_Amount_As_Spending()
-        {
-            var entry = Rule(TestBookings.Create(amountInCents: -6317));
-
-            Assert.Equal((0L, 6317L), (entry.IncomeInCents, entry.SpendingInCents));
-        }
-
-        [Fact]
-        public void Counts_A_Zero_Amount_As_Neither()
-        {
-            var entry = Rule(TestBookings.Create(amountInCents: 0));
-
-            Assert.Equal((0L, 0L), (entry.IncomeInCents, entry.SpendingInCents));
-        }
-
-        [Fact]
-        public void Carries_The_Date_And_The_Main_Category()
-        {
-            var bookedOn = new DateTime(2026, 9, 3, 0, 0, 0, DateTimeKind.Unspecified);
-
-            var entry = Rule(TestBookings.Create(bookedOn: bookedOn, category: "Wohnen"));
-
-            Assert.Equal((bookedOn, "Wohnen"), (entry.BookedOn, entry.Category));
-        }
+        public void Leaves_Out_A_Category_That_Came_Out_Even()
+            => Assert.Equal(2100, CashFlowRule.SpendingInCents([0, -2100]));
     }
 }

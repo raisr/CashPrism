@@ -42,11 +42,19 @@ public sealed class HomeTests
             return Context.Render<HomePage>();
         }
 
+        /// <summary>
+        /// Renders the page over two months, each given as the income and
+        /// spending it should come out at: one category brings the income
+        /// in, another takes the spending out.
+        /// </summary>
         protected IRenderedComponent<HomePage> RenderWith(MonthlyCashFlow september, MonthlyCashFlow august)
-            => Render(new FakeCashFlowReader(ExportedOn, [august, september]));
+            => Render(new FakeCashFlowReader(ExportedOn, [.. NetsOf(august), .. NetsOf(september)]));
 
-        protected static IReadOnlyList<string> Tiles(IRenderedComponent<HomePage> page)
-            => page.FindAll(".cp-stat").Select(tile => tile.TextContent.Trim()).ToList();
+        private static IEnumerable<CategoryNet> NetsOf(MonthlyCashFlow month)
+        {
+            yield return new CategoryNet(month.Month, "Einnahmen", month.IncomeInCents);
+            yield return new CategoryNet(month.Month, "Lebensmittel", -month.SpendingInCents);
+        }
     }
 
     public sealed class OnInitializedAsync : PageTest

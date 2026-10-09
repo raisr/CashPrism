@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 namespace CashPrism.Infrastructure.Persistence;
 
 /// <summary>
-/// Sums income and spending in the database. The counting rule is the domain's
-/// own expression, so the query and every other analysis count the same
-/// bookings.
+/// Sums the counted bookings in the database. Which bookings count is the
+/// domain's own expression, so the query and every other analysis count the
+/// same bookings.
 /// </summary>
 public sealed class CashFlowReader : ICashFlowReader
 {
@@ -37,7 +37,7 @@ public sealed class CashFlowReader : ICashFlowReader
         }
 
         // ImportedAt is stored as a UTC DateTime, which is what makes the
-        // maximum translatable — see ImportRunConfiguration.
+        // order translatable — see ImportRunConfiguration.
         var importedAt = await runs
             .OrderByDescending(run => run.ImportedAt)
             .Select(run => (DateTimeOffset?)run.ImportedAt)
@@ -47,70 +47,38 @@ public sealed class CashFlowReader : ICashFlowReader
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<MonthlyCashFlow>> ReadMonthsAsync(
+    /// <remarks>
+    /// The range is half-open on the day after the last month, because a
+    /// booking date may carry a time and the last day of a month would
+    /// otherwise lose the bookings posted after midnight.
+    /// </remarks>
+    public async Task<IReadOnlyList<CategoryNet>> ReadCategoryNetsAsync(
         DateOnly firstMonth,
         DateOnly lastMonth,
         CancellationToken cancellationToken = default)
     {
-        var months = await Entries(firstMonth, lastMonth)
-            .GroupBy(entry => new { entry.BookedOn.Year, entry.BookedOn.Month })
-            .Select(month => new
-            {
-                month.Key.Year,
-                month.Key.Month,
-                IncomeInCents = month.Sum(entry => entry.IncomeInCents),
-                SpendingInCents = month.Sum(entry => entry.SpendingInCents),
-            })
-            .OrderBy(month => month.Year)
-            .ThenBy(month => month.Month)
-            .ToListAsync(cancellationToken);
-
-        return months
-            .Select(month => new MonthlyCashFlow(
-                new DateOnly(month.Year, month.Month, 1),
-                month.IncomeInCents,
-                month.SpendingInCents))
-            .ToList();
-    }
-
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<CategorySpending>> ReadSpendingByCategoryAsync(
-        DateOnly month,
-        CancellationToken cancellationToken = default)
-    {
-        var categories = await Entries(month, month)
-            .GroupBy(entry => entry.Category)
-            .Select(category => new
-            {
-                Category = category.Key,
-                SpendingInCents = category.Sum(entry => entry.SpendingInCents),
-            })
-            .Where(category => category.SpendingInCents > 0)
-            .OrderByDescending(category => category.SpendingInCents)
-            .ThenBy(category => category.Category)
-            .ToListAsync(cancellationToken);
-
-        return categories
-            .Select(category => new CategorySpending(category.Category, category.SpendingInCents))
-            .ToList();
-    }
-
-    /// <summary>
-    /// The counted bookings of the months from <paramref name="firstMonth"/> to
-    /// <paramref name="lastMonth"/>, as what each contributes. The range is
-    /// half-open on the day after the last month, because a booking date may
-    /// carry a time and the last day of a month would otherwise lose the
-    /// bookings posted after midnight.
-    /// </summary>
-    private IQueryable<CashFlowEntry> Entries(DateOnly firstMonth, DateOnly lastMonth)
-    {
         var from = firstMonth.ToDateTime(TimeOnly.MinValue);
         var until = lastMonth.AddMonths(1).ToDateTime(TimeOnly.MinValue);
 
-        return context.Bookings
+        var nets = await context.Bookings
             .AsNoTracking()
             .Where(CashFlowRule.Counts)
             .Where(booking => booking.BookedOn >= from && booking.BookedOn < until)
-            .Select(CashFlowRule.ToEntry);
+            .GroupBy(booking => new { booking.BookedOn.Year, booking.BookedOn.Month, booking.Category })
+            .Select(group => new
+            {
+                group.Key.Year,
+                group.Key.Month,
+                group.Key.Category,
+                NetInCents = group.Sum(booking => booking.AmountInCents),
+            })
+            .OrderBy(net => net.Year)
+            .ThenBy(net => net.Month)
+            .ThenBy(net => net.Category)
+            .ToListAsync(cancellationToken);
+
+        return nets
+            .Select(net => new CategoryNet(new DateOnly(net.Year, net.Month, 1), net.Category, net.NetInCents))
+            .ToList();
     }
 }

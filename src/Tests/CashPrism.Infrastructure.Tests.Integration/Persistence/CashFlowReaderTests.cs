@@ -13,8 +13,8 @@ namespace CashPrism.Infrastructure.Tests.Integration.Persistence;
 /// <summary>
 /// The sums behind the overview, against a real SQLite file. Which bookings
 /// count is the domain rule's business and tested there; what only a database
-/// shows is that the rule, the grouping by month and the sums translate into
-/// SQL that adds up to the same cents.
+/// shows is that the rule, the grouping by month and category and the sums
+/// translate into SQL that adds up to the same cents.
 /// </summary>
 public sealed class CashFlowReaderTests
 {
@@ -110,25 +110,44 @@ public sealed class CashFlowReaderTests
         }
     }
 
-    public sealed class ReadMonthsAsync
+    public sealed class ReadCategoryNetsAsync
     {
         [Fact]
-        public async Task Sums_Income_And_Spending_Per_Month_Oldest_First()
+        public async Task Adds_Up_Each_Main_Category_Per_Month()
         {
             await using var database = await ThrowawayDatabase.CreateAsync();
             await SeedAsync(
                 database,
-                CreateBooking(1, new DateTime(2026, 9, 1), 400000),
+                CreateBooking(1, new DateTime(2026, 9, 1), 400000, category: "Einnahmen"),
                 CreateBooking(2, new DateTime(2026, 9, 15), -6317),
                 CreateBooking(3, new DateTime(2026, 9, 20), -1200),
                 CreateBooking(4, new DateTime(2026, 10, 1), -4500));
             await using var context = database.CreateContext();
 
-            var months = await new CashFlowReader(context).ReadMonthsAsync(September, October);
+            var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(September, October);
 
             Assert.Equal(
-                [new MonthlyCashFlow(September, 400000, 7517), new MonthlyCashFlow(October, 0, 4500)],
-                months);
+                [
+                    new CategoryNet(September, "Einnahmen", 400000),
+                    new CategoryNet(September, "Lebensmittel", -7517),
+                    new CategoryNet(October, "Lebensmittel", -4500),
+                ],
+                nets);
+        }
+
+        [Fact]
+        public async Task Nets_A_Refund_Against_The_Spending_Of_Its_Category()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(
+                database,
+                CreateBooking(1, new DateTime(2026, 9, 3), -120000, category: "Wohnen"),
+                CreateBooking(2, new DateTime(2026, 9, 20), 45000, category: "Wohnen"));
+            await using var context = database.CreateContext();
+
+            var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(September, September);
+
+            Assert.Equal([new CategoryNet(September, "Wohnen", -75000)], nets);
         }
 
         [Fact]
@@ -143,9 +162,9 @@ public sealed class CashFlowReaderTests
                 CreateBooking(4, new DateTime(2026, 9, 12), -9000, splitRole: SplitRole.Remainder));
             await using var context = database.CreateContext();
 
-            var months = await new CashFlowReader(context).ReadMonthsAsync(September, September);
+            var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(September, September);
 
-            Assert.Equal([new MonthlyCashFlow(September, 0, 15000)], months);
+            Assert.Equal([new CategoryNet(September, "Lebensmittel", -15000)], nets);
         }
 
         [Fact]
@@ -159,71 +178,19 @@ public sealed class CashFlowReaderTests
                 CreateBooking(3, new DateTime(2026, 10, 1, 0, 0, 0), -9900));
             await using var context = database.CreateContext();
 
-            var months = await new CashFlowReader(context).ReadMonthsAsync(September, September);
+            var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(September, September);
 
-            Assert.Equal([new MonthlyCashFlow(September, 0, 2500)], months);
-        }
-
-        [Fact]
-        public async Task Leaves_Out_A_Month_Without_A_Counted_Booking()
-        {
-            await using var database = await ThrowawayDatabase.CreateAsync();
-            await SeedAsync(database, CreateBooking(1, new DateTime(2026, 10, 2), -4500));
-            await using var context = database.CreateContext();
-
-            var months = await new CashFlowReader(context).ReadMonthsAsync(September, October);
-
-            Assert.Equal([new MonthlyCashFlow(October, 0, 4500)], months);
-        }
-    }
-
-    public sealed class ReadSpendingByCategoryAsync
-    {
-        [Fact]
-        public async Task Sums_Spending_Per_Main_Category_Largest_First()
-        {
-            await using var database = await ThrowawayDatabase.CreateAsync();
-            await SeedAsync(
-                database,
-                CreateBooking(1, new DateTime(2026, 9, 3), -6317, category: "Lebensmittel"),
-                CreateBooking(2, new DateTime(2026, 9, 4), -120000, category: "Wohnen"),
-                CreateBooking(3, new DateTime(2026, 9, 5), -2000, category: "Lebensmittel"),
-                CreateBooking(4, new DateTime(2026, 10, 1), -99999, category: "Lebensmittel"));
-            await using var context = database.CreateContext();
-
-            var categories = await new CashFlowReader(context).ReadSpendingByCategoryAsync(September);
-
-            Assert.Equal(
-                [new CategorySpending("Wohnen", 120000), new CategorySpending("Lebensmittel", 8317)],
-                categories);
-        }
-
-        [Fact]
-        public async Task Leaves_Out_A_Category_That_Only_Brought_Money_In()
-        {
-            await using var database = await ThrowawayDatabase.CreateAsync();
-            await SeedAsync(
-                database,
-                CreateBooking(1, new DateTime(2026, 9, 1), 400000, category: "Einkommen"),
-                CreateBooking(2, new DateTime(2026, 9, 3), -6317, category: "Lebensmittel"));
-            await using var context = database.CreateContext();
-
-            var categories = await new CashFlowReader(context).ReadSpendingByCategoryAsync(September);
-
-            Assert.Equal([new CategorySpending("Lebensmittel", 6317)], categories);
+            Assert.Equal([new CategoryNet(September, "Lebensmittel", -2500)], nets);
         }
     }
 
     /// <summary>
     /// The committed demo export, imported the way the application imports it.
-    /// May 2024 is the month of its one split booking and holds transfers
-    /// between the household's own accounts besides. The expected cents were
-    /// measured from the workbook itself, outside CashPrism.
+    /// The expected cents were measured from the workbook itself, outside
+    /// CashPrism.
     /// </summary>
     public sealed class WithTheDemoExport
     {
-        private static readonly DateOnly May2024 = new(2024, 5, 1);
-
         private static async Task<ThrowawayDatabase> ImportDemoSampleAsync()
         {
             var database = await ThrowawayDatabase.CreateAsync();
@@ -242,25 +209,27 @@ public sealed class CashFlowReaderTests
         }
 
         [Fact]
-        public async Task Sums_The_Month_Of_The_Split_Booking()
+        public async Task Gives_The_Overview_The_Sums_Of_The_Last_Complete_Month()
         {
             await using var database = await ImportDemoSampleAsync();
             await using var context = database.CreateContext();
 
-            var months = await new CashFlowReader(context).ReadMonthsAsync(May2024, May2024);
+            var overview = await new CashFlowOverviewReader(new CashFlowReader(context)).ReadAsync();
 
-            Assert.Equal([new MonthlyCashFlow(May2024, 376200, 238240)], months);
+            Assert.Equal(new MonthlyCashFlow(September, 397267, 236069), overview?.LastCompleteMonth);
         }
 
         [Fact]
         public async Task Counts_The_Split_Booking_Once_In_Its_Category()
         {
+            // May 2024 is the month of the demo export's one split booking.
+            var may2024 = new DateOnly(2024, 5, 1);
             await using var database = await ImportDemoSampleAsync();
             await using var context = database.CreateContext();
 
-            var categories = await new CashFlowReader(context).ReadSpendingByCategoryAsync(May2024);
+            var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(may2024, may2024);
 
-            Assert.Contains(new CategorySpending("Lifestyle", 29086), categories);
+            Assert.Contains(new CategoryNet(may2024, "Lifestyle", -29086), nets);
         }
 
         [Fact]
@@ -271,7 +240,7 @@ public sealed class CashFlowReaderTests
 
             var currentTo = await new CashFlowReader(context).ReadCurrentToAsync();
 
-            Assert.Equal(new DateOnly(2026, 10, 1), currentTo);
+            Assert.Equal(October, currentTo);
         }
     }
 }
