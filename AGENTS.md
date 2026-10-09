@@ -222,6 +222,17 @@ creates a draft. The one exception to `main` is a fix to an old release: it is
 made on a `release/X.Y` branch, created only then, and tagged there. The steps
 are in [`docs/releasing.md`](docs/releasing.md).
 
+## Ideas
+
+**An idea that is not yet a decision goes to GitHub Discussions, category
+*Ideas*** — a possible feature, a workflow improvement, anything worth keeping
+before anyone has decided to build it. It does not go into an issue, onto
+`ROADMAP.md` or into a file in the repository.
+
+- **An idea becomes an issue only once it is decided to build it.** The issue
+  then follows `forge.issues` like any other and links back to the discussion.
+- An agent that posts an idea signs it as `core.signature` requires.
+
 ## Language of the user interface
 
 The UI is **German**. Finanzguru, the only source CashPrism reads, is sold in

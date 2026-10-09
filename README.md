@@ -100,10 +100,15 @@ not, English documentation becomes worth adding.
 ## Status
 
 Early development. You can upload a Finanzguru export, page and sort through
-the bookings it stored, and see what was imported when. There is no filtering,
-no searching and no chart yet. See
-[ROADMAP.md](ROADMAP.md) for the planned phases and
+the bookings it stored, and see what was imported when. The overview shows
+income and spending per month and where the money went; the analysis compares
+spending by category over three, six or twelve months. There is no filtering
+and no searching yet. See [ROADMAP.md](ROADMAP.md) for the planned phases and
 [CHANGELOG.md](CHANGELOG.md) for what has landed.
+
+Have an idea or a suggestion? Post it in
+[Discussions](https://github.com/raisr/CashPrism/discussions/categories/ideas),
+category *Ideas*.
 
 ## License
 
