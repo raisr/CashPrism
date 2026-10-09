@@ -59,4 +59,13 @@ public static class CashFlowRule
 
         return -categoryNetsInCents.Where(net => net < 0).Sum();
     }
+
+    /// <summary>
+    /// What one main category cost in a month, as a positive number: its sum
+    /// when that came out negative, nothing when it brought in as much as it
+    /// cost or more.
+    /// </summary>
+    /// <param name="categoryNetInCents">What the category added up to in the month, in whole cents.</param>
+    public static long CategorySpendingInCents(long categoryNetInCents)
+        => categoryNetInCents < 0 ? -categoryNetInCents : 0;
 }

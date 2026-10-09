@@ -1,0 +1,97 @@
+@using CashPrism.Application.CashFlow
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+
+@* Every main category of the period with its share, its course and how it
+   changed against the period before, largest average first. The glyph comes
+   from the design category the name belongs to, the colour from the rank,
+   so a row matches its block in the chart above. *@
+<section class="cp-card cp-card--flush cp-comparison">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h2 class="cp-h3">@text["AnalysisTableTitle"]</h2>
+      <div class="cp-card__sub">@text["AnalysisTableSubtitle"]</div>
+    </div>
+  </div>
+  <div class="cp-table-wrap">
+    <table class="cp-table">
+      <thead>
+        <tr>
+          <th>@text["AnalysisColumnCategory"]</th>
+          <th>@text["AnalysisColumnShare"]</th>
+          <th class="cp-comparison__trend">@text["AnalysisColumnTrend"]</th>
+          <th>@text["AnalysisColumnChange"]</th>
+          <th class="cp-cell-end">@text["AnalysisColumnAverage"]</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var category in Period.Categories)
+        {
+          var colour = RankColour.For(category.Rank);
+
+          <tr>
+            <td>
+              <div class="cp-comparison__name">
+                <IconTile Icon="@CategoryStyle.ForMainCategory(category.Category).Icon" Colour="@colour" Size="34" />
+                <b>@MainCategoryName.For(category.Category, text)</b>
+              </div>
+            </td>
+            <td>
+              <div class="cp-comparison__share">
+                <span class="cp-progress cp-progress--sm"><span class="cp-progress__bar" style="--c:@colour;width:@Width(category.Share)"></span></span>
+                <span class="cp-comparison__share-figure">@OverviewFormat.Share(category.Share)</span>
+              </div>
+            </td>
+            <td class="cp-comparison__trend"><Sparkline Values="@category.MonthlySpendingInCents" Colour="@colour" /></td>
+            <td>
+              @if (category.Change is { } change)
+              {
+                <span class="@ChangeClass(change)">
+                  @if (TrendIcon(change) is { } icon)
+                  {
+                    <CpIcon Name="@icon" Size="13" />
+                  }
+                  @OverviewFormat.Percent(change)
+                </span>
+              }
+              else
+              {
+                <span class="cp-badge">@text["AnalysisChangeNew"]</span>
+              }
+            </td>
+            <td class="cp-cell-end"><span class="cp-amount">@OverviewFormat.WholeEuros(category.AverageInCents)</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+@code {
+    /// <summary>
+    /// A change smaller than this, either way, is shown as no news: a few per
+    /// cent up or down is what a month's spending does anyway.
+    /// </summary>
+    public const decimal Noticeable = 0.05m;
+
+    /// <summary>The period to list.</summary>
+    [Parameter, EditorRequired]
+    public SpendingPeriod Period { get; set; } = null!;
+
+    // Spending more is bad news, spending less good news.
+    private static string ChangeClass(decimal change) => Math.Abs(change) < Noticeable
+        ? "cp-badge"
+        : change > 0 ? "cp-badge cp-badge--danger" : "cp-badge cp-badge--success";
+
+    // Follows the figure as it is rounded, so no arrow stands beside 0 %.
+    private static string? TrendIcon(decimal change) => OverviewTrend.OfChange(change) switch
+    {
+        StatTrend.Up => "trending-up",
+        StatTrend.Down => "trending-down",
+        _ => null,
+    };
+
+    private static string Width(decimal share)
+        => (share * 100m).ToString("0.##", CultureInfo.InvariantCulture) + "%";
+}

@@ -1,0 +1,63 @@
+@page "/analysis"
+@using CashPrism.Application.CashFlow
+@using CashPrism.Web.Analysis
+@inject IStringLocalizer<Strings> text
+@inject SpendingAnalysisReader reader
+
+<PageFrame Title="@text["NavAnalysis"]" Lead="@(loaded ? text["AnalysisLead"].Value : null)">
+  <Actions>
+    @if (analysis is not null)
+    {
+      <Segmented TValue="int" Options="@periods" @bind-Value="months" Label="@text["AnalysisPeriodLabel"]" />
+    }
+  </Actions>
+  <ChildContent>
+    @if (analysis is not null)
+    {
+      var period = analysis.Compare(months);
+
+      <div class="cp-analysis">
+        <SpendingByCategoryChart Period="@period" />
+        <CategoryComparisonTable Period="@period" />
+      </div>
+    }
+    else if (loaded)
+    {
+      <section class="cp-card">
+        <EmptyState Icon="chart-pie" Title="@text["OverviewEmpty"]" Text="@text["AnalysisEmptyHint"]">
+          <Actions>
+            <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
+              <CpIcon Name="upload" />
+              @text["NavImport"]
+            </MudButton>
+          </Actions>
+        </EmptyState>
+      </section>
+    }
+  </ChildContent>
+</PageFrame>
+
+@code {
+    private SpendingAnalysis? analysis;
+    private bool loaded;
+
+    // Six months unless the person picks another period, as in the design;
+    // every period is compared from what was read once, so a switch only
+    // redraws.
+    private int months = 6;
+
+    private IReadOnlyList<SegmentedOption<int>> periods = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        periods =
+        [
+            new(3, text["AnalysisPeriod3"]),
+            new(6, text["AnalysisPeriod6"]),
+            new(SpendingAnalysisReader.LongestPeriod, text["AnalysisPeriod12"]),
+        ];
+
+        analysis = await reader.ReadAsync();
+        loaded = true;
+    }
+}

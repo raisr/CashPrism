@@ -83,6 +83,19 @@ public static class OverviewFormat
     }
 
     /// <summary>
+    /// A share as whole per cent, without a sign, because a part of a whole
+    /// does not move anywhere: <c>45 %</c>.
+    /// </summary>
+    /// <param name="share">The share as a fraction — 0.45 for 45 per cent.</param>
+    /// <param name="formatProvider">The culture to format in.</param>
+    public static string Share(decimal share, IFormatProvider? formatProvider = null)
+    {
+        var percent = Math.Round(share * 100m, MidpointRounding.AwayFromZero);
+
+        return percent.ToString("0", formatProvider ?? CultureInfo.CurrentCulture) + NoBreakSpace + "%";
+    }
+
+    /// <summary>
     /// A month as the chart's axis names it: <c>Okt 26</c>. The culture's
     /// abbreviation loses its full stop, which on a crowded axis is noise.
     /// </summary>

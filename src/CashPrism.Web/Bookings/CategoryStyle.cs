@@ -108,4 +108,18 @@ public sealed record CategoryStyle(string NameKey, string Colour, string Icon)
 
         return ByCategory.GetValueOrDefault(category, Other);
     }
+
+    /// <summary>
+    /// The design category a whole main category is shown in, where no single
+    /// booking and so no sub-category is at hand. A name not listed here —
+    /// one Finanzguru introduced or renamed since the exports were measured —
+    /// is <see cref="Other"/>.
+    /// </summary>
+    /// <param name="category">Finanzguru's main category.</param>
+    public static CategoryStyle ForMainCategory(string category)
+    {
+        ArgumentNullException.ThrowIfNull(category);
+
+        return ByCategory.GetValueOrDefault(category, Other);
+    }
 }

@@ -95,6 +95,14 @@
     <value>Daten</value>
     <comment>Section heading in the sidebar above the destinations that bring data in.</comment>
   </data>
+  <data name="NavSectionAnalysis" xml:space="preserve">
+    <value>Auswerten</value>
+    <comment>Section heading in the sidebar above the destinations that analyse the stored bookings.</comment>
+  </data>
+  <data name="NavAnalysis" xml:space="preserve">
+    <value>Analyse</value>
+    <comment>Drawer label and page heading of the analysis page.</comment>
+  </data>
   <data name="NavOverview" xml:space="preserve">
     <value>Übersicht</value>
     <comment>Drawer label and page heading of the start page.</comment>
@@ -282,6 +290,74 @@
   <data name="MainCategoryMobility" xml:space="preserve">
     <value>Mobilität</value>
     <comment>Finanzguru's main category "Mobilitaet", spelled as it is read.</comment>
+  </data>
+  <data name="AnalysisLead" xml:space="preserve">
+    <value>Wohin dein Geld geht – und wie sich das mit der Zeit verändert.</value>
+    <comment>One line under the heading of the analysis page.</comment>
+  </data>
+  <data name="AnalysisEmptyHint" xml:space="preserve">
+    <value>Lade einen Finanzguru-Export hoch, um deine Ausgaben zu vergleichen.</value>
+    <comment>Second line under OverviewEmpty on the analysis page, pointing at the upload page.</comment>
+  </data>
+  <data name="AnalysisPeriodLabel" xml:space="preserve">
+    <value>Zeitraum</value>
+    <comment>Accessible name of the choice of how many months the analysis covers.</comment>
+  </data>
+  <data name="AnalysisPeriod3" xml:space="preserve">
+    <value>3 Monate</value>
+    <comment>Choice on the analysis: the last three complete months.</comment>
+  </data>
+  <data name="AnalysisPeriod6" xml:space="preserve">
+    <value>6 Monate</value>
+    <comment>Choice on the analysis: the last six complete months.</comment>
+  </data>
+  <data name="AnalysisPeriod12" xml:space="preserve">
+    <value>12 Monate</value>
+    <comment>Choice on the analysis: the last twelve complete months.</comment>
+  </data>
+  <data name="AnalysisChartTitle" xml:space="preserve">
+    <value>Ausgaben nach Kategorie</value>
+    <comment>Title of the analysis card with the stacked bars.</comment>
+  </data>
+  <data name="AnalysisChartSubtitle" xml:space="preserve">
+    <value>Ø {0} pro Monat</value>
+    <comment>Subtitle of the stacked bars. {0} is the average spending per month in whole euros.</comment>
+  </data>
+  <data name="AnalysisChartTip" xml:space="preserve">
+    <value>{0} · {1}</value>
+    <comment>Title of the box over a block of the stacked bars. {0} is the category, {1} the short month.</comment>
+  </data>
+  <data name="AnalysisTableTitle" xml:space="preserve">
+    <value>Kategorien im Vergleich</value>
+    <comment>Title of the analysis card with the table of main categories.</comment>
+  </data>
+  <data name="AnalysisTableSubtitle" xml:space="preserve">
+    <value>Durchschnitt pro Monat, verglichen mit dem Zeitraum davor</value>
+    <comment>Subtitle of the table of main categories.</comment>
+  </data>
+  <data name="AnalysisColumnCategory" xml:space="preserve">
+    <value>Kategorie</value>
+    <comment>Column heading in the analysis table: the main category.</comment>
+  </data>
+  <data name="AnalysisColumnShare" xml:space="preserve">
+    <value>Anteil</value>
+    <comment>Column heading in the analysis table: the category's share of all spending.</comment>
+  </data>
+  <data name="AnalysisColumnTrend" xml:space="preserve">
+    <value>Verlauf</value>
+    <comment>Column heading in the analysis table: the small trend line.</comment>
+  </data>
+  <data name="AnalysisColumnChange" xml:space="preserve">
+    <value>Veränderung</value>
+    <comment>Column heading in the analysis table: the change against the period before.</comment>
+  </data>
+  <data name="AnalysisColumnAverage" xml:space="preserve">
+    <value>Ø pro Monat</value>
+    <comment>Column heading in the analysis table: the average spending per month.</comment>
+  </data>
+  <data name="AnalysisChangeNew" xml:space="preserve">
+    <value>neu</value>
+    <comment>Shown instead of a change when the category cost nothing in the period before.</comment>
   </data>
   <data name="BookingsLead" xml:space="preserve">
     <value>Alle Buchungen aus den importierten Exporten.</value>

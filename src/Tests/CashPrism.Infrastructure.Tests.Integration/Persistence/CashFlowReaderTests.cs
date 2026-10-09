@@ -11,10 +11,10 @@ using CashPrism.TestSupport.Samples;
 namespace CashPrism.Infrastructure.Tests.Integration.Persistence;
 
 /// <summary>
-/// The sums behind the overview, against a real SQLite file. Which bookings
-/// count is the domain rule's business and tested there; what only a database
-/// shows is that the rule, the grouping by month and category and the sums
-/// translate into SQL that adds up to the same cents.
+/// The sums behind the overview and the analysis, against a real SQLite file.
+/// Which bookings count is the domain rule's business and tested there; what
+/// only a database shows is that the rule, the grouping by month and category
+/// and the sums translate into SQL that adds up to the same cents.
 /// </summary>
 public sealed class CashFlowReaderTests
 {
@@ -230,6 +230,20 @@ public sealed class CashFlowReaderTests
             var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(may2024, may2024);
 
             Assert.Contains(new CategoryNet(may2024, "Lifestyle", -29086), nets);
+        }
+
+        [Fact]
+        public async Task Gives_The_Analysis_A_Category_Average_And_Its_Change_Against_The_Period_Before()
+        {
+            // Mobilitaet cost 114,539 cents from April to September 2026 and
+            // 67,465 cents in the six months before.
+            await using var database = await ImportDemoSampleAsync();
+            await using var context = database.CreateContext();
+
+            var analysis = await new SpendingAnalysisReader(new CashFlowReader(context)).ReadAsync();
+            var mobility = analysis?.Compare(6).Categories.Single(category => category.Category == "Mobilitaet");
+
+            Assert.Equal((19090L, (114539m - 67465m) / 67465m), (mobility?.AverageInCents, mobility?.Change));
         }
 
         [Fact]

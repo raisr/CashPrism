@@ -214,7 +214,7 @@ setzt nichts mehr zurück.
 
 ## Die Navigation
 
-Links steht die Navigation mit fünf Zielen. Auf einem schmalen Bildschirm ist
+Links steht die Navigation mit sechs Zielen. Auf einem schmalen Bildschirm ist
 sie eingeklappt und öffnet sich über das Menüsymbol oben links. Oben rechts
 wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
 *Import* führt von jeder Seite direkt zum Einlesen. Unten in der Navigation
@@ -226,11 +226,12 @@ Symbolen ein und wieder auf.
 |---|---|---|
 | Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
+| Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen — siehe [Die Analyse](#die-analyse) |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, Passwort ändern |
 
-Solange nichts importiert ist, zeigen *Übersicht* und *Buchungen* statt leerer
-Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
+Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen* und *Analyse* statt
+leerer Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
 
 ## Die Übersicht
 
@@ -267,6 +268,38 @@ Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
   jeweils mit ihrem Saldo: die fünf größten einzeln, alle weiteren
   zusammen als *Übrige*. Das sind Finanzgurus eigene Kategorien, nicht die
   zusammengefassten der Buchungsliste.
+
+## Die Analyse
+
+Die Analyse vergleicht, wofür du über mehrere Monate Geld ausgegeben hast.
+Oben rechts wählst du *3 Monate*, *6 Monate* oder *12 Monate*. Gemeint sind
+immer die letzten vollständigen Monate vor dem Monat, in dem der jüngste
+Export gezogen wurde; der laufende Monat zählt nicht mit, weil er den
+Durchschnitt zu niedrig ausfallen ließe. Gezählt wird wie auf der
+[Übersicht](#die-übersicht): Eine Hauptkategorie, die in einem Monat unterm
+Strich ein Plus hatte, hat in diesem Monat nichts gekostet.
+
+- **Ausgaben nach Kategorie:** Pro Monat ein Balken, in dem die
+  Hauptkategorien übereinander stehen. Darüber steht, was du im gewählten
+  Zeitraum im Schnitt pro Monat ausgegeben hast. Die acht Kategorien mit den
+  höchsten Ausgaben der letzten zwölf Monate haben je eine eigene Farbe, alle
+  weiteren stehen zusammen als *Übrige*. Zeigst du auf einen Block, nennt ein
+  Kästchen darüber Kategorie, Monat und Betrag.
+- **Kategorien im Vergleich:** Jede Hauptkategorie, die im Zeitraum oder im
+  gleich langen Zeitraum davor Geld gekostet hat, die teuerste zuerst. Zu
+  sehen sind ihr Anteil an allen Ausgaben, eine kleine Verlaufslinie über die
+  Monate und der Durchschnitt pro Monat. *Veränderung* vergleicht mit dem
+  Zeitraum davor: rot, wenn du mindestens fünf Prozent mehr ausgegeben hast,
+  grün bei mindestens fünf Prozent weniger, grau dazwischen. *neu* heißt, dass
+  die Kategorie im Zeitraum davor nichts gekostet hat. Ist die Tabelle schmal,
+  fällt zuerst der Balken beim Anteil weg, dann die Verlaufslinie; die Zahlen
+  bleiben.
+
+Die Farben richten sich nach dem Rang einer Kategorie, nicht nach ihrem Namen.
+Beim Umschalten des Zeitraums behält jede Kategorie ihre Farbe, und eine
+Kategorie, die Finanzguru umbenennt oder neu einführt, bekommt trotzdem eine.
+Das Symbol in der Tabelle kennt CashPrism dagegen nur für die Kategorien, die
+es aus Finanzguru kennt; jede andere erhält ein allgemeines Symbol.
 
 ## Einen Export importieren
 
