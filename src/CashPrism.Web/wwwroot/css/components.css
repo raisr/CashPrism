@@ -1754,6 +1754,13 @@
   height: 190px;
 }
 
+/* The ring sits above the total in its hole, so a tip drawn inside the ring
+   covers the total instead of letting it show through. */
+.cp-breakdown__ring > .mud-chart {
+  position: relative;
+  z-index: 1;
+}
+
 .cp-breakdown__total {
   position: absolute;
   inset: 0;
