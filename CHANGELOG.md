@@ -209,6 +209,14 @@ releases and the minor version is bumped for every notable change.
   same: transfers between your own accounts are left out, a split booking
   counts once by its parts, and each main category is netted for the month —
   a refund lowers its category's spending instead of counting as income.
+- *Analyse*, a new page under *Auswerten*, compares spending by Finanzguru's
+  main categories over the last three, six or twelve complete months. Stacked
+  bars show each month's spending per category; *Kategorien im Vergleich*
+  lists every category with its average per month, its share, a small trend
+  line and how it changed against the period of the same length before. It
+  counts the way the overview does. A category's colour follows its rank over
+  the last twelve months rather than its name, so it stays the same when you
+  switch periods and still works for a category Finanzguru renames.
 
 ### Changed
 

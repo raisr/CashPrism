@@ -21,10 +21,11 @@ Four of those earn a sentence:
   accent. It is the one place the product name appears, so it is also the one
   place a mark is needed.
 - **The destinations are grouped where a group exists.** The start page and the
-  bookings stand at the top; the import, which brings data in, and the
-  settings, which delete it again, sit under *Daten*. A heading is written wherever the section changes in
-  `NavigationItems`, so a section with no destination yet — the design's
-  *Auswerten* — simply does not appear.
+  bookings stand at the top; the analysis sits under *Auswerten*; the import,
+  which brings data in, and the settings, which delete it again, sit under
+  *Daten*. A heading is written wherever the section changes in
+  `NavigationItems`, so a section with no destination yet simply does not
+  appear.
 - **Privacy is said where it is always in view.** "Nur auf diesem Rechner" is
   the product's promise, so it is pinned to the drawer rather than buried in a
   page. The day of the last import sits under it, saying how fresh the data
