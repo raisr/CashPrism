@@ -204,9 +204,11 @@ releases and the minor version is bumped for every notable change.
   with its change against the month before. A chart draws income and spending
   per month over six months, twelve months or two years, with the month the
   export was taken in marked as still running. *Wofür ging dein Geld?* shows
-  the largest of Finanzguru's main categories in that month. Transfers between
-  your own accounts count neither as income nor as spending, and a split
-  booking counts once, by its parts.
+  the largest of Finanzguru's main categories in that month. The figures are
+  counted the way the Finanzguru app's analysis counts them, so both show the
+  same: transfers between your own accounts are left out, a split booking
+  counts once by its parts, and each main category is netted for the month —
+  a refund lowers its category's spending instead of counting as income.
 
 ### Changed
 

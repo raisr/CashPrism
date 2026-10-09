@@ -238,11 +238,16 @@ Die Übersicht rechnet vom Datum des jüngsten Exports aus, nicht vom heutigen
 Tag. Der Monat, in dem der Export gezogen wurde, läuft noch; der Monat davor
 ist der letzte vollständige.
 
-**Was zählt:** Eine Umbuchung zwischen deinen eigenen Konten ist weder Einnahme
-noch Ausgabe. Von einer geteilten Buchung zählen die Teile, nicht die
-ursprüngliche Buchung. Ein positiver Betrag ist eine Einnahme, ein negativer
-eine Ausgabe. Ob Finanzguru eine Buchung vom frei verfügbaren Einkommen
-ausnimmt, spielt hier keine Rolle.
+**Was zählt:** CashPrism rechnet wie die Analyse in der Finanzguru-App, damit
+du dieselben Zahlen siehst. Eine Umbuchung zwischen deinen eigenen Konten ist
+weder Einnahme noch Ausgabe. Von einer geteilten Buchung zählen die Teile,
+nicht die ursprüngliche Buchung. Dann wird jede Hauptkategorie für den Monat
+zusammengerechnet: Bleibt unterm Strich ein Plus, zählt sie zu den Einnahmen,
+bleibt ein Minus, zu den Ausgaben. Eine Erstattung macht deshalb die Ausgaben
+ihrer Kategorie kleiner, statt als Einnahme zu zählen. Umgekehrt kann eine
+Kategorie in einem Monat als Einnahme erscheinen, etwa *Sparen* bei einer
+Auszahlung oder *Finanzen* bei einer Steuererstattung. Ob Finanzguru eine
+Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
 
 - **Kacheln:** *Einnahmen*, *Ausgaben* und was *übrig geblieben* ist, jeweils im
   letzten vollständigen Monat und auf den Cent. Darunter steht die Veränderung
@@ -258,7 +263,8 @@ ausnimmt, spielt hier keine Rolle.
   Monat; er trägt auf der Achse einen Stern und fällt meist steil ab, weil der
   Export vor seinem Ende gezogen wurde.
 - **Wofür ging dein Geld?** Die Ausgaben des letzten vollständigen Monats nach
-  den Hauptkategorien aus Finanzguru: die fünf größten einzeln, alle weiteren
+  den Hauptkategorien aus Finanzguru, die unterm Strich Geld gekostet haben,
+  jeweils mit ihrem Saldo: die fünf größten einzeln, alle weiteren
   zusammen als *Übrige*. Das sind Finanzgurus eigene Kategorien, nicht die
   zusammengefassten der Buchungsliste.
 
