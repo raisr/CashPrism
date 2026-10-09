@@ -262,12 +262,14 @@ Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
 - **Diagramm:** Einnahmen und Ausgaben pro Monat. Oben rechts wählst du
   *6 Monate*, *12 Monate* oder *2 Jahre*. Der letzte Punkt ist der laufende
   Monat; er trägt auf der Achse einen Stern und fällt meist steil ab, weil der
-  Export vor seinem Ende gezogen wurde.
+  Export vor seinem Ende gezogen wurde. Zeigst du auf einen Punkt, nennt ein
+  Kästchen darüber Einnahmen oder Ausgaben, Monat und Betrag.
 - **Wofür ging dein Geld?** Die Ausgaben des letzten vollständigen Monats nach
   den Hauptkategorien aus Finanzguru, die unterm Strich Geld gekostet haben,
   jeweils mit ihrem Saldo: die fünf größten einzeln, alle weiteren
   zusammen als *Übrige*. Das sind Finanzgurus eigene Kategorien, nicht die
-  zusammengefassten der Buchungsliste.
+  zusammengefassten der Buchungsliste. Zeigst du auf ein Stück des Rings,
+  nennt ein Kästchen Kategorie und Betrag.
 
 ## Die Analyse
 

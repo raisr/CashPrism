@@ -26,7 +26,14 @@
               Width="100%"
               Height="280px"
               MatchBoundsToSize="true"
-              Class="cp-cashflow__chart" />
+              Class="cp-cashflow__chart">
+      <TooltipTemplate>
+        @if (Tip(context.Item1) is { } tip)
+        {
+          <ChartTip Title="@tip.Title" Value="@tip.Value" Colour="@tip.Colour" Anchor="@tip.Anchor" />
+        }
+      </TooltipTemplate>
+    </MudChart>
     <p class="cp-cashflow__note">@text["OverviewRunningMonth", OverviewFormat.MonthLong(RunningMonth), CurrentTo.ToString("d", CultureInfo.CurrentCulture)]</p>
   </div>
 </section>
@@ -38,6 +45,8 @@
 
     // As many month labels as fit the card side by side.
     private const int MaxLabels = 12;
+
+    private const char ZeroWidthSpace = '\u200B';
 
     private readonly LineChartOptions options = new()
     {
@@ -85,10 +94,44 @@
 
         labels = Months
             .Select((month, index) => (last - index) % step != 0
-                ? string.Empty
+                ? Blank(index)
                 : index == last
                     ? text["OverviewRunningMonthLabel", OverviewFormat.MonthShort(month.Month)].Value
                     : OverviewFormat.MonthShort(month.Month))
             .ToArray();
+    }
+
+    /// <summary>
+    /// A label that shows nothing but still tells its month apart. MudChart
+    /// hands the tooltip the label of the point under the pointer, not its
+    /// index, so two blank labels would leave the month to guess; a run of
+    /// zero-width spaces as long as the index is invisible on the axis and
+    /// unique among the labels.
+    /// </summary>
+    private static string Blank(int index) => new(ZeroWidthSpace, index + 1);
+
+    /// <summary>
+    /// What the box over a point says: its series, its month and the amount.
+    /// MudChart hands over which series and which axis label the point
+    /// belongs to; the amount is taken from the month itself, to the cent,
+    /// rather than read back from the text MudChart made of it.
+    /// </summary>
+    private ChartTipContent? Tip(SvgPath point)
+    {
+        var index = Array.IndexOf(labels, point.LabelXValue);
+
+        if (point.Index < 0 || point.Index >= series.Count || index < 0)
+        {
+            return null;
+        }
+
+        var month = Months[index];
+        var cents = point.Index == 0 ? month.IncomeInCents : month.SpendingInCents;
+
+        return new ChartTipContent(
+            text["OverviewChartTip", series[point.Index].Name, OverviewFormat.MonthShort(month.Month)],
+            OverviewFormat.WholeEuros(cents),
+            options.ChartPalette[point.Index],
+            ChartTipContent.AnchorAt(index, labels.Length));
     }
 }
