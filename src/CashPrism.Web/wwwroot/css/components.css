@@ -1754,6 +1754,13 @@
   height: 190px;
 }
 
+/* The ring sits above the total in its hole, so a tip drawn inside the ring
+   covers the total instead of letting it show through. */
+.cp-breakdown__ring > .mud-chart {
+  position: relative;
+  z-index: 1;
+}
+
 .cp-breakdown__total {
   position: absolute;
   inset: 0;
@@ -1772,6 +1779,14 @@
   font-weight: 750;
   font-variant-numeric: tabular-nums;
   color: var(--cp-text);
+}
+
+/* MudChart draws the ring on a 280-unit canvas and the card shows it at
+   190px, which shrinks everything inside it, the tip included. Scaling the
+   tip back up from its mark gives it the size it has in every other chart. */
+.cp-breakdown__ring .cp-chart-tip-frame {
+  transform: scale(calc(280 / 190));
+  transform-origin: 0 0;
 }
 
 .cp-breakdown__legend {

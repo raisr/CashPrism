@@ -263,6 +263,10 @@
     <value>Ausgaben</value>
     <comment>Legend and tooltip name of the spending line in the overview's chart.</comment>
   </data>
+  <data name="OverviewChartTip" xml:space="preserve">
+    <value>{0} · {1}</value>
+    <comment>Title of the box over a point in the overview's chart. {0} is the series (OverviewIncomeSeries or OverviewSpendingSeries), {1} the short month.</comment>
+  </data>
   <data name="OverviewRunningMonthLabel" xml:space="preserve">
     <value>{0}*</value>
     <comment>Axis label of the running month in the overview's chart; the star refers to OverviewRunningMonth. {0} is the short month.</comment>

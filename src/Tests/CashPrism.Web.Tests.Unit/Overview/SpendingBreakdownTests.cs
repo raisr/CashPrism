@@ -1,9 +1,11 @@
 using Bunit;
+using Bunit.Rendering;
 using CashPrism.Application.CashFlow;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.Overview;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
+using MudBlazor.Charts;
 using MudBlazor.Services;
 
 namespace CashPrism.Web.Tests.Unit.Overview;
@@ -79,11 +81,66 @@ public sealed class SpendingBreakdownTests
         }
 
         [Fact]
-        public void Draws_The_Ring_Without_A_Tooltip()
+        public void Draws_The_Ring_With_A_Tooltip()
         {
             var breakdown = RenderWith(new CategorySpending("Wohnen", 49907));
 
-            Assert.False(breakdown.FindComponent<MudChart<double>>().Instance.ChartOptions?.ShowToolTips);
+            Assert.True(breakdown.FindComponent<MudChart<double>>().Instance.ChartOptions?.ShowToolTips);
+        }
+
+        /// <summary>
+        /// Renders the box MudChart would show over one slice. The pointer
+        /// itself is the browser's; which slice it is over is what MudChart
+        /// hands the template.
+        /// </summary>
+        private IRenderedComponent<ContainerFragment> TipOver(IRenderedComponent<SpendingBreakdown> breakdown, int slice)
+            => context.Render(breakdown.FindComponent<MudChart<double>>().Instance.TooltipTemplate!(
+                (new SvgPath { Index = slice }, "var(--cp-prism-violet)")));
+
+        [Fact]
+        public void Names_The_Category_Of_The_Slice_Under_The_Pointer()
+        {
+            var breakdown = RenderWith(new("Wohnen", 49907), new("Mobilitaet", 31316));
+
+            var tip = TipOver(breakdown, 1);
+
+            Assert.Equal("Mobilität", tip.Find(".cp-chart-tip__title").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Gives_What_The_Slice_Cost_In_Whole_Euros()
+        {
+            var breakdown = RenderWith(new("Wohnen", 49907), new("Mobilitaet", 31316));
+
+            var tip = TipOver(breakdown, 0);
+
+            Assert.Equal("499 €", tip.Find(".cp-chart-tip__value").TextContent);
+        }
+
+        [Fact]
+        public void Names_The_Rest_Over_Its_Slice()
+        {
+            var breakdown = RenderWith(
+                new("Essen & Trinken", 76194),
+                new("Wohnen", 49907),
+                new("Mobilitaet", 31316),
+                new("Lifestyle", 29086),
+                new("Kinder", 22000),
+                new("Sonstiges", 10000));
+
+            var tip = TipOver(breakdown, SpendingBreakdown.LargestShown);
+
+            Assert.Equal("Übrige", tip.Find(".cp-chart-tip__title").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Shows_Nothing_For_A_Slice_It_Does_Not_Know()
+        {
+            var breakdown = RenderWith(new CategorySpending("Wohnen", 49907));
+
+            var tip = TipOver(breakdown, 3);
+
+            Assert.Empty(tip.FindAll(".cp-chart-tip"));
         }
 
         [Fact]

@@ -102,7 +102,7 @@
     /// block belongs to; the amount is taken from the stack itself, to the
     /// cent, rather than read back from the text MudChart made of it.
     /// </summary>
-    private TipContent? Tip(SvgPath block)
+    private ChartTipContent? Tip(SvgPath block)
     {
         var month = Array.IndexOf(labels, block.LabelXValue);
 
@@ -112,18 +112,13 @@
         }
 
         var stack = stacks[block.Index];
-        var anchor = month == 0
-            ? ChartTipAnchor.Start
-            : month == labels.Length - 1 ? ChartTipAnchor.End : ChartTipAnchor.Centre;
 
-        return new TipContent(
+        return new ChartTipContent(
             text["AnalysisChartTip", stack.Name, labels[month]],
             OverviewFormat.WholeEuros(stack.MonthlySpendingInCents[month]),
             stack.Colour,
-            anchor);
+            ChartTipContent.AnchorAt(month, labels.Length));
     }
-
-    private sealed record TipContent(string Title, string Value, string Colour, ChartTipAnchor Anchor);
 
     private sealed record Stack(string Name, string Colour, IReadOnlyList<long> MonthlySpendingInCents);
 }

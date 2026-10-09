@@ -1,9 +1,11 @@
 using Bunit;
+using Bunit.Rendering;
 using CashPrism.Application.CashFlow;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.Overview;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
+using MudBlazor.Charts;
 using MudBlazor.Services;
 
 namespace CashPrism.Web.Tests.Unit.Overview;
@@ -67,9 +69,81 @@ public sealed class CashFlowChartTests
         {
             var chart = RenderWith(24);
 
-            var labels = Labels(chart);
+            var labels = Labels(chart).Select(Visible).ToArray();
             Assert.Equal(12, labels.Count(label => label.Length > 0));
             Assert.Equal((string.Empty, "Okt 26*"), (labels[^2], labels[^1]));
+        }
+
+        [Fact]
+        public void Keeps_Every_Blank_Label_Apart_From_The_Others()
+        {
+            var chart = RenderWith(24);
+
+            Assert.Equal(24, Labels(chart).Distinct().Count());
+        }
+
+        // What a person sees of a label: the zero-width spaces that keep the
+        // blank ones apart show nothing.
+        private static string Visible(string label) => label.Replace("\u200B", string.Empty, StringComparison.Ordinal);
+
+        /// <summary>
+        /// Renders the box MudChart would show over one point. The pointer
+        /// itself is the browser's; which point it is over is what MudChart
+        /// hands the template: the series and the axis label of the month.
+        /// </summary>
+        private IRenderedComponent<ContainerFragment> TipOver(IRenderedComponent<CashFlowChart> chart, int series, int month)
+            => context.Render(chart.FindComponent<MudChart<double>>().Instance.TooltipTemplate!(
+                (new SvgPath { Index = series, LabelXValue = Labels(chart)[month] }, "var(--cp-income)")));
+
+        [Fact]
+        public void Names_The_Series_And_The_Month_Of_The_Point_Under_The_Pointer()
+        {
+            var chart = RenderWith(3);
+
+            var tip = TipOver(chart, 1, 1);
+
+            Assert.Equal("Ausgaben · Sep 26", tip.Find(".cp-chart-tip__title").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Gives_The_Amount_Of_The_Point_In_Whole_Euros()
+        {
+            var chart = RenderWith(3);
+
+            var tip = TipOver(chart, 0, 1);
+
+            Assert.Equal("4.000 €", tip.Find(".cp-chart-tip__value").TextContent);
+        }
+
+        [Fact]
+        public void Names_The_Month_Of_A_Point_Whose_Label_Is_Blank()
+        {
+            var chart = RenderWith(24);
+
+            var tip = TipOver(chart, 0, 22);
+
+            Assert.Equal("Einnahmen · Sep 26", tip.Find(".cp-chart-tip__title").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Leans_The_Box_Of_The_Running_Month_Inwards()
+        {
+            var chart = RenderWith(3);
+
+            var tip = TipOver(chart, 0, 2);
+
+            Assert.Contains("cp-chart-tip--end", tip.Find(".cp-chart-tip").ClassList);
+        }
+
+        [Fact]
+        public void Shows_Nothing_For_A_Point_It_Does_Not_Know()
+        {
+            var chart = RenderWith(3);
+
+            var tip = context.Render(chart.FindComponent<MudChart<double>>().Instance.TooltipTemplate!(
+                (new SvgPath { Index = 0, LabelXValue = "Jan 99" }, "var(--cp-income)")));
+
+            Assert.Empty(tip.FindAll(".cp-chart-tip"));
         }
     }
 }

@@ -1,4 +1,5 @@
 @using CashPrism.Application.CashFlow
+@using MudBlazor.Charts
 @inject IStringLocalizer<Strings> text
 
 @* Where the money of one month went, by Finanzguru's main categories: the
@@ -28,7 +29,14 @@
                     ChartLabels="@labels"
                     ChartOptions="@options"
                     Width="190px"
-                    Height="190px" />
+                    Height="190px">
+            <TooltipTemplate>
+              @if (Tip(context.Item1) is { } tip)
+              {
+                <ChartTip Title="@tip.Title" Value="@tip.Value" Colour="@tip.Colour" Anchor="@tip.Anchor" />
+              }
+            </TooltipTemplate>
+          </MudChart>
           <div class="cp-breakdown__total">
             <span>@text["OverviewCategoriesTotal"]</span>
             <b>@OverviewFormat.WholeEuros(total)</b>
@@ -65,10 +73,8 @@
 
     private const string RestColour = "var(--cp-prism-slate)";
 
-    // No tooltip, as in the design: the legend beside the ring already names
-    // every slice with its amount, and MudChart draws its tooltip inside the
-    // scaled-down ring, too small to read.
-    private readonly DonutChartOptions options = new() { ShowLegend = false, ShowToolTips = false };
+    // MudChart leaves a donut's tooltip off unless asked.
+    private readonly DonutChartOptions options = new() { ShowLegend = false, ShowToolTips = true };
 
     private List<Slice> slices = [];
     private List<ChartSeries<double>> series = [];
@@ -104,6 +110,23 @@
         labels = slices.Select(slice => slice.Name).ToArray();
         series = [new() { Name = text["OverviewSpendingSeries"], Data = slices.Select(slice => slice.SpendingInCents / 100d).ToArray() }];
         options.ChartPalette = slices.Select(slice => slice.Colour).ToArray();
+    }
+
+    /// <summary>
+    /// What the box over a slice says: its category and what it cost. The
+    /// amount is taken from the slice itself, to the cent, rather than read
+    /// back from the text MudChart made of it.
+    /// </summary>
+    private ChartTipContent? Tip(SvgPath segment)
+    {
+        if (segment.Index < 0 || segment.Index >= slices.Count)
+        {
+            return null;
+        }
+
+        var slice = slices[segment.Index];
+
+        return new ChartTipContent(slice.Name, OverviewFormat.WholeEuros(slice.SpendingInCents), slice.Colour, ChartTipAnchor.Centre);
     }
 
     private sealed record Slice(string Name, long SpendingInCents, string Colour);
