@@ -62,4 +62,15 @@ public sealed class CashFlowRuleTests
         public void Leaves_Out_A_Category_That_Came_Out_Even()
             => Assert.Equal(2100, CashFlowRule.SpendingInCents([0, -2100]));
     }
+
+    public sealed class CategorySpendingInCents
+    {
+        [Fact]
+        public void Turns_A_Negative_Sum_Into_Positive_Spending()
+            => Assert.Equal(56800, CashFlowRule.CategorySpendingInCents(-56800));
+
+        [Fact]
+        public void Counts_Nothing_When_The_Category_Came_Out_Positive()
+            => Assert.Equal(0, CashFlowRule.CategorySpendingInCents(377959));
+    }
 }
