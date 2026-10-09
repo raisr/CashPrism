@@ -46,9 +46,13 @@ gate_expectation() {
 
 GATES="build test format notices"
 
+# A failing gate keeps its log: the tail rarely holds the message that says
+# why, and an intermittent failure cannot simply be run again. On a CI runner
+# the file is gone with the job, so there the whole log goes into the job's
+# output as well, folded away until someone opens it.
 run_one() {
   local name="$1" log
-  log="$(mktemp)"
+  log="$(mktemp -t "gate-${name}.XXXXXX")"
   printf '=== %s ===\n' "${name}"
   if "gate_${name}" > "${log}" 2>&1; then
     printf '  PASS\n'
@@ -57,7 +61,12 @@ run_one() {
   fi
   printf '  FAIL - expected: %s\n' "$(gate_expectation "${name}")"
   tail -n 15 "${log}" | sed 's/^/    /'
-  rm -f "${log}"
+  printf '  Full log: %s\n' "${log}"
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    printf '::group::Full log of the %s gate\n' "${name}"
+    cat "${log}"
+    printf '::endgroup::\n'
+  fi
   return 1
 }
 
