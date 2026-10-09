@@ -20,7 +20,7 @@
         <tr>
           <th>@text["AnalysisColumnCategory"]</th>
           <th>@text["AnalysisColumnShare"]</th>
-          <th>@text["AnalysisColumnTrend"]</th>
+          <th class="cp-comparison__trend">@text["AnalysisColumnTrend"]</th>
           <th>@text["AnalysisColumnChange"]</th>
           <th class="cp-cell-end">@text["AnalysisColumnAverage"]</th>
         </tr>
@@ -43,7 +43,7 @@
                 <span class="cp-comparison__share-figure">@OverviewFormat.Share(category.Share)</span>
               </div>
             </td>
-            <td><Sparkline Values="@category.MonthlySpendingInCents" Colour="@colour" /></td>
+            <td class="cp-comparison__trend"><Sparkline Values="@category.MonthlySpendingInCents" Colour="@colour" /></td>
             <td>
               @if (category.Change is { } change)
               {

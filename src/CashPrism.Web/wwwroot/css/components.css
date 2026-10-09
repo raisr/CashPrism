@@ -1895,3 +1895,27 @@
   font-variant-numeric: tabular-nums;
   color: var(--cp-text-2);
 }
+
+/* The table answers to the width of its own card, not of the window: the
+   drawer takes room or gives it back without the window changing. What is
+   left out first is what the figures beside it already say — the share bar
+   repeats its per cent, the trend line the average. */
+.cp-comparison {
+  container-type: inline-size;
+}
+
+@container (max-width: 720px) {
+  .cp-comparison .cp-progress {
+    display: none;
+  }
+
+  .cp-comparison__share {
+    min-width: 0;
+  }
+}
+
+@container (max-width: 560px) {
+  .cp-comparison__trend {
+    display: none;
+  }
+}

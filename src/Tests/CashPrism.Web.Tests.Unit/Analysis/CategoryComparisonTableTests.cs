@@ -125,6 +125,14 @@ public sealed class CategoryComparisonTableTests
         }
 
         [Fact]
+        public void Marks_Every_Cell_Of_The_Trend_Column_So_A_Narrow_Card_Can_Leave_It_Out()
+        {
+            var table = RenderWith(Category("Wohnen", 127000), Category("Mobilitaet", 19090));
+
+            Assert.Equal(3, table.FindAll(".cp-comparison__trend").Count);
+        }
+
+        [Fact]
         public void Colours_A_Row_By_The_Rank_Of_Its_Category()
         {
             var table = RenderWith(Category("Wohnen", 127000, rank: 1));

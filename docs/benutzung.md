@@ -290,7 +290,9 @@ Strich ein Plus hatte, hat in diesem Monat nichts gekostet.
   Monate und der Durchschnitt pro Monat. *Veränderung* vergleicht mit dem
   Zeitraum davor: rot, wenn du mindestens fünf Prozent mehr ausgegeben hast,
   grün bei mindestens fünf Prozent weniger, grau dazwischen. *neu* heißt, dass
-  die Kategorie im Zeitraum davor nichts gekostet hat.
+  die Kategorie im Zeitraum davor nichts gekostet hat. Ist die Tabelle schmal,
+  fällt zuerst der Balken beim Anteil weg, dann die Verlaufslinie; die Zahlen
+  bleiben.
 
 Die Farben richten sich nach dem Rang einer Kategorie, nicht nach ihrem Namen.
 Beim Umschalten des Zeitraums behält jede Kategorie ihre Farbe, und eine
