@@ -52,6 +52,13 @@ public sealed class OverviewFormatTests
             => Assert.Equal("0 %", OverviewFormat.Percent(0.001m));
     }
 
+    public sealed class Share
+    {
+        [Fact]
+        public void Writes_Whole_Per_Cent_Without_A_Sign()
+            => Assert.Equal("45 %", OverviewFormat.Share(0.4475m));
+    }
+
     public sealed class MonthShort
     {
         [Fact]

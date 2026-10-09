@@ -893,6 +893,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Bad news, such as spending that grew. */
+.cp-badge--danger {
+  background: color-mix(in srgb, var(--cp-danger) 13%, transparent);
+  color: var(--cp-danger);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- alert ---------- */
 
 /* Tinted with its tone: the border at 28 %, the ground at 8 % over the
@@ -1789,4 +1796,102 @@
   .cp-cashflow__chart .mud-charts-xaxis text:not(:nth-last-child(3n + 1)) {
     display: none;
   }
+}
+
+/* ---------- progress ---------- */
+
+/* A part of a whole as a bar, in the colour handed over as --c. */
+.cp-progress {
+  position: relative;
+  display: block;
+  height: 8px;
+  border-radius: var(--cp-radius-pill);
+  background: var(--cp-surface-3);
+  overflow: hidden;
+}
+
+.cp-progress--sm {
+  height: 5px;
+}
+
+.cp-progress__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--c, var(--cp-primary));
+}
+
+/* ---------- sparkline ---------- */
+
+.cp-sparkline {
+  display: block;
+  overflow: visible;
+}
+
+.cp-sparkline__area {
+  fill: var(--c);
+  fill-opacity: 0.12;
+}
+
+.cp-sparkline__line {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.cp-sparkline__dot {
+  fill: var(--c);
+}
+
+/* ---------- analysis ---------- */
+
+.cp-analysis {
+  display: grid;
+  gap: var(--cp-grid-gap);
+}
+
+.cp-category-chart__legend {
+  margin-top: 16px;
+}
+
+.cp-category-chart__chart text {
+  font-family: var(--cp-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--cp-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.cp-category-chart__chart .mud-charts-gridlines-yaxis path {
+  stroke: var(--cp-chart-grid);
+  stroke-dasharray: 3 4;
+}
+
+.cp-comparison__name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.cp-comparison__share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 140px;
+}
+
+.cp-comparison__share .cp-progress {
+  flex: 1;
+}
+
+.cp-comparison__share-figure {
+  width: 40px;
+  text-align: end;
+  font-size: var(--cp-fs-caption);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text-2);
 }

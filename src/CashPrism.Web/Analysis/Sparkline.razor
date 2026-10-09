@@ -1,0 +1,65 @@
+@* A small trend line for a table cell, drawn as SVG: the values scaled to
+   the box between their own lowest and highest, a light fill beneath, and a
+   dot on the latest. No axis — it shows the shape, the figures stand beside
+   it. The design fades the fill out; an even, light fill needs no gradient
+   and so no id that would have to be unique on the page. *@
+<svg class="cp-sparkline" width="@Width" height="@Height" viewBox="0 0 @Width @Height" aria-hidden="true" style="--c:@Colour">
+  @if (points.Count > 0)
+  {
+    <path class="cp-sparkline__area" d="@area" />
+    <path class="cp-sparkline__line" d="@line" />
+    <circle class="cp-sparkline__dot" cx="@Coordinate(points[^1].X)" cy="@Coordinate(points[^1].Y)" r="2.5" />
+  }
+</svg>
+
+@code {
+    // Room left at every edge, so the line and the dot are not cut off.
+    private const double Inset = 2;
+
+    private List<(double X, double Y)> points = [];
+    private string line = string.Empty;
+    private string area = string.Empty;
+
+    /// <summary>The values to draw, oldest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<long> Values { get; set; } = [];
+
+    /// <summary>A CSS colour, usually one of the design system's custom properties.</summary>
+    [Parameter, EditorRequired]
+    public string Colour { get; set; } = string.Empty;
+
+    /// <summary>The width in pixels.</summary>
+    [Parameter]
+    public int Width { get; set; } = 90;
+
+    /// <summary>The height in pixels.</summary>
+    [Parameter]
+    public int Height { get; set; } = 26;
+
+    protected override void OnParametersSet()
+    {
+        points = [];
+
+        if (Values.Count == 0)
+        {
+            return;
+        }
+
+        var max = Values.Max();
+        var min = Values.Min();
+        var range = max == min ? 1 : max - min;
+        var step = (Width - 2 * Inset) / Math.Max(1, Values.Count - 1);
+
+        points = Values
+            .Select((value, index) => (
+                Inset + index * step,
+                Inset + (double)(max - value) / range * (Height - 2 * Inset)))
+            .ToList();
+
+        line = "M" + string.Join(" L", points.Select(point => Coordinate(point.X) + "," + Coordinate(point.Y)));
+        area = line + " L" + Coordinate(points[^1].X) + "," + Height + " L" + Coordinate(points[0].X) + "," + Height + " Z";
+    }
+
+    // SVG wants a full stop for the decimal separator, whatever the culture.
+    private static string Coordinate(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+}

@@ -1,0 +1,93 @@
+@using CashPrism.Application.CashFlow
+@using CashPrism.Web.Overview
+@using MudBlazor.Charts
+@inject IStringLocalizer<Strings> text
+
+@* Spending per main category per month as stacked bars, drawn by MudChart.
+   The categories that have a colour of their own are stacked one by one,
+   every one ranked after them as one rest, so no two neighbouring blocks
+   share a colour. *@
+<section class="cp-card cp-category-chart">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h2 class="cp-h3">@text["AnalysisChartTitle"]</h2>
+      <div class="cp-card__sub">@text["AnalysisChartSubtitle", OverviewFormat.WholeEuros(Period.AverageInCents)]</div>
+    </div>
+  </div>
+  <div class="cp-card__body">
+    <MudChart T="double"
+              ChartType="ChartType.StackedBar"
+              ChartSeries="@series"
+              ChartLabels="@labels"
+              ChartOptions="@options"
+              Width="100%"
+              Height="280px"
+              MatchBoundsToSize="true"
+              Class="cp-category-chart__chart" />
+    <ul class="cp-legend cp-category-chart__legend">
+      @foreach (var stack in stacks)
+      {
+        <li class="cp-legend__item"><span class="cp-legend__swatch" style="--c:@stack.Colour"></span>@stack.Name</li>
+      }
+    </ul>
+  </div>
+</section>
+
+@code {
+    private readonly StackedBarChartOptions options = new()
+    {
+        ShowLegend = false,
+        YAxisTicks = 1000,
+        MaxNumYAxisTicks = 6,
+        YAxisToStringFunc = value => OverviewFormat.WholeEuros((long)(value * 100)),
+    };
+
+    private List<Stack> stacks = [];
+    private List<ChartSeries<double>> series = [];
+    private string[] labels = [];
+
+    /// <summary>The period to draw.</summary>
+    [Parameter, EditorRequired]
+    public SpendingPeriod Period { get; set; } = null!;
+
+    protected override void OnParametersSet()
+    {
+        // Ranked as the analysis ranks them, not by this period's average, so a
+        // category stays at its place in the stack when the period changes.
+        var spending = Period.Categories
+            .Where(category => category.MonthlySpendingInCents.Any(month => month > 0))
+            .OrderBy(category => category.Rank)
+            .ToList();
+
+        stacks = spending
+            .Where(category => category.Rank < RankColour.Distinct)
+            .Select(category => new Stack(
+                MainCategoryName.For(category.Category, text),
+                RankColour.For(category.Rank),
+                category.MonthlySpendingInCents))
+            .ToList();
+
+        var rest = spending.Where(category => category.Rank >= RankColour.Distinct).ToList();
+
+        if (rest.Count > 0)
+        {
+            stacks.Add(new Stack(
+                text["OverviewCategoriesRest"],
+                RankColour.Rest,
+                Period.Months.Select((_, month) => rest.Sum(category => category.MonthlySpendingInCents[month])).ToList()));
+        }
+
+        series = stacks
+            .Select(stack => new ChartSeries<double>
+            {
+                Name = stack.Name,
+                Data = stack.MonthlySpendingInCents.Select(cents => cents / 100d).ToArray(),
+            })
+            .ToList();
+
+        labels = Period.Months.Select(month => OverviewFormat.MonthShort(month)).ToArray();
+        options.ChartPalette = stacks.Select(stack => stack.Colour).ToArray();
+    }
+
+    private sealed record Stack(string Name, string Colour, IReadOnlyList<long> MonthlySpendingInCents);
+}

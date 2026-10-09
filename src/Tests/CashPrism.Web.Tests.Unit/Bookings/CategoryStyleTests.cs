@@ -88,6 +88,17 @@ public sealed class CategoryStyleTests
     /// The colours and glyphs of <c>design/README.md</c> §1.5 and the
     /// iconography of <c>design/DESIGN_SYSTEM.md</c>.
     /// </summary>
+    public sealed class ForMainCategory
+    {
+        [Fact]
+        public void Shows_A_Measured_Main_Category_In_Its_Design_Category()
+            => Assert.Same(CategoryStyle.Mobility, CategoryStyle.ForMainCategory("Mobilitaet"));
+
+        [Fact]
+        public void Shows_An_Unknown_Main_Category_As_Other()
+            => Assert.Same(CategoryStyle.Other, CategoryStyle.ForMainCategory("Meine Kategorie"));
+    }
+
     public sealed class TheDesignCategories
     {
         public static TheoryData<CategoryStyle, string, string> Design => new()

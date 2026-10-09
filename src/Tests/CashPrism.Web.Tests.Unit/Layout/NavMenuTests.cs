@@ -20,6 +20,7 @@ public sealed class NavMenuTests
         [Theory]
         [InlineData("/", "Übersicht")]
         [InlineData("/bookings", "Buchungen")]
+        [InlineData("/analysis", "Analyse")]
         [InlineData("/import", "Import")]
         [InlineData("/settings", "Einstellungen")]
         public void Marks_Only_The_Destination_Of_The_Current_Route(string route, string label)
@@ -33,11 +34,21 @@ public sealed class NavMenuTests
         }
 
         [Fact]
+        public void Heads_The_Destinations_That_Analyse_With_Their_Section()
+        {
+            var menu = context.Render<NavMenu>();
+
+            var section = menu.FindAll(".cp-sidebar__section")[0];
+            Assert.Equal("Auswerten", section.TextContent);
+            Assert.Equal("Analyse", section.NextElementSibling!.TextContent.Trim());
+        }
+
+        [Fact]
         public void Heads_The_Destinations_That_Bring_Data_In_With_Their_Section()
         {
             var menu = context.Render<NavMenu>();
 
-            var section = Assert.Single(menu.FindAll(".cp-sidebar__section"));
+            var section = menu.FindAll(".cp-sidebar__section")[1];
             Assert.Equal("Daten", section.TextContent);
             Assert.Equal("Import", section.NextElementSibling!.TextContent.Trim());
         }
@@ -47,7 +58,7 @@ public sealed class NavMenuTests
         {
             var menu = context.Render<NavMenu>();
 
-            var import = menu.Find(".cp-sidebar__section").NextElementSibling!;
+            var import = menu.FindAll(".cp-sidebar__section")[1].NextElementSibling!;
             Assert.Equal("Einstellungen", import.NextElementSibling!.TextContent.Trim());
         }
 
@@ -57,7 +68,7 @@ public sealed class NavMenuTests
             var menu = context.Render<NavMenu>(parameters => parameters.Add(p => p.Collapsed, true));
 
             var titles = menu.FindAll("a.cp-nav__item").Select(link => link.GetAttribute("title"));
-            Assert.Equal(["Übersicht", "Buchungen", "Import", "Einstellungen"], titles);
+            Assert.Equal(["Übersicht", "Buchungen", "Analyse", "Import", "Einstellungen"], titles);
         }
 
         [Fact]
