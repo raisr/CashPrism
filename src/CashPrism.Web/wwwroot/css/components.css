@@ -1535,3 +1535,258 @@
   gap: 12px;
   font-weight: 600;
 }
+
+/* ---------- segmented control ---------- */
+
+.cp-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--cp-radius-md);
+  background: var(--cp-surface-3);
+}
+
+.cp-seg__opt {
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font: 700 13px/1 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--cp-dur-fast), color var(--cp-dur-fast);
+}
+
+.cp-seg__opt:hover {
+  color: var(--cp-text);
+}
+
+.cp-seg__opt:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-seg__opt--on {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  box-shadow: 0 1px 2px rgba(19, 26, 42, 0.08), 0 1px 1px rgba(19, 26, 42, 0.04);
+}
+
+[data-theme="dark"] .cp-seg__opt--on {
+  background: var(--cp-night-700);
+}
+
+/* ---------- stat tile ---------- */
+
+.cp-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: var(--cp-card-padding);
+}
+
+.cp-stat__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-stat__label {
+  font-size: var(--cp-fs-small);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-stat__value {
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text);
+  white-space: nowrap;
+}
+
+.cp-stat__value .cp-amount {
+  color: inherit;
+}
+
+.cp-stat__delta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-stat__delta b {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.cp-delta--good {
+  color: var(--cp-income);
+}
+
+.cp-delta--bad {
+  color: var(--cp-expense);
+}
+
+/* ---------- legend ---------- */
+
+.cp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-legend--column {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cp-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cp-legend__swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--c);
+}
+
+.cp-legend__swatch--line {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.cp-legend__value {
+  margin-left: auto;
+  padding-left: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text);
+  white-space: nowrap;
+}
+
+/* ---------- overview ---------- */
+
+.cp-overview__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--cp-grid-gap);
+}
+
+/* The chart takes two columns' width where there is room for three, the
+   categories the third; narrower, both take the full width. */
+.cp-overview__panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: var(--cp-grid-gap);
+  margin-top: var(--cp-grid-gap);
+}
+
+@media (min-width: 1280px) {
+  .cp-overview__panels {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.cp-overview__lead-figure {
+  font-weight: 700;
+}
+
+.cp-cashflow__note {
+  margin: 8px 0 0;
+  font-size: var(--cp-fs-caption);
+  color: var(--cp-text-3);
+}
+
+/* MudChart draws with its own palette and type; the design's axis text and
+   grid replace them. */
+.cp-cashflow__chart text,
+.cp-breakdown text {
+  font-family: var(--cp-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--cp-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.cp-breakdown__content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.cp-breakdown__ring {
+  position: relative;
+  width: 190px;
+  height: 190px;
+}
+
+.cp-breakdown__total {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-breakdown__total b {
+  font-size: 18px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text);
+}
+
+.cp-breakdown__legend {
+  flex: 1 1 180px;
+  min-width: 180px;
+}
+
+.cp-breakdown__none {
+  margin: 0;
+  color: var(--cp-text-2);
+}
+
+.cp-cashflow__chart .mud-charts-gridlines-yaxis path {
+  stroke: var(--cp-chart-grid);
+  stroke-dasharray: 3 4;
+}
+
+/* A phone has room for about four month labels. Every third is kept, counted
+   from the end so the running month always keeps its own; at two years only
+   every other label carries text, which leaves one in six. */
+@media (max-width: 700px) {
+  .cp-cashflow__chart .mud-charts-xaxis text:not(:nth-last-child(3n + 1)) {
+    display: none;
+  }
+}

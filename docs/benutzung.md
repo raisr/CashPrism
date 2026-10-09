@@ -224,13 +224,49 @@ Symbolen ein und wieder auf.
 
 | Ziel | Adresse | Was dort ist |
 |---|---|---|
-| Übersicht | `/` | Noch nichts außer einem Hinweis und dem Weg zum Import |
+| Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, Passwort ändern |
 
-Solange nichts importiert ist, zeigt *Buchungen* statt einer leeren Tabelle
-einen Hinweis und eine Schaltfläche zur Seite *Import*.
+Solange nichts importiert ist, zeigen *Übersicht* und *Buchungen* statt leerer
+Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
+
+## Die Übersicht
+
+Die Übersicht rechnet vom Datum des jüngsten Exports aus, nicht vom heutigen
+Tag. Der Monat, in dem der Export gezogen wurde, läuft noch; der Monat davor
+ist der letzte vollständige.
+
+**Was zählt:** CashPrism rechnet wie die Analyse in der Finanzguru-App, damit
+du dieselben Zahlen siehst. Eine Umbuchung zwischen deinen eigenen Konten ist
+weder Einnahme noch Ausgabe. Von einer geteilten Buchung zählen die Teile,
+nicht die ursprüngliche Buchung. Dann wird jede Hauptkategorie für den Monat
+zusammengerechnet: Bleibt unterm Strich ein Plus, zählt sie zu den Einnahmen,
+bleibt ein Minus, zu den Ausgaben. Eine Erstattung macht deshalb die Ausgaben
+ihrer Kategorie kleiner, statt als Einnahme zu zählen. Umgekehrt kann eine
+Kategorie in einem Monat als Einnahme erscheinen, etwa *Sparen* bei einer
+Auszahlung oder *Finanzen* bei einer Steuererstattung. Ob Finanzguru eine
+Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
+
+- **Kacheln:** *Einnahmen*, *Ausgaben* und was *übrig geblieben* ist, jeweils im
+  letzten vollständigen Monat und auf den Cent. Darunter steht die Veränderung
+  gegenüber dem Monat davor — bei Einnahmen und Ausgaben in Prozent, beim
+  Übriggebliebenen in Euro, weil ein Prozentwert auf einen kleinen oder
+  negativen Betrag nichts sagt. Hatte der Vormonat keine Einnahmen oder keine
+  Ausgaben, fehlt die Prozentangabe. Der Pfeil im runden Symbol zeigt, in
+  welche Richtung sich der Wert bewegt hat; grün heißt mehr Einnahmen, weniger
+  Ausgaben oder mehr übrig, rot das Gegenteil, grau keine Veränderung oder
+  nichts zum Vergleichen.
+- **Diagramm:** Einnahmen und Ausgaben pro Monat. Oben rechts wählst du
+  *6 Monate*, *12 Monate* oder *2 Jahre*. Der letzte Punkt ist der laufende
+  Monat; er trägt auf der Achse einen Stern und fällt meist steil ab, weil der
+  Export vor seinem Ende gezogen wurde.
+- **Wofür ging dein Geld?** Die Ausgaben des letzten vollständigen Monats nach
+  den Hauptkategorien aus Finanzguru, die unterm Strich Geld gekostet haben,
+  jeweils mit ihrem Saldo: die fünf größten einzeln, alle weiteren
+  zusammen als *Übrige*. Das sind Finanzgurus eigene Kategorien, nicht die
+  zusammengefassten der Buchungsliste.
 
 ## Einen Export importieren
 

@@ -24,6 +24,17 @@ public sealed class PageFrameTests
         }
 
         [Fact]
+        public void Prefers_The_Lead_With_Markup_Over_The_Plain_One()
+        {
+            var frame = context.Render<PageFrame>(parameters => parameters
+                .Add(p => p.Title, "Übersicht")
+                .Add(p => p.Lead, "plain")
+                .Add(p => p.LeadContent, "Du hast <b>1.439 €</b> mehr"));
+
+            Assert.Equal("1.439 €", frame.Find(".cp-pagehead__lead b").TextContent);
+        }
+
+        [Fact]
         public void Places_The_Actions_Beside_The_Heading()
         {
             var frame = context.Render<PageFrame>(parameters => parameters

@@ -1,15 +1,117 @@
 @page "/"
+@using CashPrism.Application.CashFlow
+@using System.Net
+@using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
+@inject CashFlowOverviewReader reader
 
-<PageFrame Title="@text["NavOverview"]" Lead="@text["OverviewLead"]">
-  <section class="cp-card">
-    <EmptyState Icon="layout-dashboard" Title="@text["OverviewEmpty"]" Text="@text["OverviewEmptyHint"]">
-      <Actions>
-        <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
-          <CpIcon Name="upload" />
-          @text["NavImport"]
-        </MudButton>
-      </Actions>
-    </EmptyState>
-  </section>
-</PageFrame>
+@if (overview is null)
+{
+  <PageFrame Title="@text["NavOverview"]" Lead="@(loaded ? text["OverviewLead"].Value : null)">
+    @if (loaded)
+    {
+      <section class="cp-card">
+        <EmptyState Icon="layout-dashboard" Title="@text["OverviewEmpty"]" Text="@text["OverviewEmptyHint"]">
+          <Actions>
+            <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
+              <CpIcon Name="upload" />
+              @text["NavImport"]
+            </MudButton>
+          </Actions>
+        </EmptyState>
+      </section>
+    }
+  </PageFrame>
+}
+else
+{
+  var month = overview.LastCompleteMonth;
+  var monthName = OverviewFormat.MonthName(month.Month);
+
+  <PageFrame Title="@text["NavOverview"]">
+    <LeadContent>@Lead(overview)</LeadContent>
+    <Actions>
+      <Segmented TValue="int" Options="@spans" @bind-Value="span" Label="@text["OverviewSpanLabel"]" />
+    </Actions>
+    <ChildContent>
+      <div class="cp-overview__tiles">
+        <StatTile Label="@text["OverviewIncome", monthName]"
+                  Trend="@OverviewTrend.OfChange(overview.IncomeChange)"
+                  DeltaGood="@(overview.IncomeChange > 0)"
+                  Delta="@Percent(overview.IncomeChange)"
+                  DeltaLabel="@text["OverviewAgainstMonthBefore"]">
+          <Sum AmountInCents="@month.IncomeInCents" />
+        </StatTile>
+        <StatTile Label="@text["OverviewSpending", monthName]"
+                  Trend="@OverviewTrend.OfChange(overview.SpendingChange)"
+                  DeltaGood="@(overview.SpendingChange < 0)"
+                  Delta="@Percent(overview.SpendingChange)"
+                  DeltaLabel="@text["OverviewAgainstMonthBefore"]">
+          <Sum AmountInCents="@month.SpendingInCents" />
+        </StatTile>
+        <StatTile Label="@text["OverviewLeft", monthName]"
+                  Trend="@OverviewTrend.OfDifference(overview.LeftChangeInCents)"
+                  DeltaGood="@(overview.LeftChangeInCents > 0)"
+                  Delta="@OverviewFormat.SignedWholeEuros(overview.LeftChangeInCents)"
+                  DeltaLabel="@text["OverviewAgainstMonthBefore"]">
+          <Sum AmountInCents="@month.LeftInCents" />
+        </StatTile>
+      </div>
+      <div class="cp-overview__panels">
+        <CashFlowChart Months="@overview.Months.TakeLast(span).ToList()" CurrentTo="@overview.CurrentTo" />
+        <SpendingBreakdown Month="@month.Month" Categories="@overview.SpendingByCategory" />
+      </div>
+    </ChildContent>
+  </PageFrame>
+}
+
+@code {
+    private CashFlowOverview? overview;
+    private bool loaded;
+
+    // Twelve months unless the person picks another span; the longest one is
+    // what the reader reads, so a switch only redraws.
+    private int span = 12;
+
+    private IReadOnlyList<SegmentedOption<int>> spans = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        spans =
+        [
+            new(6, text["OverviewSpan6"]),
+            new(12, text["OverviewSpan12"]),
+            new(CashFlowOverviewReader.MonthsShown, text["OverviewSpan24"]),
+        ];
+
+        overview = await reader.ReadAsync();
+        loaded = true;
+    }
+
+    /// <summary>
+    /// The lead, with the difference set apart in green when more came in and
+    /// in red when more went out. The sentence comes from the resource file
+    /// with the figure as a placeholder, so the markup is put together here:
+    /// every piece of text is encoded before it joins the one element added.
+    /// </summary>
+    private MarkupString Lead(CashFlowOverview figures)
+    {
+        var month = WebUtility.HtmlEncode(OverviewFormat.MonthLong(figures.LastCompleteMonth.Month));
+        var left = figures.LastCompleteMonth.LeftInCents;
+
+        var (key, tone) = left switch
+        {
+            > 0 => ("OverviewLeadMore", "cp-delta--good"),
+            < 0 => ("OverviewLeadLess", "cp-delta--bad"),
+            _ => ("OverviewLeadEven", string.Empty),
+        };
+
+        var figure = $"<b class=\"cp-overview__lead-figure {tone}\">{WebUtility.HtmlEncode(OverviewFormat.WholeEuros(Math.Abs(left)))}</b>";
+        var sentence = WebUtility.HtmlEncode(text[key].Value);
+
+        return new MarkupString(string.Format(CultureInfo.CurrentCulture, sentence, month, figure));
+    }
+
+    private static string? Percent(decimal? change)
+        => change is { } value ? OverviewFormat.Percent(value) : null;
+}

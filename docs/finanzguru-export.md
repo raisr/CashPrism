@@ -250,6 +250,35 @@ second day — for single-digit MB a year, and loses nothing, because an unchang
 row is byte-identical to the one already stored. The `.xlsx` file itself, about
 1.2 MB per export, is not kept either.
 
+## How Finanzguru counts income and spending
+
+Measured on a third export (taken 2026-10-09) against the app's own analysis
+on the same day — *Analysen* → *Deine letzten Monate*, one month at a time.
+
+Finanzguru nets every month **per main category**. Of the rows that count — no
+transfer (`Analyse-Umbuchung`), no split `Original` — the `Betrag` of each main
+category is added up, signs and all. A category that comes out positive is
+listed under the month's income (*Eingenommen*) with its net, one that comes out
+negative under its spending (*Ausgaben*). Income, spending and *Gespart* are the
+sums of those two groups and their difference. This reproduces the app's three
+totals and every category line of the measured month to the euro.
+
+Two consequences an analysis has to carry:
+
+- **A refund lowers its category's spending; it is not income.** A positive row
+  in a category that costs more than it returns that month — a utility
+  rebate, an insurance reimbursement — disappears into the category's net.
+  Summing every positive `Betrag` as income instead over-stated the measured
+  month's income by a wide margin.
+- **Any category can be income in one month and spending in the next.** It
+  depends only on the sign of the month's net: a payout from a building-society
+  savings contract makes `Sparen` income, a tax refund larger than the month's
+  fees and taxes makes `Finanzen` income — and the spending inside that
+  category is then shown nowhere.
+
+`Analyse-Vom frei verfuegbaren Einkommen ausgeschlossen` could not be tested: no
+measured month in which the totals were compared carries such a row.
+
 ## What CashPrism does with this
 
 Columns are resolved **by header name, never by index** — see

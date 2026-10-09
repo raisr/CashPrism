@@ -1,0 +1,94 @@
+@using CashPrism.Application.CashFlow
+@using MudBlazor.Charts
+@inject IStringLocalizer<Strings> text
+
+@* Income and spending per month as two filled lines, drawn by MudChart. The
+   last month is the running one: the export was taken before it ended, so
+   its point is marked on the axis and explained underneath rather than
+   left to look like a slump. *@
+<section class="cp-card cp-cashflow">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h2 class="cp-h3">@text["OverviewChartTitle"]</h2>
+      <div class="cp-card__sub">@text["OverviewChartSubtitle"]</div>
+    </div>
+    <div class="cp-legend">
+      <span class="cp-legend__item"><span class="cp-legend__swatch cp-legend__swatch--line" style="--c:var(--cp-income)"></span>@text["OverviewIncomeSeries"]</span>
+      <span class="cp-legend__item"><span class="cp-legend__swatch cp-legend__swatch--line" style="--c:var(--cp-expense)"></span>@text["OverviewSpendingSeries"]</span>
+    </div>
+  </div>
+  <div class="cp-card__body">
+    <MudChart T="double"
+              ChartType="ChartType.Line"
+              ChartSeries="@series"
+              ChartLabels="@labels"
+              ChartOptions="@options"
+              Width="100%"
+              Height="280px"
+              MatchBoundsToSize="true"
+              Class="cp-cashflow__chart" />
+    <p class="cp-cashflow__note">@text["OverviewRunningMonth", OverviewFormat.MonthLong(RunningMonth), CurrentTo.ToString("d", CultureInfo.CurrentCulture)]</p>
+  </div>
+</section>
+
+@code {
+    // The design fills under each line with a fade; a light, even fill is as
+    // close as MudChart comes, and close enough to keep the chart its own.
+    private const double FillOpacity = 0.15;
+
+    // As many month labels as fit the card side by side.
+    private const int MaxLabels = 12;
+
+    private readonly LineChartOptions options = new()
+    {
+        ShowLegend = false,
+        LineDisplayType = LineDisplayType.Area,
+        InterpolationOption = InterpolationOption.NaturalSpline,
+        ChartPalette = ["var(--cp-income)", "var(--cp-expense)"],
+        // A line every thousand euros reads as round figures; the cap thins
+        // them out for a household that moves more than that.
+        YAxisTicks = 1000,
+        MaxNumYAxisTicks = 6,
+        YAxisToStringFunc = value => OverviewFormat.WholeEuros((long)(value * 100)),
+    };
+
+    private List<ChartSeries<double>> series = [];
+    private string[] labels = [];
+
+    /// <summary>The months to draw, oldest first; the last is the running one.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MonthlyCashFlow> Months { get; set; } = [];
+
+    /// <summary>The date the stored data is current to.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly CurrentTo { get; set; }
+
+    private DateOnly RunningMonth => Months[^1].Month;
+
+    protected override void OnParametersSet()
+    {
+        series =
+        [
+            new() { Name = text["OverviewIncomeSeries"], Data = Months.Select(month => month.IncomeInCents / 100d).ToArray() },
+            new() { Name = text["OverviewSpendingSeries"], Data = Months.Select(month => month.SpendingInCents / 100d).ToArray() },
+        ];
+
+        // Keyed by the series itself, so it is set again with every new one.
+        options.SeriesDisplayOverrides = series.ToDictionary(
+            IChartSeries (line) => line,
+            _ => new SeriesDisplayOverride { FillOpacity = FillOpacity });
+
+        // Beyond twelve months every other label is left blank, counted back
+        // from the running month so that it always keeps its own.
+        var step = (Months.Count + MaxLabels - 1) / MaxLabels;
+        var last = Months.Count - 1;
+
+        labels = Months
+            .Select((month, index) => (last - index) % step != 0
+                ? string.Empty
+                : index == last
+                    ? text["OverviewRunningMonthLabel", OverviewFormat.MonthShort(month.Month)].Value
+                    : OverviewFormat.MonthShort(month.Month))
+            .ToArray();
+    }
+}

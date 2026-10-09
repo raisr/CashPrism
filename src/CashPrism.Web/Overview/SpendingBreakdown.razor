@@ -1,0 +1,110 @@
+@using CashPrism.Application.CashFlow
+@inject IStringLocalizer<Strings> text
+
+@* Where the money of one month went, by Finanzguru's main categories: the
+   largest few as a ring, everything after them as one rest. The colours go
+   by rank, not by category — several main categories share a colour in the
+   booking list's grouping, and two neighbouring slices in one colour would
+   read as one. *@
+<section class="cp-card cp-breakdown">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h2 class="cp-h3">@text["OverviewCategoriesTitle"]</h2>
+      <div class="cp-card__sub">@OverviewFormat.MonthLong(Month)</div>
+    </div>
+  </div>
+  <div class="cp-card__body">
+    @if (slices.Count == 0)
+    {
+      <p class="cp-breakdown__none">@text["OverviewCategoriesNone", OverviewFormat.MonthName(Month)]</p>
+    }
+    else
+    {
+      <div class="cp-breakdown__content">
+        <div class="cp-breakdown__ring">
+          <MudChart T="double"
+                    ChartType="ChartType.Donut"
+                    ChartSeries="@series"
+                    ChartLabels="@labels"
+                    ChartOptions="@options"
+                    Width="190px"
+                    Height="190px" />
+          <div class="cp-breakdown__total">
+            <span>@text["OverviewCategoriesTotal"]</span>
+            <b>@OverviewFormat.WholeEuros(total)</b>
+          </div>
+        </div>
+        <ul class="cp-legend cp-legend--column cp-breakdown__legend">
+          @foreach (var slice in slices)
+          {
+            <li class="cp-legend__item">
+              <span class="cp-legend__swatch" style="--c:@slice.Colour"></span>
+              <span>@slice.Name</span>
+              <span class="cp-legend__value">@OverviewFormat.WholeEuros(slice.SpendingInCents)</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</section>
+
+@code {
+    /// <summary>How many categories get a slice of their own before the rest is put together.</summary>
+    public const int LargestShown = 5;
+
+    // The prism in the order the design lists it; the rest is slate.
+    private static readonly string[] Colours =
+    [
+        "var(--cp-prism-violet)",
+        "var(--cp-prism-blue)",
+        "var(--cp-prism-cyan)",
+        "var(--cp-prism-teal)",
+        "var(--cp-prism-green)",
+    ];
+
+    private const string RestColour = "var(--cp-prism-slate)";
+
+    // No tooltip, as in the design: the legend beside the ring already names
+    // every slice with its amount, and MudChart draws its tooltip inside the
+    // scaled-down ring, too small to read.
+    private readonly DonutChartOptions options = new() { ShowLegend = false, ShowToolTips = false };
+
+    private List<Slice> slices = [];
+    private List<ChartSeries<double>> series = [];
+    private string[] labels = [];
+    private long total;
+
+    /// <summary>The month the categories are of.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly Month { get; set; }
+
+    /// <summary>Spending per main category in <see cref="Month"/>, largest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<CategorySpending> Categories { get; set; } = [];
+
+    protected override void OnParametersSet()
+    {
+        slices = Categories
+            .Take(LargestShown)
+            .Select((category, rank) => new Slice(
+                MainCategoryName.For(category.Category, text),
+                category.SpendingInCents,
+                Colours[rank]))
+            .ToList();
+
+        var rest = Categories.Skip(LargestShown).Sum(category => category.SpendingInCents);
+
+        if (rest > 0)
+        {
+            slices.Add(new Slice(text["OverviewCategoriesRest"], rest, RestColour));
+        }
+
+        total = Categories.Sum(category => category.SpendingInCents);
+        labels = slices.Select(slice => slice.Name).ToArray();
+        series = [new() { Name = text["OverviewSpendingSeries"], Data = slices.Select(slice => slice.SpendingInCents / 100d).ToArray() }];
+        options.ChartPalette = slices.Select(slice => slice.Colour).ToArray();
+    }
+
+    private sealed record Slice(string Name, long SpendingInCents, string Colour);
+}

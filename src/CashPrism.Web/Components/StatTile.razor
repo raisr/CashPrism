@@ -1,0 +1,71 @@
+@* One figure on a card of its own, as the design's stat card draws it: a
+   round tile, a label that names what is counted, the figure, and how it
+   moved since the period before.
+
+   The tile shows that move at a glance — the arrow points the way the
+   figure went, the colour says whether that is good — and the line under
+   the figure says by how much. Whether a move is good is the caller's to
+   say: more income is, more spending is not. *@
+<section class="cp-card">
+  <div class="cp-stat">
+    <IconTile Icon="@TrendIcon" Colour="@TrendColour" Size="44" Round="true" />
+    <div class="cp-stat__body">
+      <div class="cp-stat__label">@Label</div>
+      <div class="cp-stat__value">@ChildContent</div>
+      @if (Delta is not null)
+      {
+        <div class="cp-stat__delta">
+          <b class="@DeltaClass">
+            <CpIcon Name="@TrendIcon" Size="14" />
+            @Delta
+          </b>
+          @DeltaLabel
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+@code {
+    /// <summary>What the figure counts, already localised.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    /// <summary>The figure.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Which way the figure moved; decides the arrow.</summary>
+    [Parameter]
+    public StatTrend Trend { get; set; }
+
+    /// <summary>Whether the move is a good one; decides the colour of an upward or downward move.</summary>
+    [Parameter]
+    public bool DeltaGood { get; set; }
+
+    /// <summary>How the figure moved, already formatted, or nothing when there is nothing to compare with.</summary>
+    [Parameter]
+    public string? Delta { get; set; }
+
+    /// <summary>What the move is measured against, already localised.</summary>
+    [Parameter]
+    public string? DeltaLabel { get; set; }
+
+    private bool Moved => Trend is StatTrend.Up or StatTrend.Down;
+
+    private string TrendIcon => Trend switch
+    {
+        StatTrend.Up => "arrow-up-right",
+        StatTrend.Down => "arrow-down-right",
+        _ => "arrow-right",
+    };
+
+    // Unchanged or not comparable is neither good nor bad, so it stays grey.
+    private string TrendColour => !Moved
+        ? "var(--cp-prism-slate)"
+        : DeltaGood ? "var(--cp-income)" : "var(--cp-expense)";
+
+    private string? DeltaClass => !Moved
+        ? null
+        : DeltaGood ? "cp-delta--good" : "cp-delta--bad";
+}
