@@ -3,6 +3,7 @@ using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
 using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.TestSupport.Xlsx;
+using CashPrism.Web.Network;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashPrism.Shell.Tests.Integration.Settings;
@@ -17,9 +18,9 @@ public sealed class SettingsPageTests
     private const string FileName = "20260907_Export_Alle_Buchungen.xlsx";
 
     /// <summary>A host on a database of its own, already migrated.</summary>
-    private static CashPrismWebApplicationFactory StartHost()
+    private static CashPrismWebApplicationFactory StartHost(IReadOnlyDictionary<string, string?>? configuration = null)
     {
-        var factory = new CashPrismWebApplicationFactory();
+        var factory = new CashPrismWebApplicationFactory { Configuration = configuration ?? new Dictionary<string, string?>() };
 
         // Building the host is what applies the schema — see HostBootTests.
         factory.CreateClient().Dispose();
@@ -70,6 +71,33 @@ public sealed class SettingsPageTests
             var html = WebUtility.HtmlDecode(await client.GetStringAsync("/settings"));
 
             Assert.Contains("Alle Daten löschen", html, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task Names_The_Port_And_No_Address_In_A_Container()
+        {
+            using var factory = StartHost(new Dictionary<string, string?>
+            {
+                ["DOTNET_RUNNING_IN_CONTAINER"] = "true",
+                ["Hosting:Port"] = "5080",
+            });
+            using var client = await factory.CreateSignedInClientAsync();
+
+            var html = WebUtility.HtmlDecode(await client.GetStringAsync("/settings"));
+
+            Assert.Contains("hört dort auf Port 5080", html, StringComparison.Ordinal);
+            Assert.DoesNotContain("cp-settings-reach__urls", html, StringComparison.Ordinal);
+        }
+    }
+
+    public sealed class TheReachability
+    {
+        [Fact]
+        public void Carries_The_Port_The_Host_Was_Started_With()
+        {
+            using var factory = StartHost(new Dictionary<string, string?> { ["Hosting:Port"] = "5099" });
+
+            Assert.Equal(5099, factory.Services.GetRequiredService<IReachability>().Read().Port);
         }
     }
 

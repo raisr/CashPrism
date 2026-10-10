@@ -40,6 +40,15 @@ public static class NetworkAddresses
         return [.. addresses.Where(IsPrivateIPv4)];
     }
 
+    /// <summary>
+    /// One <c>http://address:port</c> for each address of
+    /// <paramref name="addresses"/> another device in the home network can
+    /// reach, as <see cref="FilterPrivateIPv4"/> decides. The start banner and
+    /// the settings page both list these, so they cannot drift apart.
+    /// </summary>
+    public static IReadOnlyList<string> Urls(int port, IEnumerable<IPAddress> addresses)
+        => [.. FilterPrivateIPv4(addresses).Select(address => $"http://{address}:{port}")];
+
     private static bool IsPrivateIPv4(IPAddress address)
     {
         if (address.AddressFamily != AddressFamily.InterNetwork)

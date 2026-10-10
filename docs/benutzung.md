@@ -110,9 +110,15 @@ siehe [`hosting.md`](hosting.md).
 ## Von einem anderen Gerät aus öffnen
 
 Laptop, Tablet oder Handy im selben Netz öffnen die Adresse unter
-*From another device in the same network* im Browser. Stehen dort mehrere
-Zeilen, ist das normal — VPN- oder Docker-Adapter bringen eigene Adressen mit.
-Man probiert sie der Reihe nach, bis eine antwortet.
+*From another device in the same network* im Browser. Dieselben Adressen
+stehen in CashPrism unter *Einstellungen* auf der Karte *Erreichbar unter*,
+falls das Konsolenfenster schon zu ist. Stehen dort mehrere Zeilen, ist das
+normal — VPN- oder Docker-Adapter bringen eigene Adressen mit. Man probiert sie
+der Reihe nach, bis eine antwortet.
+
+Läuft CashPrism in einem Container, nennt die Karte nur den Port: Erreichbar
+ist es dann unter der Adresse des Rechners, auf dem der Container läuft, mit
+dem Port, unter dem er veröffentlicht ist.
 
 Jedes Gerät meldet sich mit dem gemeinsamen Passwort an — siehe
 [Anmelden](#anmelden).
@@ -228,7 +234,7 @@ Symbolen ein und wieder auf.
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen — siehe [Die Analyse](#die-analyse) |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
-| Einstellungen | `/settings` | Alle gespeicherten Daten löschen, Passwort ändern |
+| Einstellungen | `/settings` | Alle gespeicherten Daten löschen, sehen, unter welcher Adresse CashPrism erreichbar ist, Passwort ändern |
 
 Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen* und *Analyse* statt
 leerer Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.

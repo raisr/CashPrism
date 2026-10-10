@@ -50,4 +50,23 @@ public sealed class NetworkAddressesTests
             Assert.Equal(["192.168.1.5", "10.0.0.5"], kept.Select(a => a.ToString()));
         }
     }
+
+    public sealed class Urls
+    {
+        [Fact]
+        public void Composes_One_Url_Per_Reachable_Address_With_The_Port()
+        {
+            var urls = NetworkAddresses.Urls(5099, [IPAddress.Parse("192.168.1.5"), IPAddress.Parse("10.0.0.5")]);
+
+            Assert.Equal(["http://192.168.1.5:5099", "http://10.0.0.5:5099"], urls);
+        }
+
+        [Fact]
+        public void Leaves_Out_An_Address_No_Other_Device_Reaches()
+        {
+            var urls = NetworkAddresses.Urls(5080, [IPAddress.Parse("127.0.0.1"), IPAddress.Parse("fe80::1")]);
+
+            Assert.Empty(urls);
+        }
+    }
 }
