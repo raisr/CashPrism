@@ -73,6 +73,12 @@ its tag, for example `-p:Version=0.1.0`; the UI and the start banner show it.
 If the port is already taken, CashPrism says so and stops — it does not quietly
 move to another one, because then nobody would know which address to type.
 
+The console shows the start banner and, below it, only warnings and errors —
+not every request or database command, which would bury the address and the
+setup code. To see more while tracking something down, set
+`Logging:LogLevel:Default` to `Information`; a `dotnet run` from the repository
+does that already, through `appsettings.Development.json`.
+
 Connections are plain HTTP. A self-signed certificate would mean a security
 warning on every phone and tablet in the house, so CashPrism does not pretend to
 offer encryption it cannot deliver on a home network.
