@@ -1,0 +1,39 @@
+@inject IStringLocalizer<Strings> text
+
+@* Where another device in the household reaches CashPrism: the addresses the
+   start banner prints, here for whoever no longer has the console in view.
+   In a container the machine's addresses are the container network's, so the
+   card names the port and leaves the address to the host, as the banner does. *@
+<div class="cp-card cp-settings-reach">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <div class="cp-h3">@text["SettingsReachTitle"]</div>
+      <div class="cp-card__sub">@text["SettingsReachLead"]</div>
+    </div>
+  </div>
+  <div class="cp-card__body">
+    @if (Reachability.InContainer)
+    {
+      <p class="cp-settings-reach__note">@text["SettingsReachContainer", Reachability.Port]</p>
+    }
+    else if (Reachability.Urls.Count == 0)
+    {
+      <p class="cp-settings-reach__note">@text["SettingsReachNone"]</p>
+    }
+    else
+    {
+      <ul class="cp-settings-reach__urls">
+        @foreach (var url in Reachability.Urls)
+        {
+          <li>@url</li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+
+@code {
+    /// <summary>What the host says about where it can be reached.</summary>
+    [Parameter, EditorRequired]
+    public Reachability Reachability { get; set; } = null!;
+}

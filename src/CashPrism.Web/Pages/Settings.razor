@@ -4,6 +4,7 @@
 @using CashPrism.Application.Persistence
 @using CashPrism.Web.Access
 @using CashPrism.Web.Bookings
+@using CashPrism.Web.Network
 @using CashPrism.Web.StoredData
 @using Microsoft.Extensions.Logging
 @inject IStringLocalizer<Strings> text
@@ -11,6 +12,7 @@
 @inject IBookingReader bookingReader
 @inject IImportRunReader runReader
 @inject StoredDataChanges storedDataChanges
+@inject IReachability reachability
 @inject ILogger<Settings> log
 
 <PageFrame Title="@text["NavSettings"]" Lead="@text["SettingsLead"]">
@@ -73,6 +75,8 @@
         }
       </div>
     </div>
+
+    <ReachabilityCard Reachability="@reachability.Read()" />
 
     <div class="cp-card">
       <div class="cp-card__head">

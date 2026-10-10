@@ -35,6 +35,12 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
     /// </summary>
     public string? EnvironmentName { get; init; }
 
+    /// <summary>
+    /// Further configuration for the host, on top of the two settings it always
+    /// overrides: what a command-line switch or the container image would set.
+    /// </summary>
+    public IReadOnlyDictionary<string, string?> Configuration { get; init; } = new Dictionary<string, string?>();
+
     /// <summary>The password <see cref="SetPasswordAsync"/> sets.</summary>
     public const string Password = "korrekt pferd batterie";
 
@@ -86,7 +92,7 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureHostConfiguration(configuration => configuration.AddInMemoryCollection(
-            new Dictionary<string, string?>
+            new Dictionary<string, string?>(Configuration)
             {
                 ["Hosting:LaunchBrowser"] = "false",
                 ["Hosting:DataDirectory"] = DataDirectory,

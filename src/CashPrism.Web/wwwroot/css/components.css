@@ -1536,6 +1536,23 @@
   gap: 12px;
 }
 
+.cp-settings-reach__urls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.cp-settings-reach__note {
+  margin: 0;
+  color: var(--cp-text-2);
+}
+
 .cp-settings-erase__busy {
   display: flex;
   align-items: center;

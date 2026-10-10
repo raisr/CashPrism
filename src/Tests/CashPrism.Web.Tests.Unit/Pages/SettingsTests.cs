@@ -3,10 +3,12 @@ using CashPrism.Application.Bookings;
 using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
 using CashPrism.Web.Localisation;
+using CashPrism.Web.Network;
 using CashPrism.Web.Pages;
 using CashPrism.Web.StoredData;
 using CashPrism.Web.Tests.Unit.Bookings;
 using CashPrism.Web.Tests.Unit.Imports;
+using CashPrism.Web.Tests.Unit.Network;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -29,6 +31,7 @@ public sealed class SettingsTests
             Context.Services.AddSingleton<IBookingReader>(Bookings);
             Context.Services.AddSingleton<IImportRunReader>(Runs);
             Context.Services.AddSingleton<IDataEraser>(Eraser);
+            Context.Services.AddSingleton<IReachability>(Reachability);
 
             Eraser.OnErase = () =>
             {
@@ -46,6 +49,8 @@ public sealed class SettingsTests
         protected FakeDataEraser Eraser { get; } = new();
 
         protected StoredDataChanges Changes { get; } = new();
+
+        protected FakeReachability Reachability { get; } = new();
 
         public Task InitializeAsync() => Task.CompletedTask;
 
@@ -72,6 +77,16 @@ public sealed class SettingsTests
 
     public sealed class Render : PageTest
     {
+        [Fact]
+        public void Shows_Where_Another_Device_Reaches_CashPrism()
+        {
+            Reachability.Current = new Reachability(5099, InContainer: false, ["http://192.168.1.5:5099"]);
+
+            var page = RenderWithData();
+
+            Assert.Equal("http://192.168.1.5:5099", page.Find(".cp-settings-reach__urls li").TextContent);
+        }
+
         [Fact]
         public void Offers_To_Delete_What_Is_Stored()
         {

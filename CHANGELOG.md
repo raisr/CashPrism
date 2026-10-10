@@ -194,6 +194,10 @@ releases and the minor version is bumped for every notable change.
   days, otherwise the login ends with the browser. After five wrong passwords
   logins pause for a minute, longer if it goes on. *Abmelden* sits at the
   bottom of the navigation.
+- *Einstellungen* shows where another device reaches CashPrism: the same
+  addresses the start banner prints, read afresh each time the page opens, so
+  the address can be looked up once the console window is closed. In a
+  container it names the port and leaves the address to the host.
 - The password can be changed under *Einstellungen*, with the current one, and
   a forgotten one is reset by starting CashPrism once with `--reset-password`,
   which prints a new setup code and leaves every booking and import in place.

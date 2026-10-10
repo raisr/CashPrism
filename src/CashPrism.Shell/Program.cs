@@ -8,6 +8,7 @@ using CashPrism.Infrastructure.Configuration;
 using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.Shell.Hosting;
 using CashPrism.Web.Configuration;
+using CashPrism.Web.Network;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -117,7 +118,15 @@ public sealed class Program
             dataProtection.ProtectKeysWithDpapi();
         }
 
+        // Set by every official .NET container image. Inside one, the addresses
+        // of the machine are those of the container network, which no other
+        // device in the house can reach. Read once, so the banner and the
+        // settings page cannot decide it differently.
+        var runningInContainer = builder.Configuration.GetValue<bool>("DOTNET_RUNNING_IN_CONTAINER");
+
         builder.Services.AddCashPrismWeb();
+        builder.Services.AddSingleton<IReachability>(
+            new ShellReachability(hosting.Port, runningInContainer, NetworkAddresses.Local));
         builder.Services.AddCashPrismPersistence(databaseFile);
 
         // Which external format an import reads is a decision of the composition
@@ -187,11 +196,6 @@ public sealed class Program
         // Printed only while it is worth something: once a password is set, the
         // code opens nothing.
         var setupCode = setupPending ? app.Services.GetRequiredService<SetupCode>() : null;
-
-        // Set by every official .NET container image. Inside one, the addresses
-        // of the machine are those of the container network, which no other
-        // device in the house can reach.
-        var runningInContainer = builder.Configuration.GetValue<bool>("DOTNET_RUNNING_IN_CONTAINER");
 
         // Only once the server actually listens is the address worth printing.
         app.Lifetime.ApplicationStarted.Register(() =>

@@ -866,6 +866,22 @@
     <value>Passwort geändert</value>
     <comment>Headline on the login page right after the password was changed.</comment>
   </data>
+  <data name="SettingsReachTitle" xml:space="preserve">
+    <value>Erreichbar unter</value>
+    <comment>Title of the card on the settings page that lists where CashPrism is reachable from another device.</comment>
+  </data>
+  <data name="SettingsReachLead" xml:space="preserve">
+    <value>So öffnest du CashPrism auf einem anderen Gerät im selben Netz, etwa auf deinem Handy.</value>
+    <comment>Line under the title of the reachability card on the settings page.</comment>
+  </data>
+  <data name="SettingsReachNone" xml:space="preserve">
+    <value>Dieser Rechner ist gerade mit keinem Heimnetz verbunden. Andere Geräte erreichen CashPrism erst, wenn er es ist.</value>
+    <comment>Shown on the reachability card when the machine has no address in a home network.</comment>
+  </data>
+  <data name="SettingsReachContainer" xml:space="preserve">
+    <value>CashPrism läuft in einem Container und hört dort auf Port {0}. Andere Geräte erreichen es unter der Adresse des Rechners, auf dem der Container läuft, mit dem Port, unter dem er veröffentlicht ist.</value>
+    <comment>Shown on the reachability card when CashPrism runs in a container. {0} is the port inside the container.</comment>
+  </data>
   <data name="SettingsPasswordTitle" xml:space="preserve">
     <value>Passwort</value>
     <comment>Title of the password card on the settings page.</comment>

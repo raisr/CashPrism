@@ -177,9 +177,9 @@ What differs from a start on the desktop is set by the image, not by a switch:
 - **No browser opens**, and the start banner names the port rather than
   addresses: the addresses inside a container belong to the container network,
   and only the host port it is published on is reachable from another device.
-  Type the host's own address and that port. Until a password is set, the
-  [setup code](#the-password) is in the banner as well: `docker logs
-  cashprism` shows it.
+  Type the host's own address and that port; *Einstellungen* says the same.
+  Until a password is set, the [setup code](#the-password) is in the banner as
+  well: `docker logs cashprism` shows it.
 - **The image runs as a non-root user.** A bind mount instead of a named volume
   therefore has to be writable by user ID 1654.
 - **`TZ` decides what "today" is.** Without it the container runs on UTC, and a
@@ -218,4 +218,5 @@ Two instances against two data directories are fine: give the second one its own
 
 More than one line under *From another device* is normal. VPN, Docker and
 Hyper-V adapters each add an address, and CashPrism does not guess which one is
-yours — type them into the other device until one answers.
+yours — type them into the other device until one answers. *Einstellungen*
+lists the same addresses, read again whenever the page opens.
