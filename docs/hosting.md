@@ -96,7 +96,9 @@ accepted.
 On Windows the key files are encrypted with DPAPI for the user account that
 created them, so a data directory copied to another account or machine starts
 with a new key ring. Elsewhere they are stored unencrypted, like the database
-beside them.
+beside them. There, the first start logs one warning that a new key is stored
+unencrypted; it is true, it is the decision just described, and it is left on
+the console on purpose rather than hidden.
 
 ## The password
 

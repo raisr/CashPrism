@@ -8,7 +8,9 @@ using CashPrism.Infrastructure.Access;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.Infrastructure.Time;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CashPrism.Infrastructure.Configuration;
 
@@ -35,8 +37,17 @@ public static class CashPrismPersistenceServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(databaseFilePath);
 
-        services.AddDbContext<CashPrismDbContext>(options =>
-            options.UseSqlite($"Data Source={databaseFilePath}"));
+        services.AddDbContext<CashPrismDbContext>(options => options
+            .UseSqlite($"Data Source={databaseFilePath}")
+
+            // SQLite rebuilds a table to change a column, and the rebuild turns
+            // foreign keys off outside the migration's transaction; EF Core warns
+            // about that on every database the migration runs on. The advice it
+            // gives — split the migration — is for whoever writes migrations,
+            // and the person starting CashPrism can act on none of it, so it is
+            // logged where development sees it and a release does not.
+            .ConfigureWarnings(warnings => warnings.Log(
+                (RelationalEventId.NonTransactionalMigrationOperationWarning, LogLevel.Information))));
 
         services.AddScoped<IDatabaseMigrator, DatabaseMigrator>();
         services.AddScoped<IDataEraser, DataEraser>();
