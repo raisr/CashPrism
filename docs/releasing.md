@@ -67,7 +67,9 @@ gh release delete v0.1.0-rc.1 --cleanup-tag --yes
 
 ## A release
 
-1. **Cut the changelog** in a pull request that changes nothing else:
+1. **Prepare the release** in one pull request. It cuts the changelog and
+   updates whatever has to be true once the version can be downloaded — the
+   README, the docs. No change to code or behaviour goes into it.
    - `## [Unreleased]` becomes `## [X.Y.Z] - YYYY-MM-DD`,
    - a new, empty `## [Unreleased]` goes above it,
    - the compare links at the bottom gain the new version:
