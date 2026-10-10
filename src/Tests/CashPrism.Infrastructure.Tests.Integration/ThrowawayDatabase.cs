@@ -108,8 +108,13 @@ public sealed class ThrowawayDatabase : IAsyncDisposable
     public ValueTask DisposeAsync()
     {
         // The pool holds the file handle open, and on Windows that is enough to
-        // make the delete below fail.
-        SqliteConnection.ClearAllPools();
+        // make the delete below fail. Only this file's pool: clearing every pool
+        // in the process would close the connections of tests running beside
+        // this one.
+        using (var connection = CreateConnection())
+        {
+            SqliteConnection.ClearPool(connection);
+        }
 
         if (File.Exists(filePath))
         {

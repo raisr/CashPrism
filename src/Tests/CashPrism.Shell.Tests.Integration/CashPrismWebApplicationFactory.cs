@@ -117,8 +117,14 @@ public sealed class CashPrismWebApplicationFactory : WebApplicationFactory<Progr
 
         // Disposing the host closes the contexts, but Microsoft.Data.Sqlite keeps
         // the connection in a pool and the pool keeps the file handle. Without
-        // this the directory below cannot be deleted on Windows.
-        SqliteConnection.ClearAllPools();
+        // this the directory below cannot be deleted on Windows. Only this
+        // host's pool, under the connection string the host opened it with:
+        // clearing every pool in the process would close the connections of
+        // tests running beside this one.
+        using (var connection = new SqliteConnection($"Data Source={Path.Combine(DataDirectory, "cashprism.db")}"))
+        {
+            SqliteConnection.ClearPool(connection);
+        }
 
         DeleteDataDirectory();
     }
