@@ -16,7 +16,7 @@ Your data stays with you. No cloud, no account, no signing up anywhere.
 
 - Reads Finanzguru exports (`.xlsx`)
 - Accumulates them over time instead of replacing them
-- Shows transactions, categories and trends you can search and filter
+- Shows your bookings, where the money goes and how that changes over time
 - Runs on Windows, Linux and macOS without an installer
 
 ## Imports accumulate
