@@ -227,6 +227,10 @@ releases and the minor version is bumped for every notable change.
 
 ### Changed
 
+- The console shows the start banner and nothing else until something goes
+  wrong. It used to print several database commands for every page opened,
+  and the start-up messages of the web server, so the address and the setup
+  code were easy to miss — in a container, `docker logs` was mostly SQL.
 - The import page has a new look. Drop a Finanzguru export onto the page or
   click to pick one; a card beside it says where Finanzguru offers the export.
   The result reads "Fertig! … neue Buchungen sind da.", "Diese Datei kennen wir

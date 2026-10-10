@@ -57,7 +57,9 @@ public sealed class ProgramTests
         public async Task Takes_The_Directory_Of_The_Executable_As_Content_Root_When_Started_Elsewhere()
         {
             var elsewhere = Directory.CreateDirectory(Path.Combine(root, "elsewhere")).FullName;
-            var instance = Start(workingDirectory: elsewhere);
+            // The host reports its content root at Information, which the shipped
+            // configuration keeps off the console; this start asks for it back.
+            var instance = Start(workingDirectory: elsewhere, "--Logging:LogLevel:Microsoft.Hosting.Lifetime=Information");
 
             var finished = await Task.WhenAny(instance.ContentRoot, Task.Delay(Patience));
 
