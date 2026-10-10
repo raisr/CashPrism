@@ -110,6 +110,48 @@ git push origin v0.1.1
 The release is published but not marked as the latest, and the image does not
 move `latest`. The fix goes to `main` as well, through the usual pull request.
 
+## Screenshots for the user guide
+
+[`benutzung.md`](benutzung.md) shows one image per use case, kept in
+[`images/benutzung/`](images/benutzung/). A pull request that visibly changes
+one of those pages takes the image again; before a release, look through them
+once against the build being released.
+
+Every image comes from the same starting point, so they agree with each other
+and show nothing but invented data:
+
+1. Start CashPrism from source on an empty data directory of its own, so no
+   real export is anywhere near it:
+
+   ```sh
+   dotnet run --project src/CashPrism.Shell -- --port 5099 --Hosting:DataDirectory=<empty directory>
+   ```
+
+2. In the browser, open `http://localhost:5099` in a window whose page area is
+   1280×800, in the light theme and with the German interface.
+3. Take `passwort-festlegen.png` on the empty setup page, set a password with
+   the setup code from the console, take `anmelden.png` on the empty sign-in
+   page, and sign in.
+4. Import [`samples/demo-export.xlsx`](../samples/demo-export.xlsx) and take
+   the rest:
+
+| Image | Page and state |
+|---|---|
+| `import.png` | *Import* right after the import, with *Fertig!* and the four numbers |
+| `bisherige-importe.png` | *Import* reloaded, scrolled down to *Bisherige Importe* |
+| `navigation.png` | *Übersicht*, the pointer resting on *Analyse* in the navigation |
+| `uebersicht.png` | *Übersicht*, the pointer on a point of the chart so its tooltip shows |
+| `analyse.png` | *Analyse* with *6 Monate* |
+| `buchungsliste.png` | *Buchungen* with the details of one booking open |
+| `erreichbar.png` | *Einstellungen*, the address under *Erreichbar unter* replaced by `http://192.168.1.7:5080` in the browser's developer tools |
+| `alle-daten-loeschen.png` | *Einstellungen* after *Alle Daten löschen*, showing the question — not confirmed — with the address replaced as above |
+| `passwort-aendern.png` | *Passwort ändern*, empty |
+
+The address in `erreichbar.png` and `alle-daten-loeschen.png` is replaced
+because the real one belongs to the machine that took the picture; the
+replacement is the one the user guide uses for the console. Each image is a PNG
+of the page area only, at most 300 KB.
+
 ## What is not signed
 
 The binaries carry no code signature beyond the ad-hoc one macOS requires.

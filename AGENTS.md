@@ -262,6 +262,17 @@ is cheap now and expensive to retrofit.
   an English Windows cannot format amounts and dates one way while the labels
   beside them read another. `Web` never reads it from configuration.
 
+## Screenshots in the user guide
+
+**A pull request that visibly changes a page shown in `docs/benutzung.md`
+takes its image in `docs/images/benutzung/` again, in the same pull request.**
+An image that shows an older page misleads exactly the reader the guide is for.
+
+- Images are made following the recipe in
+  [`docs/releasing.md`](docs/releasing.md#screenshots-for-the-user-guide):
+  a fresh import of `samples/demo-export.xlsx`, never a real export.
+- One PNG per use case, at most 300 KB.
+
 ## Domain terms
 
 | Term | Means |
