@@ -32,13 +32,13 @@ public static class StartBanner
             $"  http://localhost:{port}",
         ];
 
-        var reachable = NetworkAddresses.FilterPrivateIPv4(addresses);
+        var reachable = NetworkAddresses.Urls(port, addresses);
 
         if (reachable.Count > 0)
         {
             lines.Add(string.Empty);
             lines.Add("From another device in the same network:");
-            lines.AddRange(reachable.Select(a => $"  http://{a}:{port}"));
+            lines.AddRange(reachable.Select(url => $"  {url}"));
         }
 
         AddSetupCode(lines, setupCode);
