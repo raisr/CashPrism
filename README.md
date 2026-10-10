@@ -16,7 +16,7 @@ Your data stays with you. No cloud, no account, no signing up anywhere.
 
 - Reads Finanzguru exports (`.xlsx`)
 - Accumulates them over time instead of replacing them
-- Shows transactions, categories and trends you can search and filter
+- Shows your bookings, where the money goes and how that changes over time
 - Runs on Windows, Linux and macOS without an installer
 
 ## Imports accumulate
@@ -33,11 +33,10 @@ that are new or changed are stored; the export file itself is not kept.
 
 ## Running it
 
-One machine runs CashPrism. It will be a download per platform with a single
+One machine runs CashPrism. It is a download per platform with a single
 executable inside — no setup, no runtime to install. On a home server or a NAS
 it also runs as a container, see
-[docs/hosting.md](docs/hosting.md#in-a-container). Until the first release it is
-started from the source tree, see [Getting started](#getting-started).
+[docs/hosting.md](docs/hosting.md#in-a-container).
 
 Every other device on the home network opens the URL in a browser: laptop,
 tablet, phone.
@@ -47,8 +46,15 @@ sees the finances. The database sits as a file next to the application.
 
 ## Getting started
 
-There is no packaged download yet, so CashPrism is built from source. You need
-the [.NET 10 SDK](https://dotnet.microsoft.com/download).
+Download the archive for your platform from
+[Releases](https://github.com/raisr/CashPrism/releases/latest), unpack it and
+start `CashPrism.Shell` inside — on Windows `CashPrism.Shell.exe`. The program is
+not signed, so the operating system warns on the first start;
+[docs/benutzung.md](docs/benutzung.md#herunterladen) says how to get past that,
+how to check the download, and how to run the container instead.
+
+To build it yourself, you need the
+[.NET 10 SDK](https://dotnet.microsoft.com/download):
 
 ```bash
 git clone https://github.com/raisr/CashPrism.git
@@ -56,7 +62,8 @@ cd CashPrism
 dotnet run --project src/CashPrism.Shell
 ```
 
-CashPrism opens your browser and prints every address it can be reached at:
+Either way, CashPrism opens your browser and prints every address it can be
+reached at:
 
 ```
 CashPrism 0.1.0
@@ -67,11 +74,15 @@ On this machine:
 From another device in the same network:
   http://192.168.1.7:5080
 
+No password is set yet. Open CashPrism and enter this setup code:
+  K7QF-M2XP-9HTR
+
 Press Ctrl+C to stop.
 ```
 
-More than one line under *From another device* is normal — pick the one the
-other device answers on.
+The setup code lets you set the password the whole household shares; it is
+only printed until one is set. More than one line under *From another device*
+is normal — pick the one the other device answers on.
 
 No Finanzguru export at hand? Import
 [`samples/demo-export.xlsx`](samples/demo-export.xlsx): three years of a
@@ -84,9 +95,8 @@ container for a home server or a NAS, and the settings that make it stick: see
 
 ## Using it
 
-[docs/benutzung.md](docs/benutzung.md) explains how to use CashPrism: starting
-it, reaching it from another device, importing an export and reading what was
-stored.
+[docs/benutzung.md](docs/benutzung.md) is the user guide: every page of
+CashPrism, what it shows and how to use it, with a screenshot each.
 
 That guide is German, and so is the interface. Finanzguru, the only source
 CashPrism reads, is sold in German-speaking markets only, so every person using
@@ -99,12 +109,9 @@ not, English documentation becomes worth adding.
 
 ## Status
 
-Early development. You can upload a Finanzguru export, page and sort through
-the bookings it stored, and see what was imported when. The overview shows
-income and spending per month and where the money went; the analysis compares
-spending by category over three, six or twelve months. There is no filtering
-and no searching yet. See [ROADMAP.md](ROADMAP.md) for the planned phases and
-[CHANGELOG.md](CHANGELOG.md) for what has landed.
+Early development, with a first release out. Anything may still change
+between versions. [CHANGELOG.md](CHANGELOG.md) says what each version brought,
+[ROADMAP.md](ROADMAP.md) what is planned next.
 
 Have an idea or a suggestion? Post it in
 [Discussions](https://github.com/raisr/CashPrism/discussions/categories/ideas),
