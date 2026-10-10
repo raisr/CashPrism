@@ -109,6 +109,8 @@ siehe [`hosting.md`](hosting.md).
 
 ## Von einem anderen Gerät aus öffnen
 
+![Die Einstellungen mit der Karte Erreichbar unter](images/benutzung/erreichbar.png)
+
 Laptop, Tablet oder Handy im selben Netz öffnen die Adresse unter
 *From another device in the same network* im Browser. Dieselben Adressen
 stehen in CashPrism unter *Einstellungen* auf der Karte *Erreichbar unter*,
@@ -124,6 +126,8 @@ Jedes Gerät meldet sich mit dem gemeinsamen Passwort an — siehe
 [Anmelden](#anmelden).
 
 ## Passwort festlegen
+
+![Die Seite Passwort festlegen mit Einrichtungscode und zweimal dem neuen Passwort](images/benutzung/passwort-festlegen.png)
 
 CashPrism ist mit einem Passwort geschützt, das sich der ganze Haushalt teilt.
 Beim allerersten Start gibt es noch keins: Jede Seite führt dann zu
@@ -150,6 +154,8 @@ sich später unter *Einstellungen* — siehe [Passwort ändern](#passwort-änder
 
 ## Anmelden
 
+![Die Seite Anmelden mit Passwort und Angemeldet bleiben](images/benutzung/anmelden.png)
+
 Jedes Gerät meldet sich einmal mit dem Passwort an. *Angemeldet bleiben* ist
 ausgeschaltet:
 
@@ -171,6 +177,8 @@ Rechner*. Es beendet die Anmeldung auf diesem Gerät; die anderen bleiben
 angemeldet.
 
 ## Passwort ändern
+
+![Die Seite Passwort ändern](images/benutzung/passwort-aendern.png)
 
 Unter *Einstellungen* führt *Passwort ändern* zu einer eigenen Seite. Dort
 stehen das bisherige Passwort und zweimal das neue, mit denselben Regeln wie
@@ -220,6 +228,8 @@ setzt nichts mehr zurück.
 
 ## Die Navigation
 
+![Die Übersicht mit der Navigation links und Designschalter und Import oben rechts](images/benutzung/navigation.png)
+
 Links steht die Navigation mit sechs Zielen. Auf einem schmalen Bildschirm ist
 sie eingeklappt und öffnet sich über das Menüsymbol oben links. Oben rechts
 wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
@@ -240,6 +250,8 @@ Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen* und *Analyse* st
 leerer Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
 
 ## Die Übersicht
+
+![Die Übersicht mit drei Kacheln, dem Diagramm Einnahmen und Ausgaben und dem Ring Wofür ging dein Geld?](images/benutzung/uebersicht.png)
 
 Die Übersicht rechnet vom Datum des jüngsten Exports aus, nicht vom heutigen
 Tag. Der Monat, in dem der Export gezogen wurde, läuft noch; der Monat davor
@@ -279,6 +291,8 @@ Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
 
 ## Die Analyse
 
+![Die Analyse über sechs Monate mit gestapelten Balken nach Kategorie und der Tabelle Kategorien im Vergleich](images/benutzung/analyse.png)
+
 Die Analyse vergleicht, wofür du über mehrere Monate Geld ausgegeben hast.
 Oben rechts wählst du *3 Monate*, *6 Monate* oder *12 Monate*. Gemeint sind
 immer die letzten vollständigen Monate vor dem Monat, in dem der jüngste
@@ -310,6 +324,8 @@ Das Symbol in der Tabelle kennt CashPrism dagegen nur für die Kategorien, die
 es aus Finanzguru kennt; jede andere erhält ein allgemeines Symbol.
 
 ## Einen Export importieren
+
+![Die Seite Import nach einem erfolgreichen Import mit den vier Zahlen](images/benutzung/import.png)
 
 CashPrism liest den Finanzguru-Export „Alle Buchungen“ als `.xlsx`-Datei.
 
@@ -388,6 +404,8 @@ gelesen werden.*
 
 ## Die Buchungsliste
 
+![Die Buchungsliste nach Tagen gruppiert, rechts die Details einer Buchung](images/benutzung/buchungsliste.png)
+
 *Buchungen* zeigt alle gespeicherten Buchungen, zu Beginn die neuesten oben,
 nach Tagen gruppiert: über den Buchungen eines Tages steht *Heute*, *Gestern*
 oder das Datum mit Wochentag, etwa *Mo, 28. September 2026*.
@@ -433,6 +451,8 @@ Konto, Kategorie oder Zeitraum filtern noch nach einem Text durchsuchen.
 
 ## Bisherige Importe
 
+![Die Seite Import mit der Liste Bisherige Importe](images/benutzung/bisherige-importe.png)
+
 Unter der Fläche zum Einlesen listet *Bisherige Importe* jeden Import, der
 etwas eingelesen hat, die neuesten oben. Vor dem ersten Import fehlt die Liste.
 Die Reihenfolge ist fest; die Spalten lassen sich nicht sortieren.
@@ -450,6 +470,8 @@ hier nicht: Sie haben nichts eingelesen. Einzelne Einträge lassen sich weder
 löschen noch wiederholen, und ein Import lässt sich nicht rückgängig machen.
 
 ## Alle Daten löschen
+
+![Die Einstellungen mit der Rückfrage vor dem Löschen aller Daten](images/benutzung/alle-daten-loeschen.png)
 
 Unter *Einstellungen* löscht *Alle Daten löschen* jede gespeicherte Buchung
 und jeden bisherigen Import. Danach baut ein neuer Import alles wieder auf, denn
