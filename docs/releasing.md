@@ -65,6 +65,30 @@ with its tag:
 gh release delete v0.1.0-rc.1 --cleanup-tag --yes
 ```
 
+That leaves the image behind. On GHCR it is one package version for the tagged
+index and one untagged version for each manifest the index points at — a
+platform image and an attestation per architecture. The children go first, the
+index last. Deleting needs a token with the package scopes, granted once with
+`gh auth refresh -h github.com -s read:packages,delete:packages`, and `jq`:
+
+```sh
+tag=0.1.0-rc.1
+token=$(curl -s "https://ghcr.io/token?scope=repository:raisr/cashprism:pull" | jq -r .token | tr -d '\r')
+children=$(curl -s -H "Authorization: Bearer $token" \
+  -H "Accept: application/vnd.oci.image.index.v1+json" \
+  "https://ghcr.io/v2/raisr/cashprism/manifests/$tag" | jq -r '.manifests[].digest' | tr -d '\r')
+versions=$(gh api "users/raisr/packages/container/cashprism/versions?per_page=100")
+index=$(echo "$versions" | jq -r --arg t "$tag" '.[] | select(.metadata.container.tags | index($t)) | .name' | tr -d '\r')
+for digest in $children $index; do
+  id=$(echo "$versions" | jq -r --arg d "$digest" '.[] | select(.name == $d) | .id' | tr -d '\r')
+  [ -n "$id" ] || { echo "no package version for $digest"; continue; }
+  gh api -X DELETE "users/raisr/packages/container/cashprism/versions/$id" && echo "deleted $id $digest"
+done
+```
+
+It prints five `deleted` lines. `tr -d '\r'` is there for `jq` on Windows,
+which ends its lines with CRLF.
+
 ## A release
 
 1. **Prepare the release** in one pull request. It cuts the changelog and
