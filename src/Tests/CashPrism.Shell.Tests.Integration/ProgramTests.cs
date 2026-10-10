@@ -159,10 +159,23 @@ public sealed class ProgramTests
             await first.KillAsync(Patience);
         }
 
+        private string ConnectionString => $"Data Source={Path.Combine(DataDirectory, "cashprism.db")}";
+
         private CashPrismDbContext CreateContext()
             => new(new DbContextOptionsBuilder<CashPrismDbContext>()
-                .UseSqlite($"Data Source={Path.Combine(DataDirectory, "cashprism.db")}")
+                .UseSqlite(ConnectionString)
                 .Options);
+
+        /// <summary>
+        /// Lets go of the file the pool keeps open, so the next start may take
+        /// it. Only this database's pool: clearing every pool in the process
+        /// would close the connections of tests running beside this one.
+        /// </summary>
+        private void ReleaseDatabase()
+        {
+            using var connection = new SqliteConnection(ConnectionString);
+            SqliteConnection.ClearPool(connection);
+        }
 
         private async Task StoreAnImportAsync()
         {
@@ -179,7 +192,7 @@ public sealed class ProgramTests
                 await context.SaveChangesAsync();
             }
 
-            SqliteConnection.ClearAllPools();
+            ReleaseDatabase();
         }
 
         private async Task<Credential?> ReadCredentialAsync()
@@ -191,7 +204,7 @@ public sealed class ProgramTests
                 credential = await new CredentialStore(context).GetAsync();
             }
 
-            SqliteConnection.ClearAllPools();
+            ReleaseDatabase();
 
             return credential;
         }
@@ -205,7 +218,7 @@ public sealed class ProgramTests
                 counts = (await context.Bookings.CountAsync(), await context.ImportRuns.CountAsync());
             }
 
-            SqliteConnection.ClearAllPools();
+            ReleaseDatabase();
 
             return counts;
         }
@@ -217,8 +230,7 @@ public sealed class ProgramTests
                 await new CredentialStore(context).AddAsync(new Credential("a-hash", DateTimeOffset.UnixEpoch));
             }
 
-            // The pool would keep the file open, and the next start wants it.
-            SqliteConnection.ClearAllPools();
+            ReleaseDatabase();
         }
 
         private ShellProcess Start(string? workingDirectory = null, params string[] arguments)
