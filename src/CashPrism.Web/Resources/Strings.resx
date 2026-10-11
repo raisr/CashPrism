@@ -519,6 +519,14 @@
     <value>Umbuchungen ausblenden</value>
     <comment>Booking filter: switch that leaves out transfers between the owner's own accounts.</comment>
   </data>
+  <data name="BookingsFilterSearch" xml:space="preserve">
+    <value>Suche</value>
+    <comment>Booking filter: label of the search field.</comment>
+  </data>
+  <data name="BookingsFilterSearchPlaceholder" xml:space="preserve">
+    <value>Name, Verwendungszweck, IBAN, >200 …</value>
+    <comment>Booking filter: hint inside the empty search field, naming what it searches and the amount syntax.</comment>
+  </data>
   <data name="BookingsFilterRemoveCounterparty" xml:space="preserve">
     <value>Filter „{0}“ entfernen</value>
     <comment>Booking filter: read-out label of the button that removes the counterparty filter; {0} is the counterparty.</comment>

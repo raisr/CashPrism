@@ -38,10 +38,26 @@ public sealed class CashPrismDbContext : DbContext
     public DbSet<Credential> Credentials => Set<Credential>();
 
     /// <inheritdoc />
+    /// <remarks>
+    /// The search functions are added here rather than by each host, so every
+    /// context — the application's, a migration's, a test's — can run a search.
+    /// </remarks>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        ArgumentNullException.ThrowIfNull(optionsBuilder);
+
+        optionsBuilder.AddInterceptors(new SearchFunctionsInterceptor());
+    }
+
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CashPrismDbContext).Assembly);
+
+        modelBuilder
+            .HasDbFunction(typeof(SearchFunctions).GetMethod(nameof(SearchFunctions.Fold))!)
+            .HasName(SearchFunctions.FoldName);
     }
 }

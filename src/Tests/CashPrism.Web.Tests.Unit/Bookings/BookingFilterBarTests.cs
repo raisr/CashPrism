@@ -60,6 +60,54 @@ public sealed class BookingFilterBarTests
             return select.InvokeAsync(() => select.Instance.ValueChanged.InvokeAsync(value));
         }
 
+        private static IRenderedComponent<MudTextField<string>> SearchField(IRenderedComponent<BookingFilterBar> bar)
+            => bar.FindComponents<MudTextField<string>>().Single(field => field.Instance.Label == "Suche");
+
+        private static Task SearchAsync(IRenderedComponent<BookingFilterBar> bar, string? text)
+        {
+            var field = SearchField(bar);
+
+            return field.InvokeAsync(() => field.Instance.ValueChanged.InvokeAsync(text));
+        }
+
+        [Fact]
+        public async Task Raises_The_Search_That_Was_Typed()
+        {
+            var bar = RenderBar(new BookingFilter(Category: "Lebensmittel"));
+
+            await SearchAsync(bar, ">200 rewe");
+
+            Assert.Equal(new BookingFilter(Category: "Lebensmittel", Search: BookingSearch.Parse(">200 rewe")), raised);
+        }
+
+        [Fact]
+        public async Task Raises_No_Search_When_The_Field_Is_Cleared()
+        {
+            var bar = RenderBar(new BookingFilter(Search: BookingSearch.Parse("rewe")));
+
+            await SearchAsync(bar, null);
+
+            Assert.Equal(BookingFilter.None, raised);
+        }
+
+        [Fact]
+        public void Shows_The_Search_It_Is_Given()
+        {
+            var bar = RenderBar(new BookingFilter(Search: BookingSearch.Parse(">200 rewe")));
+
+            Assert.Equal(">200 rewe", SearchField(bar).Instance.GetState(x => x.Value));
+        }
+
+        [Fact]
+        public async Task Keeps_The_Search_When_Another_Main_Category_Is_Picked()
+        {
+            var bar = RenderBar(new BookingFilter(Category: "Lebensmittel", Search: BookingSearch.Parse("rewe")));
+
+            await PickAsync(bar, "Kategorie", "Mobilitaet");
+
+            Assert.Equal(new BookingFilter(Category: "Mobilitaet", Search: BookingSearch.Parse("rewe")), raised);
+        }
+
         [Fact]
         public async Task Raises_The_Picked_Account()
         {

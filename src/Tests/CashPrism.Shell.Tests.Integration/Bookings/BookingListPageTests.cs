@@ -62,11 +62,11 @@ public sealed class BookingListPageTests
     /// The page's HTML, with entities resolved: Blazor writes every non-ASCII
     /// character numerically, so a German string would never match otherwise.
     /// </summary>
-    private static async Task<string> GetAsync(CashPrismWebApplicationFactory factory)
+    private static async Task<string> GetAsync(CashPrismWebApplicationFactory factory, string address = "/bookings")
     {
         using var client = await factory.CreateSignedInClientAsync();
 
-        return WebUtility.HtmlDecode(await client.GetStringAsync("/bookings"));
+        return WebUtility.HtmlDecode(await client.GetStringAsync(address));
     }
 
     public sealed class TheBookingList
@@ -194,6 +194,18 @@ public sealed class BookingListPageTests
 
             Assert.Contains("Zeilen pro Seite", html, StringComparison.Ordinal);
             Assert.Contains("1–2 von 2 Buchungen", html, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public async Task Opens_The_Searched_List_From_The_Address()
+        {
+            using var factory = StartHost();
+            await ImportTwoBookingsAsync(factory);
+
+            var html = await GetAsync(factory, "/bookings?q=%3E50%20supermarkt");
+
+            Assert.Contains("−63,17 €", html, StringComparison.Ordinal);
+            Assert.DoesNotContain("−12,00 €", html, StringComparison.Ordinal);
         }
     }
 }
