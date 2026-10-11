@@ -23,9 +23,9 @@ public sealed class FakeBookingReader : IBookingReader
     /// <summary>
     /// How many bookings the fake claims are stored when asked for the count
     /// alone. Settable on its own, so a test can import some without building
-    /// them.
+    /// them; left unset, it is the number of bookings the fake holds.
     /// </summary>
-    public int Count { get; set; }
+    public int? Count { get; set; }
 
     /// <summary>What the fake answers when asked for the sums, whatever the filter.</summary>
     public BookingSummary Summary { get; set; } = new(0, 0, 0);
@@ -44,7 +44,7 @@ public sealed class FakeBookingReader : IBookingReader
     }
 
     public Task<int> CountAsync(CancellationToken cancellationToken = default)
-        => Task.FromResult(Count);
+        => Task.FromResult(Count ?? Stored.Count);
 
     public Task<BookingSummary> ReadSummaryAsync(BookingFilter filter, CancellationToken cancellationToken = default)
     {

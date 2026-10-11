@@ -1,0 +1,20 @@
+@using CashPrism.Application.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+
+@* The figures over the whole filter, not the page on screen: how many
+   bookings it lists, what came in, what went out and what is left. *@
+<div class="cp-summary" role="status">
+  <span class="cp-summary__count"><b class="cp-figure">@Summary.Count.ToString("N0", CultureInfo.CurrentCulture)</b> @CountLabel</span>
+  <span class="cp-summary__figure">@text["BookingsSummaryIncome"] <Sum AmountInCents="Summary.IncomeInCents" /></span>
+  <span class="cp-summary__figure">@text["BookingsSummarySpending"] <Sum AmountInCents="Summary.SpendingInCents" /></span>
+  <span class="cp-summary__figure">@text["BookingsSummaryBalance"] <Sum AmountInCents="Summary.BalanceInCents" /></span>
+</div>
+
+@code {
+    /// <summary>The figures to show.</summary>
+    [Parameter, EditorRequired]
+    public BookingSummary Summary { get; set; } = new(0, 0, 0);
+
+    private string CountLabel => Summary.Count == 1 ? text["BookingsSummaryOne"] : text["BookingsSummaryMany"];
+}
