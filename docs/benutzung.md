@@ -242,16 +242,17 @@ Symbolen ein und wieder auf.
 |---|---|---|
 | Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
+| Konten | `/accounts` | Deine Konten mit ihren Kontoständen — siehe [Die Konten](#die-konten) |
 | Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen, dazu nach Empfänger — siehe [Die Analyse](#die-analyse) |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, sehen, unter welcher Adresse CashPrism erreichbar ist, Passwort ändern |
 
-Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen* und *Analyse* statt
+Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen*, *Konten* und *Analyse* statt
 leerer Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
 
 ## Die Übersicht
 
-![Die Übersicht mit drei Kacheln, dem Diagramm Einnahmen und Ausgaben und dem Ring Wofür ging dein Geld?](images/benutzung/uebersicht.png)
+![Die Übersicht mit vier Kacheln, dem Diagramm Einnahmen und Ausgaben und dem Ring Wofür ging dein Geld?](images/benutzung/uebersicht.png)
 
 Die Übersicht rechnet vom Datum des jüngsten Exports aus, nicht vom heutigen
 Tag. Der Monat, in dem der Export gezogen wurde, läuft noch; der Monat davor
@@ -268,6 +269,8 @@ Kategorie in einem Monat als Einnahme erscheinen, etwa *Sparen* bei einer
 Auszahlung oder *Finanzen* bei einer Steuererstattung. Ob Finanzguru eine
 Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
 
+- **Vermögen auf allen Konten:** die erste Kachel. Sie zählt die Kontostände
+  aller [Konten](#die-konten) zusammen, ein Kredit mit seinem Minus.
 - **Kacheln:** *Einnahmen*, *Ausgaben* und was *übrig geblieben* ist, jeweils im
   letzten vollständigen Monat und auf den Cent. Darunter steht die Veränderung
   gegenüber dem Monat davor — bei Einnahmen und Ausgaben in Prozent, beim
@@ -537,6 +540,41 @@ Filtern und steht wie sie in der Adresse, etwa `/bookings?q=rewe`.
   400 €.
 - Was sich nicht als Betrag lesen lässt, etwa `>abc` oder `>1.000,00` mit
   Tausenderpunkt, wird als Wort gesucht.
+
+## Die Konten
+
+![Die Konten: links die Kontokarten, das ausgewählte Konto blau, rechts sein Kontostand und seine letzten Buchungen](images/benutzung/konten.png)
+
+*Konten* zeigt jedes Konto aus deinem Finanzguru-Export mit seinem Kontostand.
+Darüber steht, wo deine Konten zusammen stehen, etwa *Deine 7 Konten stehen
+zusammen bei 25.446,00 €*. Ein Kredit zählt mit seinem Minus, die Summe kann
+also negativ sein.
+
+- **Kontokarten:** links, das höchste Guthaben oben. Jede Karte zeigt den Namen
+  des Kontos, wie Finanzguru ihn führt, die letzten vier Stellen der IBAN, etwa
+  `•••• 2051`, und den Kontostand. Ein Klick wählt das Konto aus; die
+  ausgewählte Karte ist blau. Die Auswahl steht in der Adresse, ein Lesezeichen
+  öffnet also dasselbe Konto.
+- **Das ausgewählte Konto:** rechts, mit Kontostand und dem Tag der letzten
+  Buchung. Darunter stehen seine 30 neuesten Buchungen nach Tagen; ein Klick
+  öffnet die [Details einer Buchung](#die-buchungsliste). *Alle Buchungen
+  dieses Kontos* öffnet die Buchungsliste auf dieses Konto gefiltert.
+
+**Woher der Kontostand kommt:** aus dem Export, so wie Finanzguru ihn am Tag
+des Exports zeigt. CashPrism rechnet nichts nach und nimmt den Stand des
+neuesten Exports, auch wenn du danach einen älteren importierst.
+
+**Was fehlt:**
+
+- **Konten ohne Buchung.** Der Export beschreibt ein Konto nur über seine
+  Buchungen. Ein Konto, das in Finanzguru zu sehen ist, aber im Export keine
+  einzige Buchung hat, erscheint hier nicht, und sein Kontostand fehlt in der
+  Summe.
+- **Der Name der Bank.** Der Export enthält ihn nicht.
+- **Kontostände aus früheren Importen.** CashPrism liest den Kontostand beim
+  Import. Hast du vor dieser Version importiert, erscheinen die Konten mit dem
+  nächsten neuen Export. Denselben Export noch einmal zu importieren reicht
+  nicht, er wird als bereits importiert erkannt.
 
 ## Bisherige Importe
 

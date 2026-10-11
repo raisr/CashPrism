@@ -147,6 +147,25 @@ comes close to holding. The column can be shown as what the export claims, but
 nothing may be **derived** from it: not a balance history, not a plausibility
 check on `Betrag`, not a way to detect missing rows.
 
+### Where `Kontostand` does give the balance
+
+One row per account carries the balance the Finanzguru app shows: the
+account's **topmost row whose `Buchungstag` is not after the export date**.
+Measured on the export of 2026-10-05 against a screenshot of the app taken the
+same day, that matched the app for all six accounts that have rows. The plain
+topmost row failed on one of them: its rows dated one day after the export date
+already carried their own balance.
+
+Two consequences:
+
+- The rule needs the **order of the file**. Two rows on the last day are told
+  apart by which one the export lists first, and nothing in a row says that.
+- An account the app lists **without a single row in the export** has no
+  balance here. The export only describes accounts through their bookings.
+
+This is one snapshot, not a specification. A second export that breaks it is
+worth a measurement of its own rather than a patch to the rule.
+
 ### The category catalogue
 
 Both exports carry the same 14 main categories and the same 76 pairs of main
@@ -383,6 +402,16 @@ row holds, and hands both on.
   the stored states it needs and lets go of them again, because an export always
   carries the owner's complete history and that history only grows. The change
   tracker never holds a whole file, which is where an ORM stops being quick.
+
+- **The account balances are taken from the whole file**, once the bookings
+  are written, by the rule [above](#where-kontostand-does-give-the-balance) —
+  `AccountBalanceRule` in `CashPrism.Domain`. The rule needs the file's order,
+  and the stored bookings do not keep it: an unchanged booking is not written
+  again, so row numbers of two files are never comparable. Each run therefore
+  stores one balance per account, and whatever shows balances reads those of
+  the latest run, "latest" decided as for a booking. Where the sheet name
+  carried no export date, the day of the import is the cut-off. A database
+  imported into before balances were taken has none until the next new export.
 
 What an import did is recorded on the run itself: the file name, its hash, the
 sheet name, the export date, and how many rows were read, inserted, updated and

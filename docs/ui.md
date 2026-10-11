@@ -20,8 +20,8 @@ Four of those earn a sentence:
 - **The wordmark is two-tone**: `Cash` in the text colour, `Prism` in the
   accent. It is the one place the product name appears, so it is also the one
   place a mark is needed.
-- **The destinations are grouped where a group exists.** The start page and the
-  bookings stand at the top; the analysis sits under *Auswerten*; the import,
+- **The destinations are grouped where a group exists.** The start page, the
+  bookings and the accounts stand at the top; the analysis sits under *Auswerten*; the import,
   which brings data in, and the settings, which delete it again, sit under
   *Daten*. A heading is written wherever the section changes in
   `NavigationItems`, so a section with no destination yet simply does not
@@ -361,6 +361,49 @@ close button and a click on the dimmed page close it, and the focus goes back
 to the row it was opened from — a keyboard user carries on in the list where
 they left it, rather than at the top of the page. Both moves use Blazor's own
 `FocusAsync`; no script of ours is involved.
+
+## The accounts page
+
+`Pages/Accounts.razor` follows the design's *Konten* (`design/README.md` §3.3)
+as far as the data carries it: a column of account cards, and beside it the
+selected account in a card of its own. The lead names the total of all
+balances — *Deine 7 Konten stehen zusammen bei …* — in words that say where the
+accounts stand rather than what a person has, because a loan makes the total
+negative.
+
+- **The selection is part of the address**, `/accounts?account=<reference>`.
+  The cards are links, so a selection survives a reload, the back button and a
+  bookmark. Without one, or with a reference no account has, the highest
+  balance is selected.
+- **The selected card is filled with the primary colour**, as in the design.
+  Every card carries the same `wallet` tile: the design gives each account a
+  glyph and a colour by its kind, and the export does not say what kind an
+  account is. Where the design shows the bank, the card shows the masked
+  account number (`IbanMask`): `•••• 2051`, a short handle such as `Paynet` as
+  it stands.
+- **The detail card** carries the name, the masked number, the day of the
+  newest booking and the balance, and under them the account's 30 newest
+  bookings with a link to the [booking list](#the-booking-list) filtered to the
+  account. The list is `Bookings/BookingDayList.razor`, the design's short
+  transaction list: tile, party, payment reference and amount under a header
+  per day, a row opening the [booking sheet](#the-booking-sheet). It is not the
+  booking list's table — no columns, no sorting, no pages.
+- **No tab bar yet.** The design's *Überblick* tab needs the account's flows,
+  and its balance history needs a measurement first; with *Buchungen* the only
+  tab, a plain heading takes its place.
+
+The balances are what the latest export reports, taken at import — see
+[`finanzguru-export.md`](finanzguru-export.md#where-kontostand-does-give-the-balance).
+Without them the page shows an empty state pointing at the import, which is
+also what a database imported into before they were taken shows until the next
+export.
+
+The overview leads its tiles with the same total, as *Vermögen auf allen
+Konten*. The design's delta and sparkline on that tile need a balance history,
+so the tile has neither; `StatTile` takes a glyph of its own for it instead of
+the trend arrow. Four tiles stand in one row from 1400 px of window width, where
+each keeps the design's 230 px, and two by two below that. Left to fill the row
+on their own, they broke three and one beside the drawer at 1280 px.
 
 ## The import page
 
