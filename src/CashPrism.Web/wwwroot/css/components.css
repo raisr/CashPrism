@@ -2045,6 +2045,7 @@
 .cp-analysis {
   display: grid;
   gap: var(--cp-grid-gap);
+  container-type: inline-size;
 }
 
 .cp-category-chart__legend {
@@ -2113,6 +2114,88 @@
   .cp-comparison__trend {
     display: none;
   }
+}
+
+/* The comparison and the counterparties stand side by side, two to one, as in
+   the design, once there is room for both; below that they stack at full
+   width rather than leave a gap beside a half-width card. The comparison
+   drops its share bar first, as it does in any narrow card. */
+.cp-analysis__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--cp-grid-gap);
+}
+
+@container (min-width: 900px) {
+  .cp-analysis__grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.cp-txlist {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+}
+
+.cp-tx {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px var(--cp-card-padding);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--cp-dur-fast);
+}
+
+.cp-tx:hover,
+.cp-tx:focus-visible {
+  background: var(--cp-hover);
+}
+
+.cp-tx__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cp-tx__title {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-tx__meta {
+  overflow: hidden;
+  font-size: var(--cp-fs-caption);
+  color: var(--cp-text-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-counterparties__rank {
+  width: 16px;
+  font-size: var(--cp-fs-caption);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text-3);
+}
+
+.cp-counterparties__none {
+  margin: 0;
+  padding: 12px var(--cp-card-padding) var(--cp-card-padding);
+  color: var(--cp-text-2);
+}
+
+.cp-counterparties__more {
+  display: flex;
+  justify-content: center;
+  padding: 0 0 12px;
 }
 
 /* ---------- chart tip ---------- */
