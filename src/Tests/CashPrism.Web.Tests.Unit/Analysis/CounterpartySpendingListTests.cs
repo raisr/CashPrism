@@ -166,7 +166,9 @@ public sealed class CounterpartySpendingListTests
 
             list.Find(".cp-counterparties__more button").Click();
 
-            Assert.Equal(CounterpartySpendingList.Shown + 5, list.FindAll(".cp-tx").Count);
+            // MudButton hands the click on asynchronously, so the list may
+            // grow after Click returns.
+            list.WaitForAssertion(() => Assert.Equal(CounterpartySpendingList.Shown + 5, list.FindAll(".cp-tx").Count));
         }
 
         [Fact]

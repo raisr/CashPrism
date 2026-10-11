@@ -246,7 +246,9 @@ public sealed class BookingsTests
 
             page.Find(".cp-empty button").Click();
 
-            Assert.Equal("sort=amount", Query);
+            // MudButton hands the click on asynchronously, so the address may
+            // change after Click returns; asserting at once failed under load.
+            page.WaitForAssertion(() => Assert.Equal("sort=amount", Query));
         }
     }
 
