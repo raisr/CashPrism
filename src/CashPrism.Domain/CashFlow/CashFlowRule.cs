@@ -39,6 +39,17 @@ public static class CashFlowRule
     public static Expression<Func<Booking, bool>> Counts { get; } =
         booking => !booking.IsTransfer && booking.SplitRole != SplitRole.Original;
 
+    /// <summary>
+    /// Whether a booking a list shows is added to that list's sums. The list
+    /// mirrors the export and shows the original of a split booking, but its
+    /// parts already add up to its amount, so summing it as well would count
+    /// the money twice. Transfers are not decided here: a list that shows them
+    /// sums them, and one that hides them has none left to sum.
+    /// </summary>
+    /// <remarks>An expression for the same reason as <see cref="Counts"/>.</remarks>
+    public static Expression<Func<Booking, bool>> SumsInList { get; } =
+        booking => booking.SplitRole != SplitRole.Original;
+
     /// <summary>A month's income: the sum of the categories that came out positive.</summary>
     /// <param name="categoryNetsInCents">What each main category added up to in the month, in whole cents.</param>
     public static long IncomeInCents(IEnumerable<long> categoryNetsInCents)
