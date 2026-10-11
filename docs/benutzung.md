@@ -430,7 +430,7 @@ gelesen werden.*
 
 ## Die Buchungsliste
 
-![Die Buchungsliste mit Filtern und Summenzeile, nach Tagen gruppiert, rechts die Details einer Buchung](images/benutzung/buchungsliste.png)
+![Die Buchungsliste mit Suchfeld, Filtern und Summenzeile, nach Tagen gruppiert, rechts die Details einer Buchung](images/benutzung/buchungsliste.png)
 
 *Buchungen* zeigt alle gespeicherten Buchungen, zu Beginn die neuesten oben,
 nach Tagen gruppiert: über den Buchungen eines Tages steht *Heute*, *Gestern*
@@ -509,8 +509,28 @@ ursprüngliche Buchung, so wie der Export sie enthält; in die Summen geht sie
 nicht ein, weil ihre Teile schon gezählt sind. Umbuchungen zählen mit, solange
 sie gezeigt werden.
 
-**Suchen gibt es noch nicht.** Die Liste lässt sich nicht nach einem Text oder
-einem Betrag durchsuchen.
+**Suchen:** Das Feld *Suche* vorne in der Filterzeile findet Buchungen nach
+dem, was du noch weißt. Die Suche greift, sobald du Enter drückst oder das
+Feld verlässt; das Kreuz im Feld leert sie wieder. Sie gilt zusammen mit den
+Filtern und steht wie sie in der Adresse, etwa `/bookings?q=rewe`.
+
+- **Wörter** werden in Empfänger oder Absender, im Verwendungszweck und in der
+  IBAN gesucht, auch als Teil eines Wortes. Mehrere Wörter müssen alle
+  vorkommen: `rewe berlin` findet „REWE Markt Berlin-Mitte“, aber nicht „REWE
+  Hamburg“.
+- **Groß- und Kleinschreibung** spielen keine Rolle, Umlaute eingeschlossen.
+  Weil Banken Umlaute oft umschreiben, findet `möbel` auch „MOEBEL“ und
+  `moebel` auch „Möbel“; ebenso `strasse` und „Straße“. Andere Akzente zählen
+  nicht: `cafe` findet „Café“.
+- **Beträge** suchst du mit einem Zeichen davor: `>200` (mehr als 200 €),
+  `>=200`, `<50`, `<=50` oder `=12,99` (genau). Komma und Punkt gehen beide,
+  ein `€` oder `EUR` dahinter wird ignoriert. Verglichen wird der Betrag ohne
+  Vorzeichen: `>200` findet Ausgaben und Einnahmen über 200 €; welche Seite du
+  sehen willst, wählst du mit *Einnahmen* oder *Ausgaben*. Mehrere Angaben
+  gelten zusammen: `>300 <400 rewe` findet REWE-Buchungen zwischen 300 und
+  400 €.
+- Was sich nicht als Betrag lesen lässt, etwa `>abc` oder `>1.000,00` mit
+  Tausenderpunkt, wird als Wort gesucht.
 
 ## Bisherige Importe
 
