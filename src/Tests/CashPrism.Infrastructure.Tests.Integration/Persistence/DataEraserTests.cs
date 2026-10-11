@@ -55,6 +55,18 @@ public sealed class DataEraserTests
         }
 
         [Fact]
+        public async Task Leaves_No_Account_Balance()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await ImportAsync(database);
+
+            await EraseAsync(database);
+
+            await using var context = database.CreateContext();
+            Assert.Equal(0, await context.AccountBalances.CountAsync());
+        }
+
+        [Fact]
         public async Task Gives_The_Space_Back_To_The_Disk()
         {
             await using var database = await ThrowawayDatabase.CreateAsync();

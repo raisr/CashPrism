@@ -1,4 +1,5 @@
 using CashPrism.Application.Imports;
+using CashPrism.Domain.Accounts;
 using CashPrism.Domain.Imports;
 using Microsoft.EntityFrameworkCore;
 
@@ -123,13 +124,18 @@ public sealed class ImportStore : IImportStore
     }
 
     /// <inheritdoc />
-    public async Task CompleteRunAsync(ImportRun run, CancellationToken cancellationToken = default)
+    public async Task CompleteRunAsync(
+        ImportRun run,
+        IReadOnlyList<AccountBalance> balances,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(balances);
 
         // The run was written before the batches and the tracker has been cleared
         // since, so it comes back as a detached object carrying its final counts.
         context.ImportRuns.Update(run);
+        context.AccountBalances.AddRange(balances);
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         context.ChangeTracker.Clear();
     }

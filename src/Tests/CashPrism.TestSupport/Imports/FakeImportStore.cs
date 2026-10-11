@@ -1,4 +1,5 @@
 using CashPrism.Application.Imports;
+using CashPrism.Domain.Accounts;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
 
@@ -15,12 +16,16 @@ public sealed class FakeImportStore : IImportStore
     private readonly Dictionary<string, Booking> bookings = new(StringComparer.Ordinal);
     private readonly Dictionary<Guid, ImportRun> runs = [];
     private readonly List<RawRow> rawRows = [];
+    private readonly List<AccountBalance> balances = [];
 
     public IReadOnlyDictionary<string, Booking> Bookings => bookings;
 
     public IReadOnlyList<RawRow> RawRows => rawRows;
 
     public IReadOnlyDictionary<Guid, ImportRun> Runs => runs;
+
+    /// <summary>Every balance a completed run handed over, oldest run first.</summary>
+    public IReadOnlyList<AccountBalance> Balances => balances;
 
     /// <summary>How many batches were written, one entry per call with its size.</summary>
     public List<int> AppliedBatchSizes { get; } = [];
@@ -92,10 +97,14 @@ public sealed class FakeImportStore : IImportStore
         return Task.CompletedTask;
     }
 
-    public Task CompleteRunAsync(ImportRun run, CancellationToken cancellationToken = default)
+    public Task CompleteRunAsync(
+        ImportRun run,
+        IReadOnlyList<AccountBalance> balances,
+        CancellationToken cancellationToken = default)
     {
         WasCompleted = true;
         runs[run.Id] = run;
+        this.balances.AddRange(balances);
 
         return Task.CompletedTask;
     }
