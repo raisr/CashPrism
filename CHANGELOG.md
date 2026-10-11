@@ -27,6 +27,9 @@ releases and the minor version is bumped for every notable change.
   period, each with its sum and number of bookings. A counterparty is listed
   exactly as Finanzguru names it, and a click opens the booking list on the
   spending behind that sum.
+- A category on the overview's ring and in the analysis' comparison table opens
+  the booking list on its bookings — the month or the chosen period, transfers
+  hidden — so the list counts exactly the bookings behind the figure.
 
 ## [0.1.0] - 2026-10-10
 
