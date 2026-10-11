@@ -37,7 +37,7 @@ allowed to wire concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one, what counts as income and spending |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader and the import source against a workbook built in code — no binary fixture in the repository |
-| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, that amounts are stored as cents, and that the sums the overview and the analysis read add up in SQL |
+| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, that amounts are stored as cents, that the sums the overview and the analysis read add up in SQL, and that the booking list filters and sums there too |
 | `src/Tests/CashPrism.Infrastructure.Tests.Unit` | `Infrastructure` without a database: the password hasher |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included, and the import through the objects the host actually wires |
 | `src/Tests/CashPrism.Web.Tests.Unit` | `Web` without a host: pages, layout and components rendered with bUnit against test doubles, and the formatting and mapping beside them |

@@ -404,7 +404,7 @@ gelesen werden.*
 
 ## Die Buchungsliste
 
-![Die Buchungsliste nach Tagen gruppiert, rechts die Details einer Buchung](images/benutzung/buchungsliste.png)
+![Die Buchungsliste mit Filtern und Summenzeile, nach Tagen gruppiert, rechts die Details einer Buchung](images/benutzung/buchungsliste.png)
 
 *Buchungen* zeigt alle gespeicherten Buchungen, zu Beginn die neuesten oben,
 nach Tagen gruppiert: über den Buchungen eines Tages steht *Heute*, *Gestern*
@@ -446,8 +446,45 @@ sind dort als *Zwischen deinen Konten* markiert. Mit der Tastatur geht es
 ebenso: Mit Tab zur Buchung, mit Enter öffnen. Esc, das Kreuz oben rechts oder
 ein Klick neben das Fenster schließen es wieder.
 
-**Filtern und Suchen gibt es noch nicht.** Die Liste lässt sich weder nach
-Konto, Kategorie oder Zeitraum filtern noch nach einem Text durchsuchen.
+**Filtern:** Über der Liste schränkst du ein, welche Buchungen sie zeigt. Jeder
+Filter nimmt einen Wert; mehrere Filter gelten zusammen.
+
+| Filter | Wirkt so |
+|---|---|
+| Konto | Nur die Buchungen eines Kontos |
+| Kategorie | Nur eine Hauptkategorie aus Finanzguru, so wie die [Analyse](#die-analyse) sie zeigt — nicht die zusammengefassten Kategorien der Liste. Ist eine gewählt, erscheint daneben *Unterkategorie*, um weiter einzuschränken |
+| Zeitraum | *Dieser Monat*, *Letzter Monat*, *Letzte 12 Monate*, *Dieses Jahr* und *Letztes Jahr* rechnen wie die Übersicht vom Datum des jüngsten Exports aus, nicht vom heutigen Tag, und umfassen immer ganze Kalendermonate. *Eigener Zeitraum* zeigt zwei Felder *Von* und *Bis*; der Filter greift, sobald beide gesetzt sind |
+| Alle / Einnahmen / Ausgaben | Nur Geld, das hereinkam, oder nur Geld, das hinausging — am Vorzeichen des Betrags |
+| Umbuchungen ausblenden | Lässt Umbuchungen zwischen deinen eigenen Konten weg. Beim Öffnen der Seite ist der Schalter aus |
+
+Ist ein Empfänger oder Absender als Filter gesetzt, steht er als Feld mit
+Kreuz unter den Filtern; ein Klick darauf nimmt ihn wieder weg. Eingeben lässt
+er sich auf dieser Seite nicht — er kommt über einen Link, der genau diesen
+Namen trägt.
+
+Die Filter stehen in der Adresse der Seite, etwa
+`/bookings?account=…&from=2026-09-01&to=2026-09-30`. Ein Neuladen behält sie,
+der Zurück-Knopf des Browsers geht zum vorigen Filter zurück, und eine
+gespeicherte Adresse zeigt beim nächsten Öffnen dieselbe Auswahl. Ein Zeitraum
+steht dort immer als zwei feste Daten: *Letzter Monat* bleibt in einem
+Lesezeichen derselbe Monat, auch wenn später ein neuerer Export dazukommt.
+Sortierung, Seite und *Zeilen pro Seite* stehen ebenfalls in der Adresse.
+
+Passt keine Buchung zum Filter, sagt die Seite *Keine Buchung passt zu diesem
+Filter.*; *Filter zurücksetzen* nimmt alle Filter weg und behält die
+Sortierung.
+
+**Die Zeile über der Liste** zählt alle Buchungen, die der Filter zeigt — nicht
+nur die auf der aktuellen Seite — und nennt ihre *Einnahmen*, ihre *Ausgaben*
+und den *Saldo* daraus. Einnahmen sind die Summe aller positiven Beträge,
+Ausgaben die aller negativen; anders als auf der Übersicht wird nichts pro
+Kategorie verrechnet. Von einer geteilten Buchung zeigt die Liste auch die
+ursprüngliche Buchung, so wie der Export sie enthält; in die Summen geht sie
+nicht ein, weil ihre Teile schon gezählt sind. Umbuchungen zählen mit, solange
+sie gezeigt werden.
+
+**Suchen gibt es noch nicht.** Die Liste lässt sich nicht nach einem Text oder
+einem Betrag durchsuchen.
 
 ## Bisherige Importe
 

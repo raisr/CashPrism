@@ -263,8 +263,6 @@ render the paging exists to avoid. The info line — "1–25 von 6.327 Buchungen
 is composed by `PagerInfo` from a resource with three numeric placeholders, in
 the culture the host pins, so the thousands separator is German.
 
-Filtering and searching are their own work and not part of this screen yet.
-
 The amount is the only column that is more than the stored value written out.
 `Components/Amount.razor` draws it from `Bookings/BookingFormat.cs`, which
 writes a plus for income, a real minus (U+2212) for spending and no sign for
@@ -282,6 +280,46 @@ cents faded so the euros are read first.
 
 An empty database gets the message and a button to the upload page rather than
 a table of nothing with a pager counting to zero.
+
+### Filtering the list
+
+Above the table sits `Bookings/BookingFilterBar.razor`, and between the two
+`Bookings/BookingSummaryLine.razor`. Four decisions shape them.
+
+**The URL is where the list's state lives.** The filter, the sort order, the
+page and the page size are all query parameters, read and written by
+`Bookings/BookingListQuery.cs`. A control never changes the list directly: it
+writes a new URL, and the page follows the URL through
+`NavigationManager.LocationChanged`. A change made on the page, the browser's
+back button and a link from another page therefore all take the same way in,
+and a reload keeps what was on screen. Everything in the query may have been
+typed by hand, so a value that cannot be read falls back to the default instead
+of failing; a page number beyond the last page shows the last one.
+
+**A period always travels as two dates.** The presets — this month, last month,
+the last twelve months, this year, last year — are counted from the date the
+stored data is current to, like the overview, and are written into the URL as
+their first and last day. A bookmark of "last month" keeps showing the same
+month after the next import. Read back, a pair of dates that matches a preset
+is shown as that preset.
+
+**The filter bar uses MudBlazor's inputs, dressed as the design system's.**
+`MudSelect`, `MudDatePicker` and `MudSwitch` rather than the native elements
+the design's own `Select` wraps: a native date field formats by the browser's
+locale, not by the culture the host pins, and an English browser would show
+`09/30/2026` next to German labels. The design's look — the height, the radius,
+the sunken surface, the focus ring — is put back on them in `components.css`.
+The counterparty is no input at all: it only arrives with a link, matches the
+name exactly, and is shown as a chip that takes it away again.
+
+**The summary line counts the whole filter, not the page, and sums by sign.**
+Income is the sum of the positive amounts, spending that of the negative ones,
+both taken in the database over whole cents. That differs on purpose from the
+overview, which nets each category per month: a list a person filters by hand
+is checked against its own rows. The original of a split booking is listed,
+because the list mirrors the export, and left out of the sums
+(`CashFlowRule.SumsInList`), because its parts already count its money.
+Transfers are summed while they are shown.
 
 ### The booking sheet
 

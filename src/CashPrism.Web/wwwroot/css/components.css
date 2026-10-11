@@ -744,6 +744,169 @@
   box-shadow: inset -2px 2px 0 var(--cp-focus), inset 0 -2px 0 var(--cp-focus);
 }
 
+/* ---------- booking filter ---------- */
+
+/* The bar above the booking list (design/ui_kits/app/Bookings.jsx): the
+   pickers in one wrapping row, the counterparty chip and the transfer switch
+   in a second. */
+.cp-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--cp-card-padding);
+}
+
+.cp-filters__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.cp-filters__spacer {
+  flex: 1;
+}
+
+/* MudBlazor's outlined field, dressed as the design system's Input: its
+   height, its radius, its sunken surface and its focus ring. The floating
+   label stays, because the design's icons are no label a screen reader
+   reads. */
+/* The flex items are the wrappers MudBlazor draws around its fields: a
+   select's own class lands on the field inside the wrapper, a date picker's
+   on the wrapper itself. */
+.cp-filters__row > .mud-select,
+.cp-filters__row > .cp-filters__date {
+  flex: 0 1 200px;
+  min-width: 160px;
+}
+
+.cp-filters__row > .cp-filters__date {
+  flex-basis: 160px;
+}
+
+.cp-filters .mud-input-control.cp-filters__select,
+.cp-filters__date .mud-input-control {
+  margin: 0;
+}
+
+.cp-filters .mud-input.mud-input-outlined {
+  min-height: var(--cp-control-height);
+  border-radius: var(--cp-radius-sm);
+  background: var(--cp-surface-2);
+  font: 500 14px/1 var(--cp-font-sans);
+  color: var(--cp-text);
+}
+
+.cp-filters .mud-input.mud-input-outlined .mud-input-outlined-border {
+  border-color: var(--cp-line);
+  border-radius: var(--cp-radius-sm);
+}
+
+.cp-filters .mud-input.mud-input-outlined:hover .mud-input-outlined-border {
+  border-color: var(--cp-line-strong);
+}
+
+.cp-filters .mud-input.mud-input-outlined.mud-focused {
+  background: var(--cp-surface);
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-filters .mud-input.mud-input-outlined.mud-focused .mud-input-outlined-border {
+  border-color: var(--cp-primary);
+  border-width: 1px;
+}
+
+.cp-filters .mud-input-label {
+  font-family: var(--cp-font-sans);
+  font-weight: 600;
+  color: var(--cp-text-3);
+}
+
+.cp-filters .mud-input-control.mud-input-control-margin-dense .mud-input-label-outlined.mud-input-label-inputcontrol {
+  background: var(--cp-surface);
+}
+
+.cp-filters__switch.mud-input-control {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.cp-filters__switch .mud-typography {
+  font: 600 var(--cp-fs-small)/1.2 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  white-space: nowrap;
+}
+
+/* The design system's FilterChip. Here only the counterparty uses it: a
+   filter set by a link, shown so it can be seen and taken away. */
+.cp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-pill);
+  background: var(--cp-surface);
+  font: 600 13px/1 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all var(--cp-dur-fast) var(--cp-ease);
+}
+
+.cp-chip:hover {
+  border-color: var(--cp-line-strong);
+  color: var(--cp-text);
+}
+
+.cp-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-chip .cp-icon {
+  font-size: 15px;
+}
+
+.cp-chip--on {
+  background: var(--cp-primary-soft);
+  border-color: color-mix(in srgb, var(--cp-primary) 35%, transparent);
+  color: var(--cp-primary);
+}
+
+.cp-chip__x {
+  margin-right: -4px;
+  opacity: .7;
+}
+
+/* The figures over the whole filter, on the sunken surface between the bar
+   and the table. */
+.cp-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  padding: 12px var(--cp-card-padding);
+  border-top: 1px solid var(--cp-line);
+  border-bottom: 1px solid var(--cp-line);
+  background: var(--cp-surface-2);
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
+}
+
+.cp-summary__count b {
+  color: var(--cp-text);
+}
+
+.cp-summary__figure .cp-amount {
+  margin-left: 4px;
+  font-weight: 700;
+  color: var(--cp-text);
+}
+
 /* ---------- sheet ---------- */
 
 @keyframes cp-fade-in {

@@ -16,7 +16,8 @@ namespace CashPrism.Application.Bookings;
 public interface IBookingReader
 {
     /// <summary>
-    /// Reads one page of bookings, ordered as <paramref name="request"/> asks.
+    /// Reads one page of the bookings <paramref name="request"/> filters for,
+    /// ordered as it asks. The total counts the filtered bookings.
     /// </summary>
     /// <param name="request">Which slice, in which order.</param>
     /// <param name="cancellationToken">Cancels the query.</param>
@@ -28,4 +29,16 @@ public interface IBookingReader
     /// </summary>
     /// <param name="cancellationToken">Cancels the query.</param>
     Task<int> CountAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sums every booking <paramref name="filter"/> lists, not only one page of
+    /// them, over whole cents.
+    /// </summary>
+    /// <param name="filter">Which bookings are listed.</param>
+    /// <param name="cancellationToken">Cancels the query.</param>
+    Task<BookingSummary> ReadSummaryAsync(BookingFilter filter, CancellationToken cancellationToken = default);
+
+    /// <summary>The accounts and categories the stored bookings carry, to filter by.</summary>
+    /// <param name="cancellationToken">Cancels the query.</param>
+    Task<BookingFilterOptions> ReadFilterOptionsAsync(CancellationToken cancellationToken = default);
 }

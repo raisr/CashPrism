@@ -407,6 +407,126 @@
     <value>{0:N0}–{1:N0} von {2:N0} Buchungen</value>
     <comment>Booking list pager: {0} and {1} are the first and the last booking on screen, {2} the total. Keep the three numeric placeholders.</comment>
   </data>
+  <data name="BookingsFilterAccount" xml:space="preserve">
+    <value>Konto</value>
+    <comment>Booking filter: label of the account picker.</comment>
+  </data>
+  <data name="BookingsFilterAllAccounts" xml:space="preserve">
+    <value>Alle Konten</value>
+    <comment>Booking filter: the account choice that lists every account.</comment>
+  </data>
+  <data name="BookingsFilterCategory" xml:space="preserve">
+    <value>Kategorie</value>
+    <comment>Booking filter: label of the main category picker.</comment>
+  </data>
+  <data name="BookingsFilterAllCategories" xml:space="preserve">
+    <value>Alle Kategorien</value>
+    <comment>Booking filter: the category choice that lists every category.</comment>
+  </data>
+  <data name="BookingsFilterSubCategory" xml:space="preserve">
+    <value>Unterkategorie</value>
+    <comment>Booking filter: label of the sub-category picker, shown once a main category is chosen.</comment>
+  </data>
+  <data name="BookingsFilterAllSubCategories" xml:space="preserve">
+    <value>Alle Unterkategorien</value>
+    <comment>Booking filter: the sub-category choice that lists the whole main category.</comment>
+  </data>
+  <data name="BookingsFilterPeriod" xml:space="preserve">
+    <value>Zeitraum</value>
+    <comment>Booking filter: label of the period picker.</comment>
+  </data>
+  <data name="BookingsPeriodAll" xml:space="preserve">
+    <value>Gesamter Zeitraum</value>
+    <comment>Booking filter: the period choice that sets no period.</comment>
+  </data>
+  <data name="BookingsPeriodThisMonth" xml:space="preserve">
+    <value>Dieser Monat</value>
+    <comment>Booking filter: period preset, the month of the latest export.</comment>
+  </data>
+  <data name="BookingsPeriodLastMonth" xml:space="preserve">
+    <value>Letzter Monat</value>
+    <comment>Booking filter: period preset, the month before the latest export's.</comment>
+  </data>
+  <data name="BookingsPeriodLast12Months" xml:space="preserve">
+    <value>Letzte 12 Monate</value>
+    <comment>Booking filter: period preset, the latest export's month and the eleven before it.</comment>
+  </data>
+  <data name="BookingsPeriodThisYear" xml:space="preserve">
+    <value>Dieses Jahr</value>
+    <comment>Booking filter: period preset, the year of the latest export.</comment>
+  </data>
+  <data name="BookingsPeriodLastYear" xml:space="preserve">
+    <value>Letztes Jahr</value>
+    <comment>Booking filter: period preset, the year before the latest export's.</comment>
+  </data>
+  <data name="BookingsPeriodCustom" xml:space="preserve">
+    <value>Eigener Zeitraum</value>
+    <comment>Booking filter: the period choice that shows two date fields.</comment>
+  </data>
+  <data name="BookingsFilterFrom" xml:space="preserve">
+    <value>Von</value>
+    <comment>Booking filter: label of the first day of a custom period.</comment>
+  </data>
+  <data name="BookingsFilterTo" xml:space="preserve">
+    <value>Bis</value>
+    <comment>Booking filter: label of the last day of a custom period.</comment>
+  </data>
+  <data name="BookingsFilterDirection" xml:space="preserve">
+    <value>Richtung</value>
+    <comment>Booking filter: what the income/spending switch chooses, read out by assistive technology.</comment>
+  </data>
+  <data name="BookingsDirectionAll" xml:space="preserve">
+    <value>Alle</value>
+    <comment>Booking filter: income and spending both listed.</comment>
+  </data>
+  <data name="BookingsDirectionIncome" xml:space="preserve">
+    <value>Einnahmen</value>
+    <comment>Booking filter: only money that came in.</comment>
+  </data>
+  <data name="BookingsDirectionSpending" xml:space="preserve">
+    <value>Ausgaben</value>
+    <comment>Booking filter: only money that went out.</comment>
+  </data>
+  <data name="BookingsFilterHideTransfers" xml:space="preserve">
+    <value>Umbuchungen ausblenden</value>
+    <comment>Booking filter: switch that leaves out transfers between the owner's own accounts.</comment>
+  </data>
+  <data name="BookingsFilterRemoveCounterparty" xml:space="preserve">
+    <value>Filter „{0}“ entfernen</value>
+    <comment>Booking filter: read-out label of the button that removes the counterparty filter; {0} is the counterparty.</comment>
+  </data>
+  <data name="BookingsSummaryOne" xml:space="preserve">
+    <value>Buchung</value>
+    <comment>Booking summary line: after the count when it is one.</comment>
+  </data>
+  <data name="BookingsSummaryMany" xml:space="preserve">
+    <value>Buchungen</value>
+    <comment>Booking summary line: after the count when it is not one.</comment>
+  </data>
+  <data name="BookingsSummaryIncome" xml:space="preserve">
+    <value>Einnahmen</value>
+    <comment>Booking summary line: label of the income over the whole filter.</comment>
+  </data>
+  <data name="BookingsSummarySpending" xml:space="preserve">
+    <value>Ausgaben</value>
+    <comment>Booking summary line: label of the spending over the whole filter.</comment>
+  </data>
+  <data name="BookingsSummaryBalance" xml:space="preserve">
+    <value>Saldo</value>
+    <comment>Booking summary line: label of income minus spending over the whole filter.</comment>
+  </data>
+  <data name="BookingsNoMatch" xml:space="preserve">
+    <value>Keine Buchung passt zu diesem Filter.</value>
+    <comment>Booking list: heading when a filter lists no booking.</comment>
+  </data>
+  <data name="BookingsNoMatchHint" xml:space="preserve">
+    <value>Probier einen längeren Zeitraum oder lass einen Filter weg.</value>
+    <comment>Booking list: what to do when a filter lists no booking.</comment>
+  </data>
+  <data name="BookingsResetFilter" xml:space="preserve">
+    <value>Filter zurücksetzen</value>
+    <comment>Booking list: button that removes every filter.</comment>
+  </data>
   <data name="BookingSheetRecipient" xml:space="preserve">
     <value>Empfänger</value>
     <comment>Booking sheet: label of the other party when money went out.</comment>

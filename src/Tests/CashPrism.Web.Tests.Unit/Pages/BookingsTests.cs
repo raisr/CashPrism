@@ -1,6 +1,8 @@
 using Bunit;
 using CashPrism.Application.Bookings;
+using CashPrism.Application.CashFlow;
 using CashPrism.Application.Time;
+using CashPrism.TestSupport.CashFlow;
 using CashPrism.TestSupport.Imports;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.Tests.Unit.Bookings;
@@ -22,7 +24,12 @@ public sealed class BookingsTests
     // Noon, so the local day is the same on every machine that runs this.
     private static readonly DateTimeOffset Now = new(2026, 10, 4, 12, 0, 0, TimeSpan.Zero);
 
+    private const string NoBreakSpace = " ";
+
     private static DateTime Today => Now.LocalDateTime.Date;
+
+    // The export the list is current to, a few days before today.
+    private static readonly DateOnly CurrentTo = new(2026, 10, 2);
 
     public abstract class PageTest : IAsyncLifetime
     {
@@ -34,11 +41,20 @@ public sealed class BookingsTests
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
             Context.Services.AddSingleton<IBookingReader>(Reader);
             Context.Services.AddSingleton<IClock>(new FixedClock(Now));
+            Context.Services.AddSingleton<ICashFlowReader>(new FakeCashFlowReader(CurrentTo));
         }
 
         protected BunitContext Context { get; } = new();
 
         protected FakeBookingReader Reader { get; } = new();
+
+        protected NavigationManager Navigation => Context.Services.GetRequiredService<NavigationManager>();
+
+        /// <summary>
+        /// The query the page last put into the address, its parameters in
+        /// ordinal order: where a parameter lands in the URL carries nothing.
+        /// </summary>
+        protected string Query => string.Join('&', new Uri(Navigation.Uri).Query.TrimStart('?').Split('&').Order(StringComparer.Ordinal));
 
         public Task InitializeAsync() => Task.CompletedTask;
 
@@ -95,10 +111,159 @@ public sealed class BookingsTests
             Assert.NotNull(page.Find(".cp-caticon .icon-shopping-basket"));
             Assert.NotNull(page.Find(".cp-amount--out"));
         }
+
+        [Fact]
+        public void Lists_The_Bookings_The_Address_Filters_For()
+        {
+            Reader.Add(Today);
+            Navigation.NavigateTo("/bookings?category=Lebensmittel&direction=spending&sort=amount&page=1");
+
+            Context.Render<BookingsPage>();
+
+            var request = Assert.Single(Reader.Requests);
+            Assert.Equal(
+                new BookingPageRequest(
+                    0,
+                    25,
+                    BookingSortColumn.AmountInCents,
+                    Descending: true,
+                    Filter: new BookingFilter(Category: "Lebensmittel", Direction: BookingDirection.Spending)),
+                request);
+        }
+
+        [Fact]
+        public void Sums_Over_The_Filter_The_List_Shows()
+        {
+            Reader.Add(Today);
+            Navigation.NavigateTo("/bookings?transfers=hide");
+
+            Context.Render<BookingsPage>();
+
+            Assert.Equal(new BookingFilter(HideTransfers: true), Assert.Single(Reader.SummaryFilters));
+        }
+
+        [Fact]
+        public void Shows_Count_Income_Spending_And_Balance_Over_The_Whole_Filter()
+        {
+            Reader.Add(Today);
+            Reader.Summary = new BookingSummary(1234, 250000, 7517);
+
+            var page = Context.Render<BookingsPage>();
+
+            var figures = page.FindAll(".cp-summary > span").Select(figure => figure.TextContent.Trim());
+            Assert.Equal(
+                ["1.234 Buchungen", $"Einnahmen 2.500,00{NoBreakSpace}€", $"Ausgaben 75,17{NoBreakSpace}€", $"Saldo 2.424,83{NoBreakSpace}€"],
+                figures);
+        }
+
+        [Fact]
+        public void Counts_A_Single_Booking_In_The_Singular()
+        {
+            Reader.Add(Today);
+            Reader.Summary = new BookingSummary(1, 0, 4318);
+
+            var page = Context.Render<BookingsPage>();
+
+            Assert.Equal("1 Buchung", page.Find(".cp-summary__count").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Says_So_When_The_Filter_Lists_Nothing()
+        {
+            Reader.Count = 12;
+            Navigation.NavigateTo("/bookings?category=Mobilitaet");
+
+            var page = Context.Render<BookingsPage>();
+
+            Assert.Equal("Keine Buchung passt zu diesem Filter.", page.Find(".cp-empty h2").TextContent);
+            Assert.Empty(page.FindAll("table"));
+            Assert.NotEmpty(page.FindAll(".cp-filters"));
+        }
+
+        [Fact]
+        public void Shows_The_Last_Page_When_The_Address_Points_Past_It()
+        {
+            for (var i = 0; i < 30; i++)
+            {
+                Reader.Add(Today);
+            }
+
+            Navigation.NavigateTo("/bookings?page=9");
+
+            Context.Render<BookingsPage>();
+
+            Assert.Equal(new BookingPageRequest(25, 25), Reader.Requests[^1]);
+            Assert.Equal("page=2", Query);
+        }
     }
 
-    public sealed class SortAsync : PageTest
+    public sealed class Filter : PageTest
     {
+        [Fact]
+        public void Puts_A_Changed_Filter_Into_The_Address_And_Lists_By_It()
+        {
+            Reader.Add(Today);
+            var page = Context.Render<BookingsPage>();
+
+            page.FindAll(".cp-seg__opt").Single(button => button.TextContent.Trim() == "Einnahmen").Click();
+
+            Assert.Equal("direction=income", Query);
+            Assert.Equal(new BookingFilter(Direction: BookingDirection.Income), Reader.Requests[^1].Filter);
+        }
+
+        [Fact]
+        public void Starts_Over_On_The_First_Page_When_The_Filter_Changes()
+        {
+            Reader.Add(Today);
+            Navigation.NavigateTo("/bookings?page=3&size=50");
+            var page = Context.Render<BookingsPage>();
+
+            page.FindAll(".cp-seg__opt").Single(button => button.TextContent.Trim() == "Ausgaben").Click();
+
+            Assert.Equal("direction=spending&size=50", Query);
+        }
+
+        [Fact]
+        public void Follows_The_Address_When_It_Changes_Underneath_The_Page()
+        {
+            Reader.Add(Today);
+            Context.Render<BookingsPage>();
+
+            Navigation.NavigateTo("/bookings?account=Paynet");
+
+            Assert.Equal(new BookingFilter(AccountReference: "Paynet"), Reader.Requests[^1].Filter);
+        }
+    }
+
+    public sealed class ResetFilter : PageTest
+    {
+        [Fact]
+        public void Takes_Every_Filter_Away_And_Keeps_The_Order()
+        {
+            Reader.Count = 12;
+            Navigation.NavigateTo("/bookings?category=Mobilitaet&transfers=hide&sort=amount");
+            var page = Context.Render<BookingsPage>();
+
+            page.Find(".cp-empty button").Click();
+
+            Assert.Equal("sort=amount", Query);
+        }
+    }
+
+    public sealed class Sort : PageTest
+    {
+        [Fact]
+        public void Puts_The_Order_Into_The_Address()
+        {
+            Reader.Add(Today);
+            var page = Context.Render<BookingsPage>();
+
+            page.Find("th:last-child .cp-sort").Click();
+            page.Find("th:last-child .cp-sort").Click();
+
+            Assert.Equal("order=asc&sort=amount", Query);
+        }
+
         [Fact]
         public void Asks_For_The_Bookings_By_Name_When_The_Name_Is_Clicked()
         {
@@ -248,6 +413,21 @@ public sealed class BookingsTests
             page.Find(".cp-pager select").Change("50");
 
             Assert.Equal(new BookingPageRequest(0, 50), Reader.Requests[^1]);
+        }
+
+        [Fact]
+        public void Puts_The_Page_Into_The_Address()
+        {
+            for (var i = 0; i < 60; i++)
+            {
+                Reader.Add(Today);
+            }
+
+            var page = Context.Render<BookingsPage>();
+
+            page.FindAll(".cp-pager__page").Single(button => button.TextContent.Trim() == "3").Click();
+
+            Assert.Equal("page=3", Query);
         }
     }
 }

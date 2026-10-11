@@ -9,6 +9,21 @@ releases and the minor version is bumped for every notable change.
 
 ## [Unreleased]
 
+### Added
+
+- The booking list can be narrowed by account, Finanzguru main category and
+  sub-category, period, income or spending, and counterparty, and transfers
+  between your own accounts can be hidden. The period offers presets counted
+  from the latest export — this month, last month, the last 12 months, this
+  year, last year — or two dates of your own.
+- A line above the booking list counts every booking the filter shows, not just
+  the current page, and sums their income, spending and balance. The original of
+  a split booking stays in the list but is left out of the sums, so no money is
+  counted twice.
+- The filter, the sort order and the page are part of the address. A reload
+  keeps them, the browser's back button returns to the previous filter, and a
+  bookmark opens the same selection.
+
 ## [0.1.0] - 2026-10-10
 
 ### Added

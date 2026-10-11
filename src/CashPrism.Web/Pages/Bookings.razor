@@ -1,19 +1,19 @@
 @page "/bookings"
 @using CashPrism.Application.Bookings
+@using CashPrism.Application.CashFlow
 @using CashPrism.Application.Paging
 @using CashPrism.Application.Time
 @using CashPrism.Domain.Bookings
 @using CashPrism.Web.Bookings
+@implements IDisposable
 @inject IStringLocalizer<Strings> text
 @inject IBookingReader reader
+@inject ICashFlowReader cashFlow
 @inject IClock clock
+@inject NavigationManager navigation
 
 <PageFrame Title="@text["NavBookings"]" Lead="@text["BookingsLead"]">
-  @if (page is null)
-  {
-    @* Only between the first render and the first answer from the database. *@
-  }
-  else if (page.TotalCount == 0)
+  @if (stored == 0)
   {
     @* An empty table with a pager reading "0–0 von 0" says nothing a person can
        act on. While nothing is stored the page says so and points at the one
@@ -27,76 +27,98 @@
       </Actions>
     </EmptyState>
   }
+  else if (page is null || options is null || summary is null)
+  {
+    @* Only between the first render and the first answer from the database. *@
+  }
   else
   {
     @* A table of our own rather than MudDataGrid: the design groups a page's
        rows under a header per day and numbers the pages, and the grid offers
-       neither without being argued with. Sorting and paging still happen in
-       the database — every click asks the reader for one page. *@
+       neither without being argued with. Filtering, sorting and paging still
+       happen in the database — every change asks the reader for one page. *@
     <div class="cp-card cp-card--flush">
-      <div class="cp-table-wrap">
-        <table class="cp-table cp-table--hover">
-          <thead>
-            <tr>
-              <th aria-sort="@AriaSort(BookingSortColumn.Counterparty)">@SortButton(BookingSortColumn.Counterparty, text["BookingsColumnCounterparty"])</th>
-              <th>@text["BookingsColumnCategory"]</th>
-              <th>@text["BookingsColumnAccount"]</th>
-              <th aria-sort="@AriaSort(BookingSortColumn.BookedOn)">@SortButton(BookingSortColumn.BookedOn, text["BookingsColumnDate"])</th>
-              <th class="cp-cell-end" aria-sort="@AriaSort(BookingSortColumn.AmountInCents)">@SortButton(BookingSortColumn.AmountInCents, text["BookingsColumnAmount"])</th>
-            </tr>
-          </thead>
-          <tbody>
-            @{ string? day = null; }
-            @foreach (var booking in page.Items)
-            {
-              var category = CategoryStyle.For(booking.Category, booking.SubCategory, booking.IsTransfer);
-
-              @* Only in the order the day headers describe: sorted by name or
-                 amount, the same day turns up all over the page. *@
-              if (sortBy is null)
-              {
-                var header = DayHeaderOf(booking);
-                if (header != day)
-                {
-                  day = header;
-                  <tr class="cp-table__group"><td colspan="5">@header</td></tr>
-                }
-              }
-
-              @* A row opens the booking's sheet. It takes the focus by Tab and
-                 opens on Enter as well, so the sheet is not a
-                 mouse-only feature. *@
-              <tr class="cp-table__row" tabindex="0"
-                  aria-label="@booking.Counterparty"
-                  @ref="rows[booking.Fingerprint]"
-                  @onclick="() => Open(booking)"
-                  @onkeydown="key => OnRowKeyDown(key, booking)">
-                <td>
-                  <div class="cp-party">
-                    <CategoryIcon Category="category" />
-                    <div class="cp-party__text">
-                      <div class="cp-party__name">@booking.Counterparty</div>
-                      @* A bank fills this with whatever it likes, so it is
-                         clamped and the whole text stays available on hover. *@
-                      <div class="cp-party__reference" title="@booking.PaymentReference">@booking.PaymentReference</div>
-                    </div>
-                  </div>
-                </td>
-                <td><CategoryBadge Category="category" /></td>
-                <td class="cp-muted-strong">@booking.AccountName</td>
-                <td class="cp-muted-strong cp-figure">@BookingFormat.Date(booking.BookedOn)</td>
-                <td class="cp-cell-end"><Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" /></td>
+      <BookingFilterBar Filter="query.Filter" Options="options" CurrentTo="currentTo" FilterChanged="Filter" />
+      <BookingSummaryLine Summary="summary" />
+      @if (page.TotalCount == 0)
+      {
+        @* Something is stored, so nothing matching is the filter's doing,
+           and taking the filter away is what helps. *@
+        <EmptyState Icon="search" Title="@text["BookingsNoMatch"]" Text="@text["BookingsNoMatchHint"]">
+          <Actions>
+            <MudButton OnClick="ResetFilter" Variant="Variant.Outlined" Class="cp-btn">
+              @text["BookingsResetFilter"]
+            </MudButton>
+          </Actions>
+        </EmptyState>
+      }
+      else
+      {
+        <div class="cp-table-wrap">
+          <table class="cp-table cp-table--hover">
+            <thead>
+              <tr>
+                <th aria-sort="@AriaSort(BookingSortColumn.Counterparty)">@SortButton(BookingSortColumn.Counterparty, text["BookingsColumnCounterparty"])</th>
+                <th>@text["BookingsColumnCategory"]</th>
+                <th>@text["BookingsColumnAccount"]</th>
+                <th aria-sort="@AriaSort(BookingSortColumn.BookedOn)">@SortButton(BookingSortColumn.BookedOn, text["BookingsColumnDate"])</th>
+                <th class="cp-cell-end" aria-sort="@AriaSort(BookingSortColumn.AmountInCents)">@SortButton(BookingSortColumn.AmountInCents, text["BookingsColumnAmount"])</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      <Pager Page="pageIndex"
-             PageSize="pageSize"
-             Total="page.TotalCount"
-             InfoFormat="@text["BookingsPagerInfo"]"
-             PageChanged="GoToPageAsync"
-             PageSizeChanged="ChangePageSizeAsync" />
+            </thead>
+            <tbody>
+              @{ string? day = null; }
+              @foreach (var booking in page.Items)
+              {
+                var category = CategoryStyle.For(booking.Category, booking.SubCategory, booking.IsTransfer);
+
+                @* Only in the order the day headers describe: sorted by name or
+                   amount, the same day turns up all over the page. *@
+                if (query.SortBy is null)
+                {
+                  var header = DayHeaderOf(booking);
+                  if (header != day)
+                  {
+                    day = header;
+                    <tr class="cp-table__group"><td colspan="5">@header</td></tr>
+                  }
+                }
+
+                @* A row opens the booking's sheet. It takes the focus by Tab and
+                   opens on Enter as well, so the sheet is not a
+                   mouse-only feature. *@
+                <tr class="cp-table__row" tabindex="0"
+                    aria-label="@booking.Counterparty"
+                    @ref="rows[booking.Fingerprint]"
+                    @onclick="() => Open(booking)"
+                    @onkeydown="key => OnRowKeyDown(key, booking)">
+                  <td>
+                    <div class="cp-party">
+                      <CategoryIcon Category="category" />
+                      <div class="cp-party__text">
+                        <div class="cp-party__name">@booking.Counterparty</div>
+                        @* A bank fills this with whatever it likes, so it is
+                           clamped and the whole text stays available on hover. *@
+                        <div class="cp-party__reference" title="@booking.PaymentReference">@booking.PaymentReference</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><CategoryBadge Category="category" /></td>
+                  <td class="cp-muted-strong">@booking.AccountName</td>
+                  <td class="cp-muted-strong cp-figure">@BookingFormat.Date(booking.BookedOn)</td>
+                  <td class="cp-cell-end"><Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <Pager Page="query.PageIndex"
+               PageSize="query.PageSize"
+               PageSizes="BookingListQuery.PageSizes"
+               Total="page.TotalCount"
+               InfoFormat="@text["BookingsPagerInfo"]"
+               PageChanged="GoToPage"
+               PageSizeChanged="ChangePageSize" />
+      }
     </div>
   }
 </PageFrame>
@@ -104,7 +126,19 @@
 <BookingSheet Booking="selected" OnClose="Close" />
 
 @code {
+    // How many bookings are stored at all, whatever the filter: the page
+    // tells "nothing imported yet" apart from "nothing matches".
+    private int? stored;
+
+    private BookingFilterOptions? options;
+    private DateOnly currentTo;
+
+    // What the URL asks for. The URL is where the list's state lives; this
+    // is its parsed copy, replaced whenever the address changes.
+    private BookingListQuery query = BookingListQuery.Default;
+
     private Page<Booking>? page;
+    private BookingSummary? summary;
 
     // The rows of the page on screen, so the focus can go back to the one
     // whose sheet was just closed.
@@ -113,47 +147,80 @@
     private Booking? selected;
     private string? returnFocusTo;
 
-    private int pageIndex;
-    private int pageSize = 25;
-
-    // Null is the order the list opens in: newest first, grouped by day.
-    private BookingSortColumn? sortBy;
-    private bool descending = true;
-
     // Today in the local time of the machine that hosts CashPrism, which is
     // what "Heute" means to the person in front of it.
     private DateOnly Today => DateOnly.FromDateTime(clock.UtcNow.LocalDateTime);
 
-    protected override Task OnInitializedAsync() => LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        navigation.LocationChanged += OnLocationChanged;
+
+        stored = await reader.CountAsync();
+
+        if (stored == 0)
+        {
+            return;
+        }
+
+        options = await reader.ReadFilterOptionsAsync();
+
+        // Something is stored, so something was imported; the fallback only
+        // keeps the presets defined should the two ever disagree.
+        currentTo = await cashFlow.ReadCurrentToAsync() ?? Today;
+
+        query = BookingListQuery.Parse(new Uri(navigation.Uri).Query);
+        await LoadAsync();
+    }
+
+    /// <summary>
+    /// Follows the address. A control changes the URL, not the list, and the
+    /// list follows the URL — so a change made here, the back button and a
+    /// link from another page all take the same way in.
+    /// </summary>
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var asked = BookingListQuery.Parse(new Uri(e.Location).Query);
+
+        if (stored is not > 0 || asked == query)
+        {
+            return;
+        }
+
+        query = asked;
+
+        _ = InvokeAsync(async () =>
+        {
+            await LoadAsync();
+            StateHasChanged();
+        });
+    }
 
     private async Task LoadAsync()
     {
-        var request = new BookingPageRequest(
-            Skip: pageIndex * pageSize,
-            Take: pageSize,
-            SortBy: sortBy ?? BookingSortColumn.BookedOn,
-            Descending: sortBy is null || descending);
-
-        page = await reader.ReadPageAsync(request);
+        page = await reader.ReadPageAsync(query.ToPageRequest());
+        summary = await reader.ReadSummaryAsync(query.Filter);
 
         // A new page renders new rows; references to the old ones are stale.
         rows.Clear();
+
+        // A link or a narrower filter can point past the last page; the last
+        // page that exists is shown instead of an empty table.
+        if (page.Items.Count == 0 && page.TotalCount > 0)
+        {
+            Show(query with { PageIndex = (page.TotalCount - 1) / query.PageSize }, replace: true);
+        }
     }
 
-    private Task GoToPageAsync(int target)
-    {
-        pageIndex = target;
+    private void Show(BookingListQuery next, bool replace = false)
+        => navigation.NavigateTo(navigation.GetUriWithQueryParameters(next.ToParameters()), replace: replace);
 
-        return LoadAsync();
-    }
+    private void Filter(BookingFilter filter) => Show(query with { Filter = filter, PageIndex = 0 });
 
-    private Task ChangePageSizeAsync(int size)
-    {
-        pageSize = size;
-        pageIndex = 0;
+    private void ResetFilter() => Show(query with { Filter = BookingFilter.None, PageIndex = 0 });
 
-        return LoadAsync();
-    }
+    private void GoToPage(int target) => Show(query with { PageIndex = target });
+
+    private void ChangePageSize(int size) => Show(query with { PageSize = size, PageIndex = 0 });
 
     /// <summary>
     /// A click on a column sorts by it, newest or largest first; a second
@@ -161,25 +228,15 @@
     /// headers. The design stops at the second, which would leave the grouped
     /// list unreachable once a header was clicked.
     /// </summary>
-    private Task SortAsync(BookingSortColumn column)
+    private void Sort(BookingSortColumn column)
     {
-        if (sortBy != column)
-        {
-            sortBy = column;
-            descending = true;
-        }
-        else if (descending)
-        {
-            descending = false;
-        }
-        else
-        {
-            sortBy = null;
-        }
+        var next = query.SortBy != column
+            ? query with { SortBy = column, Descending = true }
+            : query.Descending
+                ? query with { Descending = false }
+                : query with { SortBy = null, Descending = true };
 
-        pageIndex = 0;
-
-        return LoadAsync();
+        Show(next with { PageIndex = 0 });
     }
 
     private void Open(Booking booking) => selected = booking;
@@ -219,17 +276,19 @@
 
     // On the header cell, where a screen reader looks for it.
     private string? AriaSort(BookingSortColumn column)
-        => sortBy != column ? null : descending ? "descending" : "ascending";
+        => query.SortBy != column ? null : query.Descending ? "descending" : "ascending";
 
     private RenderFragment SortButton(BookingSortColumn column, string title)
     {
-        var on = sortBy == column;
-        var glyph = on && !descending ? "arrow-up" : "arrow-down";
+        var on = query.SortBy == column;
+        var glyph = on && !query.Descending ? "arrow-up" : "arrow-down";
 
         return @<button type="button"
                         class="@(on ? "cp-sort cp-sort--on" : "cp-sort")"
-                        @onclick="() => SortAsync(column)">
+                        @onclick="() => Sort(column)">
                   @title<CpIcon Name="@glyph" />
                 </button>;
     }
+
+    public void Dispose() => navigation.LocationChanged -= OnLocationChanged;
 }

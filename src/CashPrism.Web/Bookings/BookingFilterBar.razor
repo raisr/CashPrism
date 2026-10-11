@@ -1,0 +1,339 @@
+@using CashPrism.Application.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+
+@* The controls that narrow the booking list. It holds no filter of its own:
+   it shows the one it is given and reports every change as a whole new
+   filter, so the page — and through it the URL — stays the one place the
+   filter lives. *@
+<div class="cp-filters">
+  <div class="cp-filters__row">
+    <MudSelect T="string"
+               Value="@(Filter.AccountReference ?? All)"
+               ValueChanged="AccountChangedAsync"
+               ToStringFunc="AccountName"
+               Label="@text["BookingsFilterAccount"]"
+               Variant="Variant.Outlined"
+               Margin="Margin.Dense"
+               Dense="true"
+               Class="cp-filters__select">
+      <MudSelectItem T="string" Value="@All">@text["BookingsFilterAllAccounts"]</MudSelectItem>
+      @foreach (var account in Options.Accounts)
+      {
+        <MudSelectItem T="string" Value="@account.Reference">@account.Name</MudSelectItem>
+      }
+    </MudSelect>
+
+    <MudSelect T="string"
+               Value="@(Filter.Category ?? All)"
+               ValueChanged="CategoryChangedAsync"
+               ToStringFunc="CategoryName"
+               Label="@text["BookingsFilterCategory"]"
+               Variant="Variant.Outlined"
+               Margin="Margin.Dense"
+               Dense="true"
+               Class="cp-filters__select">
+      <MudSelectItem T="string" Value="@All">@text["BookingsFilterAllCategories"]</MudSelectItem>
+      @foreach (var category in Options.Categories)
+      {
+        <MudSelectItem T="string" Value="@category.Name">@CategoryName(category.Name)</MudSelectItem>
+      }
+    </MudSelect>
+
+    @if (SubCategories is { Count: > 0 } subCategories)
+    {
+      <MudSelect T="string"
+                 Value="@(Filter.SubCategory ?? All)"
+                 ValueChanged="SubCategoryChangedAsync"
+                 ToStringFunc="SubCategoryName"
+                 Label="@text["BookingsFilterSubCategory"]"
+                 Variant="Variant.Outlined"
+                 Margin="Margin.Dense"
+                 Dense="true"
+                 Class="cp-filters__select">
+        <MudSelectItem T="string" Value="@All">@text["BookingsFilterAllSubCategories"]</MudSelectItem>
+        @foreach (var subCategory in subCategories)
+        {
+          <MudSelectItem T="string" Value="@subCategory">@subCategory</MudSelectItem>
+        }
+      </MudSelect>
+    }
+
+    <MudSelect T="string"
+               Value="@PeriodChoice"
+               ValueChanged="PeriodChangedAsync"
+               ToStringFunc="PeriodName"
+               Label="@text["BookingsFilterPeriod"]"
+               Variant="Variant.Outlined"
+               Margin="Margin.Dense"
+               Dense="true"
+               Class="cp-filters__select">
+      <MudSelectItem T="string" Value="@All">@PeriodName(All)</MudSelectItem>
+      @foreach (var preset in Enum.GetValues<BookingPeriodPreset>())
+      {
+        <MudSelectItem T="string" Value="@preset.ToString()">@PeriodName(preset.ToString())</MudSelectItem>
+      }
+      <MudSelectItem T="string" Value="@Custom">@PeriodName(Custom)</MudSelectItem>
+    </MudSelect>
+
+    @if (PeriodChoice == Custom)
+    {
+      <MudDatePicker Date="from"
+                     DateChanged="FromChangedAsync"
+                     MaxDate="to"
+                     Label="@text["BookingsFilterFrom"]"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.Dense"
+                     Class="cp-filters__date" />
+      <MudDatePicker Date="to"
+                     DateChanged="ToChangedAsync"
+                     MinDate="from"
+                     Label="@text["BookingsFilterTo"]"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.Dense"
+                     Class="cp-filters__date" />
+    }
+
+    <Segmented TValue="BookingDirection?"
+               Options="directions"
+               Value="Filter.Direction"
+               ValueChanged="DirectionChangedAsync"
+               Label="@text["BookingsFilterDirection"]" />
+  </div>
+
+  <div class="cp-filters__row">
+    @if (Filter.Counterparty is { } counterparty)
+    {
+      @* Set only by a link from another page: a person never types a name
+         here, because exact text is all this filter matches. The chip says
+         what narrows the list and takes it away again. *@
+      <button type="button"
+              class="cp-chip cp-chip--on"
+              aria-label="@text["BookingsFilterRemoveCounterparty", counterparty]"
+              @onclick="RemoveCounterpartyAsync">
+        <CpIcon Name="user" />
+        @counterparty
+        <CpIcon Name="x" Class="cp-chip__x" />
+      </button>
+    }
+    <span class="cp-filters__spacer"></span>
+    <MudSwitch T="bool"
+               Value="Filter.HideTransfers"
+               ValueChanged="HideTransfersChangedAsync"
+               Label="@text["BookingsFilterHideTransfers"]"
+               Color="Color.Primary"
+               Class="cp-filters__switch" />
+  </div>
+</div>
+
+@code {
+    // MudSelect needs a value for "no choice"; the empty string is one no
+    // stored account, category or sub-category carries — the reader leaves
+    // empty ones out of the options.
+    private const string All = "";
+
+    private const string Custom = "custom";
+
+    private IReadOnlyList<SegmentedOption<BookingDirection?>> directions = [];
+
+    // The custom period's two ends while they are being picked: the filter
+    // only takes a period with both.
+    private DateTime? from;
+    private DateTime? to;
+
+    // Whether "Eigener Zeitraum" was picked here. Without it the date fields
+    // would vanish while only one end is picked, or the moment the picked
+    // days happen to match a preset.
+    private bool customAsked;
+
+    // The custom period this bar raised last, and the period it was last
+    // given. A period arriving that is neither — the back button, a link —
+    // ends the custom choice.
+    private BookingPeriod? customRaised;
+    private BookingPeriod? periodShown;
+
+    /// <summary>The filter the list is narrowed to.</summary>
+    [Parameter, EditorRequired]
+    public BookingFilter Filter { get; set; } = BookingFilter.None;
+
+    /// <summary>What the stored bookings offer to filter by.</summary>
+    [Parameter, EditorRequired]
+    public BookingFilterOptions Options { get; set; } = new([], []);
+
+    /// <summary>The date the stored data is current to, which the period presets count from.</summary>
+    [Parameter, EditorRequired]
+    public DateOnly CurrentTo { get; set; }
+
+    /// <summary>Raised with the whole filter whenever a control changes it.</summary>
+    [Parameter]
+    public EventCallback<BookingFilter> FilterChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        directions =
+        [
+            new(null, text["BookingsDirectionAll"]),
+            new(BookingDirection.Income, text["BookingsDirectionIncome"]),
+            new(BookingDirection.Spending, text["BookingsDirectionSpending"]),
+        ];
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Filter.Period == periodShown)
+        {
+            return;
+        }
+
+        periodShown = Filter.Period;
+        customAsked = customAsked && Filter.Period is not null && Filter.Period == customRaised;
+        from = Filter.Period?.From.ToDateTime(TimeOnly.MinValue);
+        to = Filter.Period?.To.ToDateTime(TimeOnly.MinValue);
+    }
+
+    private IReadOnlyList<string>? SubCategories
+        => Filter.Category is { } category
+            ? Options.Categories.FirstOrDefault(option => option.Name == category)?.SubCategories
+            : null;
+
+    /// <summary>
+    /// Which choice the period picker shows. A period that matches a preset
+    /// shows as that preset — which is how a link carrying two dates opens
+    /// with "Letzter Monat" picked — and any other as a custom one.
+    /// </summary>
+    private string PeriodChoice
+    {
+        get
+        {
+            if (customAsked)
+            {
+                return Custom;
+            }
+
+            if (Filter.Period is not { } period)
+            {
+                return All;
+            }
+
+            return Enum.GetValues<BookingPeriodPreset>()
+                .Where(preset => BookingPeriod.For(preset, CurrentTo) == period)
+                .Select(preset => preset.ToString())
+                .FirstOrDefault() ?? Custom;
+        }
+    }
+
+    private string AccountName(string? reference)
+        => string.IsNullOrEmpty(reference)
+            ? text["BookingsFilterAllAccounts"]
+            : Options.Accounts.FirstOrDefault(account => account.Reference == reference)?.Name ?? reference;
+
+    private string CategoryName(string? category)
+        => string.IsNullOrEmpty(category) ? text["BookingsFilterAllCategories"] : MainCategoryName.For(category, text);
+
+    private string SubCategoryName(string? subCategory)
+        => string.IsNullOrEmpty(subCategory) ? text["BookingsFilterAllSubCategories"] : subCategory;
+
+    private string PeriodName(string? choice) => choice switch
+    {
+        nameof(BookingPeriodPreset.ThisMonth) => text["BookingsPeriodThisMonth"],
+        nameof(BookingPeriodPreset.LastMonth) => text["BookingsPeriodLastMonth"],
+        nameof(BookingPeriodPreset.Last12Months) => text["BookingsPeriodLast12Months"],
+        nameof(BookingPeriodPreset.ThisYear) => text["BookingsPeriodThisYear"],
+        nameof(BookingPeriodPreset.LastYear) => text["BookingsPeriodLastYear"],
+        Custom => text["BookingsPeriodCustom"],
+        _ => text["BookingsPeriodAll"],
+    };
+
+    private Task AccountChangedAsync(string? reference)
+        => ChangeAsync(Filter with { AccountReference = NullIfAll(reference) });
+
+    // A sub-category belongs to its main category, so it goes with it.
+    private Task CategoryChangedAsync(string? category)
+        => ChangeAsync(new BookingFilter(
+            Filter.AccountReference,
+            NullIfAll(category),
+            null,
+            Filter.Period,
+            Filter.Counterparty,
+            Filter.Direction,
+            Filter.HideTransfers));
+
+    private Task SubCategoryChangedAsync(string? subCategory)
+        => ChangeAsync(new BookingFilter(
+            Filter.AccountReference,
+            Filter.Category,
+            NullIfAll(subCategory),
+            Filter.Period,
+            Filter.Counterparty,
+            Filter.Direction,
+            Filter.HideTransfers));
+
+    private Task PeriodChangedAsync(string? choice)
+    {
+        if (choice == Custom)
+        {
+            // The period already set stays until both new ends are picked;
+            // its days are where the date fields start.
+            customAsked = true;
+            customRaised = Filter.Period;
+
+            return Task.CompletedTask;
+        }
+
+        customAsked = false;
+
+        var period = Enum.TryParse<BookingPeriodPreset>(choice, out var preset)
+            ? BookingPeriod.For(preset, CurrentTo)
+            : null;
+
+        return ChangeAsync(Filter with { Period = period });
+    }
+
+    private Task FromChangedAsync(DateTime? date)
+    {
+        from = date;
+
+        return CustomPeriodChangedAsync();
+    }
+
+    private Task ToChangedAsync(DateTime? date)
+    {
+        to = date;
+
+        return CustomPeriodChangedAsync();
+    }
+
+    private Task CustomPeriodChangedAsync()
+    {
+        if (from is not { } first || to is not { } last || last < first)
+        {
+            return Task.CompletedTask;
+        }
+
+        customRaised = new BookingPeriod(DateOnly.FromDateTime(first), DateOnly.FromDateTime(last));
+
+        return ChangeAsync(Filter with { Period = customRaised });
+    }
+
+    // Through the constructor rather than with: the direction is guarded, and
+    // a guarded property has no init accessor for with to set.
+    private Task DirectionChangedAsync(BookingDirection? direction)
+        => ChangeAsync(new BookingFilter(
+            Filter.AccountReference,
+            Filter.Category,
+            Filter.SubCategory,
+            Filter.Period,
+            Filter.Counterparty,
+            direction,
+            Filter.HideTransfers));
+
+    private Task RemoveCounterpartyAsync()
+        => ChangeAsync(Filter with { Counterparty = null });
+
+    private Task HideTransfersChangedAsync(bool hide)
+        => ChangeAsync(Filter with { HideTransfers = hide });
+
+    private Task ChangeAsync(BookingFilter filter) => FilterChanged.InvokeAsync(filter);
+
+    private static string? NullIfAll(string? value) => string.IsNullOrEmpty(value) ? null : value;
+}
