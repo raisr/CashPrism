@@ -39,6 +39,16 @@ public sealed record BookingPeriod(DateOnly From, DateOnly To)
         };
     }
 
+    /// <summary>
+    /// The whole calendar months from <paramref name="firstMonth"/> to
+    /// <paramref name="lastMonth"/>, both included — the period an analysis
+    /// figure over those months was summed over.
+    /// </summary>
+    /// <param name="firstMonth">The first day of the first month.</param>
+    /// <param name="lastMonth">The first day of the last month.</param>
+    public static BookingPeriod OfMonths(DateOnly firstMonth, DateOnly lastMonth)
+        => new(firstMonth, lastMonth.AddMonths(1).AddDays(-1));
+
     private static BookingPeriod Months(DateOnly first, int count)
         => new(first, first.AddMonths(count).AddDays(-1));
 }

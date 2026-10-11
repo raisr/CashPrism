@@ -65,4 +65,23 @@ public sealed class BookingPeriodTests
             => Assert.Throws<ArgumentOutOfRangeException>(
                 () => BookingPeriod.For((BookingPeriodPreset)99, CurrentTo));
     }
+
+    public sealed class OfMonths
+    {
+        [Fact]
+        public void Runs_From_The_First_Day_To_The_Last_Day_Of_The_Last_Month()
+        {
+            var period = BookingPeriod.OfMonths(new DateOnly(2026, 4, 1), new DateOnly(2026, 9, 1));
+
+            Assert.Equal((new DateOnly(2026, 4, 1), new DateOnly(2026, 9, 30)), (period.From, period.To));
+        }
+
+        [Fact]
+        public void Covers_A_Single_Month_Up_To_Its_Last_Day()
+        {
+            var period = BookingPeriod.OfMonths(new DateOnly(2024, 2, 1), new DateOnly(2024, 2, 1));
+
+            Assert.Equal((new DateOnly(2024, 2, 1), new DateOnly(2024, 2, 29)), (period.From, period.To));
+        }
+    }
 }

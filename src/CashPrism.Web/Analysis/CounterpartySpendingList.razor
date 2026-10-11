@@ -4,7 +4,6 @@
 @using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
 @inject ICashFlowReader reader
-@inject NavigationManager navigation
 
 @* Who the money went to in the period, largest sum first. Each name opens the
    booking list on exactly the bookings its sum is made of, so the figures
@@ -66,7 +65,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var asked = new BookingPeriod(Months[0], Months[^1].AddMonths(1).AddDays(-1));
+        var asked = BookingPeriod.OfMonths(Months[0], Months[^1]);
 
         // The page hands the months in again on every render; only a new
         // period is worth a query.
@@ -82,18 +81,11 @@
     // Spending only and without transfers, which is what the sum here counts;
     // the list leaves the original of a split booking out of its sums itself.
     private string BookingsOf(string counterparty)
-    {
-        var query = BookingListQuery.Default with
-        {
-            Filter = new BookingFilter(
-                Period: period,
-                Counterparty: counterparty,
-                Direction: BookingDirection.Spending,
-                HideTransfers: true),
-        };
-
-        return navigation.GetUriWithQueryParameters(navigation.ToAbsoluteUri("bookings").AbsoluteUri, query.ToParameters());
-    }
+        => BookingListQuery.LinkFor(new BookingFilter(
+            Period: period,
+            Counterparty: counterparty,
+            Direction: BookingDirection.Spending,
+            HideTransfers: true));
 
     private string BookingCount(int count)
         => text[count == 1 ? "AnalysisCounterpartiesBookingsOne" : "AnalysisCounterpartiesBookingsMany", BookingFormat.Count(count)];

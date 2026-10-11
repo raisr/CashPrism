@@ -120,6 +120,24 @@ public sealed record BookingListQuery(
         };
     }
 
+    /// <summary>
+    /// A link from another page to the booking list narrowed to
+    /// <paramref name="filter"/>, in the order and at the page size the list
+    /// opens with. Relative, so it resolves against the app's base address
+    /// wherever CashPrism is reached from.
+    /// </summary>
+    /// <param name="filter">Which bookings the list opens on.</param>
+    public static string LinkFor(BookingFilter filter)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        var query = (Default with { Filter = filter }).ToParameters()
+            .Where(parameter => parameter.Value is not null)
+            .Select(parameter => parameter.Key + "=" + Uri.EscapeDataString((string)parameter.Value!));
+
+        return "bookings?" + string.Join('&', query);
+    }
+
     /// <summary>The page this state asks the reader for.</summary>
     public BookingPageRequest ToPageRequest()
         => new(
