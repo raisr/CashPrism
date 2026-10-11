@@ -329,18 +329,31 @@ end of the screen over a dimmed page, filled by `Bookings/BookingSheet.razor`.
 It shows the booking the way the list can only hint at: the category tile, the
 party and the day in the head, the amount large with its cents faded, a badge
 naming how the booking was paid, a badge when Finanzguru marks the booking as a
-transfer between the owner's own accounts, and the date, account, category,
-party and payment reference as a list. The party is labelled *Empfänger* or
-*Absender* by the sign of the amount.
+transfer between the owner's own accounts, a badge when Finanzguru counts it to
+a contract, and the date, account, category, party and payment reference as a
+list, followed by the creditor ID, the mandate reference and the tags. The party
+is labelled *Empfänger* or *Absender* by the sign of the amount. The account
+and the party each carry their account number on a second, quieter line in the
+same value. A field the export left empty is left out — no label, no dash.
 
 The booking type badge shows the seven words measured in an export in their
 German spelling — Finanzguru writes `Ueberweisung` — and any other word as the
 export wrote it. Without a type there is no badge. Both badges keep the
 design's neutral grey: they carry text, not a colour code to tell apart.
 
-Only what is stored today is shown. The design's recurring badge, the earlier
-bookings at the same party and the buttons to recategorise or hide a booking
-need queries and features that do not exist yet.
+The contract badge is the design's recurring badge, in its info tone with the
+`repeat` glyph: *Vertrag · monatlich*, or *Vertrag* alone where the export names
+no interval. The interval follows the same rule as the booking type — the five
+measured words in their German spelling, any other as the export wrote it. It
+does not link to the contract; that comes with the contracts page.
+
+The purchase time of a card payment is not shown. It exists only inside the
+payment reference, in a bank-specific format, and the reference is shown in
+full anyway.
+
+Only what is stored today is shown. The earlier bookings at the same party and
+the buttons to recategorise or hide a booking need queries and features that do
+not exist yet.
 
 The focus is the one part that needs care. The sheet takes it when it opens,
 so Esc reaches it at once and a screen reader announces the dialog. Esc, the

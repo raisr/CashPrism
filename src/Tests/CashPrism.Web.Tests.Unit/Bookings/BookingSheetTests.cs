@@ -148,9 +148,91 @@ public sealed class BookingSheetTests
             var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
 
             var details = sheet.FindAll(".cp-kv dd").Select(value => value.TextContent);
+            // The account's number follows its name in the same value, on a line of its own.
             Assert.Equal(
-                [BookingFormat.Date(Yesterday), "Girokonto", "Mobilität", "Deutsche Bahn", "Kartenzahlung"],
+                [BookingFormat.Date(Yesterday), "Girokonto" + "DE00000000000000000000", "Mobilität", "Deutsche Bahn", "Kartenzahlung"],
                 details);
+        }
+
+        [Fact]
+        public void Shows_The_Own_Account_Number_Under_The_Account_Name()
+        {
+            var booking = bookings.Add(Yesterday);
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Equal("DE00000000000000000000", sheet.Find(".cp-booking-sheet__iban").TextContent);
+        }
+
+        [Fact]
+        public void Shows_The_Account_Number_Of_The_Other_Party_Under_Its_Name()
+        {
+            var booking = bookings.Add(Yesterday, counterpartyAccount: "DE89370400440532013000");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            var numbers = sheet.FindAll(".cp-booking-sheet__iban").Select(number => number.TextContent);
+            Assert.Equal(["DE00000000000000000000", "DE89370400440532013000"], numbers);
+        }
+
+        [Fact]
+        public void Shows_The_Direct_Debit_Details_And_The_Tags_When_The_Export_Carries_Them()
+        {
+            var booking = bookings.Add(
+                Yesterday,
+                creditorId: "DE98ZZZ09999999999",
+                mandateReference: "MR-2024-0042",
+                tags: "Urlaub");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            // They follow the payment reference, in this order.
+            var terms = sheet.FindAll(".cp-kv dt").Select(term => term.TextContent).TakeLast(3);
+            var values = sheet.FindAll(".cp-kv dd").Select(value => value.TextContent).TakeLast(3);
+            Assert.Equal(["Gläubiger-ID", "Mandatsreferenz", "Tags"], terms);
+            Assert.Equal(["DE98ZZZ09999999999", "MR-2024-0042", "Urlaub"], values);
+        }
+
+        [Fact]
+        public void Leaves_Out_The_Fields_The_Export_Left_Empty()
+        {
+            var booking = bookings.Add(Yesterday);
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            var terms = sheet.FindAll(".cp-kv dt").Select(term => term.TextContent);
+            Assert.DoesNotContain(terms, term => term is "Gläubiger-ID" or "Mandatsreferenz" or "Tags");
+            Assert.Empty(sheet.FindAll(".cp-booking-sheet__contract"));
+        }
+
+        [Fact]
+        public void Marks_A_Contract_With_Its_Interval_In_Its_German_Spelling()
+        {
+            var booking = bookings.Add(Yesterday, isContract: true, contractInterval: "vierteljaehrlich");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Equal("Vertrag · vierteljährlich", sheet.Find(".cp-booking-sheet__contract").TextContent);
+        }
+
+        [Fact]
+        public void Marks_A_Contract_Without_An_Interval_As_A_Contract_Alone()
+        {
+            var booking = bookings.Add(Yesterday, isContract: true);
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Equal("Vertrag", sheet.Find(".cp-booking-sheet__contract").TextContent);
+        }
+
+        [Fact]
+        public void Shows_A_Contract_Interval_It_Does_Not_Know_As_The_Export_Wrote_It()
+        {
+            var booking = bookings.Add(Yesterday, isContract: true, contractInterval: "woechentlich");
+
+            var sheet = context.Render<BookingSheet>(parameters => parameters.Add(p => p.Booking, booking));
+
+            Assert.Equal("Vertrag · woechentlich", sheet.Find(".cp-booking-sheet__contract").TextContent);
         }
     }
 }

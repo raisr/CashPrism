@@ -466,9 +466,15 @@ vorgesehen.
 
 **Details einer Buchung:** Ein Klick auf eine Buchung öffnet rechts ein Fenster
 mit Betrag, Datum, Konto, Kategorie, Empfänger oder Absender und
-Verwendungszweck. Unter dem Betrag steht, wie bezahlt wurde, etwa
-*Kartenzahlung* oder *Überweisung*. Umbuchungen zwischen deinen eigenen Konten
-sind dort als *Zwischen deinen Konten* markiert. Mit der Tastatur geht es
+Verwendungszweck. Unter dem Namen des Kontos steht seine IBAN, unter Empfänger
+oder Absender dessen IBAN, wenn Finanzguru sie kennt. Bei einer Lastschrift
+folgen *Gläubiger-ID* und *Mandatsreferenz*, und hast du der Buchung in
+Finanzguru Tags gegeben, stehen sie unter *Tags*. Was eine Buchung nicht hat,
+fehlt einfach, statt leer dazustehen. Unter dem Betrag steht, wie bezahlt wurde,
+etwa *Kartenzahlung* oder *Überweisung*. Umbuchungen zwischen deinen eigenen
+Konten sind dort als *Zwischen deinen Konten* markiert, und eine Buchung, die
+Finanzguru einem Vertrag zuordnet, als *Vertrag* mit ihrem Rhythmus, etwa
+*Vertrag · monatlich*. Mit der Tastatur geht es
 ebenso: Mit Tab zur Buchung, mit Enter öffnen. Esc, das Kreuz oben rechts oder
 ein Klick neben das Fenster schließen es wieder.
 

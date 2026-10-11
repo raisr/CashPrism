@@ -4,9 +4,9 @@
 @inject IClock clock
 
 @* One booking in full: what the list can only hint at in a row. Only what is
-   stored today — the design's earlier bookings at the same party, the
-   recurring badge and the buttons to recategorise or hide need queries and
-   features that do not exist yet. *@
+   stored today — the design's earlier bookings at the same party and the
+   buttons to recategorise or hide need queries and features that do not
+   exist yet. *@
 <Sheet Open="Booking is not null"
        Title="@(Booking?.Counterparty ?? string.Empty)"
        Subtitle="@DayLabel"
@@ -22,7 +22,7 @@
     {
       <div class="cp-booking-sheet__amount">
         <Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" Large="true" />
-        @if (!string.IsNullOrWhiteSpace(booking.TransactionKind) || booking.IsTransfer)
+        @if (!string.IsNullOrWhiteSpace(booking.TransactionKind) || booking.IsTransfer || booking.IsContract)
         {
           <div class="cp-booking-sheet__badges">
             @if (!string.IsNullOrWhiteSpace(booking.TransactionKind))
@@ -33,6 +33,10 @@
             {
               <span class="cp-badge cp-booking-sheet__transfer"><CpIcon Name="arrow-left-right" Size="13" />@text["BookingSheetTransfer"]</span>
             }
+            @if (booking.IsContract)
+            {
+              <span class="cp-badge cp-badge--info cp-booking-sheet__contract"><CpIcon Name="repeat" Size="13" />@ContractLabel(booking.ContractInterval)</span>
+            }
           </div>
         }
       </div>
@@ -40,16 +44,34 @@
         <dt>@text["BookingsColumnDate"]</dt>
         <dd>@BookingFormat.Date(booking.BookedOn)</dd>
         <dt>@text["BookingsColumnAccount"]</dt>
-        <dd>@booking.AccountName</dd>
+        <dd>@booking.AccountName<span class="cp-booking-sheet__iban">@booking.AccountReference</span></dd>
         <dt>@text["BookingsColumnCategory"]</dt>
         <dd>@text[Category.NameKey]</dd>
         @* Who the money went to, or who it came from — the sign decides. *@
         <dt>@text[booking.AmountInCents < 0 ? "BookingSheetRecipient" : "BookingSheetSender"]</dt>
-        <dd>@booking.Counterparty</dd>
+        <dd>@booking.Counterparty@if (!string.IsNullOrWhiteSpace(booking.CounterpartyAccount))
+          {
+            <span class="cp-booking-sheet__iban">@booking.CounterpartyAccount</span>
+          }</dd>
         @if (!string.IsNullOrWhiteSpace(booking.PaymentReference))
         {
           <dt>@text["BookingSheetReference"]</dt>
           <dd>@booking.PaymentReference</dd>
+        }
+        @if (!string.IsNullOrWhiteSpace(booking.CreditorId))
+        {
+          <dt>@text["BookingSheetCreditorId"]</dt>
+          <dd>@booking.CreditorId</dd>
+        }
+        @if (!string.IsNullOrWhiteSpace(booking.MandateReference))
+        {
+          <dt>@text["BookingSheetMandateReference"]</dt>
+          <dd>@booking.MandateReference</dd>
+        }
+        @if (!string.IsNullOrWhiteSpace(booking.Tags))
+        {
+          <dt>@text["BookingSheetTags"]</dt>
+          <dd>@booking.Tags</dd>
         }
       </dl>
     }
@@ -72,6 +94,19 @@
     // A known word in its German spelling, an unknown one as the export wrote it.
     private string TransactionKind(string transactionKind)
         => TransactionKindLabel.KeyFor(transactionKind) is { } key ? text[key] : transactionKind;
+
+    // "Vertrag · monatlich", or "Vertrag" alone where the export names no interval.
+    private string ContractLabel(string contractInterval)
+    {
+        if (string.IsNullOrWhiteSpace(contractInterval))
+        {
+            return text["BookingSheetContract"];
+        }
+
+        var interval = ContractIntervalLabel.KeyFor(contractInterval) is { } key ? text[key].Value : contractInterval;
+
+        return $"{text["BookingSheetContract"]} · {interval}";
+    }
 
     // The same day label the list groups the booking under.
     private string? DayLabel => Booking is { } booking

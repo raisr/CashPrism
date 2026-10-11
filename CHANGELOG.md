@@ -34,6 +34,11 @@ releases and the minor version is bumped for every notable change.
   reference or the IBAN, and by amount — `>200`, `<50`, `=12,99` — together
   with its filters. Case and umlauts do not matter, so `möbel` also finds the
   `MOEBEL` a bank writes.
+- The details of a booking show both account numbers — yours under the account
+  name, the other party's under theirs — and, where the export carries them,
+  the creditor ID, the mandate reference and your tags. A booking Finanzguru
+  counts to a contract is marked with its interval, such as
+  *Vertrag · monatlich*. Fields a booking does not have are left out.
 
 ## [0.1.0] - 2026-10-10
 

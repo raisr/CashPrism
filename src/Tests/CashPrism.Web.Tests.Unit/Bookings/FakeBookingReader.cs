@@ -64,7 +64,13 @@ public sealed class FakeBookingReader : IBookingReader
         string category = "Essen & Trinken",
         string subCategory = "Lebensmittel",
         bool isTransfer = false,
-        string transactionKind = "")
+        string transactionKind = "",
+        string counterpartyAccount = "",
+        bool isContract = false,
+        string contractInterval = "",
+        string mandateReference = "",
+        string creditorId = "",
+        string tags = "")
     {
         var booking = TestBookings.Create(
             fingerprint: Guid.NewGuid().ToString("N"),
@@ -72,11 +78,17 @@ public sealed class FakeBookingReader : IBookingReader
             amountInCents: amountInCents,
             accountReference: "DE00000000000000000000",
             counterparty: counterparty,
+            counterpartyAccount: counterpartyAccount,
             paymentReference: "Kartenzahlung",
             category: category,
             subCategory: subCategory,
             isTransfer: isTransfer,
             transactionKind: transactionKind,
+            isContract: isContract,
+            contractInterval: contractInterval,
+            mandateReference: mandateReference,
+            creditorId: creditorId,
+            tags: tags,
             sourceImportRunId: Guid.NewGuid());
 
         Stored.Add(booking);
