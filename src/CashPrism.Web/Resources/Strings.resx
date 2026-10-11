@@ -563,6 +563,10 @@
     <value>Filter zurücksetzen</value>
     <comment>Booking list: button that removes every filter.</comment>
   </data>
+  <data name="OverviewNetWorth" xml:space="preserve">
+    <value>Vermögen auf allen Konten</value>
+    <comment>Overview: label of the tile with the total balance of all accounts.</comment>
+  </data>
   <data name="NavAccounts" xml:space="preserve">
     <value>Konten</value>
     <comment>Navigation entry and heading of the accounts page.</comment>

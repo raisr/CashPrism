@@ -8,7 +8,7 @@
    say: more income is, more spending is not. *@
 <section class="cp-card">
   <div class="cp-stat">
-    <IconTile Icon="@TrendIcon" Colour="@TrendColour" Size="44" Round="true" />
+    <IconTile Icon="@(Icon ?? TrendIcon)" Colour="@(Colour ?? TrendColour)" Size="44" Round="true" />
     <div class="cp-stat__body">
       <div class="cp-stat__label">@Label</div>
       <div class="cp-stat__value">@ChildContent</div>
@@ -50,6 +50,17 @@
     /// <summary>What the move is measured against, already localised.</summary>
     [Parameter]
     public string? DeltaLabel { get; set; }
+
+    /// <summary>
+    /// A glyph naming what the figure is, for a tile that has no move to show;
+    /// the trend's arrow when not set.
+    /// </summary>
+    [Parameter]
+    public string? Icon { get; set; }
+
+    /// <summary>The colour of that glyph's tile; the trend's colour when not set.</summary>
+    [Parameter]
+    public string? Colour { get; set; }
 
     private bool Moved => Trend is StatTrend.Up or StatTrend.Down;
 
