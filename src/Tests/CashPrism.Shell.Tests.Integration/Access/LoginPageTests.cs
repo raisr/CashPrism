@@ -19,14 +19,11 @@ public sealed class LoginPageTests : IDisposable
         bool rememberMe = false,
         string path = AccessPaths.Login)
     {
-        var fields = new Dictionary<string, string> { ["Input.Password"] = password };
-
-        if (rememberMe)
-        {
-            fields["Input.RememberMe"] = "true";
-        }
-
-        return HtmlForm.SubmitAsync(client, path, fields);
+        return HtmlForm.SubmitAsync(
+            client,
+            path,
+            new Dictionary<string, string> { ["Input.Password"] = password },
+            ticked: rememberMe ? ["Input.RememberMe"] : []);
     }
 
     /// <summary>The <c>Set-Cookie</c> header that carries the login, or <c>null</c>.</summary>
