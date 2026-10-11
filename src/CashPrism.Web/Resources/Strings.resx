@@ -563,6 +563,50 @@
     <value>Filter zurücksetzen</value>
     <comment>Booking list: button that removes every filter.</comment>
   </data>
+  <data name="NavAccounts" xml:space="preserve">
+    <value>Konten</value>
+    <comment>Navigation entry and heading of the accounts page.</comment>
+  </data>
+  <data name="AccountsLeadMany" xml:space="preserve">
+    <value>Deine {1} Konten stehen zusammen bei {0}.</value>
+    <comment>Accounts page: lead. {0} is the total balance, set apart; {1} is the number of accounts. Says where the accounts stand rather than what the person has, because a loan makes the total negative.</comment>
+  </data>
+  <data name="AccountsLeadOne" xml:space="preserve">
+    <value>Dein Konto steht bei {0}.</value>
+    <comment>Accounts page: lead when there is a single account. {0} is its balance, set apart; {1} is unused.</comment>
+  </data>
+  <data name="AccountsYours" xml:space="preserve">
+    <value>Deine Konten</value>
+    <comment>Accounts page: label above the account cards.</comment>
+  </data>
+  <data name="AccountsNote" xml:space="preserve">
+    <value>Konten kommen aus deinem Finanzguru-Export. Neue Konten erscheinen nach dem nächsten Import.</value>
+    <comment>Accounts page: note below the account cards.</comment>
+  </data>
+  <data name="AccountsEmpty" xml:space="preserve">
+    <value>Noch keine Konten</value>
+    <comment>Accounts page: title of the empty state.</comment>
+  </data>
+  <data name="AccountsEmptyHint" xml:space="preserve">
+    <value>Deine Konten und ihre Kontostände erscheinen mit dem nächsten Import eines Finanzguru-Exports.</value>
+    <comment>Accounts page: text of the empty state. Also shown when bookings exist but were imported before balances were taken, so it says "next import".</comment>
+  </data>
+  <data name="AccountsBalance" xml:space="preserve">
+    <value>Kontostand</value>
+    <comment>Accounts page: label of the selected account's balance.</comment>
+  </data>
+  <data name="AccountsLatestBooking" xml:space="preserve">
+    <value>letzte Buchung am {0}</value>
+    <comment>Accounts page: date of the selected account's newest booking. {0} is the date.</comment>
+  </data>
+  <data name="AccountsBookings" xml:space="preserve">
+    <value>Buchungen</value>
+    <comment>Accounts page: heading of the selected account's latest bookings, followed by their count.</comment>
+  </data>
+  <data name="AccountsAllBookings" xml:space="preserve">
+    <value>Alle Buchungen dieses Kontos</value>
+    <comment>Accounts page: link to the booking list filtered to the selected account.</comment>
+  </data>
   <data name="BookingSheetRecipient" xml:space="preserve">
     <value>Empfänger</value>
     <comment>Booking sheet: label of the other party when money went out.</comment>

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using CashPrism.Application.Access;
+using CashPrism.Application.Accounts;
 using CashPrism.Application.CashFlow;
 using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
@@ -138,6 +139,7 @@ public sealed class Program
 
         builder.Services.AddScoped<CashFlowOverviewReader>();
         builder.Services.AddScoped<SpendingAnalysisReader>();
+        builder.Services.AddScoped<AccountOverviewReader>();
 
         // A new code on every start, made here because it is random: until a
         // password is set, the banner prints it, and only who sees the console
