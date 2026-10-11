@@ -1002,6 +1002,15 @@
   margin-top: 10px;
 }
 
+/* The account under the name it belongs to: a second, quieter line, since the
+   name is what a person recognises and the number what they compare. */
+.cp-booking-sheet__iban {
+  display: block;
+  margin-top: 2px;
+  font: 400 12px/1.4 var(--cp-font-mono);
+  color: var(--cp-text-3);
+}
+
 /* A list of labels and values, the values set against the end. */
 .cp-kv {
   display: grid;
@@ -1068,6 +1077,12 @@
   background: color-mix(in srgb, var(--cp-danger) 13%, transparent);
   color: var(--cp-danger);
   font-variant-numeric: tabular-nums;
+}
+
+/* A neutral fact worth a colour, such as a booking that belongs to a contract. */
+.cp-badge--info {
+  background: color-mix(in srgb, var(--cp-info) 13%, transparent);
+  color: var(--cp-info);
 }
 
 /* ---------- alert ---------- */

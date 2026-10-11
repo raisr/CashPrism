@@ -579,6 +579,42 @@
     <value>Zwischen deinen Konten</value>
     <comment>Booking sheet: badge on a transfer between the owner's own accounts.</comment>
   </data>
+  <data name="BookingSheetCreditorId" xml:space="preserve">
+    <value>Gläubiger-ID</value>
+    <comment>Booking sheet: label of the SEPA creditor identifier.</comment>
+  </data>
+  <data name="BookingSheetMandateReference" xml:space="preserve">
+    <value>Mandatsreferenz</value>
+    <comment>Booking sheet: label of the SEPA mandate reference.</comment>
+  </data>
+  <data name="BookingSheetTags" xml:space="preserve">
+    <value>Tags</value>
+    <comment>Booking sheet: label of the tags a person put on the booking in Finanzguru.</comment>
+  </data>
+  <data name="BookingSheetContract" xml:space="preserve">
+    <value>Vertrag</value>
+    <comment>Booking sheet: badge on a booking Finanzguru counts to a contract, followed by the interval when there is one.</comment>
+  </data>
+  <data name="ContractIntervalMonthly" xml:space="preserve">
+    <value>monatlich</value>
+    <comment>Booking sheet: how often a contract recurs, Finanzguru word "monatlich".</comment>
+  </data>
+  <data name="ContractIntervalBiMonthly" xml:space="preserve">
+    <value>zweimonatlich</value>
+    <comment>Booking sheet: how often a contract recurs, Finanzguru word "zweimonatlich".</comment>
+  </data>
+  <data name="ContractIntervalQuarterly" xml:space="preserve">
+    <value>vierteljährlich</value>
+    <comment>Booking sheet: how often a contract recurs, Finanzguru word "vierteljaehrlich".</comment>
+  </data>
+  <data name="ContractIntervalHalfYearly" xml:space="preserve">
+    <value>halbjährlich</value>
+    <comment>Booking sheet: how often a contract recurs, Finanzguru word "halbjaehrlich".</comment>
+  </data>
+  <data name="ContractIntervalYearly" xml:space="preserve">
+    <value>jährlich</value>
+    <comment>Booking sheet: how often a contract recurs, Finanzguru word "jaehrlich".</comment>
+  </data>
   <data name="TransactionKindCardPayment" xml:space="preserve">
     <value>Kartenzahlung</value>
     <comment>Booking sheet: badge for how the booking was paid, Finanzguru word "Kartenzahlung".</comment>
