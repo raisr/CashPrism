@@ -139,7 +139,7 @@ public sealed class CounterpartySpendingListTests
             var list = RenderWith(new CounterpartySpending("Hausverwaltung Ahorn & Partner", 192000, 6));
 
             Assert.Equal(
-                "http://localhost/bookings?from=2026-07-01&to=2026-09-30&counterparty=Hausverwaltung%20Ahorn%20%26%20Partner&direction=spending&transfers=hide",
+                "bookings?from=2026-07-01&to=2026-09-30&counterparty=Hausverwaltung%20Ahorn%20%26%20Partner&direction=spending&transfers=hide",
                 list.Find("a.cp-tx").GetAttribute("href"));
         }
 

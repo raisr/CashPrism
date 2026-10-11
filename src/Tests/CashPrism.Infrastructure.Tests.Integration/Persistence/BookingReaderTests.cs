@@ -498,6 +498,24 @@ public sealed class BookingReaderTests
 
             Assert.Equal(new BookingSummary(21, 395200, 131987), summary);
         }
+
+        [Fact]
+        public async Task Balances_A_Category_Over_A_Month_To_The_Figure_The_Analysis_Shows()
+        {
+            // May 2024 holds the demo export's one split booking, in Lifestyle,
+            // so the list's balance has to leave its original out to match.
+            var may2024 = new DateOnly(2024, 5, 1);
+            await using var database = await DemoSampleDatabase.CreateAsync();
+            await using var context = database.CreateContext();
+
+            var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(may2024, may2024);
+            var summary = await new BookingReader(context).ReadSummaryAsync(new BookingFilter(
+                Category: "Lifestyle",
+                Period: BookingPeriod.OfMonths(may2024, may2024),
+                HideTransfers: true));
+
+            Assert.Equal(nets.Single(net => net.Category == "Lifestyle").NetInCents, summary.BalanceInCents);
+        }
     }
 
     public sealed class ReadFilterOptionsAsync

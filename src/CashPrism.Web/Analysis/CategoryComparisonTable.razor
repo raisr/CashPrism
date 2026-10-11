@@ -1,3 +1,4 @@
+@using CashPrism.Application.Bookings
 @using CashPrism.Application.CashFlow
 @using CashPrism.Web.Bookings
 @using CashPrism.Web.Overview
@@ -6,7 +7,8 @@
 @* Every main category of the period with its share, its course and how it
    changed against the period before, largest average first. The glyph comes
    from the design category the name belongs to, the colour from the rank,
-   so a row matches its block in the chart above. *@
+   so a row matches its block in the chart above. The name opens the
+   category's bookings over the period. *@
 <section class="cp-card cp-card--flush cp-comparison">
   <div class="cp-card__head">
     <div class="cp-card__title">
@@ -32,10 +34,10 @@
 
           <tr>
             <td>
-              <div class="cp-comparison__name">
+              <a class="cp-comparison__name cp-comparison__link" href="@BookingsOf(category.Category)">
                 <IconTile Icon="@CategoryStyle.ForMainCategory(category.Category).Icon" Colour="@colour" Size="34" />
                 <b>@MainCategoryName.For(category.Category, text)</b>
-              </div>
+              </a>
             </td>
             <td>
               <div class="cp-comparison__share">
@@ -91,6 +93,14 @@
         StatTrend.Down => "trending-down",
         _ => null,
     };
+
+    // The whole period, without transfers: that is how the category was
+    // summed, so the list's balance over it is the category's net.
+    private string BookingsOf(string category)
+        => BookingListQuery.LinkFor(new BookingFilter(
+            Category: category,
+            Period: BookingPeriod.OfMonths(Period.Months[0], Period.Months[^1]),
+            HideTransfers: true));
 
     private static string Width(decimal share)
         => (share * 100m).ToString("0.##", CultureInfo.InvariantCulture) + "%";

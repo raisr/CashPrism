@@ -128,6 +128,31 @@ public sealed class BookingListQueryTests
         }
     }
 
+    public sealed class LinkFor
+    {
+        [Fact]
+        public void Carries_The_Filter_In_The_Query()
+            => Assert.Equal(
+                "bookings?category=Lebensmittel&from=2026-09-01&to=2026-09-30&transfers=hide",
+                BookingListQuery.LinkFor(new BookingFilter(Category: "Lebensmittel", Period: September, HideTransfers: true)));
+
+        [Fact]
+        public void Escapes_What_A_Query_Cannot_Carry_As_It_Is()
+            => Assert.Equal(
+                "bookings?counterparty=Hausverwaltung%20Ahorn%20%26%20Partner",
+                BookingListQuery.LinkFor(new BookingFilter(Counterparty: "Hausverwaltung Ahorn & Partner")));
+
+        [Fact]
+        public void Reads_Back_As_The_Same_Filter()
+        {
+            var filter = new BookingFilter(Category: "Essen & Trinken", Period: September, HideTransfers: true);
+
+            var link = BookingListQuery.LinkFor(filter);
+
+            Assert.Equal(filter, BookingListQuery.Parse(link[link.IndexOf('?')..]).Filter);
+        }
+    }
+
     public sealed class ToPageRequest
     {
         [Fact]

@@ -287,7 +287,11 @@ Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
   jeweils mit ihrem Saldo: die fünf größten einzeln, alle weiteren
   zusammen als *Übrige*. Das sind Finanzgurus eigene Kategorien, nicht die
   zusammengefassten der Buchungsliste. Zeigst du auf ein Stück des Rings,
-  nennt ein Kästchen Kategorie und Betrag.
+  nennt ein Kästchen Kategorie und Betrag. Ein Klick auf ein Stück oder auf
+  einen Eintrag daneben öffnet die [Buchungsliste](#die-buchungsliste) mit den
+  Buchungen dieser Kategorie in diesem Monat, Umbuchungen ausgeblendet; ihr
+  *Saldo* ist dann genau der Betrag aus dem Ring. *Übrige* öffnet nichts, weil
+  es für mehrere Kategorien steht.
 
 ## Die Analyse
 
@@ -315,7 +319,10 @@ Strich ein Plus hatte, hat in diesem Monat nichts gekostet.
   grün bei mindestens fünf Prozent weniger, grau dazwischen. *neu* heißt, dass
   die Kategorie im Zeitraum davor nichts gekostet hat. Ist die Tabelle schmal,
   fällt zuerst der Balken beim Anteil weg, dann die Verlaufslinie; die Zahlen
-  bleiben.
+  bleiben. Ein Klick auf den Namen einer Kategorie öffnet die
+  [Buchungsliste](#die-buchungsliste) mit ihren Buchungen im gewählten
+  Zeitraum, Umbuchungen ausgeblendet. Die Blöcke im Diagramm darüber öffnen
+  nichts.
 - **Hier geht am meisten hin:** Neben der Tabelle, auf einem schmalen
   Bildschirm darunter, steht, wer im gewählten Zeitraum wie viel Geld bekommen
   hat, der größte Betrag zuerst, mit der Zahl der Buchungen und der Summe in
