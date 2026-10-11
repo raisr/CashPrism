@@ -53,6 +53,16 @@ public sealed class CategoryComparisonTableTests
         }
 
         [Fact]
+        public void Links_A_Category_To_Its_Bookings_Over_The_Period()
+        {
+            var table = RenderWith(Category("Essen & Trinken", 76900));
+
+            Assert.Equal(
+                "bookings?category=Essen%20%26%20Trinken&from=2026-07-01&to=2026-09-30&transfers=hide",
+                table.Find("a.cp-comparison__link").GetAttribute("href"));
+        }
+
+        [Fact]
         public void Shows_The_Share_In_Whole_Per_Cent()
         {
             var table = RenderWith(Category("Wohnen", 127000, share: 0.4475m));

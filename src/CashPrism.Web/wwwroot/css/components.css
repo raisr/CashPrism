@@ -1853,6 +1853,18 @@
   min-width: 0;
 }
 
+/* A legend entry that opens bookings reads like the others until pointed
+   at or focused. */
+.cp-legend__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cp-legend__link:hover > span:nth-child(2),
+.cp-legend__link:focus-visible > span:nth-child(2) {
+  text-decoration: underline;
+}
+
 .cp-legend__swatch {
   flex-shrink: 0;
   width: 10px;
@@ -2070,6 +2082,16 @@
   align-items: center;
   gap: 12px;
   white-space: nowrap;
+}
+
+.cp-comparison__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cp-comparison__link:hover b,
+.cp-comparison__link:focus-visible b {
+  text-decoration: underline;
 }
 
 .cp-comparison__share {
