@@ -1,12 +1,8 @@
 using CashPrism.Application.CashFlow;
-using CashPrism.Application.Imports;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
-using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.TestSupport.Bookings;
-using CashPrism.TestSupport.Imports;
-using CashPrism.TestSupport.Samples;
 
 namespace CashPrism.Infrastructure.Tests.Integration.Persistence;
 
@@ -191,27 +187,10 @@ public sealed class CashFlowReaderTests
     /// </summary>
     public sealed class WithTheDemoExport
     {
-        private static async Task<ThrowawayDatabase> ImportDemoSampleAsync()
-        {
-            var database = await ThrowawayDatabase.CreateAsync();
-
-            await using var context = database.CreateContext();
-            await using var stream = DemoSample.Open();
-
-            var importer = new Importer(
-                new FinanzguruImportSource(),
-                new ImportStore(context),
-                new FixedClock(new DateTimeOffset(2026, 10, 2, 8, 0, 0, TimeSpan.Zero)));
-
-            await importer.ImportAsync(stream, DemoSample.FileName);
-
-            return database;
-        }
-
         [Fact]
         public async Task Gives_The_Overview_The_Sums_Of_The_Last_Complete_Month()
         {
-            await using var database = await ImportDemoSampleAsync();
+            await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
             var overview = await new CashFlowOverviewReader(new CashFlowReader(context)).ReadAsync();
@@ -224,7 +203,7 @@ public sealed class CashFlowReaderTests
         {
             // May 2024 is the month of the demo export's one split booking.
             var may2024 = new DateOnly(2024, 5, 1);
-            await using var database = await ImportDemoSampleAsync();
+            await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
             var nets = await new CashFlowReader(context).ReadCategoryNetsAsync(may2024, may2024);
@@ -237,7 +216,7 @@ public sealed class CashFlowReaderTests
         {
             // Mobilitaet cost 114,539 cents from April to September 2026 and
             // 67,465 cents in the six months before.
-            await using var database = await ImportDemoSampleAsync();
+            await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
             var analysis = await new SpendingAnalysisReader(new CashFlowReader(context)).ReadAsync();
@@ -249,7 +228,7 @@ public sealed class CashFlowReaderTests
         [Fact]
         public async Task Is_Current_To_The_Export_Date()
         {
-            await using var database = await ImportDemoSampleAsync();
+            await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
             var currentTo = await new CashFlowReader(context).ReadCurrentToAsync();

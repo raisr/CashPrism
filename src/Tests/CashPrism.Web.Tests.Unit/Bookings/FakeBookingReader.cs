@@ -8,8 +8,9 @@ namespace CashPrism.Web.Tests.Unit.Bookings;
 /// <summary>
 /// Stands in for the stored bookings. It answers a page with the bookings it
 /// holds, in the order they were added, and keeps every request it was asked
-/// — sorting is the database's job, so what a test checks is the question the
-/// page asked, not an order the fake would have to imitate.
+/// — filtering, sorting and summing are the database's job, so what a test
+/// checks is the question the page asked, not an answer the fake would have
+/// to imitate.
 /// </summary>
 public sealed class FakeBookingReader : IBookingReader
 {
@@ -26,6 +27,15 @@ public sealed class FakeBookingReader : IBookingReader
     /// </summary>
     public int Count { get; set; }
 
+    /// <summary>What the fake answers when asked for the sums, whatever the filter.</summary>
+    public BookingSummary Summary { get; set; } = new(0, 0, 0);
+
+    /// <summary>Every filter the sums were asked for, oldest first.</summary>
+    public List<BookingFilter> SummaryFilters { get; } = [];
+
+    /// <summary>What the fake offers to filter by.</summary>
+    public BookingFilterOptions Options { get; set; } = new([], []);
+
     public Task<Page<Booking>> ReadPageAsync(BookingPageRequest request, CancellationToken cancellationToken = default)
     {
         Requests.Add(request);
@@ -35,6 +45,16 @@ public sealed class FakeBookingReader : IBookingReader
 
     public Task<int> CountAsync(CancellationToken cancellationToken = default)
         => Task.FromResult(Count);
+
+    public Task<BookingSummary> ReadSummaryAsync(BookingFilter filter, CancellationToken cancellationToken = default)
+    {
+        SummaryFilters.Add(filter);
+
+        return Task.FromResult(Summary);
+    }
+
+    public Task<BookingFilterOptions> ReadFilterOptionsAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult(Options);
 
     /// <summary>Stores a booking with the given figures and plain values for everything else.</summary>
     public Booking Add(
