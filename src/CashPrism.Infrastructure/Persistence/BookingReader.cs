@@ -155,6 +155,39 @@ public sealed class BookingReader : IBookingReader
             bookings = bookings.Where(booking => !booking.IsTransfer);
         }
 
+        return filter.Search is { } search ? Search(bookings, search) : bookings;
+    }
+
+    /// <summary>
+    /// Narrows the bookings to the ones every word and every amount bound of
+    /// <paramref name="search"/> holds for. A word may occur anywhere in the
+    /// counterparty, the payment reference or the counterparty's IBAN, both
+    /// sides folded the same way; a bound compares the amount without its sign.
+    /// </summary>
+    private static IQueryable<Booking> Search(IQueryable<Booking> bookings, BookingSearch search)
+    {
+        foreach (var word in search.Words.Select(SearchText.Fold))
+        {
+            bookings = bookings.Where(booking =>
+                SearchFunctions.Fold(booking.Counterparty).Contains(word)
+                || SearchFunctions.Fold(booking.PaymentReference).Contains(word)
+                || SearchFunctions.Fold(booking.CounterpartyAccount).Contains(word));
+        }
+
+        foreach (var bound in search.AmountBounds)
+        {
+            var cents = bound.AmountInCents;
+
+            bookings = bound.Comparison switch
+            {
+                AmountComparison.GreaterThan => bookings.Where(booking => Math.Abs(booking.AmountInCents) > cents),
+                AmountComparison.GreaterThanOrEqual => bookings.Where(booking => Math.Abs(booking.AmountInCents) >= cents),
+                AmountComparison.LessThan => bookings.Where(booking => Math.Abs(booking.AmountInCents) < cents),
+                AmountComparison.LessThanOrEqual => bookings.Where(booking => Math.Abs(booking.AmountInCents) <= cents),
+                _ => bookings.Where(booking => Math.Abs(booking.AmountInCents) == cents),
+            };
+        }
+
         return bookings;
     }
 

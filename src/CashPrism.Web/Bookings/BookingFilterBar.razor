@@ -8,6 +8,18 @@
    filter lives. *@
 <div class="cp-filters">
   <div class="cp-filters__row">
+    @* Raised when the field is left or Enter is pressed, not per keystroke:
+       every search becomes an entry in the browser's history. *@
+    <MudTextField T="string"
+                  Value="@Filter.Search?.Text"
+                  ValueChanged="SearchChangedAsync"
+                  Label="@text["BookingsFilterSearch"]"
+                  Placeholder="@text["BookingsFilterSearchPlaceholder"]"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Clearable="true"
+                  Class="cp-filters__search" />
+
     <MudSelect T="string"
                Value="@(Filter.AccountReference ?? All)"
                ValueChanged="AccountChangedAsync"
@@ -256,7 +268,8 @@
             Filter.Period,
             Filter.Counterparty,
             Filter.Direction,
-            Filter.HideTransfers));
+            Filter.HideTransfers,
+            Filter.Search));
 
     private Task SubCategoryChangedAsync(string? subCategory)
         => ChangeAsync(new BookingFilter(
@@ -266,7 +279,8 @@
             Filter.Period,
             Filter.Counterparty,
             Filter.Direction,
-            Filter.HideTransfers));
+            Filter.HideTransfers,
+            Filter.Search));
 
     private Task PeriodChangedAsync(string? choice)
     {
@@ -325,13 +339,17 @@
             Filter.Period,
             Filter.Counterparty,
             direction,
-            Filter.HideTransfers));
+            Filter.HideTransfers,
+            Filter.Search));
 
     private Task RemoveCounterpartyAsync()
         => ChangeAsync(Filter with { Counterparty = null });
 
     private Task HideTransfersChangedAsync(bool hide)
         => ChangeAsync(Filter with { HideTransfers = hide });
+
+    private Task SearchChangedAsync(string? text)
+        => ChangeAsync(Filter with { Search = BookingSearch.Parse(text) });
 
     private Task ChangeAsync(BookingFilter filter) => FilterChanged.InvokeAsync(filter);
 

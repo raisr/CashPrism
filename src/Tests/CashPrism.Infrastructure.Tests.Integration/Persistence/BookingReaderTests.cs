@@ -25,13 +25,15 @@ public sealed class BookingReaderTests
         string accountName = "Girokonto",
         string counterparty = "Supermarkt",
         string paymentReference = "",
-        string category = "Lebensmittel")
+        string category = "Lebensmittel",
+        string counterpartyAccount = "")
         => TestBookings.Create(
             Fingerprint(ordinal),
             bookedOn,
             amountInCents,
             accountName: accountName,
             counterparty: counterparty,
+            counterpartyAccount: counterpartyAccount,
             paymentReference: paymentReference,
             category: category,
             sourceImportRunId: ARun);
@@ -301,6 +303,87 @@ public sealed class BookingReaderTests
         }
 
         [Fact]
+        public async Task Finds_An_Amount_Above_A_Bound_Whichever_Way_The_Money_Went()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse(">200")),
+                CreateBooking(1, amountInCents: -25000),
+                CreateBooking(2, amountInCents: 25000),
+                CreateBooking(3, amountInCents: -15000));
+
+            Assert.Equal([Fingerprint(1), Fingerprint(2)], found);
+        }
+
+        [Fact]
+        public async Task Finds_A_Word_Whatever_Its_Case_Umlauts_Included()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse("möbel")),
+                CreateBooking(1, counterparty: "MÖBEL HAUS"),
+                CreateBooking(2, counterparty: "Supermarkt"));
+
+            Assert.Equal([Fingerprint(1)], found);
+        }
+
+        [Fact]
+        public async Task Finds_An_Umlaut_The_Export_Spells_Without_One()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse("möbel")),
+                CreateBooking(1, counterparty: "MOEBEL HAUS"),
+                CreateBooking(2, counterparty: "Supermarkt"));
+
+            Assert.Equal([Fingerprint(1)], found);
+        }
+
+        [Fact]
+        public async Task Finds_Only_Bookings_Every_Word_Occurs_In()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse("rewe berlin")),
+                CreateBooking(1, counterparty: "REWE Markt Berlin-Mitte"),
+                CreateBooking(2, counterparty: "REWE Markt Hamburg"),
+                CreateBooking(3, counterparty: "Edeka Berlin"));
+
+            Assert.Equal([Fingerprint(1)], found);
+        }
+
+        [Fact]
+        public async Task Finds_A_Word_In_The_Payment_Reference_Or_The_IBAN()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse("de02")),
+                CreateBooking(1, paymentReference: "Miete DE02 Oktober"),
+                CreateBooking(2, counterpartyAccount: "DE02120300000000202051"),
+                CreateBooking(3, counterparty: "Supermarkt"));
+
+            Assert.Equal([Fingerprint(1), Fingerprint(2)], found);
+        }
+
+        [Fact]
+        public async Task Holds_Every_Bound_Together_With_The_Words()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse(">300 <400 rewe")),
+                CreateBooking(1, amountInCents: -35000, counterparty: "REWE"),
+                CreateBooking(2, amountInCents: -45000, counterparty: "REWE"),
+                CreateBooking(3, amountInCents: -35000, counterparty: "Edeka"));
+
+            Assert.Equal([Fingerprint(1)], found);
+        }
+
+        [Fact]
+        public async Task Takes_Percent_Signs_And_Underscores_As_Plain_Text()
+        {
+            var found = await ListAsync(
+                new BookingFilter(Search: BookingSearch.Parse("10%_rabatt")),
+                CreateBooking(1, paymentReference: "10%_Rabatt"),
+                CreateBooking(2, paymentReference: "10 Rabatt"));
+
+            Assert.Equal([Fingerprint(1)], found);
+        }
+
+        [Fact]
         public async Task Lists_Only_The_Bookings_Of_The_Account()
         {
             var listed = await ListAsync(
@@ -515,6 +598,22 @@ public sealed class BookingReaderTests
                 HideTransfers: true));
 
             Assert.Equal(nets.Single(net => net.Category == "Lifestyle").NetInCents, summary.BalanceInCents);
+        }
+
+        [Fact]
+        public async Task Sums_A_Search_Within_A_Period_Of_The_Demo_Export()
+        {
+            // Measured from the workbook: Grünkorb Biomarkt from July to
+            // September 2026, above 50 €, written the way the search folds it.
+            await using var database = await DemoSampleDatabase.CreateAsync();
+            await using var context = database.CreateContext();
+
+            var summary = await new BookingReader(context).ReadSummaryAsync(new BookingFilter(
+                Period: BookingPeriod.OfMonths(new DateOnly(2026, 7, 1), new DateOnly(2026, 9, 1)),
+                HideTransfers: true,
+                Search: BookingSearch.Parse("gruenkorb >50")));
+
+            Assert.Equal(new BookingSummary(4, 0, 31135), summary);
         }
     }
 

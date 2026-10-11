@@ -784,6 +784,13 @@
   flex-basis: 160px;
 }
 
+/* The search takes what room the row has left, as in the design. */
+.cp-filters__row > .cp-filters__search.mud-input-control {
+  flex: 1 1 260px;
+  min-width: 200px;
+  margin: 0;
+}
+
 .cp-filters .mud-input-control.cp-filters__select,
 .cp-filters__date .mud-input-control {
   margin: 0;

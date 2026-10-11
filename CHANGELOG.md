@@ -30,6 +30,10 @@ releases and the minor version is bumped for every notable change.
 - A category on the overview's ring and in the analysis' comparison table opens
   the booking list on its bookings — the month or the chosen period, transfers
   hidden — so the list counts exactly the bookings behind the figure.
+- The booking list can be searched by words from the counterparty, the payment
+  reference or the IBAN, and by amount — `>200`, `<50`, `=12,99` — together
+  with its filters. Case and umlauts do not matter, so `möbel` also finds the
+  `MOEBEL` a bank writes.
 
 ## [0.1.0] - 2026-10-10
 

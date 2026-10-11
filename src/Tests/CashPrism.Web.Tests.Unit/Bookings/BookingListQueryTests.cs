@@ -33,6 +33,14 @@ public sealed class BookingListQueryTests
         }
 
         [Fact]
+        public void Reads_The_Search_As_It_Was_Typed()
+            => Assert.Equal(">200 rewe", BookingListQuery.Parse("q=%3E200%20rewe").Filter.Search?.Text);
+
+        [Fact]
+        public void Searches_For_Nothing_When_The_Search_Is_Blank()
+            => Assert.Null(BookingListQuery.Parse("q=%20%20").Filter.Search);
+
+        [Fact]
         public void Reads_The_Order_And_The_Page()
         {
             var query = BookingListQuery.Parse("sort=amount&order=asc&page=3&size=50");
@@ -112,7 +120,8 @@ public sealed class BookingListQueryTests
                     Period: September,
                     Counterparty: "Tankstelle & Co",
                     Direction: BookingDirection.Income,
-                    HideTransfers: true),
+                    HideTransfers: true,
+                    Search: BookingSearch.Parse(">12,50 möbel & co")),
                 BookingSortColumn.BookedOn,
                 Descending: false,
                 PageIndex: 4,
