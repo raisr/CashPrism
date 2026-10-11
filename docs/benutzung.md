@@ -242,7 +242,7 @@ Symbolen ein und wieder auf.
 |---|---|---|
 | Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
-| Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen — siehe [Die Analyse](#die-analyse) |
+| Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen, dazu nach Empfänger — siehe [Die Analyse](#die-analyse) |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, sehen, unter welcher Adresse CashPrism erreichbar ist, Passwort ändern |
 
@@ -291,12 +291,12 @@ Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
 
 ## Die Analyse
 
-![Die Analyse über sechs Monate mit gestapelten Balken nach Kategorie und der Tabelle Kategorien im Vergleich](images/benutzung/analyse.png)
+![Die Analyse über sechs Monate mit gestapelten Balken nach Kategorie, darunter die Tabelle Kategorien im Vergleich und daneben Hier geht am meisten hin](images/benutzung/analyse.png)
 
-Die Analyse vergleicht, wofür du über mehrere Monate Geld ausgegeben hast.
-Oben rechts wählst du *3 Monate*, *6 Monate* oder *12 Monate*. Gemeint sind
-immer die letzten vollständigen Monate vor dem Monat, in dem der jüngste
-Export gezogen wurde; der laufende Monat zählt nicht mit, weil er den
+Die Analyse vergleicht, wofür und an wen du über mehrere Monate Geld
+ausgegeben hast. Oben rechts wählst du *3 Monate*, *6 Monate* oder *12 Monate*.
+Gemeint sind immer die letzten vollständigen Monate vor dem Monat, in dem der
+jüngste Export gezogen wurde; der laufende Monat zählt nicht mit, weil er den
 Durchschnitt zu niedrig ausfallen ließe. Gezählt wird wie auf der
 [Übersicht](#die-übersicht): Eine Hauptkategorie, die in einem Monat unterm
 Strich ein Plus hatte, hat in diesem Monat nichts gekostet.
@@ -316,6 +316,25 @@ Strich ein Plus hatte, hat in diesem Monat nichts gekostet.
   die Kategorie im Zeitraum davor nichts gekostet hat. Ist die Tabelle schmal,
   fällt zuerst der Balken beim Anteil weg, dann die Verlaufslinie; die Zahlen
   bleiben.
+- **Hier geht am meisten hin:** Neben der Tabelle, auf einem schmalen
+  Bildschirm darunter, steht, wer im gewählten Zeitraum wie viel Geld bekommen
+  hat, der größte Betrag zuerst, mit der Zahl der Buchungen und der Summe in
+  ganzen Euro. Gezählt werden nur Ausgaben, Buchung für Buchung: Umbuchungen
+  zwischen deinen eigenen Konten zählen nicht, von einer geteilten Buchung
+  zählen die Teile statt der ursprünglichen Buchung, und eine Erstattung wird
+  nicht verrechnet — anders als bei den Kategorien. Der Name steht genau so da,
+  wie Finanzguru ihn exportiert. Schreibt Finanzguru denselben Händler auf zwei
+  Arten, etwa einmal mit und einmal ohne Filialnummer, erscheint er zweimal.
+  Eine Buchung ohne Empfänger fehlt in der Liste. Zu sehen sind zuerst die acht
+  größten; *Alle … anzeigen* zeigt den Rest, *Weniger anzeigen* klappt ihn
+  wieder ein. Ein Klick auf einen Empfänger öffnet die
+  [Buchungsliste](#die-buchungsliste) mit genau diesen Buchungen: dieser
+  Empfänger, dieser Zeitraum, nur Ausgaben, Umbuchungen ausgeblendet. Ihre
+  Summenzeile nennt dieselben Ausgaben auf den Cent. Nur die Zahl der Buchungen
+  kann dort höher liegen, weil die Liste von einer geteilten Buchung auch das
+  Original zeigt.
+
+![Die Karte Hier geht am meisten hin mit Rang, Empfänger, Zahl der Buchungen und Summe](images/benutzung/analyse-empfaenger.png)
 
 Die Farben richten sich nach dem Rang einer Kategorie, nicht nach ihrem Namen.
 Beim Umschalten des Zeitraums behält jede Kategorie ihre Farbe, und eine

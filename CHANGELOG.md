@@ -23,6 +23,10 @@ releases and the minor version is bumped for every notable change.
 - The filter, the sort order and the page are part of the address. A reload
   keeps them, the browser's back button returns to the previous filter, and a
   bookmark opens the same selection.
+- The analysis ranks counterparties by what went out to them in the chosen
+  period, each with its sum and number of bookings. A counterparty is listed
+  exactly as Finanzguru names it, and a click opens the booking list on the
+  spending behind that sum.
 
 ## [0.1.0] - 2026-10-10
 

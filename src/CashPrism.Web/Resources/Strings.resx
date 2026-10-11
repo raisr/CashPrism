@@ -363,6 +363,34 @@
     <value>neu</value>
     <comment>Shown instead of a change when the category cost nothing in the period before.</comment>
   </data>
+  <data name="AnalysisCounterpartiesTitle" xml:space="preserve">
+    <value>Hier geht am meisten hin</value>
+    <comment>Title of the analysis card that ranks counterparties by spending.</comment>
+  </data>
+  <data name="AnalysisCounterpartiesSubtitle" xml:space="preserve">
+    <value>Deine größten Empfänger, {0} Monate</value>
+    <comment>Subtitle of the counterparty card. {0} is how many months the period covers.</comment>
+  </data>
+  <data name="AnalysisCounterpartiesNone" xml:space="preserve">
+    <value>Im Zeitraum ging kein Geld an einen Empfänger.</value>
+    <comment>Shown instead of the counterparty table when nothing was spent in the period.</comment>
+  </data>
+  <data name="AnalysisCounterpartiesBookingsOne" xml:space="preserve">
+    <value>{0} Buchung</value>
+    <comment>Under a counterparty on the analysis when one booking makes up its sum. {0} is the count.</comment>
+  </data>
+  <data name="AnalysisCounterpartiesBookingsMany" xml:space="preserve">
+    <value>{0} Buchungen</value>
+    <comment>Under a counterparty on the analysis when several bookings make up its sum. {0} is the count.</comment>
+  </data>
+  <data name="AnalysisCounterpartiesShowAll" xml:space="preserve">
+    <value>Alle {0} anzeigen</value>
+    <comment>Button under the counterparty table that lists every counterparty. {0} is how many there are.</comment>
+  </data>
+  <data name="AnalysisCounterpartiesShowFewer" xml:space="preserve">
+    <value>Weniger anzeigen</value>
+    <comment>Button under the counterparty table that goes back to the largest ones only.</comment>
+  </data>
   <data name="BookingsLead" xml:space="preserve">
     <value>Alle Buchungen aus den importierten Exporten.</value>
     <comment>One line under the heading of the booking list.</comment>

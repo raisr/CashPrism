@@ -81,4 +81,42 @@ public sealed class CashFlowReader : ICashFlowReader
             .Select(net => new CategoryNet(new DateOnly(net.Year, net.Month, 1), net.Category, net.NetInCents))
             .ToList();
     }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The range is half-open for the reason <see cref="ReadCategoryNetsAsync"/>
+    /// gives. Ties are broken by the name, so the order is the same on every
+    /// read.
+    /// </remarks>
+    public async Task<IReadOnlyList<CounterpartySpending>> ReadCounterpartySpendingAsync(
+        DateOnly firstMonth,
+        DateOnly lastMonth,
+        CancellationToken cancellationToken = default)
+    {
+        var from = firstMonth.ToDateTime(TimeOnly.MinValue);
+        var until = lastMonth.AddMonths(1).ToDateTime(TimeOnly.MinValue);
+
+        var spending = await context.Bookings
+            .AsNoTracking()
+            .Where(CashFlowRule.CountsAsSpending)
+            .Where(booking => booking.Counterparty != string.Empty)
+            .Where(booking => booking.BookedOn >= from && booking.BookedOn < until)
+            .GroupBy(booking => booking.Counterparty)
+            .Select(group => new
+            {
+                Counterparty = group.Key,
+                SpendingInCents = -group.Sum(booking => booking.AmountInCents),
+                BookingCount = group.Count(),
+            })
+            .OrderByDescending(counterparty => counterparty.SpendingInCents)
+            .ThenBy(counterparty => counterparty.Counterparty)
+            .ToListAsync(cancellationToken);
+
+        return spending
+            .Select(counterparty => new CounterpartySpending(
+                counterparty.Counterparty,
+                counterparty.SpendingInCents,
+                counterparty.BookingCount))
+            .ToList();
+    }
 }

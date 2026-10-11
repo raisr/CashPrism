@@ -41,6 +41,33 @@ public sealed class CashFlowRuleTests
             => Assert.True(Rule(TestBookings.Create(isExcludedFromDisposableIncome: true)));
     }
 
+    public sealed class CountsAsSpending
+    {
+        private static readonly Func<Booking, bool> Rule = CashFlowRule.CountsAsSpending.Compile();
+
+        [Fact]
+        public void Counts_A_Booking_Whose_Money_Went_Out()
+            => Assert.True(Rule(TestBookings.Create(amountInCents: -6317)));
+
+        [Fact]
+        public void Leaves_Out_A_Booking_Whose_Money_Came_In()
+            => Assert.False(Rule(TestBookings.Create(amountInCents: 1299)));
+
+        [Fact]
+        public void Leaves_Out_A_Transfer_Between_Own_Accounts()
+            => Assert.False(Rule(TestBookings.Create(isTransfer: true)));
+
+        [Fact]
+        public void Leaves_Out_The_Original_Of_A_Split_Booking()
+            => Assert.False(Rule(TestBookings.Create(splitRole: SplitRole.Original)));
+
+        [Fact]
+        public void Counts_A_Part_Of_A_Split_Booking()
+            => Assert.True(Rule(TestBookings.Create(
+                splitRole: SplitRole.Part,
+                originalFingerprint: AnOriginalFingerprint)));
+    }
+
     public sealed class SumsInList
     {
         private static readonly Func<Booking, bool> Rule = CashFlowRule.SumsInList.Compile();

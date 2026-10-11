@@ -33,6 +33,7 @@ public sealed class AnalysisTests
             Context.Services.AddLocalization();
             Context.Services.AddMudServices();
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
+            Context.Services.AddSingleton(reader);
             Context.Services.AddSingleton(new SpendingAnalysisReader(reader));
 
             return Context.Render<AnalysisPage>();
@@ -72,16 +73,17 @@ public sealed class AnalysisTests
         [Theory]
         [InlineData("3 Monate", 3)]
         [InlineData("12 Monate", 12)]
-        public void Redraws_The_Chart_And_The_Table_Over_The_Period_Picked(string choice, int months)
+        public void Redraws_The_Chart_And_The_Tables_Over_The_Period_Picked(string choice, int months)
         {
             var page = RenderWithSpending();
 
             page.FindAll(".cp-seg__opt").Single(option => option.TextContent.Trim() == choice).Click();
 
             Assert.Equal(
-                (months, months),
+                (months, months, months),
                 (page.FindComponent<SpendingByCategoryChart>().Instance.Period.Months.Count,
-                    page.FindComponent<CategoryComparisonTable>().Instance.Period.Months.Count));
+                    page.FindComponent<CategoryComparisonTable>().Instance.Period.Months.Count,
+                    page.FindComponent<CounterpartySpendingList>().Instance.Months.Count));
         }
     }
 }

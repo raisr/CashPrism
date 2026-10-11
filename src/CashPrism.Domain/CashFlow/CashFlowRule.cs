@@ -40,6 +40,17 @@ public static class CashFlowRule
         booking => !booking.IsTransfer && booking.SplitRole != SplitRole.Original;
 
     /// <summary>
+    /// Whether a booking is spent money on its own, without being netted
+    /// against its category: a counted booking whose money went out. A view
+    /// that groups by something other than the main category — the
+    /// counterparty, say — has no category month to net, so a refund there is
+    /// left out rather than set against what was spent.
+    /// </summary>
+    /// <remarks>An expression for the same reason as <see cref="Counts"/>.</remarks>
+    public static Expression<Func<Booking, bool>> CountsAsSpending { get; } =
+        booking => !booking.IsTransfer && booking.SplitRole != SplitRole.Original && booking.AmountInCents < 0;
+
+    /// <summary>
     /// Whether a booking a list shows is added to that list's sums. The list
     /// mirrors the export and shows the original of a split booking, but its
     /// parts already add up to its amount, so summing it as well would count

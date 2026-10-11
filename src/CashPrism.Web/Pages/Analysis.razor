@@ -18,7 +18,10 @@
 
       <div class="cp-analysis">
         <SpendingByCategoryChart Period="@period" />
-        <CategoryComparisonTable Period="@period" />
+        <div class="cp-analysis__grid">
+          <CategoryComparisonTable Period="@period" />
+          <CounterpartySpendingList Months="@period.Months" />
+        </div>
       </div>
     }
     else if (loaded)

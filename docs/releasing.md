@@ -168,6 +168,7 @@ and show nothing but invented data:
 | `navigation.png` | *Übersicht*, the pointer resting on *Analyse* in the navigation |
 | `uebersicht.png` | *Übersicht*, the pointer on a point of the chart so its tooltip shows |
 | `analyse.png` | *Analyse* with *6 Monate* |
+| `analyse-empfaenger.png` | *Analyse* with *6 Monate*, scrolled down so *Hier geht am meisten hin* fills the page area |
 | `buchungsliste.png` | *Buchungen* with the details of one booking open |
 | `erreichbar.png` | *Einstellungen*, the address under *Erreichbar unter* replaced by `http://192.168.1.7:5080` in the browser's developer tools |
 | `alle-daten-loeschen.png` | *Einstellungen* after *Alle Daten löschen*, showing the question — not confirmed — with the address replaced as above |

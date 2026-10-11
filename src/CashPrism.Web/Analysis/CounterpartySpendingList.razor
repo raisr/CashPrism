@@ -1,0 +1,100 @@
+@using CashPrism.Application.Bookings
+@using CashPrism.Application.CashFlow
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+@inject ICashFlowReader reader
+@inject NavigationManager navigation
+
+@* Who the money went to in the period, largest sum first. Each name opens the
+   booking list on exactly the bookings its sum is made of, so the figures
+   here and the summary line there agree. *@
+<section class="cp-card cp-card--flush cp-counterparties">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h2 class="cp-h3">@text["AnalysisCounterpartiesTitle"]</h2>
+      <div class="cp-card__sub">@text["AnalysisCounterpartiesSubtitle", Months.Count]</div>
+    </div>
+  </div>
+  @if (counterparties.Count == 0)
+  {
+    <p class="cp-counterparties__none">@text["AnalysisCounterpartiesNone"]</p>
+  }
+  else
+  {
+    <ol class="cp-txlist cp-counterparties__list">
+      @foreach (var (counterparty, rank) in (showAll ? counterparties : counterparties.Take(Shown)).Select((counterparty, index) => (counterparty, index + 1)))
+      {
+        <li>
+          <a class="cp-tx" href="@BookingsOf(counterparty.Counterparty)">
+            <span class="cp-counterparties__rank">@rank</span>
+            <span class="cp-tx__main">
+              <span class="cp-tx__title">@counterparty.Counterparty</span>
+              <span class="cp-tx__meta">@BookingCount(counterparty.BookingCount)</span>
+            </span>
+            <span class="cp-amount">@OverviewFormat.WholeEuros(counterparty.SpendingInCents)</span>
+          </a>
+        </li>
+      }
+    </ol>
+    @if (counterparties.Count > Shown)
+    {
+      <div class="cp-counterparties__more">
+        <MudButton Variant="Variant.Text" Class="cp-btn" OnClick="@(() => showAll = !showAll)">
+          @(showAll ? text["AnalysisCounterpartiesShowFewer"] : text["AnalysisCounterpartiesShowAll", BookingFormat.Count(counterparties.Count)])
+        </MudButton>
+      </div>
+    }
+  }
+</section>
+
+@code {
+    /// <summary>
+    /// How many counterparties are listed before the rest is asked for, as in
+    /// the design. A real export names hundreds of them, most with a booking
+    /// or two.
+    /// </summary>
+    public const int Shown = 8;
+
+    /// <summary>The first day of each month of the period, oldest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<DateOnly> Months { get; set; } = [];
+
+    private IReadOnlyList<CounterpartySpending> counterparties = [];
+    private BookingPeriod? period;
+    private bool showAll;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var asked = new BookingPeriod(Months[0], Months[^1].AddMonths(1).AddDays(-1));
+
+        // The page hands the months in again on every render; only a new
+        // period is worth a query.
+        if (asked == period)
+        {
+            return;
+        }
+
+        period = asked;
+        counterparties = await reader.ReadCounterpartySpendingAsync(Months[0], Months[^1]);
+    }
+
+    // Spending only and without transfers, which is what the sum here counts;
+    // the list leaves the original of a split booking out of its sums itself.
+    private string BookingsOf(string counterparty)
+    {
+        var query = BookingListQuery.Default with
+        {
+            Filter = new BookingFilter(
+                Period: period,
+                Counterparty: counterparty,
+                Direction: BookingDirection.Spending,
+                HideTransfers: true),
+        };
+
+        return navigation.GetUriWithQueryParameters(navigation.ToAbsoluteUri("bookings").AbsoluteUri, query.ToParameters());
+    }
+
+    private string BookingCount(int count)
+        => text[count == 1 ? "AnalysisCounterpartiesBookingsOne" : "AnalysisCounterpartiesBookingsMany", BookingFormat.Count(count)];
+}
