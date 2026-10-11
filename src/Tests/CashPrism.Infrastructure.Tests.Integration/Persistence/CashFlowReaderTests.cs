@@ -24,11 +24,13 @@ public sealed class CashFlowReaderTests
         long amountInCents,
         string category = "Lebensmittel",
         bool isTransfer = false,
-        SplitRole splitRole = SplitRole.None)
+        SplitRole splitRole = SplitRole.None,
+        string counterparty = "Supermarkt")
         => TestBookings.Create(
             ordinal.ToString("D40", null),
             bookedOn,
             amountInCents,
+            counterparty: counterparty,
             category: category,
             isTransfer: isTransfer,
             splitRole: splitRole,
@@ -180,6 +182,110 @@ public sealed class CashFlowReaderTests
         }
     }
 
+    public sealed class ReadCounterpartySpendingAsync
+    {
+        [Fact]
+        public async Task Ranks_The_Counterparties_By_What_Went_Out_With_Their_Booking_Count()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(
+                database,
+                CreateBooking(1, new DateTime(2026, 9, 3), -6317, counterparty: "Frischmarkt"),
+                CreateBooking(2, new DateTime(2026, 9, 3), -120000, counterparty: "Hausverwaltung"),
+                CreateBooking(3, new DateTime(2026, 10, 8), -1200, counterparty: "Frischmarkt"));
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context).ReadCounterpartySpendingAsync(September, October);
+
+            Assert.Equal(
+                [
+                    new CounterpartySpending("Hausverwaltung", 120000, 1),
+                    new CounterpartySpending("Frischmarkt", 7517, 2),
+                ],
+                spending);
+        }
+
+        [Fact]
+        public async Task Keeps_Two_Spellings_Of_One_Counterparty_As_Two_Entries()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(
+                database,
+                CreateBooking(1, new DateTime(2026, 9, 3), -6317, counterparty: "REWE Markt GmbH"),
+                CreateBooking(2, new DateTime(2026, 9, 9), -1200, counterparty: "REWE SAGT DANKE 4711"));
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context).ReadCounterpartySpendingAsync(September, September);
+
+            Assert.Equal(
+                [
+                    new CounterpartySpending("REWE Markt GmbH", 6317, 1),
+                    new CounterpartySpending("REWE SAGT DANKE 4711", 1200, 1),
+                ],
+                spending);
+        }
+
+        [Fact]
+        public async Task Leaves_Out_A_Transfer_And_The_Original_Of_A_Split_Booking()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(
+                database,
+                CreateBooking(1, new DateTime(2026, 9, 10), -10000, isTransfer: true),
+                CreateBooking(2, new DateTime(2026, 9, 12), -15000, splitRole: SplitRole.Original),
+                CreateBooking(3, new DateTime(2026, 9, 12), -6000, splitRole: SplitRole.Part),
+                CreateBooking(4, new DateTime(2026, 9, 12), -9000, splitRole: SplitRole.Remainder));
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context).ReadCounterpartySpendingAsync(September, September);
+
+            Assert.Equal([new CounterpartySpending("Supermarkt", 15000, 2)], spending);
+        }
+
+        [Fact]
+        public async Task Leaves_Out_Money_That_Came_In()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(
+                database,
+                CreateBooking(1, new DateTime(2026, 9, 3), -6317),
+                CreateBooking(2, new DateTime(2026, 9, 20), 1299));
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context).ReadCounterpartySpendingAsync(September, September);
+
+            Assert.Equal([new CounterpartySpending("Supermarkt", 6317, 1)], spending);
+        }
+
+        [Fact]
+        public async Task Leaves_Out_A_Booking_Without_A_Counterparty()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(database, CreateBooking(1, new DateTime(2026, 9, 3), -6317, counterparty: ""));
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context).ReadCounterpartySpendingAsync(September, September);
+
+            Assert.Empty(spending);
+        }
+
+        [Fact]
+        public async Task Keeps_A_Booking_Posted_During_The_Last_Day_Of_The_Range()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(
+                database,
+                CreateBooking(1, new DateTime(2026, 9, 30, 21, 14, 0), -2500),
+                CreateBooking(2, new DateTime(2026, 8, 31, 23, 59, 0), -9900),
+                CreateBooking(3, new DateTime(2026, 10, 1, 0, 0, 0), -9900));
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context).ReadCounterpartySpendingAsync(September, September);
+
+            Assert.Equal([new CounterpartySpending("Supermarkt", 2500, 1)], spending);
+        }
+    }
+
     /// <summary>
     /// The committed demo export, imported the way the application imports it.
     /// The expected cents were measured from the workbook itself, outside
@@ -223,6 +329,20 @@ public sealed class CashFlowReaderTests
             var mobility = analysis?.Compare(6).Categories.Single(category => category.Category == "Mobilitaet");
 
             Assert.Equal((19090L, (114539m - 67465m) / 67465m), (mobility?.AverageInCents, mobility?.Change));
+        }
+
+        [Fact]
+        public async Task Gives_A_Counterparty_Its_Spending_And_Booking_Count_Over_Six_Months()
+        {
+            // Frischmarkt took 175,177 cents in 29 bookings from April to
+            // September 2026.
+            await using var database = await DemoSampleDatabase.CreateAsync();
+            await using var context = database.CreateContext();
+
+            var spending = await new CashFlowReader(context)
+                .ReadCounterpartySpendingAsync(new DateOnly(2026, 4, 1), September);
+
+            Assert.Contains(new CounterpartySpending("Frischmarkt", 175177, 29), spending);
         }
 
         [Fact]
