@@ -39,6 +39,12 @@ releases and the minor version is bumped for every notable change.
   the creditor ID, the mandate reference and your tags. A booking Finanzguru
   counts to a contract is marked with its interval, such as
   *Vertrag · monatlich*. Fields a booking does not have are left out.
+- A new *Konten* page lists every account from the export with its balance —
+  the balance Finanzguru shows on the day of the export — and what the accounts
+  stand at together. Selecting an account shows its newest bookings and leads
+  to the booking list filtered to it. The overview leads with the same total.
+  Balances are read at import, so after updating they appear with the next new
+  export; an account without a single booking in the export is not listed.
 
 ## [0.1.0] - 2026-10-10
 

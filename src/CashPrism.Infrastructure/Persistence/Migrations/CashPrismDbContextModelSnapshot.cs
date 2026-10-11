@@ -36,6 +36,33 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.ToTable("Credentials", (string)null);
                 });
 
+            modelBuilder.Entity("CashPrism.Domain.Accounts.AccountBalance", b =>
+                {
+                    b.Property<Guid>("ImportRunId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccountReference")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccountName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("BalanceInCents")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LatestBookedOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ImportRunId", "AccountReference");
+
+                    b.ToTable("AccountBalances", (string)null);
+                });
+
             modelBuilder.Entity("CashPrism.Domain.Bookings.Booking", b =>
                 {
                     b.Property<string>("Fingerprint")
@@ -193,6 +220,15 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.HasKey("ImportRunId", "Fingerprint");
 
                     b.ToTable("RawRows", (string)null);
+                });
+
+            modelBuilder.Entity("CashPrism.Domain.Accounts.AccountBalance", b =>
+                {
+                    b.HasOne("CashPrism.Domain.Imports.ImportRun", null)
+                        .WithMany()
+                        .HasForeignKey("ImportRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CashPrism.Domain.Imports.RawRow", b =>

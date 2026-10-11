@@ -1,9 +1,11 @@
 @page "/"
+@using CashPrism.Application.Accounts
 @using CashPrism.Application.CashFlow
 @using System.Net
 @using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
 @inject CashFlowOverviewReader reader
+@inject AccountOverviewReader accountReader
 
 @if (overview is null)
 {
@@ -35,6 +37,15 @@ else
     </Actions>
     <ChildContent>
       <div class="cp-overview__tiles">
+        @* No move and no sparkline, as the design has them: both need a
+           balance history, which the export does not carry. Missing when
+           the bookings were imported before balances were taken. *@
+        @if (accounts is not null)
+        {
+          <StatTile Label="@text["OverviewNetWorth"]" Icon="wallet" Colour="var(--cp-primary)">
+            <Sum AmountInCents="@accounts.TotalInCents" />
+          </StatTile>
+        }
         <StatTile Label="@text["OverviewIncome", monthName]"
                   Trend="@OverviewTrend.OfChange(overview.IncomeChange)"
                   DeltaGood="@(overview.IncomeChange > 0)"
@@ -67,6 +78,7 @@ else
 
 @code {
     private CashFlowOverview? overview;
+    private AccountOverview? accounts;
     private bool loaded;
 
     // Twelve months unless the person picks another span; the longest one is
@@ -85,6 +97,7 @@ else
         ];
 
         overview = await reader.ReadAsync();
+        accounts = await accountReader.ReadAsync();
         loaded = true;
     }
 

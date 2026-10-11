@@ -151,8 +151,10 @@ public sealed class SettingsTests
 
             page.Find("button.cp-settings-erase__cancel").Click();
 
+            // MudButton hands the click on asynchronously, so the question may
+            // close after Click returns.
+            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-alert--danger")));
             Assert.Equal(0, Eraser.Erasures);
-            Assert.Empty(page.FindAll(".cp-alert--danger"));
         }
 
         [Fact]

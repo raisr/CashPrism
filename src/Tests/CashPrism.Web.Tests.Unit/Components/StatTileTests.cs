@@ -39,6 +39,17 @@ public sealed class StatTileTests
         }
 
         [Fact]
+        public void Shows_The_Glyph_And_Colour_It_Is_Given_Instead_Of_The_Trend()
+        {
+            var tile = context.Render<StatTile>(parameters => parameters
+                .Add(p => p.Label, "Vermögen auf allen Konten")
+                .Add(p => p.Icon, "wallet")
+                .Add(p => p.Colour, "var(--cp-primary)"));
+
+            Assert.Equal(("icon-wallet", "--c:var(--cp-primary)"), (TileIcon(tile), TileColour(tile)));
+        }
+
+        [Fact]
         public void Points_The_Tile_Up_In_Green_When_The_Figure_Rose_For_The_Better()
         {
             var tile = RenderWith(StatTrend.Up, good: true);

@@ -1912,10 +1912,25 @@
 
 /* ---------- overview ---------- */
 
+/* Four tiles in a row where they fit at the design's 230 px, two by two
+   below that, one under the other on a phone. Left to auto-fit, four tiles
+   beside a drawer at 1280 px break three and one. */
 .cp-overview__tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--cp-grid-gap);
+}
+
+@media (min-width: 1400px) {
+  .cp-overview__tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .cp-overview__tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* The chart takes two columns' width where there is room for three, the
@@ -2231,6 +2246,26 @@
   white-space: nowrap;
 }
 
+/* A row that opens something on the page rather than another page: a button
+   that looks like the link rows beside it. */
+button.cp-tx {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+/* The day a list's bookings are grouped under, as the booking list's table
+   heads its groups. */
+.cp-txlist__day {
+  padding: 12px var(--cp-card-padding) 4px;
+  font-size: var(--cp-fs-caption);
+  font-weight: 700;
+  color: var(--cp-text-2);
+}
+
 .cp-counterparties__rank {
   width: 16px;
   font-size: var(--cp-fs-caption);
@@ -2303,4 +2338,171 @@
   font-weight: 750;
   font-variant-numeric: tabular-nums;
   color: var(--cp-text);
+}
+
+/* ---------- accounts ---------- */
+
+/* The cards in a column of their own, the selected account beside them in
+   the width of two; narrower, the detail moves under the cards. */
+.cp-accounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--cp-grid-gap);
+  align-items: start;
+}
+
+.cp-accounts__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cp-accounts__list > .cp-label {
+  padding: 0 4px;
+}
+
+.cp-accounts__detail {
+  grid-column: span 2;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .cp-accounts__detail {
+    grid-column: auto;
+  }
+}
+
+.cp-accounts__note {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 4px;
+  font-size: var(--cp-fs-caption);
+  color: var(--cp-text-3);
+}
+
+/* An account as the design draws it, filled with the primary colour while it
+   is the one shown beside the list. */
+.cp-account-card {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-lg);
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow-card);
+  color: var(--cp-text);
+  text-decoration: none;
+  transition: all var(--cp-dur-fast);
+}
+
+.cp-account-card:hover {
+  border-color: var(--cp-primary);
+}
+
+.cp-account-card--on {
+  border-color: var(--cp-primary);
+  background: var(--cp-primary);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--cp-primary) 70%, transparent);
+  color: var(--cp-on-primary);
+}
+
+/* On the filled card the tile turns into a light veil over the primary
+   colour, as in the design, instead of a tint that would vanish in it. */
+.cp-account-card--on .cp-caticon {
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
+}
+
+.cp-account-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cp-account-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cp-account-card__name {
+  overflow: hidden;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-account-card__number {
+  font: 600 var(--cp-fs-caption) / 1.4 var(--cp-font-mono);
+  color: var(--cp-text-2);
+}
+
+.cp-account-card--on .cp-account-card__number {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.cp-account-card__balance {
+  display: block;
+  margin-top: 14px;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.cp-account-card--on .cp-amount__cents {
+  color: inherit;
+  opacity: 0.7;
+}
+
+.cp-account-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 20px var(--cp-card-padding);
+  border-bottom: 1px solid var(--cp-line);
+}
+
+.cp-account-head__text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.cp-account-head__meta {
+  font-size: var(--cp-fs-small);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-account-head__number {
+  font-family: var(--cp-font-mono);
+}
+
+.cp-account-head__balance {
+  text-align: end;
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.cp-account-bookings__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px var(--cp-card-padding) 0;
+}
+
+.cp-account-bookings__all {
+  font-size: var(--cp-fs-small);
+  font-weight: 700;
+  color: var(--cp-primary);
+  text-decoration: none;
+}
+
+.cp-account-bookings__all:hover {
+  text-decoration: underline;
 }

@@ -1,0 +1,53 @@
+@using CashPrism.Application.Time
+@using CashPrism.Domain.Bookings
+@inject IStringLocalizer<Strings> text
+@inject IClock clock
+
+@* The design's short list of bookings (TransactionList): tile, party,
+   payment reference and amount, under a header per day. Not the booking
+   list's table — no columns, no sorting, no pages — for a page that shows a
+   few bookings beside something else and links to the list for the rest.
+   A row opens the booking's sheet. *@
+<ul class="cp-txlist">
+  @{ string? day = null; }
+  @foreach (var booking in Bookings)
+  {
+    var header = DayHeaderOf(booking);
+    if (header != day)
+    {
+      day = header;
+      <li class="cp-txlist__day">@header</li>
+    }
+
+    var category = CategoryStyle.For(booking.Category, booking.SubCategory, booking.IsTransfer);
+    <li>
+      <button type="button" class="cp-tx" @onclick="() => OnSelect.InvokeAsync(booking)">
+        <CategoryIcon Category="category" />
+        <span class="cp-tx__main">
+          <span class="cp-tx__title">@booking.Counterparty</span>
+          <span class="cp-tx__meta" title="@booking.PaymentReference">@booking.PaymentReference</span>
+        </span>
+        <Amount AmountInCents="booking.AmountInCents" Currency="@booking.Currency" />
+      </button>
+    </li>
+  }
+</ul>
+
+@code {
+    /// <summary>The bookings to show, newest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<Booking> Bookings { get; set; } = [];
+
+    /// <summary>Raised with the booking a person picked.</summary>
+    [Parameter]
+    public EventCallback<Booking> OnSelect { get; set; }
+
+    // Today in the local time of the machine that hosts CashPrism, which is
+    // what "Heute" means to the person in front of it.
+    private string DayHeaderOf(Booking booking)
+        => BookingFormat.DayHeader(
+            booking.BookedOn,
+            DateOnly.FromDateTime(clock.UtcNow.LocalDateTime),
+            text["BookingsToday"],
+            text["BookingsYesterday"]);
+}

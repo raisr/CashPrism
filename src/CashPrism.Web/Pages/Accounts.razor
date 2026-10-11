@@ -1,0 +1,173 @@
+@page "/accounts"
+@using System.Net
+@using CashPrism.Application.Accounts
+@using CashPrism.Application.Bookings
+@using CashPrism.Application.Paging
+@using CashPrism.Domain.Accounts
+@using CashPrism.Domain.Bookings
+@using CashPrism.Web.Accounts
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+@inject AccountOverviewReader accounts
+@inject IBookingReader bookingReader
+
+@if (overview is null)
+{
+  <PageFrame Title="@text["NavAccounts"]">
+    @if (loaded)
+    {
+      @* Also what a database imported into before balances were taken at
+         import shows: the balances come with the next export, not before. *@
+      <section class="cp-card">
+        <EmptyState Icon="wallet" Title="@text["AccountsEmpty"]" Text="@text["AccountsEmptyHint"]">
+          <Actions>
+            <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
+              <CpIcon Name="upload" />
+              @text["NavImport"]
+            </MudButton>
+          </Actions>
+        </EmptyState>
+      </section>
+    }
+  </PageFrame>
+}
+else
+{
+  <PageFrame Title="@text["NavAccounts"]">
+    <LeadContent>@Lead(overview)</LeadContent>
+    <ChildContent>
+      <div class="cp-accounts">
+        <nav class="cp-accounts__list" aria-label="@text["AccountsYours"]">
+          <div class="cp-label">@text["AccountsYours"]</div>
+          @* Links rather than buttons: the selection is part of the address,
+             so it survives a reload and can be bookmarked. *@
+          @foreach (var account in overview.Accounts)
+          {
+            var on = account == selected;
+            <a class="@(on ? "cp-account-card cp-account-card--on" : "cp-account-card")"
+               href="@LinkTo(account)"
+               aria-current="@(on ? "page" : null)">
+              <span class="cp-account-card__head">
+                <IconTile Icon="wallet" Colour="var(--cp-primary)" Size="38" />
+                <span class="cp-account-card__text">
+                  <span class="cp-account-card__name">@account.AccountName</span>
+                  <span class="cp-account-card__number">@IbanMask.Mask(account.AccountReference)</span>
+                </span>
+              </span>
+              <span class="cp-account-card__balance"><Sum AmountInCents="account.BalanceInCents" /></span>
+            </a>
+          }
+          <p class="cp-accounts__note"><CpIcon Name="info" Size="15" />@text["AccountsNote"]</p>
+        </nav>
+
+        @if (selected is { } shown)
+        {
+          <section class="cp-card cp-card--flush cp-accounts__detail">
+            <div class="cp-account-head">
+              <IconTile Icon="wallet" Colour="var(--cp-primary)" Size="52" Round="true" />
+              <div class="cp-account-head__text">
+                <h2 class="cp-h2">@shown.AccountName</h2>
+                <div class="cp-account-head__meta">
+                  <span class="cp-account-head__number">@IbanMask.Mask(shown.AccountReference)</span>
+                  · @text["AccountsLatestBooking", BookingFormat.Date(shown.LatestBookedOn)]
+                </div>
+              </div>
+              <div class="cp-account-head__balance">
+                <div class="cp-label">@text["AccountsBalance"]</div>
+                <Sum AmountInCents="shown.BalanceInCents" />
+              </div>
+            </div>
+            @if (bookings is not null)
+            {
+              <div class="cp-account-bookings__head">
+                <h3 class="cp-h3">@text["AccountsBookings"] · @BookingFormat.Count(bookings.TotalCount)</h3>
+                <a class="cp-account-bookings__all" href="@BookingListQuery.LinkFor(new BookingFilter(AccountReference: shown.AccountReference))">
+                  @text["AccountsAllBookings"]
+                </a>
+              </div>
+              <BookingDayList Bookings="bookings.Items" OnSelect="Open" />
+            }
+          </section>
+        }
+      </div>
+    </ChildContent>
+  </PageFrame>
+
+  <BookingSheet Booking="opened" OnClose="Close" />
+}
+
+@code {
+    /// <summary>How many of the account's bookings the page lists; the booking list has the rest.</summary>
+    public const int BookingsShown = 30;
+
+    private AccountOverview? overview;
+    private bool loaded;
+
+    private AccountBalance? selected;
+    private Page<Booking>? bookings;
+    private Booking? opened;
+
+    /// <summary>The reference of the account to show; the highest balance when absent or unknown.</summary>
+    [SupplyParameterFromQuery(Name = "account")]
+    public string? AccountReference { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        overview = await accounts.ReadAsync();
+        loaded = true;
+    }
+
+    // A click on a card changes the address, which sets the parameter again
+    // on the page already shown, so the selection follows the URL.
+    protected override async Task OnParametersSetAsync()
+    {
+        if (overview is null)
+        {
+            return;
+        }
+
+        var asked = overview.Accounts.FirstOrDefault(account
+            => string.Equals(account.AccountReference, AccountReference, StringComparison.Ordinal))
+            ?? overview.Accounts[0];
+
+        if (asked == selected)
+        {
+            return;
+        }
+
+        selected = asked;
+        opened = null;
+        bookings = await bookingReader.ReadPageAsync(new BookingPageRequest(
+            Skip: 0,
+            Take: BookingsShown,
+            Filter: new BookingFilter(AccountReference: asked.AccountReference)));
+    }
+
+    private static string LinkTo(AccountBalance account)
+        => "accounts?account=" + Uri.EscapeDataString(account.AccountReference);
+
+    private void Open(Booking booking) => opened = booking;
+
+    private void Close() => opened = null;
+
+    /// <summary>
+    /// The lead, with the total set apart. The sentence comes from the resource
+    /// file with the figure as a placeholder, so the markup is put together
+    /// here: every piece of text is encoded before it joins the one element added.
+    /// </summary>
+    private MarkupString Lead(AccountOverview figures)
+    {
+        var (whole, cents) = OverviewFormat.SumParts(figures.TotalInCents);
+        var figure = $"<b class=\"cp-overview__lead-figure\">{WebUtility.HtmlEncode(whole + cents)}</b>";
+        var sentence = figures.Accounts.Count == 1
+            ? WebUtility.HtmlEncode(text["AccountsLeadOne"].Value)
+            : WebUtility.HtmlEncode(text["AccountsLeadMany"].Value);
+
+        return new MarkupString(string.Format(
+            CultureInfo.CurrentCulture,
+            sentence,
+            figure,
+            WebUtility.HtmlEncode(BookingFormat.Count(figures.Accounts.Count))));
+    }
+}

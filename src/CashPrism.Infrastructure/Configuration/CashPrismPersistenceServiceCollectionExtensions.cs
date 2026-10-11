@@ -1,4 +1,5 @@
 using CashPrism.Application.Access;
+using CashPrism.Application.Accounts;
 using CashPrism.Application.Bookings;
 using CashPrism.Application.CashFlow;
 using CashPrism.Application.Imports;
@@ -55,6 +56,7 @@ public static class CashPrismPersistenceServiceCollectionExtensions
         services.AddScoped<IBookingReader, BookingReader>();
         services.AddScoped<IImportRunReader, ImportRunReader>();
         services.AddScoped<ICashFlowReader, CashFlowReader>();
+        services.AddScoped<IAccountBalanceReader, AccountBalanceReader>();
         services.AddScoped<ICredentialStore, CredentialStore>();
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IClock, SystemClock>();

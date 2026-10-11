@@ -1,3 +1,4 @@
+using CashPrism.Domain.Accounts;
 using CashPrism.Domain.Imports;
 
 namespace CashPrism.Application.Imports;
@@ -47,9 +48,15 @@ public interface IImportStore
     Task ApplyAsync(ImportBatch batch, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Persists the counts a completed run now carries.
+    /// Persists the counts a completed run now carries, together with the
+    /// balances its export reported — one write, so a complete run never lacks
+    /// its balances.
     /// </summary>
     /// <param name="run">The run, already completed in memory.</param>
+    /// <param name="balances">The balance of every account the export carries a row for.</param>
     /// <param name="cancellationToken">Cancels the write.</param>
-    Task CompleteRunAsync(ImportRun run, CancellationToken cancellationToken = default);
+    Task CompleteRunAsync(
+        ImportRun run,
+        IReadOnlyList<AccountBalance> balances,
+        CancellationToken cancellationToken = default);
 }

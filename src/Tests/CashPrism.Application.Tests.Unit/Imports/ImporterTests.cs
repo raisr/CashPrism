@@ -250,6 +250,31 @@ public sealed class ImporterTests
         }
 
         [Fact]
+        public async Task Completes_The_Run_With_The_Balance_Of_Each_Account()
+        {
+            var store = new FakeImportStore();
+
+            var result = await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 9, 7), (AFingerprint, """{"a":1}""")));
+
+            var balance = Assert.Single(store.Balances);
+            Assert.Equal(result.ImportRunId, balance.ImportRunId);
+        }
+
+        [Fact]
+        public async Task Takes_The_Balances_From_Rows_That_Changed_Nothing()
+        {
+            var store = new FakeImportStore();
+            var row = (AFingerprint, """{"a":1}""");
+            await RunImport(store, FakeImportSource.Carrying(new DateOnly(2026, 9, 6), row), content: "first");
+
+            var second = await RunImport(store, FakeImportSource.Carrying(new DateOnly(2026, 9, 7), row), content: "second");
+
+            Assert.Contains(store.Balances, balance => balance.ImportRunId == second.ImportRunId);
+        }
+
+        [Fact]
         public async Task Reads_The_File_For_The_Run_It_Created()
         {
             var store = new FakeImportStore();

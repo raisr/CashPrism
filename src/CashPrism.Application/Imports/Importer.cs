@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using CashPrism.Application.Time;
+using CashPrism.Domain.Accounts;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
 
@@ -126,7 +127,11 @@ public sealed class Importer
 
         run.Complete(data.Bookings.Count, counts.Inserted, counts.Updated, counts.Unchanged);
 
-        await store.CompleteRunAsync(run, cancellationToken).ConfigureAwait(false);
+        // Taken from the whole file rather than from what was stored: the rule
+        // needs the file's order, and an unchanged booking is not written again.
+        var balances = AccountBalanceRule.For(run, data.Bookings.Select(imported => imported.Booking));
+
+        await store.CompleteRunAsync(run, balances, cancellationToken).ConfigureAwait(false);
 
         return ImportResult.Imported(
             runId,

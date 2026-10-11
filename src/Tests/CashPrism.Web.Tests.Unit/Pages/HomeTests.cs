@@ -1,5 +1,7 @@
 using Bunit;
+using CashPrism.Application.Accounts;
 using CashPrism.Application.CashFlow;
+using CashPrism.TestSupport.Accounts;
 using CashPrism.TestSupport.CashFlow;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.Overview;
@@ -25,6 +27,8 @@ public sealed class HomeTests
     {
         protected BunitContext Context { get; } = new();
 
+        protected FakeAccountBalanceReader Balances { get; } = new();
+
         public Task InitializeAsync() => Task.CompletedTask;
 
         // Asynchronously, because MudBlazor registers services that only
@@ -38,6 +42,7 @@ public sealed class HomeTests
             Context.Services.AddMudServices();
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
             Context.Services.AddSingleton(new CashFlowOverviewReader(reader));
+            Context.Services.AddSingleton(new AccountOverviewReader(Balances));
 
             return Context.Render<HomePage>();
         }
@@ -66,6 +71,28 @@ public sealed class HomeTests
 
             Assert.Equal("Noch nichts importiert.", page.Find(".cp-empty h2").TextContent);
             Assert.Empty(page.FindAll(".cp-stat"));
+        }
+
+        [Fact]
+        public void Leads_The_Tiles_With_The_Total_Balance_Of_All_Accounts()
+        {
+            Balances.Add("Girokonto", 460_373, "DE98999500006166400707");
+            Balances.Add("Tagesgeld", 2_084_227, "DE33999500006361627181");
+
+            var page = RenderWith(new MonthlyCashFlow(September, 400000, 250000), new MonthlyCashFlow(August, 400000, 250000));
+
+            var first = page.FindAll(".cp-stat")[0];
+            Assert.Equal(
+                ("Vermögen auf allen Konten", "25.446,00 €"),
+                (first.QuerySelector(".cp-stat__label")!.TextContent, first.QuerySelector(".cp-stat__value")!.TextContent));
+        }
+
+        [Fact]
+        public void Leaves_The_Total_Balance_Out_Without_A_Balance()
+        {
+            var page = RenderWith(new MonthlyCashFlow(September, 400000, 250000), new MonthlyCashFlow(August, 400000, 250000));
+
+            Assert.DoesNotContain("Vermögen auf allen Konten", page.FindAll(".cp-stat__label").Select(label => label.TextContent));
         }
 
         [Fact]

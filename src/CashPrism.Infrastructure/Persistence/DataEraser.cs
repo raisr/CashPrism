@@ -48,6 +48,7 @@ public sealed class DataEraser : IDataEraser
         await using (var transaction = await context.Database.BeginTransactionAsync(cancellationToken))
         {
             await context.RawRows.ExecuteDeleteAsync(cancellationToken);
+            await context.AccountBalances.ExecuteDeleteAsync(cancellationToken);
             await context.Bookings.ExecuteDeleteAsync(cancellationToken);
             await context.ImportRuns.ExecuteDeleteAsync(cancellationToken);
 

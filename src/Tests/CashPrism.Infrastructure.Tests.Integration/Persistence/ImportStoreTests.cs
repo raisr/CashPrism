@@ -1,4 +1,5 @@
 using CashPrism.Application.Imports;
+using CashPrism.Domain.Accounts;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.Imports;
 using CashPrism.Infrastructure.Persistence;
@@ -260,7 +261,7 @@ public sealed class ImportStoreTests
                 var run = await writing.ImportRuns.AsNoTracking().SingleAsync(r => r.Id == runId);
                 run.Complete(rowsRead: 3, bookingsInserted: 1, bookingsUpdated: 0, bookingsUnchanged: 2);
 
-                await new ImportStore(writing).CompleteRunAsync(run);
+                await new ImportStore(writing).CompleteRunAsync(run, []);
             }
 
             await using var context = database.CreateContext();
@@ -270,6 +271,28 @@ public sealed class ImportStoreTests
             Assert.Equal(3, stored.RowsRead);
             Assert.Equal(1, stored.BookingsInserted);
             Assert.Equal(2, stored.BookingsUnchanged);
+        }
+
+        [Fact]
+        public async Task Stores_The_Balances_Of_The_Run()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            var runId = await SeedAsync(database);
+
+            await using (var writing = database.CreateContext())
+            {
+                var run = await writing.ImportRuns.AsNoTracking().SingleAsync(r => r.Id == runId);
+                run.Complete(rowsRead: 1, bookingsInserted: 1, bookingsUpdated: 0, bookingsUnchanged: 0);
+
+                await new ImportStore(writing).CompleteRunAsync(
+                    run,
+                    [new AccountBalance(runId, "DE02120300000000202051", "Girokonto", 150_000, "EUR", new DateTime(2026, 9, 7))]);
+            }
+
+            await using var context = database.CreateContext();
+            var stored = await context.AccountBalances.SingleAsync();
+
+            Assert.Equal((runId, 150_000L), (stored.ImportRunId, stored.BalanceInCents));
         }
 
         [Fact]
@@ -283,7 +306,7 @@ public sealed class ImportStoreTests
                 var run = await writing.ImportRuns.AsNoTracking().SingleAsync(r => r.Id == runId);
                 run.Complete(rowsRead: 1, bookingsInserted: 1, bookingsUpdated: 0, bookingsUnchanged: 0);
 
-                await new ImportStore(writing).CompleteRunAsync(run);
+                await new ImportStore(writing).CompleteRunAsync(run, []);
             }
 
             await using var context = database.CreateContext();
