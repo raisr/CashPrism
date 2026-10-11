@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Charts;
+using MudBlazor.Extensions;
 using MudBlazor.Services;
 
 namespace CashPrism.Web.Tests.Unit.Overview;
@@ -186,6 +187,30 @@ public sealed class SpendingBreakdownTests
             Assert.Equal(
                 "http://localhost/bookings?category=Mobilitaet&from=2026-09-01&to=2026-09-30&transfers=hide",
                 Address());
+        }
+
+        [Fact]
+        public void Keeps_No_Slice_Selected_So_A_Click_On_The_Largest_Opens_It_Too()
+        {
+            var breakdown = RenderWith(new("Wohnen", 49907), new("Mobilitaet", 31316));
+
+            Assert.Equal(-1, breakdown.FindComponent<MudChart<double>>().Instance.GetState(chart => chart.SelectedIndex));
+        }
+
+        [Fact]
+        public void Marks_The_Ring_When_Its_Last_Slice_Is_The_Rest()
+        {
+            var breakdown = RenderWith(SixCategories());
+
+            Assert.Contains("cp-breakdown__ring--rest", breakdown.Find(".cp-breakdown__ring").ClassList);
+        }
+
+        [Fact]
+        public void Leaves_The_Ring_Unmarked_Without_A_Rest()
+        {
+            var breakdown = RenderWith(new("Wohnen", 49907), new("Kinder", 22000));
+
+            Assert.DoesNotContain("cp-breakdown__ring--rest", breakdown.Find(".cp-breakdown__ring").ClassList);
         }
 
         [Fact]

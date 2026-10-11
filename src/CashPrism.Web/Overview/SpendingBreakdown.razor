@@ -27,7 +27,7 @@
     else
     {
       <div class="cp-breakdown__content">
-        <div class="cp-breakdown__ring">
+        <div class="@(slices[^1].Category is null ? "cp-breakdown__ring cp-breakdown__ring--rest" : "cp-breakdown__ring")">
           <MudChart T="double"
                     ChartType="ChartType.Donut"
                     ChartSeries="@series"
@@ -35,6 +35,7 @@
                     ChartOptions="@options"
                     Width="190px"
                     Height="190px"
+                    SelectedIndex="-1"
                     SelectedIndexChanged="@OpenSlice">
             <TooltipTemplate>
               @if (Tip(context.Item1) is { } tip)
@@ -157,6 +158,9 @@
             Period: BookingPeriod.OfMonths(Month, Month),
             HideTransfers: true));
 
+    // MudChart starts with the first slice selected and reports only a change,
+    // so the chart is kept at no selection: otherwise a click on the largest
+    // slice would change nothing and open nothing.
     private void OpenSlice(int index)
     {
         if (index >= 0 && index < slices.Count && slices[index].Category is { } category)

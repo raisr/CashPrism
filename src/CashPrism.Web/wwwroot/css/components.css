@@ -1953,6 +1953,15 @@
   z-index: 1;
 }
 
+/* A slice opens its bookings; the rest, drawn last, opens nothing. */
+.cp-breakdown__ring path {
+  cursor: pointer;
+}
+
+.cp-breakdown__ring--rest path:last-of-type {
+  cursor: default;
+}
+
 .cp-breakdown__total {
   position: absolute;
   inset: 0;
