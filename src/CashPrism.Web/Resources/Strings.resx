@@ -163,6 +163,10 @@
     <value>{0} Importe</value>
     <comment>Settings page: the number of import runs in the warning, when it is not one. {0} is the number.</comment>
   </data>
+  <data name="SettingsEraseAccountGroups" xml:space="preserve">
+    <value>Kontogruppen ebenfalls löschen</value>
+    <comment>Settings page: checkbox in the warning before deleting, off by default. Ticked, the account groups go too and the accounts page starts over with a single group.</comment>
+  </data>
   <data name="SettingsEraseConfirm" xml:space="preserve">
     <value>Endgültig löschen</value>
     <comment>Settings page: the button that deletes all data.</comment>

@@ -11,6 +11,7 @@ using CashPrism.Web.Tests.Unit.Imports;
 using CashPrism.Web.Tests.Unit.Network;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
+using MudBlazor.Extensions;
 using MudBlazor.Services;
 
 namespace CashPrism.Web.Tests.Unit.Pages;
@@ -166,6 +167,57 @@ public sealed class SettingsTests
             Confirm(page);
 
             Assert.Equal(1, Eraser.Erasures);
+        }
+
+        [Fact]
+        public void Offers_To_Delete_The_Account_Groups_Unticked()
+        {
+            var page = RenderWithData();
+
+            Ask(page);
+
+            var box = page.FindComponent<MudCheckBox<bool>>();
+            Assert.Equal("Kontogruppen ebenfalls löschen", box.Instance.Label);
+            Assert.False(box.Instance.GetState(x => x.Value));
+        }
+
+        [Fact]
+        public void Keeps_The_Account_Groups_Unless_Ticked()
+        {
+            var page = RenderWithData();
+            Ask(page);
+
+            Confirm(page);
+
+            page.WaitForAssertion(() => Assert.False(Eraser.IncludedAccountGroups));
+        }
+
+        [Fact]
+        public async Task Deletes_The_Account_Groups_When_Ticked()
+        {
+            var page = RenderWithData();
+            Ask(page);
+            var box = page.FindComponent<MudCheckBox<bool>>();
+            await box.InvokeAsync(() => box.Instance.ValueChanged.InvokeAsync(true));
+
+            Confirm(page);
+
+            page.WaitForAssertion(() => Assert.True(Eraser.IncludedAccountGroups));
+        }
+
+        [Fact]
+        public async Task Unticks_The_Account_Groups_When_Asked_Again()
+        {
+            var page = RenderWithData();
+            Ask(page);
+            var box = page.FindComponent<MudCheckBox<bool>>();
+            await box.InvokeAsync(() => box.Instance.ValueChanged.InvokeAsync(true));
+            page.Find("button.cp-settings-erase__cancel").Click();
+            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-alert--danger")));
+
+            Ask(page);
+
+            Assert.False(page.FindComponent<MudCheckBox<bool>>().Instance.GetState(x => x.Value));
         }
 
         [Fact]

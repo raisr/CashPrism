@@ -14,6 +14,9 @@ public sealed class FakeDataEraser : IDataEraser
     /// <summary>How often everything was deleted.</summary>
     public int Erasures { get; private set; }
 
+    /// <summary>Whether the last deletion took the account groups as well; <c>null</c> before the first.</summary>
+    public bool? IncludedAccountGroups { get; private set; }
+
     /// <summary>What deleting does to the other fakes, such as emptying the readers.</summary>
     public Action OnErase { get; set; } = () => { };
 
@@ -31,6 +34,7 @@ public sealed class FakeDataEraser : IDataEraser
         }
 
         Erasures++;
+        IncludedAccountGroups = includeAccountGroups;
         OnErase();
     }
 }

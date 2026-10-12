@@ -42,6 +42,13 @@
           <Alert Tone="AlertTone.Danger"
                  Title="@text["SettingsEraseConfirmTitle"]"
                  Details="ConfirmDetails" />
+          @* Off unless ticked on every asking: the groups are the one thing no
+             export brings back. *@
+          <MudCheckBox T="bool"
+                       @bind-Value="includeAccountGroups"
+                       Label="@text["SettingsEraseAccountGroups"]"
+                       Color="Color.Error"
+                       Class="cp-settings-erase__groups" />
           <div class="cp-settings-erase__actions">
             <MudButton Variant="Variant.Filled" Color="Color.Error" Class="cp-btn cp-settings-erase__confirm"
                        OnClick="EraseAsync">
@@ -105,6 +112,7 @@
     private int bookingCount;
     private int runCount;
     private bool confirming;
+    private bool includeAccountGroups;
     private bool erasing;
     private bool erased;
 
@@ -136,6 +144,7 @@
     {
         await CountAsync();
         erased = false;
+        includeAccountGroups = false;
         confirming = true;
     }
 
@@ -148,8 +157,8 @@
 
         try
         {
-            await eraser.EraseAllAsync(includeAccountGroups: false);
-            log.LogInformation("All stored data was deleted");
+            await eraser.EraseAllAsync(includeAccountGroups);
+            log.LogInformation("All stored data was deleted, account groups included: {IncludeAccountGroups}", includeAccountGroups);
         }
         finally
         {
