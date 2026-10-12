@@ -37,7 +37,7 @@ allowed to wire concrete infrastructure to a use case.
 | `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one, what counts as income and spending |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Integration` | The export reader and the import source against a workbook built in code — no binary fixture in the repository |
-| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, that amounts are stored as cents, that the sums the overview and the analysis read add up in SQL, and that the booking list filters and sums there too |
+| `src/Tests/CashPrism.Infrastructure.Tests.Integration` | The schema and the import store against a throwaway SQLite file: round trips, keys, cascade, that amounts are stored as cents, that the sums the overview and the analysis read add up in SQL, that the booking list filters and sums there too, and that the account groups survive deleting the data unless they are deleted with it |
 | `src/Tests/CashPrism.Infrastructure.Tests.Unit` | `Infrastructure` without a database: the password hasher |
 | `src/Tests/CashPrism.Shell.Tests.Integration` | `Shell` end to end, hosting included, and the import through the objects the host actually wires |
 | `src/Tests/CashPrism.Web.Tests.Unit` | `Web` without a host: pages, layout and components rendered with bUnit against test doubles, and the formatting and mapping beside them |
@@ -52,7 +52,8 @@ tests of its own, and carries neither the test SDK nor a runner, so `dotnet
 test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
 Finanzguru-shaped `.xlsx` in memory, `FinanzguruTestRow`, which fills one data
 row of it, and the stand-ins the import use case runs on in a test:
-`FakeImportSource`, `FakeImportStore` and `FixedClock`; `FakeCashFlowReader`,
+`FakeImportSource`, `FakeImportStore` and `FixedClock`; `FakeAccountGroupStore`,
+which keeps the account groups the way the database would; `FakeCashFlowReader`,
 which hands the overview and the analysis fixed sums; and `TestBookings`,
 which builds a booking with plain values for every field a test does not name;
 and `DemoSample`, which embeds the committed demo export

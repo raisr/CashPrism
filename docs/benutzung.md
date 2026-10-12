@@ -242,7 +242,7 @@ Symbolen ein und wieder auf.
 |---|---|---|
 | Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
-| Konten | `/accounts` | Deine Konten mit ihren Kontoständen — siehe [Die Konten](#die-konten) |
+| Konten | `/accounts` | Deine Konten mit ihren Kontoständen, in Gruppen deiner Wahl — siehe [Die Konten](#die-konten) |
 | Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen, dazu nach Empfänger — siehe [Die Analyse](#die-analyse) |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, sehen, unter welcher Adresse CashPrism erreichbar ist, Passwort ändern |
@@ -543,18 +543,22 @@ Filtern und steht wie sie in der Adresse, etwa `/bookings?q=rewe`.
 
 ## Die Konten
 
-![Die Konten: links die Kontokarten, das ausgewählte Konto blau, rechts sein Kontostand und seine letzten Buchungen](images/benutzung/konten.png)
+![Die Konten: links die Kontokarten in zwei Gruppen, jede mit ihrer Summe, das ausgewählte Konto blau, rechts sein Kontostand und seine letzten Buchungen](images/benutzung/konten.png)
 
 *Konten* zeigt jedes Konto aus deinem Finanzguru-Export mit seinem Kontostand.
 Darüber steht, wo deine Konten zusammen stehen, etwa *Deine 7 Konten stehen
 zusammen bei 25.446,00 €*. Ein Kredit zählt mit seinem Minus, die Summe kann
 also negativ sein.
 
-- **Kontokarten:** links, das höchste Guthaben oben. Jede Karte zeigt den Namen
-  des Kontos, wie Finanzguru ihn führt, die letzten vier Stellen der IBAN, etwa
-  `•••• 2051`, und den Kontostand. Ein Klick wählt das Konto aus; die
-  ausgewählte Karte ist blau. Die Auswahl steht in der Adresse, ein Lesezeichen
-  öffnet also dasselbe Konto.
+- **Gruppen:** links stehen deine Konten in Gruppen, jede mit ihrem Namen und
+  der Summe ihrer Kontostände. Am Anfang gibt es eine einzige Gruppe, *Konten*;
+  wie du weitere anlegst, steht unter [Kontogruppen](#kontogruppen).
+- **Kontokarten:** in jeder Gruppe in der Reihenfolge, die du festgelegt hast.
+  Jede Karte zeigt den Namen des Kontos, wie Finanzguru ihn führt, die letzten
+  vier Stellen der IBAN, etwa `•••• 2051`, und den Kontostand. Ein Klick wählt
+  das Konto aus; die ausgewählte Karte ist blau. Die Auswahl steht in der
+  Adresse, ein Lesezeichen öffnet also dasselbe Konto. Ohne Auswahl ist das
+  Konto mit dem höchsten Guthaben ausgewählt.
 - **Das ausgewählte Konto:** rechts, mit Kontostand und dem Tag der letzten
   Buchung. Darunter stehen seine 30 neuesten Buchungen nach Tagen; ein Klick
   öffnet die [Details einer Buchung](#die-buchungsliste). *Alle Buchungen
@@ -575,6 +579,39 @@ neuesten Exports, auch wenn du danach einen älteren importierst.
   Import. Hast du vor dieser Version importiert, erscheinen die Konten mit dem
   nächsten neuen Export. Denselben Export noch einmal zu importieren reicht
   nicht, er wird als bereits importiert erkannt.
+
+### Kontogruppen
+
+![Die Konten mit eingeschaltetem Schalter Gruppen bearbeiten: je Gruppe ein Namensfeld mit Pfeilen und Papierkorb, je Konto eine Gruppenauswahl mit Pfeilen](images/benutzung/kontogruppen.png)
+
+Wie in Finanzguru sortierst du deine Konten in Gruppen, die du selbst benennst,
+etwa *Eigene*, *Gemeinsam* und *Kinder*. Der Export enthält keine Gruppen,
+CashPrism merkt sie sich selbst. Der Schalter *Gruppen bearbeiten* oben rechts
+macht aus der Liste ein Formular:
+
+| Was | Wie |
+|---|---|
+| Gruppe anlegen | Den Namen unter *Neue Gruppe* eintragen und *Gruppe hinzufügen* klicken. Die neue Gruppe steht ganz unten |
+| Gruppe umbenennen | Den Namen im Feld ändern und das Feld verlassen. Ein leerer Name wird nicht übernommen |
+| Gruppe verschieben | Die Pfeile neben dem Namen |
+| Gruppe löschen | Der Papierkorb. Er lässt sich nur bei einer leeren Gruppe anklicken, und nie bei der letzten |
+| Konto in eine andere Gruppe stellen | Die Auswahl *Gruppe* am Konto. Es steht dort dann am Ende |
+| Konto verschieben | Die Pfeile am Konto, innerhalb seiner Gruppe |
+
+Jede Änderung gilt sofort, es gibt nichts zu speichern. Schaltest du den
+Schalter wieder aus, siehst du die Karten in ihrer neuen Ordnung.
+
+- **Neue Konten** aus einem Import stehen am Ende der obersten Gruppe, mehrere
+  neue nach Kontostand, das höchste Guthaben zuerst.
+- **Die Gruppen bleiben**, wenn du [alle Daten löschst](#alle-daten-löschen) und
+  neu importierst: Jedes Konto steht danach wieder, wo es war. Nur wenn du beim
+  Löschen *Kontogruppen ebenfalls löschen* ankreuzt, beginnst du wieder mit der
+  einen Gruppe *Konten*.
+- **Ein Konto, das der neueste Export nicht enthält,** fehlt auch in seiner
+  Gruppe. Bringt ein späterer Export es zurück, steht es wieder an seinem Platz.
+  Eine Gruppe, in der nur solche Konten stehen, gilt als leer und lässt sich
+  löschen; kommt eines dieser Konten dann zurück, steht es am Ende der obersten
+  Gruppe.
 
 ## Bisherige Importe
 
@@ -612,3 +649,9 @@ ist. Rückgängig machen lässt sich das Löschen nicht. Weil auch die bisherige
 Importe verschwinden, nimmt CashPrism danach auch eine Datei an, die es vorher
 schon kannte. Solange nichts gespeichert ist, lässt sich die Schaltfläche nicht
 anklicken.
+
+Deine [Kontogruppen](#kontogruppen) bleiben beim Löschen erhalten: Nach dem
+nächsten Import steht jedes Konto wieder in seiner Gruppe. Kreuzt du in der
+Rückfrage *Kontogruppen ebenfalls löschen* an, verschwinden auch sie, und
+*Konten* beginnt wieder mit der einen Gruppe *Konten*. Das Kreuz ist bei jeder
+Rückfrage zunächst nicht gesetzt.

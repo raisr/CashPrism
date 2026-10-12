@@ -45,6 +45,12 @@ releases and the minor version is bumped for every notable change.
   to the booking list filtered to it. The overview leads with the same total.
   Balances are read at import, so after updating they appear with the next new
   export; an account without a single booking in the export is not listed.
+- Accounts can be sorted into groups of your own — own, shared, someone
+  else's — each shown with the sum of its balances. *Gruppen bearbeiten* on the
+  *Konten* page adds, renames, orders and deletes groups and moves accounts
+  between and within them. A new account joins the topmost group. The groups
+  survive deleting all data, so a re-import puts every account back where it
+  was, unless *Kontogruppen ebenfalls löschen* is ticked when deleting.
 
 ## [0.1.0] - 2026-10-10
 

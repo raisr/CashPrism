@@ -365,8 +365,8 @@ they left it, rather than at the top of the page. Both moves use Blazor's own
 ## The accounts page
 
 `Pages/Accounts.razor` follows the design's *Konten* (`design/README.md` §3.3)
-as far as the data carries it: a column of account cards, and beside it the
-selected account in a card of its own. The lead names the total of all
+as far as the data carries it: a column of account cards in the person's own
+groups, and beside it the selected account in a card of its own. The lead names the total of all
 balances — *Deine 7 Konten stehen zusammen bei …* — in words that say where the
 accounts stand rather than what a person has, because a loan makes the total
 negative.
@@ -388,6 +388,21 @@ negative.
   transaction list: tile, party, payment reference and amount under a header
   per day, a row opening the [booking sheet](#the-booking-sheet). It is not the
   booking list's table — no columns, no sorting, no pages.
+- **The cards stand in groups**, each under its name and the sum of its
+  balances. The groups are CashPrism's own state — the export carries none —
+  read and changed through `AccountGroupEditor`; a fresh database starts with
+  one, named from `AccountGroupsStart` in the resource file. An account no
+  group holds yet is shown at the end of the topmost group, and that place is
+  stored with the next change.
+- **The switch *Gruppen bearbeiten* turns the column into an editor**,
+  `Accounts/AccountGroupEdit.razor`: a name field, arrows and a delete button
+  per group, a group select and arrows per account, a field to add a group at
+  the bottom. Every control is one change, stored at once and read back, so
+  there is no save button. Arrows and buttons the rules would refuse — the
+  topmost group up, a non-empty or the only group deleted — are disabled; the
+  delete button says why in a tooltip on its wrapper, because a disabled button
+  receives no hover. No drag and drop: arrows work with a keyboard and on a
+  phone alike.
 - **No tab bar yet.** The design's *Überblick* tab needs the account's flows,
   and its balance history needs a measurement first; with *Buchungen* the only
   tab, a plain heading takes its place.
@@ -516,7 +531,10 @@ and nothing happened.
 `Pages/Settings.razor` at `/settings` holds one card today: *Daten*, with
 *Alle Daten löschen*. It deletes every booking, raw row and import run through
 `IDataEraser`, which compacts the SQLite file afterwards (see
-`Persistence/DataEraser.cs`).
+`Persistence/DataEraser.cs`). The account groups stay unless the checkbox
+*Kontogruppen ebenfalls löschen* in the question is ticked; it is unticked
+every time the question is asked, since the groups are the one thing no export
+brings back.
 
 The confirmation is asked inside the card rather than in a dialog: the first
 click turns the button into a danger alert naming how many bookings and import
