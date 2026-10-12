@@ -2381,6 +2381,121 @@ button.cp-tx {
   color: var(--cp-text-3);
 }
 
+/* A group of accounts: its name and the sum of its balances above its cards. */
+.cp-account-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cp-account-group + .cp-account-group {
+  margin-top: 8px;
+}
+
+.cp-account-group__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.cp-account-group__sum {
+  font-weight: 700;
+  color: var(--cp-text-2);
+}
+
+.cp-account-group__empty {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px dashed var(--cp-line);
+  border-radius: var(--cp-radius-lg);
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-3);
+}
+
+.cp-accounts__edit.mud-input-control {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.cp-accounts__edit .mud-typography {
+  font: 600 var(--cp-fs-small)/1.2 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  white-space: nowrap;
+}
+
+/* The groups as an editor: a card per group, a row per account. */
+.cp-group-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cp-group-edit__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: var(--cp-radius-lg);
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow-card);
+}
+
+.cp-group-edit__head,
+.cp-group-edit__account,
+.cp-group-edit__add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* The list column is narrow, so an account takes two lines: its name, then
+   the select and the arrows. The add row wraps the same way. */
+.cp-group-edit__account,
+.cp-group-edit__add {
+  flex-wrap: wrap;
+}
+
+.cp-group-edit__name.mud-input-control,
+.cp-group-edit__new.mud-input-control {
+  flex: 1;
+  min-width: 0;
+  margin: 0 4px 0 0;
+}
+
+.cp-group-edit__account {
+  padding-top: 8px;
+  border-top: 1px solid var(--cp-line);
+}
+
+.cp-group-edit__account-text {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* MudSelect wraps its input control in a div of its own, and that wrapper
+   is the item the row lays out. */
+.cp-group-edit__account > .mud-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-group-edit__select.mud-input-control {
+  margin: 0 4px 0 0;
+}
+
+.cp-group-edit__new.mud-input-control {
+  flex-basis: 100%;
+}
+
+.cp-group-edit__delete-wrap {
+  display: inline-flex;
+}
+
 /* An account as the design draws it, filled with the primary colour while it
    is the one shown beside the list. */
 .cp-account-card {
