@@ -1,4 +1,5 @@
 using System.Text;
+using CashPrism.Application.Accounts;
 using CashPrism.Application.Imports;
 using CashPrism.Domain.Accounts;
 using CashPrism.Infrastructure.Persistence;
@@ -135,6 +136,24 @@ public sealed class DataEraserTests
             var groups = await LoadGroupsAsync(database);
             groups!.Place(await AccountsAsync(database));
             Assert.Equal([shared], groups.AccountsIn(groups.Groups[1].Id));
+        }
+
+        [Fact]
+        public async Task Starts_Over_With_The_Single_Group_Konten_When_Asked()
+        {
+            await using var database = await DemoSampleDatabase.CreateAsync();
+            var accounts = await AccountsAsync(database);
+            await GroupAsync(database, accounts, shared: accounts[^1]);
+
+            await EraseAsync(database, includeAccountGroups: true);
+            await DemoSampleDatabase.ImportAsync(database);
+
+            await using var context = database.CreateContext();
+            var groups = await new AccountGroupEditor(new AccountBalanceReader(context), new AccountGroupStore(context))
+                .ReadAsync("Konten");
+            var group = Assert.Single(groups);
+            Assert.Equal("Konten", group.Name);
+            Assert.Equal(accounts.Count, group.Accounts.Count);
         }
 
         [Fact]
