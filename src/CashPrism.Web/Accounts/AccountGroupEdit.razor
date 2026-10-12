@@ -1,0 +1,136 @@
+@using CashPrism.Application.Accounts
+@using CashPrism.Domain.Accounts
+@inject IStringLocalizer<Strings> text
+
+@* The groups as an editor: every control is one change, reported at once and
+   stored by the page, so there is nothing to save and nothing to lose. The
+   component holds no groups of its own — it draws the ones it is given. *@
+<div class="cp-group-edit">
+  @for (var index = 0; index < Groups.Count; index++)
+  {
+    var group = Groups[index];
+    var first = index == 0;
+    var last = index == Groups.Count - 1;
+    var deletable = group.Accounts.Count == 0 && Groups.Count > 1;
+
+    <section class="cp-group-edit__group" @key="group.Id">
+      <div class="cp-group-edit__head">
+        @* Keyed by the revision as well: a refused rename leaves the name as
+           it was, and only a new field shows the stored one again. *@
+        <MudTextField T="string"
+                      @key="(group.Id, Revision)"
+                      Value="@group.Name"
+                      ValueChanged="name => RenameAsync(group.Id, name)"
+                      Label="@text["AccountGroupName"]"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"
+                      Class="cp-group-edit__name" />
+        <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-group-edit__up" disabled="@first"
+                aria-label="@text["AccountGroupUp", group.Name]"
+                @onclick="() => ChangeAsync(grouping => grouping.MoveUp(group.Id))">
+          <CpIcon Name="chevron-up" />
+        </button>
+        <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-group-edit__down" disabled="@last"
+                aria-label="@text["AccountGroupDown", group.Name]"
+                @onclick="() => ChangeAsync(grouping => grouping.MoveDown(group.Id))">
+          <CpIcon Name="chevron-down" />
+        </button>
+        @* The hint sits on a wrapper: a disabled button takes no pointer
+           events, so a title on it would never show. *@
+        <span class="cp-group-edit__delete-wrap" title="@(deletable ? null : text["AccountGroupDeleteBlocked"].Value)">
+          <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-group-edit__delete" disabled="@(!deletable)"
+                  aria-label="@text["AccountGroupDelete", group.Name]"
+                  @onclick="() => ChangeAsync(grouping => grouping.Delete(group.Id))">
+            <CpIcon Name="trash-2" />
+          </button>
+        </span>
+      </div>
+
+      @for (var position = 0; position < group.Accounts.Count; position++)
+      {
+        var account = group.Accounts[position];
+        var top = position == 0;
+        var bottom = position == group.Accounts.Count - 1;
+
+        <div class="cp-group-edit__account" @key="account.AccountReference">
+          <span class="cp-group-edit__account-text">
+            <span class="cp-account-card__name">@account.AccountName</span>
+            <span class="cp-account-card__number">@IbanMask.Mask(account.AccountReference)</span>
+          </span>
+          <MudSelect T="Guid"
+                     Value="@group.Id"
+                     ValueChanged="target => ChangeAsync(grouping => grouping.Assign(account.AccountReference, target))"
+                     ToStringFunc="GroupName"
+                     Label="@text["AccountGroupOf"]"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.Dense"
+                     Dense="true"
+                     Class="cp-group-edit__select">
+            @foreach (var option in Groups)
+            {
+              <MudSelectItem T="Guid" Value="@option.Id">@option.Name</MudSelectItem>
+            }
+          </MudSelect>
+          <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-group-edit__up" disabled="@top"
+                  aria-label="@text["AccountGroupUp", account.AccountName]"
+                  @onclick="() => ChangeAsync(grouping => grouping.MoveAccountUp(account.AccountReference))">
+            <CpIcon Name="chevron-up" />
+          </button>
+          <button type="button" class="cp-iconbtn cp-iconbtn--sm cp-group-edit__down" disabled="@bottom"
+                  aria-label="@text["AccountGroupDown", account.AccountName]"
+                  @onclick="() => ChangeAsync(grouping => grouping.MoveAccountDown(account.AccountReference))">
+            <CpIcon Name="chevron-down" />
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  <div class="cp-group-edit__add">
+    <MudTextField T="string"
+                  @bind-Value="newName"
+                  Immediate="true"
+                  Label="@text["AccountGroupNew"]"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Class="cp-group-edit__new" />
+    <MudButton Variant="Variant.Outlined" Class="cp-btn cp-group-edit__add-button"
+               Disabled="@string.IsNullOrWhiteSpace(newName)" OnClick="AddAsync">
+      <CpIcon Name="plus" />
+      @text["AccountGroupAdd"]
+    </MudButton>
+  </div>
+</div>
+
+@code {
+    private string? newName;
+
+    /// <summary>The groups, the topmost first, each with its shown accounts.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<AccountGroupSummary> Groups { get; set; } = [];
+
+    /// <summary>
+    /// Counts the groups the page has read; a new value redraws the name
+    /// fields from what is stored.
+    /// </summary>
+    [Parameter]
+    public int Revision { get; set; }
+
+    /// <summary>Raised with one change to apply to the stored groups.</summary>
+    [Parameter]
+    public EventCallback<Func<AccountGrouping, AccountGroupingOutcome>> OnChange { get; set; }
+
+    private string GroupName(Guid id) => Groups.FirstOrDefault(group => group.Id == id)?.Name ?? string.Empty;
+
+    private Task ChangeAsync(Func<AccountGrouping, AccountGroupingOutcome> change) => OnChange.InvokeAsync(change);
+
+    private Task RenameAsync(Guid id, string? name) => ChangeAsync(grouping => grouping.Rename(id, name ?? string.Empty));
+
+    private async Task AddAsync()
+    {
+        var name = newName ?? string.Empty;
+        newName = null;
+
+        await ChangeAsync(grouping => grouping.Add(Guid.NewGuid(), name));
+    }
+}

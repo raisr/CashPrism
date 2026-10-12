@@ -34,13 +34,7 @@ public sealed class AccountOverviewReader
             return null;
         }
 
-        // The name breaks a tie, so two accounts with the same balance — two
-        // empty ones, typically — keep one order from one visit to the next.
-        var accounts = balances
-            .OrderByDescending(balance => balance.BalanceInCents)
-            .ThenBy(balance => balance.AccountName, StringComparer.CurrentCulture)
-            .ThenBy(balance => balance.AccountReference, StringComparer.Ordinal)
-            .ToList();
+        var accounts = AccountOrder.ByBalance(balances);
 
         return new AccountOverview(accounts, accounts.Sum(balance => balance.BalanceInCents));
     }

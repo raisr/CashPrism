@@ -8,8 +8,8 @@ namespace CashPrism.Infrastructure.Persistence;
 
 /// <summary>
 /// The database. One SQLite file on local disk, holding the bookings, the import
-/// runs with the raw rows and account balances they brought, and the hash of the
-/// shared password.
+/// runs with the raw rows and account balances they brought, the account groups,
+/// and the hash of the shared password.
 /// </summary>
 /// <remarks>
 /// The models carry no persistence attributes: everything the database needs to
@@ -38,6 +38,12 @@ public sealed class CashPrismDbContext : DbContext
 
     /// <summary>The account balances each import run's export reported.</summary>
     public DbSet<AccountBalance> AccountBalances => Set<AccountBalance>();
+
+    /// <summary>The account groups the person sorted the accounts into.</summary>
+    public DbSet<AccountGroup> AccountGroups => Set<AccountGroup>();
+
+    /// <summary>Which account is in which group.</summary>
+    public DbSet<AccountAssignment> AccountAssignments => Set<AccountAssignment>();
 
     /// <summary>The shared password, as a hash. At most one row.</summary>
     public DbSet<Credential> Credentials => Set<Credential>();

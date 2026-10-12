@@ -10,6 +10,7 @@
 @using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
 @inject AccountOverviewReader accounts
+@inject AccountGroupEditor groupEditor
 @inject IBookingReader bookingReader
 
 @if (overview is null)
@@ -36,27 +37,55 @@ else
 {
   <PageFrame Title="@text["NavAccounts"]">
     <LeadContent>@Lead(overview)</LeadContent>
+    <Actions>
+      <MudSwitch T="bool"
+                 @bind-Value="editing"
+                 Label="@text["AccountGroupsEdit"]"
+                 Color="Color.Primary"
+                 Class="cp-accounts__edit" />
+    </Actions>
     <ChildContent>
       <div class="cp-accounts">
         <nav class="cp-accounts__list" aria-label="@text["AccountsYours"]">
-          <div class="cp-label">@text["AccountsYours"]</div>
-          @* Links rather than buttons: the selection is part of the address,
-             so it survives a reload and can be bookmarked. *@
-          @foreach (var account in overview.Accounts)
+          @if (editing)
           {
-            var on = account == selected;
-            <a class="@(on ? "cp-account-card cp-account-card--on" : "cp-account-card")"
-               href="@LinkTo(account)"
-               aria-current="@(on ? "page" : null)">
-              <span class="cp-account-card__head">
-                <IconTile Icon="wallet" Colour="var(--cp-primary)" Size="38" />
-                <span class="cp-account-card__text">
-                  <span class="cp-account-card__name">@account.AccountName</span>
-                  <span class="cp-account-card__number">@IbanMask.Mask(account.AccountReference)</span>
-                </span>
-              </span>
-              <span class="cp-account-card__balance"><Sum AmountInCents="account.BalanceInCents" /></span>
-            </a>
+            <AccountGroupEdit Groups="groups" Revision="revision" OnChange="ChangeAsync" />
+          }
+          else
+          {
+            @foreach (var group in groups)
+            {
+              <section class="cp-account-group" @key="group.Id">
+                <div class="cp-account-group__head">
+                  <span class="cp-label">@group.Name</span>
+                  <span class="cp-account-group__sum"><Sum AmountInCents="group.SumInCents" /></span>
+                </div>
+                @* Links rather than buttons: the selection is part of the address,
+                   so it survives a reload and can be bookmarked. *@
+                @foreach (var account in group.Accounts)
+                {
+                  @* The groups come from a read of their own, so the selection is
+                     matched by account rather than by instance. *@
+                  var on = string.Equals(account.AccountReference, selected?.AccountReference, StringComparison.Ordinal);
+                  <a class="@(on ? "cp-account-card cp-account-card--on" : "cp-account-card")"
+                     href="@LinkTo(account)"
+                     aria-current="@(on ? "page" : null)">
+                    <span class="cp-account-card__head">
+                      <IconTile Icon="wallet" Colour="var(--cp-primary)" Size="38" />
+                      <span class="cp-account-card__text">
+                        <span class="cp-account-card__name">@account.AccountName</span>
+                        <span class="cp-account-card__number">@IbanMask.Mask(account.AccountReference)</span>
+                      </span>
+                    </span>
+                    <span class="cp-account-card__balance"><Sum AmountInCents="account.BalanceInCents" /></span>
+                  </a>
+                }
+                @if (group.Accounts.Count == 0)
+                {
+                  <p class="cp-account-group__empty">@text["AccountGroupEmpty"]</p>
+                }
+              </section>
+            }
           }
           <p class="cp-accounts__note"><CpIcon Name="info" Size="15" />@text["AccountsNote"]</p>
         </nav>
@@ -102,6 +131,9 @@ else
     public const int BookingsShown = 30;
 
     private AccountOverview? overview;
+    private IReadOnlyList<AccountGroupSummary> groups = [];
+    private int revision;
+    private bool editing;
     private bool loaded;
 
     private AccountBalance? selected;
@@ -115,6 +147,14 @@ else
     protected override async Task OnInitializedAsync()
     {
         overview = await accounts.ReadAsync();
+
+        // Only with accounts to show: a page without them shows no groups,
+        // so it has no reason to start one.
+        if (overview is not null)
+        {
+            await ReadGroupsAsync();
+        }
+
         loaded = true;
     }
 
@@ -142,6 +182,21 @@ else
             Skip: 0,
             Take: BookingsShown,
             Filter: new BookingFilter(AccountReference: asked.AccountReference)));
+    }
+
+    private async Task ReadGroupsAsync()
+    {
+        groups = await groupEditor.ReadAsync(text["AccountGroupsStart"]);
+        revision++;
+    }
+
+    // Read again whatever the outcome: a change the rules refused leaves the
+    // groups as stored, and one that found its group gone — deleted in another
+    // browser — is best answered with what is there now.
+    private async Task ChangeAsync(Func<AccountGrouping, AccountGroupingOutcome> change)
+    {
+        await groupEditor.ChangeAsync(change);
+        await ReadGroupsAsync();
     }
 
     private static string LinkTo(AccountBalance account)

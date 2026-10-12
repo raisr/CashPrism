@@ -36,6 +36,24 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.ToTable("Credentials", (string)null);
                 });
 
+            modelBuilder.Entity("CashPrism.Domain.Accounts.AccountAssignment", b =>
+                {
+                    b.Property<string>("AccountReference")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AccountReference");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("AccountAssignments", (string)null);
+                });
+
             modelBuilder.Entity("CashPrism.Domain.Accounts.AccountBalance", b =>
                 {
                     b.Property<Guid>("ImportRunId")
@@ -61,6 +79,23 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.HasKey("ImportRunId", "AccountReference");
 
                     b.ToTable("AccountBalances", (string)null);
+                });
+
+            modelBuilder.Entity("CashPrism.Domain.Accounts.AccountGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountGroups", (string)null);
                 });
 
             modelBuilder.Entity("CashPrism.Domain.Bookings.Booking", b =>
@@ -220,6 +255,15 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.HasKey("ImportRunId", "Fingerprint");
 
                     b.ToTable("RawRows", (string)null);
+                });
+
+            modelBuilder.Entity("CashPrism.Domain.Accounts.AccountAssignment", b =>
+                {
+                    b.HasOne("CashPrism.Domain.Accounts.AccountGroup", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CashPrism.Domain.Accounts.AccountBalance", b =>

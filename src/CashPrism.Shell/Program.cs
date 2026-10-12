@@ -140,6 +140,7 @@ public sealed class Program
         builder.Services.AddScoped<CashFlowOverviewReader>();
         builder.Services.AddScoped<SpendingAnalysisReader>();
         builder.Services.AddScoped<AccountOverviewReader>();
+        builder.Services.AddScoped<AccountGroupEditor>();
 
         // A new code on every start, made here because it is random: until a
         // password is set, the banner prints it, and only who sees the console

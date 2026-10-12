@@ -1,3 +1,4 @@
+using AngleSharp.Dom;
 using Bunit;
 using CashPrism.Application.Accounts;
 using CashPrism.Application.Bookings;
@@ -9,6 +10,7 @@ using CashPrism.Web.Tests.Unit.Bookings;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
+using MudBlazor.Extensions;
 using MudBlazor.Services;
 using AccountsPage = CashPrism.Web.Pages.Accounts;
 
@@ -32,6 +34,8 @@ public sealed class AccountsTests
 
         protected FakeBookingReader Bookings { get; } = new();
 
+        protected FakeAccountGroupStore Groups { get; } = new();
+
         public Task InitializeAsync() => Task.CompletedTask;
 
         // Asynchronously, because MudBlazor registers services that only
@@ -45,6 +49,7 @@ public sealed class AccountsTests
             Context.Services.AddMudServices();
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
             Context.Services.AddSingleton(new AccountOverviewReader(Balances));
+            Context.Services.AddSingleton(new AccountGroupEditor(Balances, Groups));
             Context.Services.AddSingleton<IBookingReader>(Bookings);
             Context.Services.AddSingleton<IClock>(new FixedClock(new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero)));
             Context.Services.GetRequiredService<NavigationManager>().NavigateTo(uri);
@@ -57,6 +62,10 @@ public sealed class AccountsTests
             Balances.Add("Girokonto", 460_373, Giro);
             Balances.Add("Tagesgeld", 2_084_227, Savings);
         }
+
+        /// <summary>The group names as the page shows them, the topmost first.</summary>
+        protected static IEnumerable<string> GroupNames(IRenderedComponent<AccountsPage> page)
+            => page.FindAll(".cp-account-group__head .cp-label").Select(label => label.TextContent);
     }
 
     public sealed class OnInitializedAsync : PageTest
@@ -102,6 +111,65 @@ public sealed class AccountsTests
             Assert.Equal(
                 [("Tagesgeld", "•••• 7181", "20.842,27 €"), ("Girokonto", "•••• 0707", "4.603,73 €")],
                 cards);
+        }
+
+        [Fact]
+        public void Starts_With_The_Single_Group_Konten()
+        {
+            AddTwoAccounts();
+
+            var page = Render();
+
+            Assert.Equal(["Konten"], GroupNames(page));
+        }
+
+        [Fact]
+        public void Starts_No_Group_Without_An_Account()
+        {
+            Render();
+
+            Assert.Empty(Groups.Groups);
+        }
+
+        [Fact]
+        public void Shows_The_Groups_In_Their_Order_Each_With_Its_Sum()
+        {
+            AddTwoAccounts();
+            Groups.AddGroup("Gemeinsam", Giro);
+            Groups.AddGroup("Eigene", Savings);
+
+            var page = Render();
+
+            var heads = page.FindAll(".cp-account-group__head").Select(head => (
+                head.QuerySelector(".cp-label")!.TextContent,
+                head.QuerySelector(".cp-account-group__sum")!.TextContent));
+            Assert.Equal([("Gemeinsam", "4.603,73 €"), ("Eigene", "20.842,27 €")], heads);
+        }
+
+        [Fact]
+        public void Shows_The_Cards_Of_Each_Group_Under_It()
+        {
+            AddTwoAccounts();
+            Groups.AddGroup("Gemeinsam", Giro);
+            Groups.AddGroup("Eigene", Savings);
+
+            var page = Render();
+
+            Assert.Equal(
+                ["Girokonto", "Tagesgeld"],
+                page.FindAll(".cp-account-group .cp-account-card__name").Select(name => name.TextContent));
+        }
+
+        [Fact]
+        public void Says_So_In_An_Empty_Group()
+        {
+            AddTwoAccounts();
+            Groups.AddGroup("Eigene", Giro, Savings);
+            Groups.AddGroup("Gemeinsam");
+
+            var page = Render();
+
+            Assert.Equal("Noch kein Konto in dieser Gruppe.", page.Find(".cp-account-group__empty").TextContent);
         }
 
         [Fact]
@@ -194,6 +262,157 @@ public sealed class AccountsTests
             page.Find(".cp-txlist button.cp-tx").Click();
 
             Assert.Equal("Deutsche Bahn", page.Find(".cp-sheet__head .cp-h2").TextContent);
+        }
+    }
+
+    /// <summary>
+    /// Edit mode, through the page and the real use case, so every test sees
+    /// what a person sees after the change was stored and read back.
+    /// </summary>
+    public sealed class ChangeAsync : PageTest
+    {
+        private Guid own;
+        private Guid shared;
+
+        private async Task<IRenderedComponent<AccountsPage>> RenderEditingAsync()
+        {
+            AddTwoAccounts();
+            own = Groups.AddGroup("Eigene", Savings, Giro);
+            shared = Groups.AddGroup("Gemeinsam");
+
+            var page = Render();
+            var toggle = page.FindComponent<MudSwitch<bool>>();
+            await toggle.InvokeAsync(() => toggle.Instance.ValueChanged.InvokeAsync(true));
+
+            return page;
+        }
+
+        private static IElement Group(IRenderedComponent<AccountsPage> page, int index)
+            => page.FindAll(".cp-group-edit__group")[index];
+
+        private static IElement Account(IRenderedComponent<AccountsPage> page, string name)
+            => page.FindAll(".cp-group-edit__account")
+                .Single(row => row.QuerySelector(".cp-account-card__name")!.TextContent == name);
+
+        private static IRenderedComponent<MudTextField<string>> NameField(IRenderedComponent<AccountsPage> page, string name)
+            => page.FindComponents<MudTextField<string>>().Single(field => field.Instance.GetState(x => x.Value) == name);
+
+        [Fact]
+        public async Task Shows_A_Name_Field_Per_Group_When_The_Switch_Is_Turned_On()
+        {
+            var page = await RenderEditingAsync();
+
+            Assert.Equal(
+                ["Eigene", "Gemeinsam"],
+                page.FindComponents<MudTextField<string>>()
+                    .Where(field => field.Instance.Label == "Name der Gruppe")
+                    .Select(field => field.Instance.GetState(x => x.Value)));
+        }
+
+        [Fact]
+        public async Task Renames_A_Group()
+        {
+            var page = await RenderEditingAsync();
+            var field = NameField(page, "Gemeinsam");
+
+            await field.InvokeAsync(() => field.Instance.ValueChanged.InvokeAsync("Mit Anna"));
+
+            Assert.Equal("Mit Anna", Groups.Groups[1].Name);
+        }
+
+        [Fact]
+        public async Task Shows_The_Stored_Name_Again_When_A_Blank_One_Is_Entered()
+        {
+            var page = await RenderEditingAsync();
+            var field = NameField(page, "Gemeinsam");
+
+            await field.InvokeAsync(() => field.Instance.ValueChanged.InvokeAsync(" "));
+
+            Assert.Equal("Gemeinsam", Groups.Groups[1].Name);
+            Assert.Single(page.FindComponents<MudTextField<string>>(), other => other.Instance.GetState(x => x.Value) == "Gemeinsam");
+        }
+
+        [Fact]
+        public async Task Moves_A_Group_Down()
+        {
+            var page = await RenderEditingAsync();
+
+            Group(page, 0).QuerySelector(".cp-group-edit__down")!.Click();
+
+            Assert.Equal([shared, own], Groups.Groups.Select(group => group.Id));
+        }
+
+        [Fact]
+        public async Task Disables_Moving_The_Topmost_Group_Up()
+        {
+            var page = await RenderEditingAsync();
+
+            Assert.True(Group(page, 0).QuerySelector(".cp-group-edit__up")!.HasAttribute("disabled"));
+        }
+
+        [Fact]
+        public async Task Moves_An_Account_Up_In_Its_Group()
+        {
+            var page = await RenderEditingAsync();
+
+            Account(page, "Girokonto").QuerySelector(".cp-group-edit__up")!.Click();
+
+            Assert.Equal(
+                [Giro, Savings],
+                Groups.Assignments.OrderBy(assignment => assignment.Position).Select(assignment => assignment.AccountReference));
+        }
+
+        [Fact]
+        public async Task Assigns_An_Account_To_The_Group_Picked()
+        {
+            var page = await RenderEditingAsync();
+            var select = page.FindComponents<MudSelect<Guid>>()[1];
+
+            await select.InvokeAsync(() => select.Instance.ValueChanged.InvokeAsync(shared));
+
+            Assert.Equal(shared, Groups.Assignments.Single(assignment => assignment.AccountReference == Giro).GroupId);
+        }
+
+        [Fact]
+        public async Task Disables_The_Delete_Of_A_Group_That_Holds_An_Account()
+        {
+            var page = await RenderEditingAsync();
+
+            Assert.True(Group(page, 0).QuerySelector(".cp-group-edit__delete")!.HasAttribute("disabled"));
+        }
+
+        [Fact]
+        public async Task Says_Why_A_Delete_Is_Disabled()
+        {
+            var page = await RenderEditingAsync();
+
+            Assert.Equal(
+                "Nur eine leere Gruppe lässt sich löschen, und nicht die letzte.",
+                Group(page, 0).QuerySelector(".cp-group-edit__delete-wrap")!.GetAttribute("title"));
+        }
+
+        [Fact]
+        public async Task Deletes_An_Empty_Group()
+        {
+            var page = await RenderEditingAsync();
+
+            Group(page, 1).QuerySelector(".cp-group-edit__delete")!.Click();
+
+            Assert.Equal([own], Groups.Groups.Select(group => group.Id));
+        }
+
+        [Fact]
+        public async Task Adds_A_Group_At_The_Bottom()
+        {
+            var page = await RenderEditingAsync();
+            var field = page.FindComponents<MudTextField<string>>().Single(field => field.Instance.Label == "Neue Gruppe");
+            await field.InvokeAsync(() => field.Instance.ValueChanged.InvokeAsync("Kinder"));
+
+            page.Find("button.cp-group-edit__add-button").Click();
+
+            // MudButton hands the click on asynchronously, so the group may be
+            // stored after Click returns.
+            page.WaitForAssertion(() => Assert.Equal(["Eigene", "Gemeinsam", "Kinder"], Groups.Groups.Select(group => group.Name)));
         }
     }
 }

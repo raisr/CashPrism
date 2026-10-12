@@ -21,6 +21,17 @@ public static class DemoSampleDatabase
     {
         var database = await ThrowawayDatabase.CreateAsync();
 
+        await ImportAsync(database);
+
+        return database;
+    }
+
+    /// <summary>Imports the demo export into <paramref name="database"/>, again or for the first time.</summary>
+    /// <param name="database">The database to import into.</param>
+    public static async Task ImportAsync(ThrowawayDatabase database)
+    {
+        ArgumentNullException.ThrowIfNull(database);
+
         await using var context = database.CreateContext();
         await using var stream = DemoSample.Open();
 
@@ -30,7 +41,5 @@ public static class DemoSampleDatabase
             new FixedClock(ImportedAt));
 
         await importer.ImportAsync(stream, DemoSample.FileName);
-
-        return database;
     }
 }
