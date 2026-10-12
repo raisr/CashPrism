@@ -23,7 +23,7 @@ public sealed class FakeDataEraser : IDataEraser
     /// <summary>Lets a held deletion finish.</summary>
     public void Release() => hold?.SetResult();
 
-    public async Task EraseAllAsync(CancellationToken cancellationToken = default)
+    public async Task EraseAllAsync(bool includeAccountGroups, CancellationToken cancellationToken = default)
     {
         if (hold is not null)
         {

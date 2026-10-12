@@ -46,7 +46,7 @@ public sealed class SettingsPageTests
     {
         await using var scope = factory.Services.CreateAsyncScope();
 
-        await scope.ServiceProvider.GetRequiredService<IDataEraser>().EraseAllAsync();
+        await scope.ServiceProvider.GetRequiredService<IDataEraser>().EraseAllAsync(includeAccountGroups: false);
     }
 
     public sealed class TheSettingsPage

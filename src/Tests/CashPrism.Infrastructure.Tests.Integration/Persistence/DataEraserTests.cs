@@ -1,5 +1,6 @@
 using System.Text;
 using CashPrism.Application.Imports;
+using CashPrism.Domain.Accounts;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.TestSupport.Imports;
 using Microsoft.EntityFrameworkCore;
@@ -31,11 +32,42 @@ public sealed class DataEraserTests
         return await importer.ImportAsync(stream, fileName: "20260907_Export_Alle_Buchungen.xlsx");
     }
 
-    private static async Task EraseAsync(ThrowawayDatabase database)
+    private static async Task EraseAsync(ThrowawayDatabase database, bool includeAccountGroups = false)
     {
         await using var context = database.CreateContext();
 
-        await new DataEraser(context).EraseAllAsync();
+        await new DataEraser(context).EraseAllAsync(includeAccountGroups);
+    }
+
+    /// <summary>
+    /// Stores two groups, <c>Eigene</c> on top and <c>Gemeinsam</c> below, with
+    /// <paramref name="shared"/> in the second and every other account in the first.
+    /// </summary>
+    private static async Task GroupAsync(ThrowawayDatabase database, IReadOnlyList<string> accounts, string shared)
+    {
+        var grouping = AccountGrouping.Start(Guid.NewGuid(), "Eigene");
+        var second = Guid.NewGuid();
+        grouping.Add(second, "Gemeinsam");
+        grouping.Place(accounts);
+        grouping.Assign(shared, second);
+
+        await using var context = database.CreateContext();
+        await new AccountGroupStore(context).SaveAsync(grouping);
+    }
+
+    private static async Task<AccountGrouping?> LoadGroupsAsync(ThrowawayDatabase database)
+    {
+        await using var context = database.CreateContext();
+
+        return await new AccountGroupStore(context).LoadAsync();
+    }
+
+    private static async Task<IReadOnlyList<string>> AccountsAsync(ThrowawayDatabase database)
+    {
+        await using var context = database.CreateContext();
+        var balances = await new AccountBalanceReader(context).ReadLatestAsync();
+
+        return [.. balances.Select(balance => balance.AccountReference).Order(StringComparer.Ordinal)];
     }
 
     public sealed class EraseAllAsync
@@ -64,6 +96,45 @@ public sealed class DataEraserTests
 
             await using var context = database.CreateContext();
             Assert.Equal(0, await context.AccountBalances.CountAsync());
+        }
+
+        [Fact]
+        public async Task Keeps_The_Account_Groups_Unless_Asked()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await GroupAsync(database, ["DE02120300000000202051"], shared: "DE02120300000000202051");
+
+            await EraseAsync(database, includeAccountGroups: false);
+
+            var groups = await LoadGroupsAsync(database);
+            Assert.Equal(["Eigene", "Gemeinsam"], groups!.Groups.Select(group => group.Name));
+        }
+
+        [Fact]
+        public async Task Deletes_The_Account_Groups_When_Asked()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await GroupAsync(database, ["DE02120300000000202051"], shared: "DE02120300000000202051");
+
+            await EraseAsync(database, includeAccountGroups: true);
+
+            Assert.Null(await LoadGroupsAsync(database));
+        }
+
+        [Fact]
+        public async Task Puts_An_Account_Back_In_Its_Group_After_The_Demo_Export_Is_Imported_Again()
+        {
+            await using var database = await DemoSampleDatabase.CreateAsync();
+            var accounts = await AccountsAsync(database);
+            var shared = accounts[^1];
+            await GroupAsync(database, accounts, shared);
+
+            await EraseAsync(database, includeAccountGroups: false);
+            await DemoSampleDatabase.ImportAsync(database);
+
+            var groups = await LoadGroupsAsync(database);
+            groups!.Place(await AccountsAsync(database));
+            Assert.Equal([shared], groups.AccountsIn(groups.Groups[1].Id));
         }
 
         [Fact]

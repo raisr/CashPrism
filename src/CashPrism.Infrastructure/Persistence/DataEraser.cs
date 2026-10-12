@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 namespace CashPrism.Infrastructure.Persistence;
 
 /// <summary>
-/// Empties the three tables an import writes and compacts the SQLite file.
+/// Empties the tables an import writes — and, when asked, the account groups —
+/// and compacts the SQLite file.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -43,7 +44,7 @@ public sealed class DataEraser : IDataEraser
     }
 
     /// <inheritdoc />
-    public async Task EraseAllAsync(CancellationToken cancellationToken = default)
+    public async Task EraseAllAsync(bool includeAccountGroups, CancellationToken cancellationToken = default)
     {
         await using (var transaction = await context.Database.BeginTransactionAsync(cancellationToken))
         {
@@ -51,6 +52,12 @@ public sealed class DataEraser : IDataEraser
             await context.AccountBalances.ExecuteDeleteAsync(cancellationToken);
             await context.Bookings.ExecuteDeleteAsync(cancellationToken);
             await context.ImportRuns.ExecuteDeleteAsync(cancellationToken);
+
+            if (includeAccountGroups)
+            {
+                await context.AccountAssignments.ExecuteDeleteAsync(cancellationToken);
+                await context.AccountGroups.ExecuteDeleteAsync(cancellationToken);
+            }
 
             await transaction.CommitAsync(cancellationToken);
         }

@@ -148,7 +148,7 @@
 
         try
         {
-            await eraser.EraseAllAsync();
+            await eraser.EraseAllAsync(includeAccountGroups: false);
             log.LogInformation("All stored data was deleted");
         }
         finally
