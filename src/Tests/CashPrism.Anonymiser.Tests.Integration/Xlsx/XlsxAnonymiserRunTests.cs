@@ -47,6 +47,19 @@ public sealed class XlsxAnonymiserRunTests
         }
 
         [Fact]
+        public void Every_Zip_Entry_Keeps_The_Timestamp_Of_The_Input()
+        {
+            var writtenAt = new DateTimeOffset(2020, 1, 2, 3, 4, 6, TimeSpan.Zero);
+            var inputPath = WriteInput(WithTimestamp(BuildValidWorkbook(), writtenAt));
+
+            var result = Anonymise([inputPath], _outputDirectory, force: false);
+
+            using var actual = ZipFile.OpenRead(result.FileResults[0].OutputPath);
+
+            Assert.All(actual.Entries, entry => Assert.Equal(writtenAt.DateTime, entry.LastWriteTime.DateTime));
+        }
+
+        [Fact]
         public void Kept_Columns_Stay_Byte_Identical_Outside_The_Replaced_Cells()
         {
             var inputPath = WriteInput(BuildValidWorkbook());
@@ -544,6 +557,22 @@ public sealed class XlsxAnonymiserRunTests
         }
 
         private static byte[] ReadAllBytes(string path) => File.ReadAllBytes(path);
+
+        private static byte[] WithTimestamp(byte[] workbook, DateTimeOffset writtenAt)
+        {
+            using var buffer = new MemoryStream();
+            buffer.Write(workbook);
+
+            using (var archive = new ZipArchive(buffer, ZipArchiveMode.Update, leaveOpen: true))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    entry.LastWriteTime = writtenAt;
+                }
+            }
+
+            return buffer.ToArray();
+        }
 
         private static byte[] ReadAllBytes(ZipArchiveEntry entry)
         {
