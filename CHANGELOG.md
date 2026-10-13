@@ -51,6 +51,22 @@ releases and the minor version is bumped for every notable change.
   between and within them. A new account joins the topmost group. The groups
   survive deleting all data, so a re-import puts every account back where it
   was, unless *Kontogruppen ebenfalls löschen* is ticked when deleting.
+- *Verträge*, a new page, lists the contracts Finanzguru recognised in your
+  bookings, each with the name, sub-category and amount of its newest booking.
+  Spending contracts are grouped by interval with their count and sum; income
+  and transfers between your own accounts have a section each. Above them
+  stands what your contracts cost in an average month, a yearly one counting
+  with a twelfth. A contract with at least two payments missing is listed,
+  folded, as *Vermutlich beendet* and left out of that cost — the export says
+  nothing about a contract ending, so this is derived from the bookings. A
+  click on a contract opens the booking list with its bookings.
+- *Verträge* shows, for every running contract, the day its next booking is
+  expected: the newest booking plus the contract's interval. When that day is
+  more than 5 days past at the export date, the contract is marked *x Tage
+  überfällig*. The marker can be dismissed for that one expected day and comes
+  back if the next booking is missed too; deleting all data removes dismissals.
+- The overview lists under *Demnächst* the contract bookings expected in the
+  30 days after the export, overdue ones first.
 
 ## [0.1.0] - 2026-10-10
 
@@ -269,15 +285,6 @@ releases and the minor version is bumped for every notable change.
   counts the way the overview does. A category's colour follows its rank over
   the last twelve months rather than its name, so it stays the same when you
   switch periods and still works for a category Finanzguru renames.
-- *Verträge*, a new page, lists the contracts Finanzguru recognised in your
-  bookings, each with the name, sub-category and amount of its newest booking.
-  Spending contracts are grouped by interval with their count and sum; income
-  and transfers between your own accounts have a section each. Above them
-  stands what your contracts cost in an average month, a yearly one counting
-  with a twelfth. A contract with at least two payments missing is listed,
-  folded, as *Vermutlich beendet* and left out of that cost — the export says
-  nothing about a contract ending, so this is derived from the bookings. A
-  click on a contract opens the booking list with its bookings.
 
 ### Changed
 

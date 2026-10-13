@@ -53,7 +53,9 @@ test` passes over it. Today that is `XlsxTestWorkbook`, which builds a
 Finanzguru-shaped `.xlsx` in memory, `FinanzguruTestRow`, which fills one data
 row of it, and the stand-ins the import use case runs on in a test:
 `FakeImportSource`, `FakeImportStore` and `FixedClock`; `FakeAccountGroupStore`,
-which keeps the account groups the way the database would; `FakeCashFlowReader`,
+which keeps the account groups the way the database would; `FakeContractReader`
+and `FakeDismissedOverdueStore`, which hand the contract use cases fixed
+contracts and keep dismissed overdue markers; `FakeCashFlowReader`,
 which hands the overview and the analysis fixed sums; and `TestBookings`,
 which builds a booking with plain values for every field a test does not name;
 and `DemoSample`, which embeds the committed demo export
