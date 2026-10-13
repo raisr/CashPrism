@@ -21,7 +21,7 @@ Four of those earn a sentence:
   accent. It is the one place the product name appears, so it is also the one
   place a mark is needed.
 - **The destinations are grouped where a group exists.** The start page, the
-  bookings and the accounts stand at the top; the analysis sits under *Auswerten*; the import,
+  bookings, the accounts and the contracts stand at the top; the analysis sits under *Auswerten*; the import,
   which brings data in, and the settings, which delete it again, sit under
   *Daten*. A heading is written wherever the section changes in
   `NavigationItems`, so a section with no destination yet simply does not
@@ -310,7 +310,10 @@ locale, not by the culture the host pins, and an English browser would show
 `09/30/2026` next to German labels. The design's look — the height, the radius,
 the sunken surface, the focus ring — is put back on them in `components.css`.
 The counterparty is no input at all: it only arrives with a link, matches the
-name exactly, and is shown as a chip that takes it away again.
+name exactly, and is shown as a chip that takes it away again. The contract,
+`contract=<id>`, works the same way; its chip reads *Vertrag*, because the
+identifier means nothing to a person and the bookings it leaves say which
+contract it is.
 
 **The summary line counts the whole filter, not the page, and sums by sign.**
 Income is the sum of the positive amounts, spending that of the negative ones,
@@ -345,7 +348,7 @@ The contract badge is the design's recurring badge, in its info tone with the
 `repeat` glyph: *Vertrag · monatlich*, or *Vertrag* alone where the export names
 no interval. The interval follows the same rule as the booking type — the five
 measured words in their German spelling, any other as the export wrote it. It
-does not link to the contract; that comes with the contracts page.
+does not link to the contract; the [contracts page](#the-contracts-page) does.
 
 The purchase time of a card payment is not shown. It exists only inside the
 payment reference, in a bank-specific format, and the reference is shown in
@@ -419,6 +422,36 @@ so the tile has neither; `StatTile` takes a glyph of its own for it instead of
 the trend arrow. Four tiles stand in one row from 1400 px of window width, where
 each keeps the design's 230 px, and two by two below that. Left to fill the row
 on their own, they broke three and one beside the drawer at 1280 px.
+
+## The contracts page
+
+`Pages/Contracts.razor` lists what Finanzguru recognised as a contract,
+described by each contract's newest booking — name, sub-category, day and
+amount — through `ContractOverviewReader`. The design has contracts as a tab of
+its reports, with a next payment date and a price-rise badge; both need a
+forecast, which is a later step, so the page stands on its own in the
+navigation instead.
+
+- **One tile on top**, the average monthly cost: every running spending
+  contract spread over a month by its interval (`Contract.MonthlyAmountInCents`).
+- **The spending contracts in one card**, grouped by interval in
+  `Contracts/ContractTable.razor`: a group row with the interval, the count and
+  the sum, the shortest interval first, the largest amount first within it. An
+  interval word not among the five measured ones gets a group of its own under
+  the word as the export wrote it, and is left out of the monthly cost.
+- **Income and transfer contracts in a card each**, with the interval as a
+  column, since they mix intervals.
+- **Presumably ended contracts** in a native `details` element at the bottom,
+  folded. The rule is `Contract.IsPresumablyEnded`: the newest booking lies
+  more than two intervals before the export date. The export carries no ended
+  or cancelled state — measured in
+  [`finanzguru-export.md`](finanzguru-export.md#what-a-contract-looks-like-and-what-the-app-can-change-about-it)
+  — so the heading says *Vermutlich*.
+- **The name links to the booking list** filtered to the contract,
+  `/bookings?contract=<id>`.
+
+Without an import the page shows an empty state pointing at the import; with
+an import that carries no contract, an empty state saying so.
 
 ## The import page
 
