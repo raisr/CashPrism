@@ -190,9 +190,9 @@ public sealed class BookingsTests
 
             Navigation.NavigateTo("/bookings?page=9");
 
-            Context.Render<BookingsPage>();
+            var page = Context.Render<BookingsPage>();
 
-            Assert.Equal(new BookingPageRequest(25, 25), Reader.Requests[^1]);
+            page.WaitForAssertion(() => Assert.Equal(new BookingPageRequest(25, 25), Reader.Requests[^1]));
             Assert.Equal("page=2", Query);
         }
     }
@@ -208,7 +208,7 @@ public sealed class BookingsTests
             page.FindAll(".cp-seg__opt").Single(button => button.TextContent.Trim() == "Einnahmen").Click();
 
             Assert.Equal("direction=income", Query);
-            Assert.Equal(new BookingFilter(Direction: BookingDirection.Income), Reader.Requests[^1].Filter);
+            page.WaitForAssertion(() => Assert.Equal(new BookingFilter(Direction: BookingDirection.Income), Reader.Requests[^1].Filter));
         }
 
         [Fact]
@@ -227,11 +227,11 @@ public sealed class BookingsTests
         public void Follows_The_Address_When_It_Changes_Underneath_The_Page()
         {
             Reader.Add(Today);
-            Context.Render<BookingsPage>();
+            var page = Context.Render<BookingsPage>();
 
             Navigation.NavigateTo("/bookings?account=Paynet");
 
-            Assert.Equal(new BookingFilter(AccountReference: "Paynet"), Reader.Requests[^1].Filter);
+            page.WaitForAssertion(() => Assert.Equal(new BookingFilter(AccountReference: "Paynet"), Reader.Requests[^1].Filter));
         }
     }
 
@@ -274,9 +274,9 @@ public sealed class BookingsTests
 
             page.Find("th:first-child .cp-sort").Click();
 
-            Assert.Equal(
+            page.WaitForAssertion(() => Assert.Equal(
                 new BookingPageRequest(0, 25, BookingSortColumn.Counterparty, Descending: true),
-                Reader.Requests[^1]);
+                Reader.Requests[^1]));
         }
 
         [Fact]
@@ -288,9 +288,9 @@ public sealed class BookingsTests
             page.Find("th:last-child .cp-sort").Click();
             page.Find("th:last-child .cp-sort").Click();
 
-            Assert.Equal(
+            page.WaitForAssertion(() => Assert.Equal(
                 new BookingPageRequest(0, 25, BookingSortColumn.AmountInCents, Descending: false),
-                Reader.Requests[^1]);
+                Reader.Requests[^1]));
             Assert.Equal("ascending", page.Find("th:last-child").GetAttribute("aria-sort"));
         }
 
@@ -315,9 +315,9 @@ public sealed class BookingsTests
             page.Find("th:last-child .cp-sort").Click();
             page.Find("th:last-child .cp-sort").Click();
 
-            Assert.Equal(
+            page.WaitForAssertion(() => Assert.Equal(
                 new BookingPageRequest(0, 25, BookingSortColumn.BookedOn, Descending: true),
-                Reader.Requests[^1]);
+                Reader.Requests[^1]));
             Assert.NotEmpty(page.FindAll(".cp-table__group"));
         }
     }
@@ -378,6 +378,7 @@ public sealed class BookingsTests
 
             // The sheet took the focus when it opened; the second call is the
             // way back, and it has to land on the row that was clicked.
+            page.WaitForAssertion(() => Context.JSInterop.VerifyFocusAsyncInvoke(calledTimes: 2));
             var focus = Context.JSInterop.VerifyFocusAsyncInvoke(calledTimes: 2)[1];
             var focused = Assert.IsType<ElementReference>(focus.Arguments[0]);
             Assert.Equal(clicked, focused.Id);
@@ -398,7 +399,7 @@ public sealed class BookingsTests
 
             page.FindAll(".cp-pager__page").Single(button => button.TextContent.Trim() == "3").Click();
 
-            Assert.Equal(new BookingPageRequest(50, 25), Reader.Requests[^1]);
+            page.WaitForAssertion(() => Assert.Equal(new BookingPageRequest(50, 25), Reader.Requests[^1]));
         }
 
         [Fact]
@@ -414,7 +415,7 @@ public sealed class BookingsTests
 
             page.Find(".cp-pager select").Change("50");
 
-            Assert.Equal(new BookingPageRequest(0, 50), Reader.Requests[^1]);
+            page.WaitForAssertion(() => Assert.Equal(new BookingPageRequest(0, 50), Reader.Requests[^1]));
         }
 
         [Fact]

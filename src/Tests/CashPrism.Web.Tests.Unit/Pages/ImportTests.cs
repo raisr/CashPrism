@@ -225,7 +225,7 @@ public sealed class ImportTests
         /// everything else.
         /// </summary>
         [Fact]
-        public void Lifts_The_Drop_Zone_Above_The_Overlay_Only_While_An_Import_Runs()
+        public async Task Lifts_The_Drop_Zone_Above_The_Overlay_Only_While_An_Import_Runs()
         {
             var release = new TaskCompletionSource();
             var activity = Context.Services.GetRequiredService<ImportActivity>();
@@ -240,8 +240,8 @@ public sealed class ImportTests
             Assert.NotNull(page.Find(".cp-card--busy .cp-dropzone--busy"));
 
             release.SetResult();
+            Assert.True(await running.WaitAsync(TimeSpan.FromSeconds(10)));
             page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-card--busy")));
-            Assert.True(running.IsCompleted);
         }
 
         /// <summary>
