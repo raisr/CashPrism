@@ -88,6 +88,9 @@ public sealed class ImportRun
     /// <summary>How many rows said nothing the stored booking did not already say.</summary>
     public int BookingsUnchanged { get; private set; }
 
+    /// <summary>How many stored bookings this run removed because its export no longer carried them.</summary>
+    public int BookingsRemoved { get; private set; }
+
     /// <summary>Whether <see cref="Complete"/> has run and the counts are final.</summary>
     public bool IsComplete { get; private set; }
 
@@ -106,14 +109,21 @@ public sealed class ImportRun
     /// <param name="bookingsInserted">How many bookings were stored for the first time.</param>
     /// <param name="bookingsUpdated">How many known bookings were replaced.</param>
     /// <param name="bookingsUnchanged">How many rows changed nothing.</param>
+    /// <param name="bookingsRemoved">How many stored bookings were removed because the export no longer carried them.</param>
     /// <exception cref="ArgumentOutOfRangeException">A count is negative.</exception>
     /// <exception cref="InvalidOperationException">The run was already completed.</exception>
-    public void Complete(int rowsRead, int bookingsInserted, int bookingsUpdated, int bookingsUnchanged)
+    public void Complete(
+        int rowsRead,
+        int bookingsInserted,
+        int bookingsUpdated,
+        int bookingsUnchanged,
+        int bookingsRemoved = 0)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(rowsRead);
         ArgumentOutOfRangeException.ThrowIfNegative(bookingsInserted);
         ArgumentOutOfRangeException.ThrowIfNegative(bookingsUpdated);
         ArgumentOutOfRangeException.ThrowIfNegative(bookingsUnchanged);
+        ArgumentOutOfRangeException.ThrowIfNegative(bookingsRemoved);
 
         if (IsComplete)
         {
@@ -124,6 +134,7 @@ public sealed class ImportRun
         BookingsInserted = bookingsInserted;
         BookingsUpdated = bookingsUpdated;
         BookingsUnchanged = bookingsUnchanged;
+        BookingsRemoved = bookingsRemoved;
         IsComplete = true;
     }
 

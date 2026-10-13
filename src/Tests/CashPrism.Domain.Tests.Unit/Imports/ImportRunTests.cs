@@ -54,13 +54,14 @@ public sealed class ImportRunTests
         {
             var run = Create(exportedOn: null);
 
-            run.Complete(rowsRead: 6324, bookingsInserted: 12, bookingsUpdated: 3, bookingsUnchanged: 6309);
+            run.Complete(rowsRead: 6324, bookingsInserted: 12, bookingsUpdated: 3, bookingsUnchanged: 6309, bookingsRemoved: 72);
 
             Assert.True(run.IsComplete);
             Assert.Equal(6324, run.RowsRead);
             Assert.Equal(12, run.BookingsInserted);
             Assert.Equal(3, run.BookingsUpdated);
             Assert.Equal(6309, run.BookingsUnchanged);
+            Assert.Equal(72, run.BookingsRemoved);
         }
 
         [Fact]
@@ -70,6 +71,15 @@ public sealed class ImportRunTests
 
             Assert.Throws<ArgumentOutOfRangeException>(
                 () => run.Complete(rowsRead: 1, bookingsInserted: -1, bookingsUpdated: 0, bookingsUnchanged: 0));
+        }
+
+        [Fact]
+        public void Refuses_A_Negative_Count_Of_Removed_Bookings()
+        {
+            var run = Create(exportedOn: null);
+
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => run.Complete(rowsRead: 1, bookingsInserted: 0, bookingsUpdated: 0, bookingsUnchanged: 1, bookingsRemoved: -1));
         }
 
         [Fact]

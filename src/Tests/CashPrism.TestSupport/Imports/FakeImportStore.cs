@@ -41,6 +41,9 @@ public sealed class FakeImportStore : IImportStore
         => Task.FromResult(runs.Values
             .FirstOrDefault(run => string.Equals(run.FileHash, fileHash, StringComparison.Ordinal)));
 
+    public Task<IReadOnlyList<ImportRun>> LoadRunsAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<ImportRun>>([.. runs.Values]);
+
     public Task AddRunAsync(ImportRun run, CancellationToken cancellationToken = default)
     {
         runs[run.Id] = run;
@@ -95,6 +98,20 @@ public sealed class FakeImportStore : IImportStore
         rawRows.AddRange(batch.RawRowsToStore);
 
         return Task.CompletedTask;
+    }
+
+    public Task<int> RemoveBookingsExceptAsync(
+        IReadOnlySet<string> carried,
+        CancellationToken cancellationToken = default)
+    {
+        var gone = bookings.Keys.Where(fingerprint => !carried.Contains(fingerprint)).ToList();
+
+        foreach (var fingerprint in gone)
+        {
+            bookings.Remove(fingerprint);
+        }
+
+        return Task.FromResult(gone.Count);
     }
 
     public Task CompleteRunAsync(

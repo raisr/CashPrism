@@ -184,6 +184,129 @@ public sealed class ImporterTests
         }
 
         [Fact]
+        public async Task Removes_A_Booking_The_Latest_Export_No_Longer_Carries()
+        {
+            var store = new FakeImportStore();
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(
+                    new DateOnly(2026, 10, 9),
+                    (AFingerprint, """{"a":1}"""),
+                    (AnotherFingerprint, """{"b":1}""")),
+                content: "the first export");
+
+            var result = await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 12), (AFingerprint, """{"a":1}""")),
+                content: "the later export");
+
+            Assert.Equal([AFingerprint], store.Bookings.Keys);
+            Assert.Equal(1, result.BookingsRemoved);
+            Assert.Equal(1, store.Runs[result.ImportRunId].BookingsRemoved);
+        }
+
+        [Fact]
+        public async Task Keeps_The_Raw_Row_Of_A_Removed_Booking()
+        {
+            var store = new FakeImportStore();
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(
+                    new DateOnly(2026, 10, 9),
+                    (AFingerprint, """{"a":1}"""),
+                    (AnotherFingerprint, """{"b":1}""")),
+                content: "the first export");
+
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 12), (AFingerprint, """{"a":1}""")),
+                content: "the later export");
+
+            Assert.Contains(store.RawRows, row => row.Fingerprint == AnotherFingerprint);
+        }
+
+        [Fact]
+        public async Task Removes_What_A_Second_Export_Of_The_Same_Day_No_Longer_Carries()
+        {
+            var store = new FakeImportStore();
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(
+                    new DateOnly(2026, 10, 12),
+                    (AFingerprint, """{"a":1}"""),
+                    (AnotherFingerprint, """{"b":1}""")),
+                content: "the morning export");
+
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 12), (AFingerprint, """{"a":1}""")),
+                content: "the evening export");
+
+            Assert.Equal([AFingerprint], store.Bookings.Keys);
+        }
+
+        [Fact]
+        public async Task Does_Not_Bring_Back_A_Removed_Booking_From_An_Older_Export()
+        {
+            var store = new FakeImportStore();
+            var older = FakeImportSource.Carrying(
+                new DateOnly(2026, 10, 9),
+                (AFingerprint, """{"a":1}"""),
+                (AnotherFingerprint, """{"b":1}"""));
+            await RunImport(store, older, content: "the first export");
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 12), (AFingerprint, """{"a":1}""")),
+                content: "the later export");
+
+            var result = await RunImport(store, older, content: "the first export, saved again");
+
+            Assert.Equal([AFingerprint], store.Bookings.Keys);
+            Assert.Equal(0, result.BookingsInserted);
+        }
+
+        [Fact]
+        public async Task Does_Not_Store_A_Booking_Only_An_Older_Export_Carries()
+        {
+            var store = new FakeImportStore();
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 12), (AFingerprint, """{"a":1}""")),
+                content: "the later export");
+
+            var result = await RunImport(
+                store,
+                FakeImportSource.Carrying(
+                    new DateOnly(2026, 10, 9),
+                    (AFingerprint, """{"a":1}"""),
+                    (AnotherFingerprint, """{"b":1}""")),
+                content: "the older export");
+
+            Assert.Equal([AFingerprint], store.Bookings.Keys);
+            Assert.Equal((0, 2, 0), (result.BookingsInserted, result.BookingsUnchanged, result.BookingsRemoved));
+        }
+
+        [Fact]
+        public async Task Brings_Back_A_Booking_A_Later_Export_Carries_Again()
+        {
+            var store = new FakeImportStore();
+            (string, string)[] both = [(AFingerprint, """{"a":1}"""), (AnotherFingerprint, """{"b":1}""")];
+            await RunImport(store, FakeImportSource.Carrying(new DateOnly(2026, 10, 9), both), content: "the first export");
+            await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 12), (AFingerprint, """{"a":1}""")),
+                content: "the export that lacks it");
+
+            var result = await RunImport(
+                store,
+                FakeImportSource.Carrying(new DateOnly(2026, 10, 13), both),
+                content: "the export that has it again");
+
+            Assert.Contains(AnotherFingerprint, store.Bookings.Keys);
+            Assert.Equal(1, result.BookingsInserted);
+        }
+
+        [Fact]
         public async Task Falls_Back_To_The_Import_Time_When_An_Export_Carries_No_Date()
         {
             var store = new FakeImportStore();

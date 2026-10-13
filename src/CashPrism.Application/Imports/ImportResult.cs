@@ -13,8 +13,13 @@ namespace CashPrism.Application.Imports;
 /// <param name="BookingsInserted">How many bookings were stored for the first time.</param>
 /// <param name="BookingsUpdated">How many stored bookings were replaced by a later state.</param>
 /// <param name="BookingsUnchanged">
-/// How many rows left the stored booking as it was — either because the row said
-/// the same thing, or because the file turned out to be older than what is stored.
+/// How many rows left the stored bookings as they were — either because the row
+/// said the same thing, or because the file turned out to be older than the
+/// latest export, which alone decides what is stored.
+/// </param>
+/// <param name="BookingsRemoved">
+/// How many stored bookings were removed because this export, the latest, no
+/// longer carries them.
 /// </param>
 /// <param name="UnknownColumns">Header names this version of CashPrism does not know.</param>
 /// <param name="Errors">What is wrong with the file. Empty unless the import failed.</param>
@@ -25,6 +30,7 @@ public sealed record ImportResult(
     int BookingsInserted,
     int BookingsUpdated,
     int BookingsUnchanged,
+    int BookingsRemoved,
     IReadOnlyList<string> UnknownColumns,
     IReadOnlyList<ImportError> Errors)
 {
@@ -37,6 +43,7 @@ public sealed record ImportResult(
     /// <param name="bookingsInserted">How many bookings were new.</param>
     /// <param name="bookingsUpdated">How many were replaced.</param>
     /// <param name="bookingsUnchanged">How many were left as they were.</param>
+    /// <param name="bookingsRemoved">How many stored bookings the export no longer carried.</param>
     /// <param name="unknownColumns">Header names that are not known columns.</param>
     public static ImportResult Imported(
         Guid importRunId,
@@ -44,6 +51,7 @@ public sealed record ImportResult(
         int bookingsInserted,
         int bookingsUpdated,
         int bookingsUnchanged,
+        int bookingsRemoved,
         IReadOnlyList<string> unknownColumns)
     {
         ArgumentNullException.ThrowIfNull(unknownColumns);
@@ -55,6 +63,7 @@ public sealed record ImportResult(
             bookingsInserted,
             bookingsUpdated,
             bookingsUnchanged,
+            bookingsRemoved,
             unknownColumns,
             Errors: []);
     }
@@ -69,6 +78,7 @@ public sealed record ImportResult(
             BookingsInserted: 0,
             BookingsUpdated: 0,
             BookingsUnchanged: 0,
+            BookingsRemoved: 0,
             UnknownColumns: [],
             Errors: []);
 
@@ -91,6 +101,7 @@ public sealed record ImportResult(
             BookingsInserted: 0,
             BookingsUpdated: 0,
             BookingsUnchanged: 0,
+            BookingsRemoved: 0,
             UnknownColumns: [],
             errors);
     }

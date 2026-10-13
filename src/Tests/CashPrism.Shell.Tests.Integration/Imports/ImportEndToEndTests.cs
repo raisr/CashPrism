@@ -1,4 +1,10 @@
+using CashPrism.Application.Bookings;
+using CashPrism.Application.CashFlow;
+using CashPrism.Application.Contracts;
 using CashPrism.Application.Imports;
+using CashPrism.Application.Paging;
+using CashPrism.Domain.Bookings;
+using CashPrism.Domain.Contracts;
 using CashPrism.Infrastructure.Finanzguru;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.TestSupport.Samples;
@@ -231,6 +237,129 @@ public sealed class ImportEndToEndTests
                 context => context.Bookings.SingleAsync(b => b.Fingerprint == AFingerprint));
 
             Assert.Equal("Supermarkt GmbH", booking.Counterparty);
+        }
+    }
+
+    /// <summary>
+    /// Two exports of the same history, the later one without an account the
+    /// owner removed in Finanzguru — measured on two real exports, see
+    /// <c>docs/finanzguru-export.md</c>. Every reader a page is built from is
+    /// asked, because each of them would show the removed booking on its own.
+    /// </summary>
+    public sealed class ALaterExportThatLacksAnAccount
+    {
+        private const string RemovedContract = "b1c2d3e4f5a60718293a4b5c6d7e8f90";
+        private const string KeptContract = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
+
+        private static readonly DateOnly March = new(2026, 3, 1);
+
+        private static Dictionary<string, string> KeptRow()
+        {
+            var row = FinanzguruTestRow.Create(AFingerprint, counterparty: "Supermarkt");
+            row[FinanzguruColumns.IsContract] = "ja";
+            row[FinanzguruColumns.ContractInterval] = "monatlich";
+            row[FinanzguruColumns.ContractId] = KeptContract;
+
+            return row;
+        }
+
+        private static Dictionary<string, string> RemovedRow()
+        {
+            var row = FinanzguruTestRow.Create(AnotherFingerprint, amount: "-25.00", counterparty: "Altbank");
+            row[FinanzguruColumns.AccountReference] = "DE02120300000000909090";
+            row[FinanzguruColumns.AccountName] = "Altes Konto";
+            row[FinanzguruColumns.IsContract] = "ja";
+            row[FinanzguruColumns.ContractInterval] = "monatlich";
+            row[FinanzguruColumns.ContractId] = RemovedContract;
+
+            return row;
+        }
+
+        private static byte[] Export(string exportedOn, params Dictionary<string, string>[] rows)
+            => XlsxTestWorkbook.Build(FinanzguruColumns.All, rows, sheetName: $"{exportedOn}_Export_Alle_Buchungen");
+
+        private static async Task<CashPrismWebApplicationFactory> StartWithBothExportsAsync()
+        {
+            var factory = StartHost();
+            await ImportAsync(factory, Export("20261009", KeptRow(), RemovedRow()));
+            await ImportAsync(factory, Export("20261012", KeptRow()));
+
+            return factory;
+        }
+
+        private static async Task<T> AskAsync<TReader, T>(
+            CashPrismWebApplicationFactory factory,
+            Func<TReader, Task<T>> ask)
+            where TReader : notnull
+        {
+            await using var scope = factory.Services.CreateAsyncScope();
+
+            return await ask(scope.ServiceProvider.GetRequiredService<TReader>());
+        }
+
+        [Fact]
+        public async Task Leaves_Its_Bookings_Out_Of_The_Booking_List()
+        {
+            using var factory = await StartWithBothExportsAsync();
+
+            var page = await AskAsync<IBookingReader, Page<Booking>>(
+                factory,
+                reader => reader.ReadPageAsync(new BookingPageRequest(0, 25)));
+
+            Assert.Equal([AFingerprint], page.Items.Select(booking => booking.Fingerprint));
+        }
+
+        [Fact]
+        public async Task Leaves_Its_Bookings_Out_Of_The_Sums()
+        {
+            using var factory = await StartWithBothExportsAsync();
+
+            var summary = await AskAsync<IBookingReader, BookingSummary>(
+                factory,
+                reader => reader.ReadSummaryAsync(BookingFilter.None));
+
+            Assert.Equal(new BookingSummary(1, 0, 6317), summary);
+        }
+
+        [Fact]
+        public async Task Leaves_Its_Bookings_Out_Of_The_Overview_And_The_Analysis()
+        {
+            using var factory = await StartWithBothExportsAsync();
+
+            var spending = await AskAsync<ICashFlowReader, IReadOnlyList<CounterpartySpending>>(
+                factory,
+                reader => reader.ReadCounterpartySpendingAsync(March, March));
+            var nets = await AskAsync<ICashFlowReader, IReadOnlyList<CategoryNet>>(
+                factory,
+                reader => reader.ReadCategoryNetsAsync(March, March));
+
+            Assert.Equal(["Supermarkt"], spending.Select(entry => entry.Counterparty));
+            Assert.Equal(-6317, nets.Sum(net => net.NetInCents));
+        }
+
+        [Fact]
+        public async Task Leaves_Its_Contract_Out_Of_The_Contracts()
+        {
+            using var factory = await StartWithBothExportsAsync();
+
+            var contracts = await AskAsync<IContractReader, IReadOnlyList<Contract>>(
+                factory,
+                reader => reader.ReadAllAsync());
+
+            Assert.Equal([KeptContract], contracts.Select(contract => contract.ContractId));
+        }
+
+        [Fact]
+        public async Task Does_Not_Get_Them_Back_From_An_Older_Export()
+        {
+            using var factory = await StartWithBothExportsAsync();
+
+            await ImportAsync(factory, Export("20261008", KeptRow(), RemovedRow()));
+
+            var fingerprints = await ReadAsync(
+                factory,
+                context => context.Bookings.Select(booking => booking.Fingerprint).ToListAsync());
+            Assert.Equal([AFingerprint], fingerprints);
         }
     }
 }

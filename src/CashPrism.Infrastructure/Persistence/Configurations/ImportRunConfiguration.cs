@@ -42,6 +42,7 @@ public sealed class ImportRunConfiguration : IEntityTypeConfiguration<ImportRun>
         builder.Property(run => run.BookingsInserted);
         builder.Property(run => run.BookingsUpdated);
         builder.Property(run => run.BookingsUnchanged);
+        builder.Property(run => run.BookingsRemoved);
         builder.Property(run => run.IsComplete);
 
         // The hash exists to recognise a file that has been imported before, so it

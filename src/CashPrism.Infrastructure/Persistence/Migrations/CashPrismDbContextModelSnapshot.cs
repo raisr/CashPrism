@@ -216,6 +216,9 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.Property<int>("BookingsInserted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("BookingsRemoved")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("BookingsUnchanged")
                         .HasColumnType("INTEGER");
 

@@ -21,6 +21,13 @@ public interface IImportStore
     Task<ImportRun?> FindRunByFileHashAsync(string fileHash, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Every run stored so far, complete or not. There is one per imported file,
+    /// so the list stays short however long the history grows.
+    /// </summary>
+    /// <param name="cancellationToken">Cancels the query.</param>
+    Task<IReadOnlyList<ImportRun>> LoadRunsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Stores <paramref name="run"/> before its rows are processed. The rows
     /// reference it, so it has to exist first — which is why its counts are filled
     /// in later by <see cref="CompleteRunAsync"/>.
@@ -46,6 +53,18 @@ public interface IImportStore
     /// <param name="batch">What this batch changes.</param>
     /// <param name="cancellationToken">Cancels the write.</param>
     Task ApplyAsync(ImportBatch batch, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes every stored booking whose fingerprint is not in
+    /// <paramref name="carried"/>. The raw rows stay: they are the record of what
+    /// each export said, and that does not change when a booking goes.
+    /// </summary>
+    /// <param name="carried">The fingerprints of every booking the latest export carries.</param>
+    /// <param name="cancellationToken">Cancels the write.</param>
+    /// <returns>How many bookings were removed.</returns>
+    Task<int> RemoveBookingsExceptAsync(
+        IReadOnlySet<string> carried,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Persists the counts a completed run now carries, together with the
