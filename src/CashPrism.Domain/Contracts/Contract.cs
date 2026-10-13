@@ -34,6 +34,17 @@ public sealed class Contract
     /// </remarks>
     public const int EndedAfterIntervals = 2;
 
+    /// <summary>
+    /// How many days a booking may come after its expected date before the
+    /// contract counts as overdue, the same for every interval.
+    /// </summary>
+    /// <remarks>
+    /// Measured on the maintainer's export: of the contract bookings that came
+    /// later than expected, nearly all came one to four days late, and the few
+    /// beyond five were payments missed outright.
+    /// </remarks>
+    public const int OverdueToleranceInDays = 5;
+
     private static readonly Dictionary<string, int> MonthsPerInterval = new(StringComparer.Ordinal)
     {
         ["monatlich"] = 1,
@@ -141,4 +152,29 @@ public sealed class Contract
     public bool IsPresumablyEnded(DateOnly currentTo)
         => MonthsPerPayment is { } months
             && DateOnly.FromDateTime(NewestBookedOn).AddMonths(months * EndedAfterIntervals) < currentTo;
+
+    /// <summary>
+    /// The day the next booking is expected: the newest booking plus one
+    /// interval in calendar months, so 31 January plus a month is the last day
+    /// of February. <see langword="null"/> where the interval is unknown or the
+    /// contract is presumably ended, since then nothing is expected.
+    /// </summary>
+    /// <param name="currentTo">The date the export is current to.</param>
+    public DateOnly? NextBookingOn(DateOnly currentTo)
+        => MonthsPerPayment is { } months && !IsPresumablyEnded(currentTo)
+            ? DateOnly.FromDateTime(NewestBookedOn).AddMonths(months)
+            : null;
+
+    /// <summary>
+    /// How many days the next booking is past its expected date, once more
+    /// than <see cref="OverdueToleranceInDays"/> have passed without it;
+    /// otherwise <see langword="null"/>. A booking that came would have become
+    /// the newest one and moved the expected date on, so a date in the past
+    /// means it has not come.
+    /// </summary>
+    /// <param name="currentTo">The date the export is current to.</param>
+    public int? DaysOverdue(DateOnly currentTo)
+        => NextBookingOn(currentTo) is { } expected && expected.AddDays(OverdueToleranceInDays) < currentTo
+            ? currentTo.DayNumber - expected.DayNumber
+            : null;
 }
