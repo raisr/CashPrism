@@ -68,6 +68,15 @@ releases and the minor version is bumped for every notable change.
 - The overview lists under *Demnächst* the contract bookings expected in the
   30 days after the export, overdue ones first.
 
+### Fixed
+
+- A booking the latest export no longer carries — for instance because an
+  account was removed in Finanzguru — is now removed on import. Before, it
+  stayed in the booking list, its sums, the overview, the analysis and the
+  contracts while the accounts page no longer showed its account. The import
+  says how many bookings it removed, and importing an older export afterwards
+  does not bring them back.
+
 ## [0.1.0] - 2026-10-10
 
 ### Added

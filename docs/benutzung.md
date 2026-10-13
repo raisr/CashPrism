@@ -403,15 +403,21 @@ enthielt — und darunter vier Zahlen:
 *Neu*, *aktualisiert* und *unverändert* ergeben zusammen die Zahl der gelesenen
 Zeilen.
 
-CashPrism erkennt eine Buchung an der Buchungs-ID, die Finanzguru ihr gibt.
-Deshalb sammeln sich Importe an: Wer jeden Monat exportiert und importiert,
-behält alle Buchungen, auch wenn ein einzelner Export nur einen Zeitraum
-abdeckt. Dieselbe Buchung wird dabei nie doppelt gespeichert.
+Hat der Import Buchungen entfernt, steht darunter eine fünfte Zeile: *… Buchungen
+entfernt, weil der Export sie nicht mehr enthält*. Ohne entfernte Buchung fehlt
+sie.
 
-Welcher Stand einer Buchung gilt, entscheidet das Exportdatum, das Finanzguru
-in den Namen des Tabellenblatts schreibt. Ein älterer Export überschreibt
-nichts: Seine Buchungen zählen als *unverändert*, auch wenn sie anders aussehen
-als die gespeicherten.
+CashPrism erkennt eine Buchung an der Buchungs-ID, die Finanzguru ihr gibt.
+Dieselbe Buchung wird deshalb nie doppelt gespeichert. Jeder Export enthält
+alle deine Buchungen, und CashPrism zeigt genau die des neuesten Exports.
+Fehlt darin eine Buchung, die ein früherer Export noch hatte — etwa weil du in
+Finanzguru ein Konto entfernt hast —, entfernt der Import sie auch hier.
+
+Welcher Export der neueste ist, entscheidet das Exportdatum, das Finanzguru in
+den Namen des Tabellenblatts schreibt. Ein älterer Export ändert nichts: Er
+fügt keine Buchung hinzu, entfernt keine und überschreibt keine. Seine
+Buchungen zählen als *unverändert*, auch wenn sie anders aussehen als die
+gespeicherten.
 
 Meldet der Import *Unbekannte Spalten im Export*, wurde die Datei trotzdem
 eingelesen. Der Hinweis bedeutet, dass Finanzguru das Exportformat geändert hat
@@ -683,7 +689,7 @@ Die Reihenfolge ist fest; die Spalten lassen sich nicht sortieren.
 |---|---|
 | Datei | Der Dateiname beim Hochladen und darunter, wann Finanzguru die Datei erzeugt hat — gelesen aus dem Namen des Tabellenblatts, *Datum unbekannt*, wenn der Name kein Datum enthielt. Ruht der Mauszeiger auf dem Namen, erscheint die Prüfsumme der Datei |
 | Eingelesen | Wann importiert wurde |
-| Neu | Wie viele Buchungen der Import neu gespeichert hat |
+| Neu | Wie viele Buchungen der Import neu gespeichert hat. Hat er Buchungen entfernt, weil der Export sie nicht mehr enthielt, steht ihre Zahl rot daneben, etwa *−72* |
 | Aktualisiert | Wie viele gespeicherte Buchungen er durch einen neueren Stand ersetzt hat |
 | Zeilen gesamt | Wie viele Buchungszeilen die Datei enthielt |
 
