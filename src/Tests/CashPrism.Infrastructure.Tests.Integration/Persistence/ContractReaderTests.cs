@@ -67,7 +67,7 @@ public sealed class ContractReaderTests
 
     public sealed class WithTheDemoExport
     {
-        // Measured from samples/demo-export.xlsx outside CashPrism: 18
+        // Measured from samples/demo-export.xlsx outside CashPrism: 19
         // contracts as of 2026-10-01, the newest booking of each describing it.
         [Fact]
         public async Task Groups_The_Monthly_Contracts_With_Their_Count_And_Sum()
@@ -78,7 +78,7 @@ public sealed class ContractReaderTests
             var overview = await new ContractOverviewReader(new ContractForecastReader(new ContractReader(context), new DismissedOverdueStore(context))).ReadAsync();
             var monthly = overview?.ByInterval.Single(group => group.Interval == "monatlich");
 
-            Assert.Equal((8, -72_287L), (monthly?.Count, monthly?.SumInCents));
+            Assert.Equal((9, -77_277L), (monthly?.Count, monthly?.SumInCents));
         }
 
         [Fact]
@@ -89,7 +89,7 @@ public sealed class ContractReaderTests
 
             var overview = await new ContractOverviewReader(new ContractForecastReader(new ContractReader(context), new DismissedOverdueStore(context))).ReadAsync();
 
-            Assert.Equal(83_001, overview?.MonthlyCostInCents);
+            Assert.Equal(87_991, overview?.MonthlyCostInCents);
         }
 
         [Fact]

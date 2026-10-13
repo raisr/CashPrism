@@ -97,6 +97,14 @@ public static class ContractBookings
             LastDay = plan.Until.AddMonths(-14),
         };
 
+        // The contract that is overdue: its latest payment, due about two
+        // weeks before the export, never came. The day follows the export date
+        // so that every export has it overdue but not yet presumably ended.
+        yield return DirectDebit("Zeitung", "Tageblatt Musterstadt", plan.Until.AddDays(-15).Day, DemoInterval.Monthly, -49_90, new("Freizeit", "Buecher & Zeitungen")) with
+        {
+            LastDay = plan.Until.AddMonths(-1),
+        };
+
         yield return new RecurringPayment
         {
             Name = "Sparen",

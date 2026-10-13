@@ -107,7 +107,7 @@ public sealed class AccountBalanceReaderTests
 
             var balances = await ReadAsync(database);
 
-            Assert.Equal(460_373, balances.Single(balance => balance.AccountName == "Girokonto").BalanceInCents);
+            Assert.Equal(285_723, balances.Single(balance => balance.AccountName == "Girokonto").BalanceInCents);
         }
 
         [Fact]
@@ -117,7 +117,7 @@ public sealed class AccountBalanceReaderTests
 
             var balances = await ReadAsync(database);
 
-            Assert.Equal((7, -11_716_574L), (balances.Count, balances.Sum(balance => balance.BalanceInCents)));
+            Assert.Equal((7, -11_891_224L), (balances.Count, balances.Sum(balance => balance.BalanceInCents)));
         }
     }
 }
