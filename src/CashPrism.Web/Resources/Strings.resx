@@ -579,6 +579,22 @@
     <value>Vermögen auf allen Konten</value>
     <comment>Overview: label of the tile with the total balance of all accounts.</comment>
   </data>
+  <data name="OverviewUpcomingTitle" xml:space="preserve">
+    <value>Demnächst</value>
+    <comment>Overview: title of the card listing the contract bookings expected soon.</comment>
+  </data>
+  <data name="OverviewUpcomingHint" xml:space="preserve">
+    <value>Erwartete Vertragsbuchungen bis {0}</value>
+    <comment>Overview: subtitle of the upcoming card. {0} is the last day the card looks ahead to, a formatted date.</comment>
+  </data>
+  <data name="OverviewUpcomingAll" xml:space="preserve">
+    <value>Alle Verträge</value>
+    <comment>Overview: link from the upcoming card to the contracts page.</comment>
+  </data>
+  <data name="OverviewUpcomingNone" xml:space="preserve">
+    <value>In den nächsten {0} Tagen ist keine Vertragsbuchung fällig.</value>
+    <comment>Overview: the upcoming card when nothing is expected. {0} is the number of days the card looks ahead.</comment>
+  </data>
   <data name="NavAccounts" xml:space="preserve">
     <value>Konten</value>
     <comment>Navigation entry and heading of the accounts page.</comment>
@@ -762,6 +778,18 @@
   <data name="ContractsColumnNewest" xml:space="preserve">
     <value>Letzte Buchung</value>
     <comment>Contracts page: column header for the date of the contract's newest booking.</comment>
+  </data>
+  <data name="ContractsColumnNext" xml:space="preserve">
+    <value>Nächste Buchung</value>
+    <comment>Contracts page: column header for the day the contract's next booking is expected.</comment>
+  </data>
+  <data name="ContractsOverdue" xml:space="preserve">
+    <value>{0} Tage überfällig</value>
+    <comment>Marker on a contract whose expected booking has not come. {0} is the number of days past the expected date — always more than five, so the plural only.</comment>
+  </data>
+  <data name="ContractsOverdueDismiss" xml:space="preserve">
+    <value>Hinweis für {0} ausblenden</value>
+    <comment>Accessible label of the button that dismisses a contract's overdue marker. {0} is the contract's counterparty.</comment>
   </data>
   <data name="ContractsColumnAmount" xml:space="preserve">
     <value>Betrag</value>

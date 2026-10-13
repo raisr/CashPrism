@@ -427,10 +427,10 @@ on their own, they broke three and one beside the drawer at 1280 px.
 
 `Pages/Contracts.razor` lists what Finanzguru recognised as a contract,
 described by each contract's newest booking — name, sub-category, day and
-amount — through `ContractOverviewReader`. The design has contracts as a tab of
-its reports, with a next payment date and a price-rise badge; both need a
-forecast, which is a later step, so the page stands on its own in the
-navigation instead.
+amount — and the day its next booking is expected, through
+`ContractOverviewReader`. The design has contracts as a tab of its reports,
+with a next payment date and a price-rise badge; the page stands on its own in
+the navigation instead, and has no price-rise badge.
 
 - **One tile on top**, the average monthly cost: every running spending
   contract spread over a month by its interval (`Contract.MonthlyAmountInCents`).
@@ -449,9 +449,28 @@ navigation instead.
   — so the heading says *Vermutlich*.
 - **The name links to the booking list** filtered to the contract,
   `/bookings?contract=<id>`.
+- **The next booking** is a column of its own, *Nächste Buchung*, holding the
+  date only: the amount expected is the newest booking's, which the amount
+  column already shows. The rule is `Contract.NextBookingOn`, the newest
+  booking plus one interval in calendar months; the folded section of
+  presumably ended contracts has no such column.
+- **The overdue marker** sits under that date, a danger badge reading *x Tage
+  überfällig* once the date lies more than `Contract.OverdueToleranceInDays`
+  before the export date. Its ✕ dismisses it through `OverdueDismisser`, stored
+  per contract and expected date in `DismissedOverdues` — CashPrism's own
+  state, since the export knows nothing of it. `ContractForecastReader` drops
+  the marker for a dismissed date, so the next overdue date shows it again.
 
 Without an import the page shows an empty state pointing at the import; with
 an import that carries no contract, an empty state saying so.
+
+The overview reads the same forecasts through `UpcomingContractsReader` and
+lists them under its panels in `Overview/UpcomingContractsCard.razor`,
+*Demnächst*: every next booking expected up to 30 days after the export date,
+including one already due but within the tolerance, and every overdue one whose
+marker was not dismissed — overdue first, the rest by date. The card only
+reads; a marker is dismissed on the contracts page, which its head links to.
+Forecast rows never enter the booking list, which mirrors the export.
 
 ## The import page
 
@@ -562,8 +581,8 @@ and nothing happened.
 ## The settings page
 
 `Pages/Settings.razor` at `/settings` holds one card today: *Daten*, with
-*Alle Daten löschen*. It deletes every booking, raw row and import run through
-`IDataEraser`, which compacts the SQLite file afterwards (see
+*Alle Daten löschen*. It deletes every booking, raw row, import run and
+dismissed overdue marker through `IDataEraser`, which compacts the SQLite file afterwards (see
 `Persistence/DataEraser.cs`). The account groups stay unless the checkbox
 *Kontogruppen ebenfalls löschen* in the question is ticked; it is unticked
 every time the question is asked, since the groups are the one thing no export

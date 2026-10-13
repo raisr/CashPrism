@@ -1,6 +1,7 @@
 using CashPrism.Domain.Access;
 using CashPrism.Domain.Accounts;
 using CashPrism.Domain.Bookings;
+using CashPrism.Domain.Contracts;
 using CashPrism.Domain.Imports;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace CashPrism.Infrastructure.Persistence;
 /// <summary>
 /// The database. One SQLite file on local disk, holding the bookings, the import
 /// runs with the raw rows and account balances they brought, the account groups,
-/// and the hash of the shared password.
+/// the dismissed overdue markers and the hash of the shared password.
 /// </summary>
 /// <remarks>
 /// The models carry no persistence attributes: everything the database needs to
@@ -44,6 +45,9 @@ public sealed class CashPrismDbContext : DbContext
 
     /// <summary>Which account is in which group.</summary>
     public DbSet<AccountAssignment> AccountAssignments => Set<AccountAssignment>();
+
+    /// <summary>The overdue markers the person dismissed, at most one per contract.</summary>
+    public DbSet<DismissedOverdue> DismissedOverdues => Set<DismissedOverdue>();
 
     /// <summary>The shared password, as a hash. At most one row.</summary>
     public DbSet<Credential> Credentials => Set<Credential>();

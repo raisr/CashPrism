@@ -82,4 +82,59 @@ public sealed class ContractTests
         public void Unknown_Interval_Is_Never_Ended()
             => Assert.False(Create("woechentlich", newestBookedOn: new DateTime(2000, 1, 1)).IsPresumablyEnded(CurrentTo));
     }
+
+    public sealed class NextBookingOn
+    {
+        private static readonly DateOnly CurrentTo = new(2026, 10, 13);
+
+        [Theory]
+        [InlineData("monatlich", 2026, 11, 1)]
+        [InlineData("zweimonatlich", 2026, 12, 1)]
+        [InlineData("vierteljaehrlich", 2027, 1, 1)]
+        [InlineData("halbjaehrlich", 2027, 4, 1)]
+        [InlineData("jaehrlich", 2027, 10, 1)]
+        public void Known_Interval_Adds_Its_Months_To_The_Newest_Booking(string interval, int year, int month, int day)
+            => Assert.Equal(new DateOnly(year, month, day), Create(interval, newestBookedOn: new DateTime(2026, 10, 1)).NextBookingOn(CurrentTo));
+
+        [Fact]
+        public void Month_End_Falls_Back_To_The_Last_Day_Of_A_Shorter_Month()
+            => Assert.Equal(new DateOnly(2027, 2, 28), Create("monatlich", newestBookedOn: new DateTime(2027, 1, 31)).NextBookingOn(new DateOnly(2027, 2, 1)));
+
+        [Fact]
+        public void Time_Of_Day_On_The_Booking_Is_Ignored()
+            => Assert.Equal(new DateOnly(2026, 11, 1), Create("monatlich", newestBookedOn: new DateTime(2026, 10, 1, 23, 0, 0)).NextBookingOn(CurrentTo));
+
+        [Fact]
+        public void Unknown_Interval_Has_No_Next_Booking()
+            => Assert.Null(Create("woechentlich").NextBookingOn(CurrentTo));
+
+        [Fact]
+        public void Presumably_Ended_Contract_Has_No_Next_Booking()
+            => Assert.Null(Create("monatlich", newestBookedOn: new DateTime(2026, 8, 12)).NextBookingOn(CurrentTo));
+    }
+
+    public sealed class DaysOverdue
+    {
+        private static readonly DateTime NewestBookedOn = new(2026, 9, 1);
+
+        [Fact]
+        public void Booking_Expected_In_The_Future_Is_Not_Overdue()
+            => Assert.Null(Create(newestBookedOn: NewestBookedOn).DaysOverdue(new DateOnly(2026, 9, 30)));
+
+        [Fact]
+        public void Booking_Exactly_Five_Days_Past_Its_Date_Is_Not_Overdue()
+            => Assert.Null(Create(newestBookedOn: NewestBookedOn).DaysOverdue(new DateOnly(2026, 10, 6)));
+
+        [Fact]
+        public void Booking_Six_Days_Past_Its_Date_Is_Six_Days_Overdue()
+            => Assert.Equal(6, Create(newestBookedOn: NewestBookedOn).DaysOverdue(new DateOnly(2026, 10, 7)));
+
+        [Fact]
+        public void Unknown_Interval_Is_Never_Overdue()
+            => Assert.Null(Create("woechentlich", newestBookedOn: NewestBookedOn).DaysOverdue(new DateOnly(2026, 10, 30)));
+
+        [Fact]
+        public void Presumably_Ended_Contract_Is_Not_Overdue()
+            => Assert.Null(Create(newestBookedOn: NewestBookedOn).DaysOverdue(new DateOnly(2026, 11, 2)));
+    }
 }

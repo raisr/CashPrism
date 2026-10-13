@@ -38,13 +38,16 @@ public sealed class ContractsTests
         // implement IAsyncDisposable.
         public async Task DisposeAsync() => await Context.DisposeAsync();
 
+        protected FakeDismissedOverdueStore Dismissals { get; } = new();
+
         protected IRenderedComponent<ContractsPage> Render(DateOnly? currentTo, params Contract[] contracts)
         {
             Context.JSInterop.Mode = JSRuntimeMode.Loose;
             Context.Services.AddLocalization();
             Context.Services.AddMudServices();
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
-            Context.Services.AddSingleton(new ContractOverviewReader(new FakeContractReader(currentTo, contracts)));
+            Context.Services.AddSingleton(new ContractOverviewReader(new ContractForecastReader(new FakeContractReader(currentTo, contracts), Dismissals)));
+            Context.Services.AddSingleton(new OverdueDismisser(Dismissals));
 
             return Context.Render<ContractsPage>();
         }
@@ -102,6 +105,63 @@ public sealed class ContractsTests
             var page = Render(ExportedOn, Make("Altvertrag", -2_000, newestBookedOn: new DateTime(2025, 1, 1)));
 
             Assert.False(page.Find("details.cp-contracts__ended").HasAttribute("open"));
+        }
+
+        [Fact]
+        public void Shows_The_Day_The_Next_Booking_Is_Expected()
+        {
+            var page = Render(ExportedOn, Make("Stadtwerke", -9_000, newestBookedOn: new DateTime(2026, 10, 1)));
+
+            Assert.Equal("01.11.2026", page.Find("tbody tr:not(.cp-table__group) td:nth-child(3) .cp-figure").TextContent);
+        }
+
+        [Fact]
+        public void Marks_An_Overdue_Contract_With_Its_Days()
+        {
+            var page = Render(ExportedOn, Make("Stadtwerke", -9_000, newestBookedOn: new DateTime(2026, 9, 1)));
+
+            Assert.Equal("12 Tage überfällig", page.Find(".cp-contracts__overdue").TextContent.Trim());
+        }
+
+        [Fact]
+        public void Leaves_The_Expected_Day_Out_For_A_Presumably_Ended_Contract()
+        {
+            var page = Render(ExportedOn, Make("Altvertrag", -2_000, newestBookedOn: new DateTime(2025, 1, 1)));
+
+            Assert.DoesNotContain("Nächste Buchung", page.FindAll("th").Select(header => header.TextContent));
+        }
+    }
+
+    public sealed class DismissAsync : PageTest
+    {
+        [Fact]
+        public void Takes_The_Marker_Away()
+        {
+            var page = Render(ExportedOn, Make("Stadtwerke", -9_000, newestBookedOn: new DateTime(2026, 9, 1)));
+
+            page.Find(".cp-contracts__dismiss").Click();
+
+            Assert.Empty(page.FindAll(".cp-contracts__overdue"));
+        }
+
+        [Fact]
+        public void Stores_The_Dismissal_For_The_Expected_Day()
+        {
+            var page = Render(ExportedOn, Make("Stadtwerke", -9_000, newestBookedOn: new DateTime(2026, 9, 1)));
+
+            page.Find(".cp-contracts__dismiss").Click();
+
+            Assert.Equal(
+                [("0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f", new DateOnly(2026, 10, 1))],
+                Dismissals.Stored.Select(dismissal => (dismissal.ContractId, dismissal.ExpectedOn)));
+        }
+
+        [Fact]
+        public void Names_The_Contract_On_The_Button()
+        {
+            var page = Render(ExportedOn, Make("Stadtwerke", -9_000, newestBookedOn: new DateTime(2026, 9, 1)));
+
+            Assert.Equal("Hinweis für Stadtwerke ausblenden", page.Find(".cp-contracts__dismiss").GetAttribute("aria-label"));
         }
     }
 }

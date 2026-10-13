@@ -1,8 +1,11 @@
 using Bunit;
 using CashPrism.Application.Accounts;
 using CashPrism.Application.CashFlow;
+using CashPrism.Application.Contracts;
+using CashPrism.Domain.Contracts;
 using CashPrism.TestSupport.Accounts;
 using CashPrism.TestSupport.CashFlow;
+using CashPrism.TestSupport.Contracts;
 using CashPrism.Web.Localisation;
 using CashPrism.Web.Overview;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +32,8 @@ public sealed class HomeTests
 
         protected FakeAccountBalanceReader Balances { get; } = new();
 
+        protected List<Contract> Contracts { get; } = [];
+
         public Task InitializeAsync() => Task.CompletedTask;
 
         // Asynchronously, because MudBlazor registers services that only
@@ -43,6 +48,9 @@ public sealed class HomeTests
             Context.Services.AddScoped<MudLocalizer, ResourceMudLocalizer>();
             Context.Services.AddSingleton(new CashFlowOverviewReader(reader));
             Context.Services.AddSingleton(new AccountOverviewReader(Balances));
+            Context.Services.AddSingleton(new UpcomingContractsReader(new ContractForecastReader(
+                new FakeContractReader(ExportedOn, [.. Contracts]),
+                new FakeDismissedOverdueStore())));
 
             return Context.Render<HomePage>();
         }
@@ -64,6 +72,16 @@ public sealed class HomeTests
 
     public sealed class OnInitializedAsync : PageTest
     {
+        [Fact]
+        public void Lists_The_Contract_Bookings_Expected_Soon()
+        {
+            Contracts.Add(new Contract("0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f", "monatlich", "Stadtwerke", "Wohnen", "Strom", -9_000, "EUR", new DateTime(2026, 9, 15), false));
+
+            var page = RenderWith(new MonthlyCashFlow(September, 400000, 250000), new MonthlyCashFlow(August, 400000, 250000));
+
+            Assert.Equal(["Stadtwerke"], page.FindAll(".cp-upcoming .cp-party__name").Select(name => name.TextContent));
+        }
+
         [Fact]
         public void Shows_The_Empty_State_When_Nothing_Was_Imported()
         {

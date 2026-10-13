@@ -296,6 +296,15 @@ Buchung vom frei verfügbaren Einkommen ausnimmt, spielt hier keine Rolle.
   Buchungen dieser Kategorie in diesem Monat, Umbuchungen ausgeblendet; ihr
   *Saldo* ist dann genau der Betrag aus dem Ring. *Übrige* öffnet nichts, weil
   es für mehrere Kategorien steht.
+- **Demnächst:** die Vertragsbuchungen, die in den 30 Tagen nach dem Export
+  erwartet werden, mit Tag und Betrag — wie die Spalte *Nächste Buchung* auf
+  der Seite [Verträge](#die-verträge) sie berechnet. Überfällige Buchungen
+  stehen oben, die am längsten überfälligen zuerst, darunter der Rest nach
+  Datum. Auch eine Buchung, die schon fällig, aber noch nicht überfällig ist,
+  steht hier. Einen Hinweis ausblenden kannst du nur auf *Verträge*; *Alle
+  Verträge* führt dorthin.
+
+![Die Karte Demnächst mit den Vertragsbuchungen der nächsten 30 Tage, je mit Tag und Betrag](images/benutzung/demnaechst.png)
 
 ## Die Analyse
 
@@ -618,7 +627,7 @@ Schalter wieder aus, siehst du die Karten in ihrer neuen Ordnung.
 
 ## Die Verträge
 
-![Die Verträge: oben die durchschnittlichen Vertragskosten im Monat, darunter die regelmäßigen Ausgaben nach Rhythmus gruppiert](images/benutzung/vertraege.png)
+![Die Verträge: oben die durchschnittlichen Vertragskosten im Monat, darunter die regelmäßigen Ausgaben nach Rhythmus gruppiert, je Vertrag mit der nächsten erwarteten Buchung](images/benutzung/vertraege.png)
 
 *Verträge* zeigt, was Finanzguru in deinen Buchungen als Vertrag erkannt hat —
 dieselben Verträge, die du in der App siehst. CashPrism erkennt selbst nichts
@@ -634,15 +643,28 @@ und ändert nichts daran.
   einem eigenen Abschnitt, etwa dein Gehalt oder die monatliche Sparrate auf
   ein eigenes Konto.
 - **Eine Zeile** zeigt den Namen, die Unterkategorie, den Tag der letzten
-  Buchung und ihren Betrag. Ändert sich der Betrag eines Vertrags, steht hier
-  der neueste. Ein Klick auf den Namen öffnet die
-  [Buchungsliste](#die-buchungsliste) mit allen Buchungen dieses Vertrags.
+  Buchung, den Tag der nächsten und den Betrag der letzten. Ändert sich der
+  Betrag eines Vertrags, steht hier der neueste. Ein Klick auf den Namen
+  öffnet die [Buchungsliste](#die-buchungsliste) mit allen Buchungen dieses
+  Vertrags.
+- **Nächste Buchung:** der Tag der letzten Buchung plus der Rhythmus des
+  Vertrags in Kalendermonaten — bei einem monatlichen Vertrag vom 31. Januar
+  also der letzte Tag im Februar. CashPrism erwartet denselben Betrag wie bei
+  der letzten Buchung. Der Export enthält keine Vorhersage; das ist
+  berechnet, so wie es auch die App tut.
+- **Überfällig:** Ist die nächste Buchung mehr als 5 Tage nach ihrem Tag
+  ausgeblieben, gemessen am Datum des Exports, steht darunter *x Tage
+  überfällig*. Die 5 Tage gelten für jeden Rhythmus: Vertragsbuchungen kommen
+  oft ein paar Tage später als erwartet, aber kaum je später als vier Tage.
+  Mit dem ✕ im Hinweis blendest du ihn aus — nur für diesen erwarteten Tag.
+  Bleibt auch die übernächste Buchung aus, erscheint der Hinweis wieder.
 - **Vermutlich beendet** steht ganz unten und ist zugeklappt. Dort landet ein
   Vertrag, bei dem mindestens zwei fällige Zahlungen ausgeblieben sind: bei
   einem monatlichen Vertrag also, wenn die letzte Buchung mehr als zwei Monate
   vor dem Export liegt. Finanzguru meldet im Export kein Vertragsende, deshalb
   ist das nur abgeleitet. Kommt wieder eine Buchung, steht der Vertrag wieder
-  oben.
+  oben. Von einem vermutlich beendeten Vertrag erwartet CashPrism keine
+  Buchung mehr.
 
 **Einen Vertrag entfernen oder kündigen** machst du in Finanzguru. Entfernst du
 dort einen Vertrag, ist er nach dem nächsten Import auch hier verschwunden.
@@ -673,8 +695,9 @@ löschen noch wiederholen, und ein Import lässt sich nicht rückgängig machen.
 
 ![Die Einstellungen mit der Rückfrage vor dem Löschen aller Daten](images/benutzung/alle-daten-loeschen.png)
 
-Unter *Einstellungen* löscht *Alle Daten löschen* jede gespeicherte Buchung
-und jeden bisherigen Import. Danach baut ein neuer Import alles wieder auf, denn
+Unter *Einstellungen* löscht *Alle Daten löschen* jede gespeicherte Buchung,
+jeden bisherigen Import und jeden ausgeblendeten Hinweis auf einen
+[überfälligen Vertrag](#die-verträge). Danach baut ein neuer Import alles wieder auf, denn
 jeder Finanzguru-Export enthält deine ganze Historie. Das ist der Weg, wenn eine
 neue Version von CashPrism mehr aus dem Export speichert als die alte: löschen,
 dann den neuesten Export importieren.

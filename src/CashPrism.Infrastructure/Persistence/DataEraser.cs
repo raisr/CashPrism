@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 namespace CashPrism.Infrastructure.Persistence;
 
 /// <summary>
-/// Empties the tables an import writes — and, when asked, the account groups —
-/// and compacts the SQLite file.
+/// Empties the tables an import writes and the dismissed overdue markers — and,
+/// when asked, the account groups — and compacts the SQLite file.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -52,6 +52,7 @@ public sealed class DataEraser : IDataEraser
             await context.AccountBalances.ExecuteDeleteAsync(cancellationToken);
             await context.Bookings.ExecuteDeleteAsync(cancellationToken);
             await context.ImportRuns.ExecuteDeleteAsync(cancellationToken);
+            await context.DismissedOverdues.ExecuteDeleteAsync(cancellationToken);
 
             if (includeAccountGroups)
             {

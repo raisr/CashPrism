@@ -1,10 +1,9 @@
-using CashPrism.Domain.Contracts;
-
 namespace CashPrism.Application.Contracts;
 
 /// <summary>
 /// Reads the <see cref="ContractOverview"/>: the contracts sorted into the
-/// sections the contracts page shows, and what they cost a month.
+/// sections the contracts page shows, each with its forecast, and what they
+/// cost a month.
 /// </summary>
 /// <remarks>
 /// Every contract lands in exactly one section. One whose bookings have
@@ -14,11 +13,11 @@ namespace CashPrism.Application.Contracts;
 /// </remarks>
 public sealed class ContractOverviewReader
 {
-    private readonly IContractReader reader;
+    private readonly ContractForecastReader reader;
 
     /// <summary>Creates the use case.</summary>
-    /// <param name="reader">Reads the stored contracts.</param>
-    public ContractOverviewReader(IContractReader reader)
+    /// <param name="reader">Reads the contracts with their forecasts.</param>
+    public ContractOverviewReader(ContractForecastReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
 
@@ -32,27 +31,28 @@ public sealed class ContractOverviewReader
     /// <param name="cancellationToken">Cancels the queries.</param>
     public async Task<ContractOverview?> ReadAsync(CancellationToken cancellationToken = default)
     {
-        if (await reader.ReadCurrentToAsync(cancellationToken) is not { } currentTo)
+        if (await reader.ReadAsync(cancellationToken) is not { } forecasts)
         {
             return null;
         }
 
-        var contracts = await reader.ReadAllAsync(cancellationToken);
+        var currentTo = forecasts.CurrentTo;
+        var contracts = forecasts.Contracts;
 
-        var ended = contracts.Where(contract => contract.IsPresumablyEnded(currentTo)).ToList();
+        var ended = contracts.Where(forecast => forecast.Contract.IsPresumablyEnded(currentTo)).ToList();
         var running = contracts.Except(ended).ToList();
-        var transfers = running.Where(contract => contract.IsTransfer).ToList();
-        var income = running.Where(contract => !contract.IsTransfer && contract.IsIncome).ToList();
-        var spending = running.Where(contract => !contract.IsTransfer && !contract.IsIncome).ToList();
+        var transfers = running.Where(forecast => forecast.Contract.IsTransfer).ToList();
+        var income = running.Where(forecast => !forecast.Contract.IsTransfer && forecast.Contract.IsIncome).ToList();
+        var spending = running.Where(forecast => !forecast.Contract.IsTransfer && !forecast.Contract.IsIncome).ToList();
 
         var byInterval = spending
-            .GroupBy(contract => contract.Interval, StringComparer.Ordinal)
-            .OrderBy(group => group.First().MonthsPerPayment ?? int.MaxValue)
+            .GroupBy(forecast => forecast.Contract.Interval, StringComparer.Ordinal)
+            .OrderBy(group => group.First().Contract.MonthsPerPayment ?? int.MaxValue)
             .ThenBy(group => group.Key, StringComparer.Ordinal)
             .Select(group => new ContractGroup(group.Key, LargestFirst(group)))
             .ToList();
 
-        var monthlyCostInCents = -spending.Sum(contract => contract.MonthlyAmountInCents ?? 0);
+        var monthlyCostInCents = -spending.Sum(forecast => forecast.Contract.MonthlyAmountInCents ?? 0);
 
         return new ContractOverview(
             currentTo,
@@ -60,11 +60,11 @@ public sealed class ContractOverviewReader
             byInterval,
             new ContractGroup(null, LargestFirst(income)),
             new ContractGroup(null, LargestFirst(transfers)),
-            new ContractGroup(null, [.. ended.OrderByDescending(contract => contract.NewestBookedOn)]));
+            new ContractGroup(null, [.. ended.OrderByDescending(forecast => forecast.Contract.NewestBookedOn)]));
     }
 
-    private static List<Contract> LargestFirst(IEnumerable<Contract> contracts)
+    private static List<ContractForecast> LargestFirst(IEnumerable<ContractForecast> contracts)
         => [.. contracts
-            .OrderByDescending(contract => Math.Abs(contract.AmountInCents))
-            .ThenBy(contract => contract.Counterparty, StringComparer.CurrentCulture)];
+            .OrderByDescending(forecast => Math.Abs(forecast.Contract.AmountInCents))
+            .ThenBy(forecast => forecast.Contract.Counterparty, StringComparer.CurrentCulture)];
 }

@@ -1948,6 +1948,19 @@
   }
 }
 
+/* The upcoming contract bookings run the full width under the panels. */
+.cp-upcoming {
+  margin-top: var(--cp-grid-gap);
+}
+
+.cp-upcoming__none {
+  color: var(--cp-text-2);
+}
+
+.cp-upcoming__overdue {
+  margin-top: 4px;
+}
+
 .cp-overview__lead-figure {
   font-weight: 700;
 }
@@ -2639,6 +2652,25 @@ button.cp-tx {
 .cp-contracts__link:hover .cp-party__name,
 .cp-contracts__link:focus-visible .cp-party__name {
   text-decoration: underline;
+}
+
+/* The overdue marker sits under the expected date and carries the button
+   that dismisses it: an icon button shrunk to the badge, in its colour. */
+.cp-contracts__overdue {
+  margin-top: 4px;
+  padding-inline-end: 3px;
+}
+
+.cp-contracts__dismiss {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: inherit;
+}
+
+.cp-contracts__dismiss:hover {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+  color: inherit;
 }
 
 /* The presumably ended contracts start folded: the whole head opens them,
