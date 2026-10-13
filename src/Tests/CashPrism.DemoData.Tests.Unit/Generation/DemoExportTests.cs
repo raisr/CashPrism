@@ -82,6 +82,14 @@ public sealed class DemoExportTests
                 contract => contract.Max(booking => booking.Date) < Until.AddYears(-1).ToDateTime(TimeOnly.MinValue));
 
         [Fact]
+        public void Has_Exactly_One_Contract_That_Is_Overdue_But_Not_Presumably_Ended()
+            => Assert.Single(
+                Bookings.Where(booking => booking.Contract is not null).GroupBy(booking => booking.Contract!),
+                contract => IsOverdueButNotEnded(
+                    DateOnly.FromDateTime(contract.Max(booking => booking.Date)),
+                    contract.Key.Interval.Months));
+
+        [Fact]
         public void Books_Every_Transfer_As_A_Pair_Between_Two_Own_Accounts()
             => Assert.All(
                 Bookings.Where(booking => booking.IsInternalTransfer),
@@ -187,5 +195,14 @@ public sealed class DemoExportTests
             => Assert.All(Rows, row => Assert.Equal(
                 row.Booking.AmountInCents > 0 ? "Einnahmen" : "Ausgaben",
                 row.AmountDirection));
+
+        /// <summary>
+        /// The overdue and presumably-ended rules of <c>Contract</c> in
+        /// <c>CashPrism.Domain</c>, restated for the export date: the next
+        /// booking is more than five days late, and fewer than two intervals
+        /// have passed since the newest one.
+        /// </summary>
+        private static bool IsOverdueButNotEnded(DateOnly newest, int months)
+            => newest.AddMonths(months).AddDays(5) < Until && newest.AddMonths(months * 2) >= Until;
     }
 }

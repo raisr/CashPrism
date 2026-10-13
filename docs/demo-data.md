@@ -54,6 +54,10 @@ test in `CashPrism.DemoData.Tests.Unit`:
   `vierteljaehrlich`, `halbjaehrlich`, `jaehrlich` — each with a 32-hex
   `Analyse-Vertrags-ID`. Salary and child benefit are income contracts, and a
   streaming subscription ends fourteen months before the export.
+- **One overdue contract**: a newspaper subscription misses its latest
+  payment, due about two weeks before the export, so it is overdue at the
+  export date but not yet presumably ended. Its booking day follows `--until`,
+  which keeps it so for every export date.
 - **Transfers** between the household's own accounts come as pairs: the same
   day, the same amount with opposite signs, both flagged in
   `Analyse-Umbuchung`. That covers the savings, the joint account, the
