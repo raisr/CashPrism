@@ -22,9 +22,10 @@ Your data stays with you. No cloud, no account, no signing up anywhere.
 
 ## Imports accumulate
 
-Every import adds to your history instead of replacing it, so you can export and
-import every month and keep years of bookings even though a single export only
-covers a time window.
+Every Finanzguru export carries your complete history, and CashPrism shows the
+bookings of the latest one you imported: a booking Finanzguru no longer has —
+because you removed an account in the app, say — disappears here too, while an
+older export changes nothing.
 
 A booking is matched across exports by the identifier Finanzguru gives it, so
 re-importing the same export changes nothing. If a booking was edited in

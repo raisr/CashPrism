@@ -115,13 +115,20 @@ public static class ImportFeedback
 
     private static ImportFeedbackMessage Imported(ImportResult result, IStringLocalizer<Strings> text)
     {
-        var details = new List<string>(5)
+        var details = new List<string>(6)
         {
             text["ImportCountRowsRead", result.RowsRead],
             text["ImportCountInserted", result.BookingsInserted],
             text["ImportCountUpdated", result.BookingsUpdated],
             text["ImportCountUnchanged", result.BookingsUnchanged],
         };
+
+        // Removing a booking is rare — it takes a removal in Finanzguru — so the
+        // line appears only when it happened, and then it is not left out.
+        if (result.BookingsRemoved > 0)
+        {
+            details.Add(text["ImportCountRemoved", result.BookingsRemoved]);
+        }
 
         // A column we do not know is not a failure — the import stored the row
         // regardless — but it is the one thing on this page worth telling

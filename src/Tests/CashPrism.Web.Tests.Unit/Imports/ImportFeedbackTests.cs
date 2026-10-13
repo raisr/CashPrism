@@ -49,6 +49,7 @@ public sealed class ImportFeedbackTests
             int inserted = 1,
             int updated = 1,
             int unchanged = 1,
+            int removed = 0,
             IReadOnlyList<string>? unknownColumns = null)
             => ImportResult.Imported(
                 Guid.NewGuid(),
@@ -56,6 +57,7 @@ public sealed class ImportFeedbackTests
                 inserted,
                 updated,
                 unchanged,
+                removed,
                 unknownColumns ?? []);
 
         [Fact]
@@ -75,6 +77,15 @@ public sealed class ImportFeedbackTests
             Assert.Contains(message.Details, d => d.Contains("6324", StringComparison.Ordinal));
             Assert.Contains(message.Details, d => d.Contains("12", StringComparison.Ordinal));
             Assert.Contains(message.Details, d => d.Contains("6309", StringComparison.Ordinal));
+        }
+
+        [Fact]
+        public void Adds_A_Line_For_The_Bookings_The_Export_No_Longer_Carries()
+        {
+            var message = ImportFeedback.Describe(Imported(removed: 72), Text());
+
+            Assert.Equal(5, message.Details.Count);
+            Assert.Equal("72 Buchungen entfernt, weil der Export sie nicht mehr enthält", message.Details[^1]);
         }
 
         /// <summary>

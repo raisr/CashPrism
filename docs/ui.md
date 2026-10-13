@@ -492,6 +492,9 @@ the four counts beneath it; "Diese Datei kennen wir schon" when the file was
 imported before; "Das ist keine Finanzguru-Datei" with the reasons it was
 refused. An import that brought nothing new but may have updated bookings
 reads "Fertig! Keine neuen Buchungen." rather than counting zero new ones.
+A fifth line counts the bookings the import removed because the latest export
+no longer carries them, and only when there were any; the list of past imports
+shows the same count as a red badge beside the new ones, likewise only then.
 
 The decisions below are not visible in what the page renders.
 

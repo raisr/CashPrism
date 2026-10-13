@@ -43,6 +43,13 @@ public sealed class ImportStore : IImportStore
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<ImportRun>> LoadRunsAsync(CancellationToken cancellationToken = default)
+        => await context.ImportRuns
+            .AsNoTracking()
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
     public async Task AddRunAsync(ImportRun run, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(run);
@@ -121,6 +128,38 @@ public sealed class ImportStore : IImportStore
 
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         context.ChangeTracker.Clear();
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The difference is taken in memory: a fingerprint is 40 characters, so
+    /// even a long history fits easily, whereas a query listing every carried
+    /// fingerprint would run into the limit on parameters a statement may take.
+    /// The removal then goes a batch of <see cref="Importer.BatchSize"/> at a time.
+    /// </remarks>
+    public async Task<int> RemoveBookingsExceptAsync(
+        IReadOnlySet<string> carried,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(carried);
+
+        var stored = await context.Bookings
+            .AsNoTracking()
+            .Select(booking => booking.Fingerprint)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var removed = 0;
+
+        foreach (var batch in stored.Where(fingerprint => !carried.Contains(fingerprint)).Chunk(Importer.BatchSize))
+        {
+            removed += await context.Bookings
+                .Where(booking => batch.Contains(booking.Fingerprint))
+                .ExecuteDeleteAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return removed;
     }
 
     /// <inheritdoc />

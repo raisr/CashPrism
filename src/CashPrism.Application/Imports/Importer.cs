@@ -8,14 +8,22 @@ namespace CashPrism.Application.Imports;
 
 /// <summary>
 /// Imports a file of bookings: additive for the import runs and the raw rows,
-/// projective for the bookings.
+/// projective for the bookings — the stored bookings are those of the latest
+/// export, no more and no fewer.
 /// </summary>
 /// <remarks>
 /// <para>
 /// The rules it applies are measurements of real exports, written down in
 /// <c>docs/finanzguru-export.md</c>. In short: a booking is identified by its
-/// fingerprint, a known booking is replaced only by a later export, and a raw row
-/// is stored only where something actually changed.
+/// fingerprint, a known booking is replaced only by a later export, a booking the
+/// latest export no longer carries is removed, and a raw row is stored only where
+/// something actually changed.
+/// </para>
+/// <para>
+/// Since every export carries the owner's complete history, the latest one alone
+/// says which bookings exist. An older export can therefore add nothing to it:
+/// a booking the older file has and the store lacks is one the latest export
+/// dropped, and bringing it back would undo that.
 /// </para>
 /// <para>
 /// It works in batches rather than a file at a time. An export carries the
@@ -121,11 +129,29 @@ public sealed class Importer
             data.ExportedOn,
             clock.UtcNow);
 
+        // A run that ties with the latest one counts as the latest: it was
+        // imported after it, and nothing says the earlier file is the newer.
+        var earlierRuns = await store.LoadRunsAsync(cancellationToken).ConfigureAwait(false);
+        var isLatest = !earlierRuns.Any(earlier => earlier.IsLaterThan(run));
+
         await store.AddRunAsync(run, cancellationToken).ConfigureAwait(false);
 
-        var counts = await ApplyAsync(run, data.Bookings, cancellationToken).ConfigureAwait(false);
+        var counts = new Counts { Unchanged = data.Bookings.Count };
 
-        run.Complete(data.Bookings.Count, counts.Inserted, counts.Updated, counts.Unchanged);
+        if (isLatest)
+        {
+            counts = await ApplyAsync(run, data.Bookings, cancellationToken).ConfigureAwait(false);
+
+            var carried = data.Bookings
+                .Select(imported => imported.Booking.Fingerprint)
+                .ToHashSet(StringComparer.Ordinal);
+
+            counts.Removed = await store
+                .RemoveBookingsExceptAsync(carried, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        run.Complete(data.Bookings.Count, counts.Inserted, counts.Updated, counts.Unchanged, counts.Removed);
 
         // Taken from the whole file rather than from what was stored: the rule
         // needs the file's order, and an unchanged booking is not written again.
@@ -139,6 +165,7 @@ public sealed class Importer
             counts.Inserted,
             counts.Updated,
             counts.Unchanged,
+            counts.Removed,
             data.UnknownColumns);
     }
 
@@ -217,11 +244,11 @@ public sealed class Importer
                     continue;
                 }
 
-                // The row differs, but this file is not the later description of the
-                // booking — importing an older export must not undo a newer one. The
-                // older row is not kept either: a raw row is the fallback for what the
-                // stored projection leaves out, and this one describes a state that is
-                // not stored.
+                // The row differs, but this file only ties with the export the stored
+                // state came from, so it is not the later description of the booking
+                // and must not replace it. The row is not kept either: a raw row is
+                // the fallback for what the stored projection leaves out, and this
+                // one describes a state that is not stored.
                 if (!run.IsLaterThan(state.SourceRun))
                 {
                     counts.Unchanged++;
@@ -252,5 +279,7 @@ public sealed class Importer
         internal int Updated { get; set; }
 
         internal int Unchanged { get; set; }
+
+        internal int Removed { get; set; }
     }
 }

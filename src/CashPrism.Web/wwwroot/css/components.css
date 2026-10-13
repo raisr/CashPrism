@@ -1252,6 +1252,12 @@
   font-weight: 700;
 }
 
+/* Beside the count of new bookings, in the same cell; Razor drops the
+   whitespace between the two, so the gap is set here. */
+.cp-import-history__removed {
+  margin-inline-start: 6px;
+}
+
 /* Numbered steps, each led by a round tile. The numbers are part of the
    text, so the list's own markers are switched off. */
 .cp-steps {

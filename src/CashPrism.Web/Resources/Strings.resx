@@ -868,7 +868,7 @@
     <comment>Pager: accessible name of the button to the page after.</comment>
   </data>
   <data name="ImportLead" xml:space="preserve">
-    <value>Hol deine neuesten Buchungen aus Finanzguru. Jeder Import ergänzt, was schon da ist – nichts geht verloren.</value>
+    <value>Hol deine neuesten Buchungen aus Finanzguru. CashPrism zeigt immer den Stand deines neuesten Exports.</value>
     <comment>One line under the heading of the import page.</comment>
   </data>
   <data name="ImportDropTitle" xml:space="preserve">
@@ -998,6 +998,14 @@
   <data name="ImportCountUnchanged" xml:space="preserve">
     <value>{0} Buchungen unverändert</value>
     <comment>{0} is the number of rows that changed nothing.</comment>
+  </data>
+  <data name="ImportCountRemoved" xml:space="preserve">
+    <value>{0} Buchungen entfernt, weil der Export sie nicht mehr enthält</value>
+    <comment>{0} is the number of stored bookings removed because the latest export no longer carries them. Shown only when above zero.</comment>
+  </data>
+  <data name="ImportHistoryRemoved" xml:space="preserve">
+    <value>{0} Buchungen entfernt</value>
+    <comment>Import history: tooltip and accessible name of the badge counting the bookings a run removed. {0} is that number.</comment>
   </data>
   <data name="ImportUnknownColumns" xml:space="preserve">
     <value>Unbekannte Spalten im Export: {0}</value>

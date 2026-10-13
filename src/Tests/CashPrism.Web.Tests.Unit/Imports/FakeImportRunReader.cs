@@ -22,7 +22,8 @@ public sealed class FakeImportRunReader : IImportRunReader
         DateOnly? exportedOn = null,
         int rowsRead = 0,
         int inserted = 0,
-        int updated = 0)
+        int updated = 0,
+        int removed = 0)
     {
         var run = new ImportRun(
             Guid.NewGuid(),
@@ -31,7 +32,7 @@ public sealed class FakeImportRunReader : IImportRunReader
             "20260907_Export_Alle_Buchungen",
             exportedOn,
             importedAt);
-        run.Complete(rowsRead, inserted, updated, bookingsUnchanged: 0);
+        run.Complete(rowsRead, inserted, updated, bookingsUnchanged: 0, removed);
         runs.Insert(0, run);
 
         return run;

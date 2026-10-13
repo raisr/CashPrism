@@ -118,7 +118,8 @@
                 </td>
                 <td class="cp-muted-strong cp-figure">@ImportRunFormat.ImportedAt(run.ImportedAt)</td>
                 @* Only new bookings are good news; a run that brought none shows
-                   a plain zero rather than a green "+0". *@
+                   a plain zero rather than a green "+0". A run that removed
+                   bookings says so beside it, and only then. *@
                 <td class="cp-cell-end">
                   @if (run.BookingsInserted > 0)
                   {
@@ -127,6 +128,12 @@
                   else
                   {
                     <span class="cp-figure cp-muted-strong">@ImportRunFormat.Count(0)</span>
+                  }
+                  @if (run.BookingsRemoved > 0)
+                  {
+                    <span class="cp-badge cp-badge--danger cp-import-history__removed"
+                          title="@text["ImportHistoryRemoved", run.BookingsRemoved]"
+                          aria-label="@text["ImportHistoryRemoved", run.BookingsRemoved]">−@ImportRunFormat.Count(run.BookingsRemoved)</span>
                   }
                 </td>
                 <td class="cp-cell-end cp-figure cp-import-history__count">@ImportRunFormat.Count(run.BookingsUpdated)</td>

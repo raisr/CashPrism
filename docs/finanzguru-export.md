@@ -269,6 +269,22 @@ second day — for single-digit MB a year, and loses nothing, because an unchang
 row is byte-identical to the one already stored. The `.xlsx` file itself, about
 1.2 MB per export, is not kept either.
 
+## What an export can lose
+
+Two exports of the maintainer, taken on 2026-10-09 and 2026-10-12, differ by a
+whole account. The later one no longer carries **72 bookings** of an account the
+earlier one had, dated 2021-08 to 2024-12, 68 of them transfers. In their place
+it carries a new account with three bookings, so the number of accounts stays at
+seven. No `Buchungs-ID` moved from one account to another. The most likely cause
+is that the account was removed in the app.
+
+Every export carries the owner's complete history — the full export is the only
+one Finanzguru offers — so a booking the latest export lacks is a booking
+Finanzguru no longer has. Mirroring the export therefore means removing it, and
+keeping it would leave the booking list, its sums, the overview, the analysis
+and the contracts disagreeing with the accounts page, which shows only the
+accounts of the latest export.
+
 ## How Finanzguru counts income and spending
 
 Measured on a third export (taken 2026-10-09) against the app's own analysis
@@ -427,6 +443,14 @@ row holds, and hands both on.
   rows are not kept either — a raw row is the fallback for what the stored
   projection leaves out, and a row describing a state that is not stored is not
   that.
+- **The stored bookings are those of the latest export.** Once the latest
+  export's rows are written, every stored booking it does not carry is removed,
+  [as measured above](#what-an-export-can-lose). An older export therefore
+  changes no booking at all: one it carries and the store lacks is one the
+  latest export dropped, and storing it would bring back what Finanzguru
+  removed. A run that ties with the latest on its export date counts as the
+  latest. The raw rows of a removed booking stay, as every raw row does, and
+  the run records how many bookings it removed.
 - **The work is cut into batches of 1,000 bookings.** Each batch looks up only
   the stored states it needs and lets go of them again, because an export always
   carries the owner's complete history and that history only grows. The change

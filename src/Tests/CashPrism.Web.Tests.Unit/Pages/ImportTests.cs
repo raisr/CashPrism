@@ -167,6 +167,28 @@ public sealed class ImportTests
         }
 
         [Fact]
+        public void Shows_The_Bookings_A_Run_Removed_Beside_The_New_Ones()
+        {
+            Runs.Add(Noon, rowsRead: 6252, inserted: 3, removed: 72);
+
+            var page = Context.Render<Import>();
+
+            var removed = page.Find(".cp-import-history .cp-import-history__removed");
+            Assert.Equal($"−{ImportRunFormat.Count(72)}", removed.TextContent.Trim());
+            Assert.Equal("72 Buchungen entfernt", removed.GetAttribute("aria-label"));
+        }
+
+        [Fact]
+        public void Shows_No_Removal_For_A_Run_That_Removed_Nothing()
+        {
+            Runs.Add(Noon, rowsRead: 1047, inserted: 46);
+
+            var page = Context.Render<Import>();
+
+            Assert.Empty(page.FindAll(".cp-import-history__removed"));
+        }
+
+        [Fact]
         public void Keeps_The_Checksum_On_The_File_Name()
         {
             var run = Runs.Add(Noon);

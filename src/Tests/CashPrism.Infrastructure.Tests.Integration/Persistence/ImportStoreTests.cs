@@ -248,6 +248,83 @@ public sealed class ImportStoreTests
         }
     }
 
+    public sealed class LoadRunsAsync
+    {
+        [Fact]
+        public async Task Returns_Every_Stored_Run()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            var first = await SeedAsync(database, AFingerprint, fileHash: "first");
+            var second = await SeedAsync(database, AnotherFingerprint, fileHash: "second");
+            await using var context = database.CreateContext();
+
+            var runs = await new ImportStore(context).LoadRunsAsync();
+
+            Assert.Equal(new[] { first, second }.Order(), runs.Select(run => run.Id).Order());
+        }
+
+        [Fact]
+        public async Task Returns_Nothing_Before_The_First_Import()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await using var context = database.CreateContext();
+
+            Assert.Empty(await new ImportStore(context).LoadRunsAsync());
+        }
+    }
+
+    public sealed class RemoveBookingsExceptAsync
+    {
+        [Fact]
+        public async Task Removes_The_Bookings_That_Are_Not_Carried()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(database, AFingerprint, fileHash: "first");
+            await SeedAsync(database, AnotherFingerprint, fileHash: "second");
+            await using var context = database.CreateContext();
+
+            var removed = await new ImportStore(context).RemoveBookingsExceptAsync(new HashSet<string>([AFingerprint]));
+
+            Assert.Equal(1, removed);
+            Assert.Equal([AFingerprint], await context.Bookings.Select(booking => booking.Fingerprint).ToListAsync());
+        }
+
+        [Fact]
+        public async Task Keeps_The_Rows_Behind_A_Removed_Booking()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(database, AFingerprint);
+            await using var context = database.CreateContext();
+
+            await new ImportStore(context).RemoveBookingsExceptAsync(new HashSet<string>());
+
+            Assert.Equal(1, await context.RawRows.CountAsync(row => row.Fingerprint == AFingerprint));
+        }
+
+        [Fact]
+        public async Task Removes_More_Bookings_Than_One_Batch_Holds()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            var runId = Guid.NewGuid();
+            var bookings = Enumerable.Range(0, Importer.BatchSize + 1)
+                .Select(index => CreateBooking(runId, $"{index:x40}"))
+                .ToList();
+            await using (var seeding = database.CreateContext())
+            {
+                var store = new ImportStore(seeding);
+                await store.AddRunAsync(CreateRun(runId));
+                await store.ApplyAsync(new ImportBatch(bookings, BookingsToUpdate: [], RawRowsToStore: []));
+            }
+
+            await using var context = database.CreateContext();
+
+            var removed = await new ImportStore(context).RemoveBookingsExceptAsync(new HashSet<string>());
+
+            Assert.Equal(Importer.BatchSize + 1, removed);
+            Assert.Equal(0, await context.Bookings.CountAsync());
+        }
+    }
+
     public sealed class CompleteRunAsync
     {
         [Fact]
