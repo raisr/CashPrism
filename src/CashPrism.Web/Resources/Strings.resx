@@ -535,6 +535,14 @@
     <value>Filter „{0}“ entfernen</value>
     <comment>Booking filter: read-out label of the button that removes the counterparty filter; {0} is the counterparty.</comment>
   </data>
+  <data name="BookingsFilterContract" xml:space="preserve">
+    <value>Vertrag</value>
+    <comment>Booking filter: chip shown while the list is narrowed to one contract, set by a link from the contracts page.</comment>
+  </data>
+  <data name="BookingsFilterRemoveContract" xml:space="preserve">
+    <value>Vertragsfilter entfernen</value>
+    <comment>Booking filter: read-out label of the button that removes the contract filter.</comment>
+  </data>
   <data name="BookingsSummaryOne" xml:space="preserve">
     <value>Buchung</value>
     <comment>Booking summary line: after the count when it is one.</comment>

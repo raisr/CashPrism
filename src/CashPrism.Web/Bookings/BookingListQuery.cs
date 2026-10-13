@@ -75,7 +75,8 @@ public sealed record BookingListQuery(
             Counterparty: Text(values, "counterparty"),
             Direction: Directions.TryGetValue(values["direction"] ?? string.Empty, out var direction) ? direction : null,
             HideTransfers: values["transfers"] == "hide",
-            Search: BookingSearch.Parse(values["q"]));
+            Search: BookingSearch.Parse(values["q"]),
+            ContractId: Text(values, "contract"));
 
         var page = int.TryParse(values["page"], NumberStyles.None, CultureInfo.InvariantCulture, out var number)
             && number is >= 1 and <= LastReadablePage
@@ -112,6 +113,7 @@ public sealed record BookingListQuery(
             ["from"] = Filter.Period?.From.ToString(DateFormat, CultureInfo.InvariantCulture),
             ["to"] = Filter.Period?.To.ToString(DateFormat, CultureInfo.InvariantCulture),
             ["counterparty"] = Filter.Counterparty,
+            ["contract"] = Filter.ContractId,
             ["direction"] = Filter.Direction is { } direction ? Directions.Single(pair => pair.Value == direction).Key : null,
             ["transfers"] = Filter.HideTransfers ? "hide" : null,
             ["q"] = Filter.Search?.Text,

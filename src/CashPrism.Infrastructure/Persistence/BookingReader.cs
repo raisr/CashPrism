@@ -143,6 +143,11 @@ public sealed class BookingReader : IBookingReader
             bookings = bookings.Where(booking => booking.Counterparty == counterparty);
         }
 
+        if (filter.ContractId is { } contractId)
+        {
+            bookings = bookings.Where(booking => booking.ContractId == contractId);
+        }
+
         bookings = filter.Direction switch
         {
             BookingDirection.Income => bookings.Where(booking => booking.AmountInCents > 0),

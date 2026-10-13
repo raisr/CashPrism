@@ -26,7 +26,8 @@ public sealed class BookingReaderTests
         string counterparty = "Supermarkt",
         string paymentReference = "",
         string category = "Lebensmittel",
-        string counterpartyAccount = "")
+        string counterpartyAccount = "",
+        string contractId = "")
         => TestBookings.Create(
             Fingerprint(ordinal),
             bookedOn,
@@ -36,6 +37,9 @@ public sealed class BookingReaderTests
             counterpartyAccount: counterpartyAccount,
             paymentReference: paymentReference,
             category: category,
+            isContract: contractId.Length > 0,
+            contractInterval: contractId.Length > 0 ? "monatlich" : "",
+            contractId: contractId,
             sourceImportRunId: ARun);
 
     /// <summary>A fingerprint that sorts in the same order as its ordinal.</summary>
@@ -436,6 +440,18 @@ public sealed class BookingReaderTests
                 new BookingFilter(Counterparty: "Supermarkt"),
                 CreateBooking(1, counterparty: "Supermarkt"),
                 CreateBooking(2, counterparty: "Supermarkt Nord"));
+
+            Assert.Equal([Fingerprint(1)], listed);
+        }
+
+        [Fact]
+        public async Task Lists_Only_The_Bookings_Of_The_Contract()
+        {
+            var listed = await ListAsync(
+                new BookingFilter(ContractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f"),
+                CreateBooking(1, contractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f"),
+                CreateBooking(2, contractId: "9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b"),
+                CreateBooking(3));
 
             Assert.Equal([Fingerprint(1)], listed);
         }

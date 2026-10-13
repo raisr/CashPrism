@@ -13,6 +13,7 @@ namespace CashPrism.Application.Bookings;
 /// <param name="Direction">Whether money came in or went out.</param>
 /// <param name="HideTransfers">Whether transfers between two of the owner's own accounts are left out.</param>
 /// <param name="Search">Words and amount bounds a person searched for.</param>
+/// <param name="ContractId">Finanzguru's identifier of the contract the booking belongs to.</param>
 public sealed record BookingFilter(
     string? AccountReference = null,
     string? Category = null,
@@ -21,7 +22,8 @@ public sealed record BookingFilter(
     string? Counterparty = null,
     BookingDirection? Direction = null,
     bool HideTransfers = false,
-    BookingSearch? Search = null)
+    BookingSearch? Search = null,
+    string? ContractId = null)
 {
     /// <summary>The filter that lists every booking.</summary>
     public static BookingFilter None { get; } = new();

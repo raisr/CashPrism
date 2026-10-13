@@ -263,6 +263,26 @@ public sealed class BookingFilterBarTests
         }
 
         [Fact]
+        public void Removes_The_Contract_With_Its_Chip()
+        {
+            var bar = RenderBar(new BookingFilter(HideTransfers: true, ContractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f"));
+
+            bar.Find(".cp-chip").Click();
+
+            Assert.Equal(new BookingFilter(HideTransfers: true), raised);
+        }
+
+        [Fact]
+        public async Task Keeps_The_Contract_When_A_Main_Category_Is_Picked()
+        {
+            var bar = RenderBar(new BookingFilter(ContractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f"));
+
+            await PickAsync(bar, "Kategorie", "Mobilitaet");
+
+            Assert.Equal(new BookingFilter(Category: "Mobilitaet", ContractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f"), raised);
+        }
+
+        [Fact]
         public void Names_The_Counterparty_The_Chip_Removes()
         {
             var bar = RenderBar(new BookingFilter(Counterparty: "Bäckerei Wendl"));
