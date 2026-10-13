@@ -699,6 +699,82 @@
     <value>Vertrag</value>
     <comment>Booking sheet: badge on a booking Finanzguru counts to a contract, followed by the interval when there is one.</comment>
   </data>
+  <data name="NavContracts" xml:space="preserve">
+    <value>Verträge</value>
+    <comment>Navigation entry and heading of the contracts page.</comment>
+  </data>
+  <data name="ContractsLead" xml:space="preserve">
+    <value>Was Finanzguru als Vertrag erkannt hat, Stand {0}.</value>
+    <comment>Contracts page: lead under the heading; {0} is the date the export is current to.</comment>
+  </data>
+  <data name="ContractsEmpty" xml:space="preserve">
+    <value>Noch keine Verträge</value>
+    <comment>Contracts page: empty state title before anything was imported.</comment>
+  </data>
+  <data name="ContractsEmptyHint" xml:space="preserve">
+    <value>Importiere einen Finanzguru-Export. Die Verträge, die Finanzguru darin erkannt hat, erscheinen dann hier.</value>
+    <comment>Contracts page: empty state text before anything was imported.</comment>
+  </data>
+  <data name="ContractsNone" xml:space="preserve">
+    <value>Keine Verträge erkannt</value>
+    <comment>Contracts page: empty state title when the imported export carries no contract.</comment>
+  </data>
+  <data name="ContractsNoneHint" xml:space="preserve">
+    <value>Finanzguru hat in deinem Export keine wiederkehrenden Buchungen als Vertrag erkannt.</value>
+    <comment>Contracts page: empty state text when the imported export carries no contract.</comment>
+  </data>
+  <data name="ContractsMonthlyCost" xml:space="preserve">
+    <value>Vertragskosten im Monat, im Schnitt</value>
+    <comment>Contracts page: tile with the average monthly cost of the running spending contracts.</comment>
+  </data>
+  <data name="ContractsSpending" xml:space="preserve">
+    <value>Regelmäßige Ausgaben</value>
+    <comment>Contracts page: title of the card with the spending contracts, grouped by interval.</comment>
+  </data>
+  <data name="ContractsSpendingHint" xml:space="preserve">
+    <value>Nach Rhythmus gruppiert. Ein Klick auf den Namen zeigt die Buchungen des Vertrags.</value>
+    <comment>Contracts page: subtitle of the card with the spending contracts.</comment>
+  </data>
+  <data name="ContractsIncome" xml:space="preserve">
+    <value>Regelmäßige Einnahmen</value>
+    <comment>Contracts page: title of the card with the income contracts.</comment>
+  </data>
+  <data name="ContractsTransfers" xml:space="preserve">
+    <value>Regelmäßige Umbuchungen</value>
+    <comment>Contracts page: title of the card with the contracts that move money between the owner's own accounts.</comment>
+  </data>
+  <data name="ContractsEnded" xml:space="preserve">
+    <value>Vermutlich beendet</value>
+    <comment>Contracts page: title of the collapsed card with contracts whose bookings have stopped. "Vermutlich" because it is derived, not exported.</comment>
+  </data>
+  <data name="ContractsEndedHint" xml:space="preserve">
+    <value>Mindestens zwei fällige Zahlungen sind ausgeblieben. Finanzguru meldet kein Vertragsende, deshalb ist das nur abgeleitet. Nicht in den Vertragskosten enthalten.</value>
+    <comment>Contracts page: subtitle of the collapsed card with presumably ended contracts.</comment>
+  </data>
+  <data name="ContractsColumnContract" xml:space="preserve">
+    <value>Vertrag</value>
+    <comment>Contracts page: column header for the contract's name.</comment>
+  </data>
+  <data name="ContractsColumnInterval" xml:space="preserve">
+    <value>Rhythmus</value>
+    <comment>Contracts page: column header for how often a contract recurs.</comment>
+  </data>
+  <data name="ContractsColumnNewest" xml:space="preserve">
+    <value>Letzte Buchung</value>
+    <comment>Contracts page: column header for the date of the contract's newest booking.</comment>
+  </data>
+  <data name="ContractsColumnAmount" xml:space="preserve">
+    <value>Betrag</value>
+    <comment>Contracts page: column header for the amount of the contract's newest booking.</comment>
+  </data>
+  <data name="ContractsCountOne" xml:space="preserve">
+    <value>1 Vertrag</value>
+    <comment>Contracts page: count in an interval group's head row, one contract.</comment>
+  </data>
+  <data name="ContractsCountMany" xml:space="preserve">
+    <value>{0} Verträge</value>
+    <comment>Contracts page: count in an interval group's head row; {0} is the formatted count.</comment>
+  </data>
   <data name="ContractIntervalMonthly" xml:space="preserve">
     <value>monatlich</value>
     <comment>Booking sheet: how often a contract recurs, Finanzguru word "monatlich".</comment>

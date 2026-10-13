@@ -68,7 +68,7 @@ public sealed class NavMenuTests
             var menu = context.Render<NavMenu>(parameters => parameters.Add(p => p.Collapsed, true));
 
             var titles = menu.FindAll("a.cp-nav__item").Select(link => link.GetAttribute("title"));
-            Assert.Equal(["Übersicht", "Buchungen", "Konten", "Analyse", "Import", "Einstellungen"], titles);
+            Assert.Equal(["Übersicht", "Buchungen", "Konten", "Verträge", "Analyse", "Import", "Einstellungen"], titles);
         }
 
         [Fact]

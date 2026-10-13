@@ -1,0 +1,90 @@
+@using CashPrism.Application.Bookings
+@using CashPrism.Application.Contracts
+@using CashPrism.Domain.Contracts
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+
+@* Contracts as rows: the party of the newest booking with its sub-category,
+   the day of that booking and its amount. The name opens the booking list
+   filtered to the contract. With group heads, each group starts with a row
+   naming its interval, how many contracts it holds and their sum. *@
+<div class="cp-table-wrap">
+  <table class="cp-table cp-table--hover">
+    <thead>
+      <tr>
+        <th>@text["ContractsColumnContract"]</th>
+        @if (ShowInterval)
+        {
+          <th>@text["ContractsColumnInterval"]</th>
+        }
+        <th>@text["ContractsColumnNewest"]</th>
+        <th class="cp-cell-end">@text["ContractsColumnAmount"]</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var group in Groups)
+      {
+        @if (GroupHeads)
+        {
+          <tr class="cp-table__group">
+            <td colspan="@(Columns - 1)">@Capitalised(IntervalName(group.Interval ?? string.Empty)) · @CountOf(group.Count)</td>
+            <td class="cp-cell-end"><Sum AmountInCents="group.SumInCents" /></td>
+          </tr>
+        }
+        @foreach (var contract in group.Contracts)
+        {
+          <tr>
+            <td>
+              <a class="cp-party cp-contracts__link" href="@BookingsOf(contract)">
+                <CategoryIcon Category="CategoryStyle.For(contract.Category, contract.SubCategory, contract.IsTransfer)" />
+                <div class="cp-party__text">
+                  <div class="cp-party__name">@contract.Counterparty</div>
+                  <div class="cp-party__reference">@contract.SubCategory</div>
+                </div>
+              </a>
+            </td>
+            @if (ShowInterval)
+            {
+              <td class="cp-muted-strong">@IntervalName(contract.Interval)</td>
+            }
+            <td class="cp-muted-strong cp-figure">@BookingFormat.Date(contract.NewestBookedOn)</td>
+            <td class="cp-cell-end"><Amount AmountInCents="contract.AmountInCents" Currency="@contract.Currency" /></td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+@code {
+    /// <summary>The contracts, in the groups and order they are shown in.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ContractGroup> Groups { get; set; } = [];
+
+    /// <summary>Whether each group starts with a row naming its interval, count and sum.</summary>
+    [Parameter]
+    public bool GroupHeads { get; set; }
+
+    /// <summary>Whether every row names its interval — for a section that mixes them.</summary>
+    [Parameter]
+    public bool ShowInterval { get; set; }
+
+    private int Columns => ShowInterval ? 4 : 3;
+
+    private static string BookingsOf(Contract contract)
+        => BookingListQuery.LinkFor(new BookingFilter(ContractId: contract.ContractId));
+
+    private string IntervalName(string interval)
+        => ContractIntervalLabel.KeyFor(interval) is { } key ? text[key].Value : interval;
+
+    // The interval words are written for the middle of a sentence; a group
+    // head starts with one.
+    private static string Capitalised(string name)
+        => name.Length == 0 ? name : char.ToUpper(name[0], CultureInfo.CurrentCulture) + name[1..];
+
+    private string CountOf(int count)
+        => count == 1
+            ? text["ContractsCountOne"].Value
+            : text["ContractsCountMany", BookingFormat.Count(count)].Value;
+}
