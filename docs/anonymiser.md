@@ -54,7 +54,8 @@ first time on a real import.
 The tool therefore copies every zip entry through unchanged, byte for byte,
 except the one worksheet part it rewrites. Even there, only the text inside a
 replaced cell changes — every other byte, including the cells of every kept
-column, is untouched.
+column, is untouched. Each entry also keeps the timestamp the input gave it,
+so two runs over the same file write the same bytes.
 
 ## What gets replaced
 

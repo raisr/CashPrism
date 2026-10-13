@@ -44,6 +44,10 @@ public static class XlsxAnonymiserWriter
             {
                 var newEntry = destination.CreateEntry(entry.FullName, CompressionLevel.Optimal);
 
+                // A new entry carries the time it was written, which would make
+                // two runs over the same input differ.
+                newEntry.LastWriteTime = entry.LastWriteTime;
+
                 using var newEntryStream = newEntry.Open();
 
                 if (entry.FullName == worksheetEntryName)
