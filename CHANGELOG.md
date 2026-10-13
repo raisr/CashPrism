@@ -269,6 +269,15 @@ releases and the minor version is bumped for every notable change.
   counts the way the overview does. A category's colour follows its rank over
   the last twelve months rather than its name, so it stays the same when you
   switch periods and still works for a category Finanzguru renames.
+- *Verträge*, a new page, lists the contracts Finanzguru recognised in your
+  bookings, each with the name, sub-category and amount of its newest booking.
+  Spending contracts are grouped by interval with their count and sum; income
+  and transfers between your own accounts have a section each. Above them
+  stands what your contracts cost in an average month, a yearly one counting
+  with a twelfth. A contract with at least two payments missing is listed,
+  folded, as *Vermutlich beendet* and left out of that cost — the export says
+  nothing about a contract ending, so this is derived from the bookings. A
+  click on a contract opens the booking list with its bookings.
 
 ### Changed
 

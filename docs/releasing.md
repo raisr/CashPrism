@@ -172,6 +172,7 @@ and show nothing but invented data:
 | `buchungsliste.png` | *Buchungen* with the details of one booking open |
 | `kontogruppen.png` | *Konten* with *Gruppen bearbeiten* on, after adding the group *Gemeinsam*, putting *Gemeinschaftskonto* into it and moving the group to the top |
 | `konten.png` | *Konten* opened again after that, the account with the highest balance selected |
+| `vertraege.png` | *Verträge* right after that, scrolled to the top |
 | `erreichbar.png` | *Einstellungen*, the address under *Erreichbar unter* replaced by `http://192.168.1.7:5080` in the browser's developer tools |
 | `alle-daten-loeschen.png` | *Einstellungen* after *Alle Daten löschen*, showing the question — not confirmed — with the address replaced as above |
 | `passwort-aendern.png` | *Passwort ändern*, empty |

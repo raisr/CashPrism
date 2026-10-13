@@ -152,6 +152,22 @@ public sealed class BookingListQueryTests
                 BookingListQuery.LinkFor(new BookingFilter(Counterparty: "Hausverwaltung Ahorn & Partner")));
 
         [Fact]
+        public void Carries_The_Contract_In_The_Query()
+            => Assert.Equal(
+                "bookings?contract=0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f",
+                BookingListQuery.LinkFor(new BookingFilter(ContractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f")));
+
+        [Fact]
+        public void Reads_Back_The_Contract()
+        {
+            var filter = new BookingFilter(ContractId: "0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f", HideTransfers: true);
+
+            var link = BookingListQuery.LinkFor(filter);
+
+            Assert.Equal(filter, BookingListQuery.Parse(link[link.IndexOf('?')..]).Filter);
+        }
+
+        [Fact]
         public void Reads_Back_As_The_Same_Filter()
         {
             var filter = new BookingFilter(Category: "Essen & Trinken", Period: September, HideTransfers: true);

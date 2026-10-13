@@ -25,26 +25,8 @@ public sealed class CashFlowReader : ICashFlowReader
     }
 
     /// <inheritdoc />
-    public async Task<DateOnly?> ReadCurrentToAsync(CancellationToken cancellationToken = default)
-    {
-        var runs = context.ImportRuns.AsNoTracking();
-
-        var exportedOn = await runs.MaxAsync(run => run.ExportedOn, cancellationToken);
-
-        if (exportedOn.HasValue)
-        {
-            return exportedOn;
-        }
-
-        // ImportedAt is stored as a UTC DateTime, which is what makes the
-        // order translatable — see ImportRunConfiguration.
-        var importedAt = await runs
-            .OrderByDescending(run => run.ImportedAt)
-            .Select(run => (DateTimeOffset?)run.ImportedAt)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return importedAt is { } latest ? DateOnly.FromDateTime(latest.UtcDateTime) : null;
-    }
+    public Task<DateOnly?> ReadCurrentToAsync(CancellationToken cancellationToken = default)
+        => CurrentToQuery.ReadAsync(context, cancellationToken);
 
     /// <inheritdoc />
     /// <remarks>

@@ -1,0 +1,113 @@
+@page "/contracts"
+@using CashPrism.Application.Contracts
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Contracts
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+@inject ContractOverviewReader contracts
+
+<PageFrame Title="@text["NavContracts"]" Lead="@(overview is null ? null : text["ContractsLead", BookingFormat.Date(overview.CurrentTo.ToDateTime(TimeOnly.MinValue))].Value)">
+  @if (overview is null)
+  {
+    @* Nothing until the first read is done, so the empty state does not
+       flash up before the contracts. *@
+    if (loaded)
+    {
+      <section class="cp-card">
+        <EmptyState Icon="repeat" Title="@text["ContractsEmpty"]" Text="@text["ContractsEmptyHint"]">
+          <Actions>
+            <MudButton Href="/import" Variant="Variant.Filled" Color="Color.Primary" Class="cp-btn">
+              <CpIcon Name="upload" />
+              @text["NavImport"]
+            </MudButton>
+          </Actions>
+        </EmptyState>
+      </section>
+    }
+  }
+  else if (IsEmpty(overview))
+  {
+    <section class="cp-card">
+      <EmptyState Icon="repeat" Title="@text["ContractsNone"]" Text="@text["ContractsNoneHint"]" />
+    </section>
+  }
+  else
+  {
+    <div class="cp-contracts">
+      <div class="cp-overview__tiles">
+        <StatTile Label="@text["ContractsMonthlyCost"]" Icon="repeat" Colour="var(--cp-prism-cyan)">
+          <Sum AmountInCents="overview.MonthlyCostInCents" />
+        </StatTile>
+      </div>
+
+      @if (overview.ByInterval.Count > 0)
+      {
+        <section class="cp-card cp-card--flush">
+          <div class="cp-card__head">
+            <div class="cp-card__title">
+              <h2 class="cp-h3">@text["ContractsSpending"]</h2>
+              <div class="cp-card__sub">@text["ContractsSpendingHint"]</div>
+            </div>
+          </div>
+          <ContractTable Groups="overview.ByInterval" GroupHeads="true" />
+        </section>
+      }
+
+      @if (overview.Income.Count > 0)
+      {
+        <section class="cp-card cp-card--flush">
+          <div class="cp-card__head">
+            <div class="cp-card__title"><h2 class="cp-h3">@text["ContractsIncome"]</h2></div>
+            <Sum AmountInCents="overview.Income.SumInCents" />
+          </div>
+          <ContractTable Groups="[overview.Income]" ShowInterval="true" />
+        </section>
+      }
+
+      @if (overview.Transfers.Count > 0)
+      {
+        <section class="cp-card cp-card--flush">
+          <div class="cp-card__head">
+            <div class="cp-card__title"><h2 class="cp-h3">@text["ContractsTransfers"]</h2></div>
+            <Sum AmountInCents="overview.Transfers.SumInCents" />
+          </div>
+          <ContractTable Groups="[overview.Transfers]" ShowInterval="true" />
+        </section>
+      }
+
+      @if (overview.PresumablyEnded.Count > 0)
+      {
+        @* Collapsed: these no longer cost anything, as far as the bookings
+           tell. A native details element opens with the keyboard and keeps
+           no state of ours. *@
+        <details class="cp-card cp-card--flush cp-contracts__ended">
+          <summary class="cp-card__head">
+            <span class="cp-card__title">
+              <span class="cp-h3">@text["ContractsEnded"] · @BookingFormat.Count(overview.PresumablyEnded.Count)</span>
+              <span class="cp-card__sub">@text["ContractsEndedHint"]</span>
+            </span>
+            <CpIcon Name="chevron-down" Class="cp-contracts__chevron" />
+          </summary>
+          <ContractTable Groups="[overview.PresumablyEnded]" ShowInterval="true" />
+        </details>
+      }
+    </div>
+  }
+</PageFrame>
+
+@code {
+    private ContractOverview? overview;
+    private bool loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        overview = await contracts.ReadAsync();
+        loaded = true;
+    }
+
+    private static bool IsEmpty(ContractOverview figures)
+        => figures.ByInterval.Count == 0
+            && figures.Income.Count == 0
+            && figures.Transfers.Count == 0
+            && figures.PresumablyEnded.Count == 0;
+}

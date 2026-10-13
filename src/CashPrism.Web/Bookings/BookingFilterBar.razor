@@ -128,6 +128,20 @@
         <CpIcon Name="x" Class="cp-chip__x" />
       </button>
     }
+    @if (Filter.ContractId is not null)
+    {
+      @* Set only by a link from the contracts page. The identifier means
+         nothing to a person, so the chip names what kind of filter it is;
+         the bookings it leaves say which contract. *@
+      <button type="button"
+              class="cp-chip cp-chip--on"
+              aria-label="@text["BookingsFilterRemoveContract"]"
+              @onclick="RemoveContractAsync">
+        <CpIcon Name="repeat" />
+        @text["BookingsFilterContract"]
+        <CpIcon Name="x" Class="cp-chip__x" />
+      </button>
+    }
     <span class="cp-filters__spacer"></span>
     <MudSwitch T="bool"
                Value="Filter.HideTransfers"
@@ -269,7 +283,8 @@
             Filter.Counterparty,
             Filter.Direction,
             Filter.HideTransfers,
-            Filter.Search));
+            Filter.Search,
+            Filter.ContractId));
 
     private Task SubCategoryChangedAsync(string? subCategory)
         => ChangeAsync(new BookingFilter(
@@ -280,7 +295,8 @@
             Filter.Counterparty,
             Filter.Direction,
             Filter.HideTransfers,
-            Filter.Search));
+            Filter.Search,
+            Filter.ContractId));
 
     private Task PeriodChangedAsync(string? choice)
     {
@@ -340,10 +356,14 @@
             Filter.Counterparty,
             direction,
             Filter.HideTransfers,
-            Filter.Search));
+            Filter.Search,
+            Filter.ContractId));
 
     private Task RemoveCounterpartyAsync()
         => ChangeAsync(Filter with { Counterparty = null });
+
+    private Task RemoveContractAsync()
+        => ChangeAsync(Filter with { ContractId = null });
 
     private Task HideTransfersChangedAsync(bool hide)
         => ChangeAsync(Filter with { HideTransfers = hide });

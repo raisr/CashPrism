@@ -298,6 +298,35 @@ Two consequences an analysis has to carry:
 `Analyse-Vom frei verfuegbaren Einkommen ausgeschlossen` could not be tested: no
 measured month in which the totals were compared carries such a row.
 
+## What a contract looks like, and what the app can change about it
+
+Measured on the export of 2026-09-07 and on two exports taken a day apart
+(2026-10-12 and 2026-10-13), with two contracts changed in the app in between.
+
+Within one `Analyse-Vertrags-ID` the `Analyse-Vertragsturnus` never varies and
+the sign of `Betrag` never mixes, so a contract is either income or spending
+throughout. The amount does vary (42 of the 72 contracts of the first export),
+and so does the counterparty's name (4 of them). The reverse occurs too: one
+counterparty carries four contract IDs of two bookings each, with different
+intervals. Eight contracts are transfers between the owner's own accounts.
+
+A person can act on a recognised contract in the app, and the two actions
+measured reach the export differently:
+
+| Action in the app | Effect on the export |
+|---|---|
+| Remove the contract | Every booking of it — ten here — loses `Analyse-Vertrag` (now no), `Analyse-Vertragsturnus` and `Analyse-Vertrags-ID`. Nothing else in the file moves. |
+| Mark the contract as cancelled | Nothing. Its bookings keep all three columns unchanged; the export carries no cancelled state. |
+
+Removing a contract therefore needs nothing from CashPrism: the next import
+carries the bookings without it. A cancelled contract can only be told by its
+bookings stopping. Whether a contract the app has detected but nobody has
+confirmed already carries the columns could not be measured.
+
+Between exports, contracts also appear on bookings that already existed: eight
+new contract IDs over 78 bookings between 2026-10-09 and 2026-10-12, none of
+those bookings new.
+
 ## What CashPrism does with this
 
 Columns are resolved **by header name, never by index** — see

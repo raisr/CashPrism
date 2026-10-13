@@ -2,6 +2,7 @@ using CashPrism.Application.Access;
 using CashPrism.Application.Accounts;
 using CashPrism.Application.Bookings;
 using CashPrism.Application.CashFlow;
+using CashPrism.Application.Contracts;
 using CashPrism.Application.Imports;
 using CashPrism.Application.Persistence;
 using CashPrism.Application.Time;
@@ -56,6 +57,7 @@ public static class CashPrismPersistenceServiceCollectionExtensions
         services.AddScoped<IBookingReader, BookingReader>();
         services.AddScoped<IImportRunReader, ImportRunReader>();
         services.AddScoped<ICashFlowReader, CashFlowReader>();
+        services.AddScoped<IContractReader, ContractReader>();
         services.AddScoped<IAccountBalanceReader, AccountBalanceReader>();
         services.AddScoped<IAccountGroupStore, AccountGroupStore>();
         services.AddScoped<ICredentialStore, CredentialStore>();

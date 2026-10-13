@@ -2621,3 +2621,52 @@ button.cp-tx {
 .cp-account-bookings__all:hover {
   text-decoration: underline;
 }
+
+/* ---------- contracts ---------- */
+
+.cp-contracts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cp-grid-gap);
+}
+
+/* The name opens the contract's bookings; it reads as a name until hovered. */
+.cp-contracts__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cp-contracts__link:hover .cp-party__name,
+.cp-contracts__link:focus-visible .cp-party__name {
+  text-decoration: underline;
+}
+
+/* The presumably ended contracts start folded: the whole head opens them,
+   and the chevron turns to say which way it went. */
+.cp-contracts__ended > summary {
+  padding-bottom: 18px;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* A summary holds phrasing content only, so its title and subtitle are spans
+   made to stack like the headings of the other cards. */
+.cp-contracts__ended > summary .cp-card__title > span {
+  display: block;
+}
+
+.cp-contracts__ended > summary::-webkit-details-marker {
+  display: none;
+}
+
+.cp-contracts__ended[open] > summary {
+  padding-bottom: 0;
+}
+
+.cp-contracts__chevron {
+  transition: transform var(--cp-dur-fast) ease;
+}
+
+.cp-contracts__ended[open] .cp-contracts__chevron {
+  transform: rotate(180deg);
+}

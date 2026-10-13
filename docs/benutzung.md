@@ -230,7 +230,7 @@ setzt nichts mehr zurück.
 
 ![Die Übersicht mit der Navigation links und Designschalter und Import oben rechts](images/benutzung/navigation.png)
 
-Links steht die Navigation mit sechs Zielen. Auf einem schmalen Bildschirm ist
+Links steht die Navigation mit sieben Zielen. Auf einem schmalen Bildschirm ist
 sie eingeklappt und öffnet sich über das Menüsymbol oben links. Oben rechts
 wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
 *Import* führt von jeder Seite direkt zum Einlesen. Unten in der Navigation
@@ -243,11 +243,12 @@ Symbolen ein und wieder auf.
 | Übersicht | `/` | Einnahmen, Ausgaben und wofür das Geld ging — siehe [Die Übersicht](#die-übersicht) |
 | Buchungen | `/bookings` | Alle gespeicherten Buchungen als Liste |
 | Konten | `/accounts` | Deine Konten mit ihren Kontoständen, in Gruppen deiner Wahl — siehe [Die Konten](#die-konten) |
+| Verträge | `/contracts` | Was Finanzguru als Vertrag erkannt hat, nach Rhythmus gruppiert — siehe [Die Verträge](#die-verträge) |
 | Analyse | `/analysis` | Ausgaben nach Kategorie über mehrere Monate verglichen, dazu nach Empfänger — siehe [Die Analyse](#die-analyse) |
 | Import | `/import` | Einen Finanzguru-Export einlesen, darunter die bisherigen Importe |
 | Einstellungen | `/settings` | Alle gespeicherten Daten löschen, sehen, unter welcher Adresse CashPrism erreichbar ist, Passwort ändern |
 
-Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen*, *Konten* und *Analyse* statt
+Solange nichts importiert ist, zeigen *Übersicht*, *Buchungen*, *Konten*, *Verträge* und *Analyse* statt
 leerer Zahlen einen Hinweis und eine Schaltfläche zur Seite *Import*.
 
 ## Die Übersicht
@@ -495,7 +496,9 @@ Filter nimmt einen Wert; mehrere Filter gelten zusammen.
 Ist ein Empfänger oder Absender als Filter gesetzt, steht er als Feld mit
 Kreuz unter den Filtern; ein Klick darauf nimmt ihn wieder weg. Eingeben lässt
 er sich auf dieser Seite nicht — er kommt über einen Link, der genau diesen
-Namen trägt.
+Namen trägt. Ebenso ein Vertrag: Ein Klick auf einen Namen auf der Seite
+[Verträge](#die-verträge) zeigt nur dessen Buchungen, und das Feld *Vertrag*
+unter den Filtern nimmt die Einschränkung wieder weg.
 
 Die Filter stehen in der Adresse der Seite, etwa
 `/bookings?account=…&from=2026-09-01&to=2026-09-30`. Ein Neuladen behält sie,
@@ -612,6 +615,39 @@ Schalter wieder aus, siehst du die Karten in ihrer neuen Ordnung.
   Eine Gruppe, in der nur solche Konten stehen, gilt als leer und lässt sich
   löschen; kommt eines dieser Konten dann zurück, steht es am Ende der obersten
   Gruppe.
+
+## Die Verträge
+
+![Die Verträge: oben die durchschnittlichen Vertragskosten im Monat, darunter die regelmäßigen Ausgaben nach Rhythmus gruppiert](images/benutzung/vertraege.png)
+
+*Verträge* zeigt, was Finanzguru in deinen Buchungen als Vertrag erkannt hat —
+dieselben Verträge, die du in der App siehst. CashPrism erkennt selbst nichts
+und ändert nichts daran.
+
+- **Vertragskosten im Monat, im Schnitt:** jeder laufende Ausgabenvertrag auf
+  einen Monat umgerechnet und zusammengezählt. Ein jährlicher Vertrag über
+  120 € zählt mit 10 €, ein vierteljährlicher über 30 € ebenfalls mit 10 €.
+  Einnahmen, Umbuchungen und vermutlich beendete Verträge zählen nicht mit.
+- **Regelmäßige Ausgaben:** nach Rhythmus gruppiert, *Monatlich* zuerst. Jede
+  Gruppe nennt, wie viele Verträge sie hat und was sie zusammen kosten.
+- **Regelmäßige Einnahmen** und **Regelmäßige Umbuchungen** stehen jeweils in
+  einem eigenen Abschnitt, etwa dein Gehalt oder die monatliche Sparrate auf
+  ein eigenes Konto.
+- **Eine Zeile** zeigt den Namen, die Unterkategorie, den Tag der letzten
+  Buchung und ihren Betrag. Ändert sich der Betrag eines Vertrags, steht hier
+  der neueste. Ein Klick auf den Namen öffnet die
+  [Buchungsliste](#die-buchungsliste) mit allen Buchungen dieses Vertrags.
+- **Vermutlich beendet** steht ganz unten und ist zugeklappt. Dort landet ein
+  Vertrag, bei dem mindestens zwei fällige Zahlungen ausgeblieben sind: bei
+  einem monatlichen Vertrag also, wenn die letzte Buchung mehr als zwei Monate
+  vor dem Export liegt. Finanzguru meldet im Export kein Vertragsende, deshalb
+  ist das nur abgeleitet. Kommt wieder eine Buchung, steht der Vertrag wieder
+  oben.
+
+**Einen Vertrag entfernen oder kündigen** machst du in Finanzguru. Entfernst du
+dort einen Vertrag, ist er nach dem nächsten Import auch hier verschwunden.
+Markierst du ihn dort als gekündigt, bleibt er hier stehen, bis seine Buchungen
+lange genug ausbleiben — der Export enthält nicht, dass er gekündigt ist.
 
 ## Bisherige Importe
 
