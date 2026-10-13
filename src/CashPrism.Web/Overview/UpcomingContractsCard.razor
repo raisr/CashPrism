@@ -1,0 +1,68 @@
+@using CashPrism.Application.Contracts
+@using CashPrism.Web.Bookings
+@inject IStringLocalizer<Strings> text
+
+@* The contract bookings expected soon, overdue ones on top. Only a reading:
+   an overdue marker is dismissed on the contracts page, which the head links
+   to, so the action lives in one place. *@
+<section class="cp-card cp-card--flush cp-upcoming">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h2 class="cp-h3">@text["OverviewUpcomingTitle"]</h2>
+      <div class="cp-card__sub">@text["OverviewUpcomingHint", BookingFormat.Date(Upcoming.CurrentTo.AddDays(UpcomingContractsReader.DaysAhead).ToDateTime(TimeOnly.MinValue))]</div>
+    </div>
+    <MudButton Href="/contracts" Variant="Variant.Text" Class="cp-btn">@text["OverviewUpcomingAll"]</MudButton>
+  </div>
+  @if (Upcoming.Contracts.Count == 0)
+  {
+    <p class="cp-card__body cp-upcoming__none">@text["OverviewUpcomingNone", UpcomingContractsReader.DaysAhead]</p>
+  }
+  else
+  {
+    <div class="cp-table-wrap">
+      <table class="cp-table">
+        <thead>
+          <tr>
+            <th>@text["ContractsColumnContract"]</th>
+            <th>@text["ContractsColumnNext"]</th>
+            <th class="cp-cell-end">@text["ContractsColumnAmount"]</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var forecast in Upcoming.Contracts)
+          {
+            var contract = forecast.Contract;
+            <tr>
+              <td>
+                <div class="cp-party">
+                  <CategoryIcon Category="CategoryStyle.For(contract.Category, contract.SubCategory, contract.IsTransfer)" />
+                  <div class="cp-party__text">
+                    <div class="cp-party__name">@contract.Counterparty</div>
+                    <div class="cp-party__reference">@contract.SubCategory</div>
+                  </div>
+                </div>
+              </td>
+              <td class="cp-muted-strong">
+                @if (forecast.NextBookingOn is { } next)
+                {
+                  <div class="cp-figure">@BookingFormat.Date(next.ToDateTime(TimeOnly.MinValue))</div>
+                }
+                @if (forecast.DaysOverdue is { } days)
+                {
+                  <span class="cp-badge cp-badge--danger cp-upcoming__overdue">@text["ContractsOverdue", days]</span>
+                }
+              </td>
+              <td class="cp-cell-end"><Amount AmountInCents="contract.AmountInCents" Currency="@contract.Currency" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@code {
+    /// <summary>The contracts expected soon, in the order they are listed.</summary>
+    [Parameter, EditorRequired]
+    public UpcomingContracts Upcoming { get; set; } = default!;
+}

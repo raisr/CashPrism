@@ -75,7 +75,7 @@ public sealed class ContractReaderTests
             await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
-            var overview = await new ContractOverviewReader(new ContractReader(context)).ReadAsync();
+            var overview = await new ContractOverviewReader(new ContractForecastReader(new ContractReader(context), new DismissedOverdueStore(context))).ReadAsync();
             var monthly = overview?.ByInterval.Single(group => group.Interval == "monatlich");
 
             Assert.Equal((8, -72_287L), (monthly?.Count, monthly?.SumInCents));
@@ -87,7 +87,7 @@ public sealed class ContractReaderTests
             await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
-            var overview = await new ContractOverviewReader(new ContractReader(context)).ReadAsync();
+            var overview = await new ContractOverviewReader(new ContractForecastReader(new ContractReader(context), new DismissedOverdueStore(context))).ReadAsync();
 
             Assert.Equal(83_001, overview?.MonthlyCostInCents);
         }
@@ -98,9 +98,9 @@ public sealed class ContractReaderTests
             await using var database = await DemoSampleDatabase.CreateAsync();
             await using var context = database.CreateContext();
 
-            var overview = await new ContractOverviewReader(new ContractReader(context)).ReadAsync();
+            var overview = await new ContractOverviewReader(new ContractForecastReader(new ContractReader(context), new DismissedOverdueStore(context))).ReadAsync();
 
-            Assert.Equal(["Flimmerkiste Streaming"], overview?.PresumablyEnded.Contracts.Select(contract => contract.Counterparty));
+            Assert.Equal(["Flimmerkiste Streaming"], overview?.PresumablyEnded.Contracts.Select(forecast => forecast.Contract.Counterparty));
         }
     }
 }

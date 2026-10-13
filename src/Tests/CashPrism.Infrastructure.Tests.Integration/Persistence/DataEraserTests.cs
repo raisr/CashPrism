@@ -2,6 +2,7 @@ using System.Text;
 using CashPrism.Application.Accounts;
 using CashPrism.Application.Imports;
 using CashPrism.Domain.Accounts;
+using CashPrism.Domain.Contracts;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.TestSupport.Imports;
 using Microsoft.EntityFrameworkCore;
@@ -97,6 +98,21 @@ public sealed class DataEraserTests
 
             await using var context = database.CreateContext();
             Assert.Equal(0, await context.AccountBalances.CountAsync());
+        }
+
+        [Fact]
+        public async Task Leaves_No_Dismissed_Overdue_Marker()
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await using (var context = database.CreateContext())
+            {
+                await new DismissedOverdueStore(context).DismissAsync(new DismissedOverdue("0f3c9a1e5b7d4c2a8e6f1b3d5a7c9e0f", new DateOnly(2026, 10, 1)));
+            }
+
+            await EraseAsync(database, includeAccountGroups: false);
+
+            await using var check = database.CreateContext();
+            Assert.Empty(await new DismissedOverdueStore(check).ReadAllAsync());
         }
 
         [Fact]

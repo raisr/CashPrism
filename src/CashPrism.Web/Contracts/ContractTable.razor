@@ -6,9 +6,11 @@
 @inject IStringLocalizer<Strings> text
 
 @* Contracts as rows: the party of the newest booking with its sub-category,
-   the day of that booking and its amount. The name opens the booking list
-   filtered to the contract. With group heads, each group starts with a row
-   naming its interval, how many contracts it holds and their sum. *@
+   the day of that booking, the day the next one is expected and the amount
+   of the newest, which is also what the next one is expected to cost. The
+   name opens the booking list filtered to the contract. With group heads,
+   each group starts with a row naming its interval, how many contracts it
+   holds and their sum. *@
 <div class="cp-table-wrap">
   <table class="cp-table cp-table--hover">
     <thead>
@@ -19,6 +21,10 @@
           <th>@text["ContractsColumnInterval"]</th>
         }
         <th>@text["ContractsColumnNewest"]</th>
+        @if (ShowNext)
+        {
+          <th>@text["ContractsColumnNext"]</th>
+        }
         <th class="cp-cell-end">@text["ContractsColumnAmount"]</th>
       </tr>
     </thead>
@@ -32,8 +38,9 @@
             <td class="cp-cell-end"><Sum AmountInCents="group.SumInCents" /></td>
           </tr>
         }
-        @foreach (var contract in group.Contracts)
+        @foreach (var forecast in group.Contracts)
         {
+          var contract = forecast.Contract;
           <tr>
             <td>
               <a class="cp-party cp-contracts__link" href="@BookingsOf(contract)">
@@ -49,6 +56,29 @@
               <td class="cp-muted-strong">@IntervalName(contract.Interval)</td>
             }
             <td class="cp-muted-strong cp-figure">@BookingFormat.Date(contract.NewestBookedOn)</td>
+            @if (ShowNext)
+            {
+              <td class="cp-muted-strong">
+                @if (forecast.NextBookingOn is { } next)
+                {
+                  <div class="cp-figure">@BookingFormat.Date(next.ToDateTime(TimeOnly.MinValue))</div>
+                  @if (forecast.DaysOverdue is { } days)
+                  {
+                    @* Dismissed for this expected date only: the marker comes
+                       back when the next one is overdue in turn. *@
+                    <span class="cp-badge cp-badge--danger cp-contracts__overdue">
+                      @text["ContractsOverdue", days]
+                      <button type="button"
+                              class="cp-iconbtn cp-contracts__dismiss"
+                              aria-label="@text["ContractsOverdueDismiss", contract.Counterparty]"
+                              @onclick="() => OnDismiss.InvokeAsync(forecast)">
+                        <CpIcon Name="x" Size="13" />
+                      </button>
+                    </span>
+                  }
+                }
+              </td>
+            }
             <td class="cp-cell-end"><Amount AmountInCents="contract.AmountInCents" Currency="@contract.Currency" /></td>
           </tr>
         }
@@ -70,7 +100,18 @@
     [Parameter]
     public bool ShowInterval { get; set; }
 
-    private int Columns => ShowInterval ? 4 : 3;
+    /// <summary>
+    /// Whether every row names the day its next booking is expected, with the
+    /// overdue marker — not for contracts from which nothing is expected.
+    /// </summary>
+    [Parameter]
+    public bool ShowNext { get; set; } = true;
+
+    /// <summary>Called when the person dismisses a contract's overdue marker.</summary>
+    [Parameter]
+    public EventCallback<ContractForecast> OnDismiss { get; set; }
+
+    private int Columns => 3 + (ShowInterval ? 1 : 0) + (ShowNext ? 1 : 0);
 
     private static string BookingsOf(Contract contract)
         => BookingListQuery.LinkFor(new BookingFilter(ContractId: contract.ContractId));

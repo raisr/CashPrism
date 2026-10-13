@@ -19,14 +19,14 @@ public sealed class ContractOverviewReaderTests
         => new(Guid.NewGuid().ToString("N"), interval, counterparty, "Sonstiges", "Sonstige Ausgaben", amountInCents, "EUR", newestBookedOn ?? Recently, isTransfer);
 
     private static async Task<ContractOverview> ReadOverAsync(params Contract[] contracts)
-        => (await new ContractOverviewReader(new FakeContractReader(ExportedOn, contracts)).ReadAsync())!;
+        => (await new ContractOverviewReader(new ContractForecastReader(new FakeContractReader(ExportedOn, contracts), new FakeDismissedOverdueStore())).ReadAsync())!;
 
     public sealed class ReadAsync
     {
         [Fact]
         public async Task Returns_Nothing_When_Nothing_Was_Imported()
         {
-            var overview = await new ContractOverviewReader(new FakeContractReader(currentTo: null)).ReadAsync();
+            var overview = await new ContractOverviewReader(new ContractForecastReader(new FakeContractReader(currentTo: null), new FakeDismissedOverdueStore())).ReadAsync();
 
             Assert.Null(overview);
         }
@@ -57,7 +57,7 @@ public sealed class ContractOverviewReaderTests
         {
             var overview = await ReadOverAsync(Make("Klein", -1_000), Make("Gross", -9_000));
 
-            Assert.Equal(["Gross", "Klein"], overview.ByInterval.Single().Contracts.Select(contract => contract.Counterparty));
+            Assert.Equal(["Gross", "Klein"], overview.ByInterval.Single().Contracts.Select(forecast => forecast.Contract.Counterparty));
         }
 
         [Fact]
@@ -96,7 +96,7 @@ public sealed class ContractOverviewReaderTests
         {
             var overview = await ReadOverAsync(Make("Gehalt", 300_000), Make("Strom", -9_000));
 
-            Assert.Equal(["Gehalt"], overview.Income.Contracts.Select(contract => contract.Counterparty));
+            Assert.Equal(["Gehalt"], overview.Income.Contracts.Select(forecast => forecast.Contract.Counterparty));
         }
 
         [Fact]
@@ -121,6 +121,14 @@ public sealed class ContractOverviewReaderTests
             var overview = await ReadOverAsync(Make("Altes Gehalt", 300_000, newestBookedOn: LongAgo));
 
             Assert.Equal((0, 1), (overview.Income.Count, overview.PresumablyEnded.Count));
+        }
+
+        [Fact]
+        public async Task Gives_Each_Contract_Its_Next_Booking()
+        {
+            var overview = await ReadOverAsync(Make("Strom", -9_000, newestBookedOn: Recently));
+
+            Assert.Equal(new DateOnly(2026, 11, 1), overview.ByInterval.Single().Contracts.Single().NextBookingOn);
         }
     }
 }

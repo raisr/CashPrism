@@ -58,6 +58,7 @@ public static class CashPrismPersistenceServiceCollectionExtensions
         services.AddScoped<IImportRunReader, ImportRunReader>();
         services.AddScoped<ICashFlowReader, CashFlowReader>();
         services.AddScoped<IContractReader, ContractReader>();
+        services.AddScoped<IDismissedOverdueStore, DismissedOverdueStore>();
         services.AddScoped<IAccountBalanceReader, AccountBalanceReader>();
         services.AddScoped<IAccountGroupStore, AccountGroupStore>();
         services.AddScoped<ICredentialStore, CredentialStore>();

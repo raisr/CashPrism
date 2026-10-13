@@ -194,6 +194,19 @@ namespace CashPrism.Infrastructure.Persistence.Migrations
                     b.ToTable("Bookings", (string)null);
                 });
 
+            modelBuilder.Entity("CashPrism.Domain.Contracts.DismissedOverdue", b =>
+                {
+                    b.Property<string>("ContractId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("ExpectedOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ContractId", "ExpectedOn");
+
+                    b.ToTable("DismissedOverdues", (string)null);
+                });
+
             modelBuilder.Entity("CashPrism.Domain.Imports.ImportRun", b =>
                 {
                     b.Property<Guid>("Id")

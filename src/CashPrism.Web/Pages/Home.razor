@@ -1,11 +1,13 @@
 @page "/"
 @using CashPrism.Application.Accounts
 @using CashPrism.Application.CashFlow
+@using CashPrism.Application.Contracts
 @using System.Net
 @using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
 @inject CashFlowOverviewReader reader
 @inject AccountOverviewReader accountReader
+@inject UpcomingContractsReader upcomingReader
 
 @if (overview is null)
 {
@@ -72,6 +74,10 @@ else
         <CashFlowChart Months="@overview.Months.TakeLast(span).ToList()" CurrentTo="@overview.CurrentTo" />
         <SpendingBreakdown Month="@month.Month" Categories="@overview.SpendingByCategory" />
       </div>
+      @if (upcoming is not null)
+      {
+        <UpcomingContractsCard Upcoming="@upcoming" />
+      }
     </ChildContent>
   </PageFrame>
 }
@@ -79,6 +85,7 @@ else
 @code {
     private CashFlowOverview? overview;
     private AccountOverview? accounts;
+    private UpcomingContracts? upcoming;
     private bool loaded;
 
     // Twelve months unless the person picks another span; the longest one is
@@ -98,6 +105,7 @@ else
 
         overview = await reader.ReadAsync();
         accounts = await accountReader.ReadAsync();
+        upcoming = await upcomingReader.ReadAsync();
         loaded = true;
     }
 

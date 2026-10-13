@@ -5,6 +5,7 @@
 @using CashPrism.Web.Overview
 @inject IStringLocalizer<Strings> text
 @inject ContractOverviewReader contracts
+@inject OverdueDismisser dismisser
 
 <PageFrame Title="@text["NavContracts"]" Lead="@(overview is null ? null : text["ContractsLead", BookingFormat.Date(overview.CurrentTo.ToDateTime(TimeOnly.MinValue))].Value)">
   @if (overview is null)
@@ -49,7 +50,7 @@
               <div class="cp-card__sub">@text["ContractsSpendingHint"]</div>
             </div>
           </div>
-          <ContractTable Groups="overview.ByInterval" GroupHeads="true" />
+          <ContractTable Groups="overview.ByInterval" GroupHeads="true" OnDismiss="DismissAsync" />
         </section>
       }
 
@@ -60,7 +61,7 @@
             <div class="cp-card__title"><h2 class="cp-h3">@text["ContractsIncome"]</h2></div>
             <Sum AmountInCents="overview.Income.SumInCents" />
           </div>
-          <ContractTable Groups="[overview.Income]" ShowInterval="true" />
+          <ContractTable Groups="[overview.Income]" ShowInterval="true" OnDismiss="DismissAsync" />
         </section>
       }
 
@@ -71,7 +72,7 @@
             <div class="cp-card__title"><h2 class="cp-h3">@text["ContractsTransfers"]</h2></div>
             <Sum AmountInCents="overview.Transfers.SumInCents" />
           </div>
-          <ContractTable Groups="[overview.Transfers]" ShowInterval="true" />
+          <ContractTable Groups="[overview.Transfers]" ShowInterval="true" OnDismiss="DismissAsync" />
         </section>
       }
 
@@ -88,7 +89,7 @@
             </span>
             <CpIcon Name="chevron-down" Class="cp-contracts__chevron" />
           </summary>
-          <ContractTable Groups="[overview.PresumablyEnded]" ShowInterval="true" />
+          <ContractTable Groups="[overview.PresumablyEnded]" ShowInterval="true" ShowNext="false" />
         </details>
       }
     </div>
@@ -103,6 +104,19 @@
     {
         overview = await contracts.ReadAsync();
         loaded = true;
+    }
+
+    // Read again rather than patched in place: the overview is a handful of
+    // contracts, and the reader is what decides whether a marker shows.
+    private async Task DismissAsync(ContractForecast forecast)
+    {
+        if (forecast.NextBookingOn is not { } expectedOn)
+        {
+            return;
+        }
+
+        await dismisser.DismissAsync(forecast.Contract.ContractId, expectedOn);
+        overview = await contracts.ReadAsync();
     }
 
     private static bool IsEmpty(ContractOverview figures)
