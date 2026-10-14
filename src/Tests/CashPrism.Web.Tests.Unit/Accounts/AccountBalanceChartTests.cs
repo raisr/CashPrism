@@ -32,6 +32,9 @@ public sealed class AccountBalanceChartTests
             => context.Render<AccountBalanceChart>(parameters => parameters
                 .Add(p => p.History, new AccountBalanceHistory(Giro, holds, points)));
 
+        private static LineDisplayType LineDisplay(IRenderedComponent<AccountBalanceChart> chart)
+            => ((LineChartOptions)chart.FindComponent<MudChart<double>>().Instance.ChartOptions!).LineDisplayType;
+
         [Fact]
         public void Draws_The_Balance_At_Each_Point_In_Euros()
         {
@@ -44,6 +47,28 @@ public sealed class AccountBalanceChartTests
             var drawn = chart.FindComponent<MudChart<double>>().Instance;
             Assert.Equal(["Aug 26", "Sep 26", "Okt 26"], drawn.ChartLabels);
             Assert.Equal([1200d, 980.5d, 1000d], drawn.ChartSeries.Single().Data.Values);
+        }
+
+        [Fact]
+        public void Fills_Beneath_The_Line_While_No_Balance_Is_Below_Zero()
+        {
+            var chart = RenderWith(
+                true,
+                new DatedBalance(new DateOnly(2026, 9, 30), 0),
+                new DatedBalance(new DateOnly(2026, 10, 1), 100000));
+
+            Assert.Equal(LineDisplayType.Area, LineDisplay(chart));
+        }
+
+        [Fact]
+        public void Draws_The_Line_Alone_When_One_Balance_Is_Below_Zero()
+        {
+            var chart = RenderWith(
+                true,
+                new DatedBalance(new DateOnly(2026, 9, 30), -1),
+                new DatedBalance(new DateOnly(2026, 10, 1), 100000));
+
+            Assert.Equal(LineDisplayType.Line, LineDisplay(chart));
         }
 
         [Fact]

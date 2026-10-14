@@ -426,8 +426,10 @@ negative.
   `BalanceHistoryRule`, read through `AccountBalanceHistoryReader`: the end of
   each of the twelve complete months before the running one, and the day of
   the latest export. *Überblick* draws all of them inside the detail card as
-  *Kontostand im Verlauf* (`Accounts/AccountBalanceChart.razor`, a filled
-  MudChart line); each account card draws the last six as a 56×24 sparkline
+  *Kontostand im Verlauf* (`Accounts/AccountBalanceChart.razor`, a MudChart
+  line, filled beneath only while no point is below zero — MudChart closes the
+  fill at a fixed edge rather than at zero, so below zero it spills out of the
+  chart); each account card draws the last six as a 56×24 sparkline
   without fill (`Components/Sparkline.razor`, shared with the analysis), in
   the card's text colour when it is selected. A month before the account's
   first booking has no point, so a young account's line starts later. Where
