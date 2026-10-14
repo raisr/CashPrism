@@ -228,3 +228,50 @@ More than one line under *From another device* is normal. VPN, Docker and
 Hyper-V adapters each add an address, and CashPrism does not guess which one is
 yours — type them into the other device until one answers. *Einstellungen*
 lists the same addresses, read again whenever the page opens.
+
+## Tests blocked by Smart App Control
+
+On Windows 11 with Smart App Control switched on, a local build may not be
+testable. Smart App Control refuses to load the freshly built, unsigned
+`CashPrism.Shell.dll` into `testhost.exe`, and the test gate of
+`bash .devkit/gates.sh` fails with a message that does not mention it:
+
+```
+Für "…\CashPrism.Shell.Tests.Integration.dll" ist kein Test verfügbar.
+```
+
+On an English Windows it reads *No test is available in …*, and a stack trace
+through `Xunit.Sdk.CollectionPerClassTestCollectionFactory` follows. The failure
+comes and goes, and the same commit passes on another machine — the code is not
+the cause.
+
+Two commands in PowerShell confirm it. The first shows whether Smart App Control
+is on:
+
+```powershell
+(Get-MpComputerStatus).SmartAppControlState
+```
+
+It prints `On` when it is. The second lists the loads Windows refused:
+
+```powershell
+Get-WinEvent -FilterHashtable @{ LogName = 'Microsoft-Windows-CodeIntegrity/Operational'; Id = 3033, 3077 } |
+    Where-Object Message -like '*CashPrism*' |
+    Select-Object -First 5 |
+    Format-List TimeCreated, Id, Message
+```
+
+The filter on `CashPrism` matters: other programs, browsers among them, log the
+same event Ids many times a day. When Smart App Control is the cause, there are
+entries from the time of the failed run, and their message names
+`testhost.exe`, a CashPrism assembly such as `CashPrism.Shell.dll`, and the
+policy
+`{0283ac0f-fff1-49ae-ada1-8a933130cad6}`. Run elevated, `CiTool.exe -lp` names
+that policy `VerifiedAndReputableDesktop` — the base policy of Smart App
+Control.
+
+The remedy is to switch Smart App Control off on the machine you develop on:
+*Windows Security* → *App & browser control* → *Smart App Control settings* →
+*Off*. The tests run again from the next build on. Since the cumulative update
+of April 2026 (KB5083769) it can be switched back on later without reinstalling
+Windows; before it, switching it off was permanent.

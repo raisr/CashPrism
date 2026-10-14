@@ -51,7 +51,7 @@ Start:
 - **Linux** braucht die Bibliothek ICU (`libicu`), die Desktop-Distributionen
   mitbringen.
 
-**Intelligente App-Steuerung (Smart App Control) unter Windows** blockiert
+**Smart App Control unter Windows** blockiert
 nicht signierte Programme ohne jede Möglichkeit, eine Ausnahme zu machen. Ist
 sie auf dem Rechner eingeschaltet, startet CashPrism dort nicht. Dann läuft
 CashPrism auf einem anderen Rechner im Haus, oder als Container.
