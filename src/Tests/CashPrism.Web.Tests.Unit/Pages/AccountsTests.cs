@@ -4,9 +4,10 @@ using CashPrism.Application.Accounts;
 using CashPrism.Application.Bookings;
 using CashPrism.Application.Time;
 using CashPrism.TestSupport.Accounts;
+using CashPrism.TestSupport.Bookings;
+using CashPrism.TestSupport.CashFlow;
 using CashPrism.TestSupport.Imports;
 using CashPrism.Web.Localisation;
-using CashPrism.Web.Tests.Unit.Bookings;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -36,6 +37,9 @@ public sealed class AccountsTests
 
         protected FakeAccountGroupStore Groups { get; } = new();
 
+        /// <summary>The date the stored data is current to; nothing imported when <see langword="null"/>.</summary>
+        protected DateOnly? CurrentTo { get; set; } = new(2026, 10, 1);
+
         public Task InitializeAsync() => Task.CompletedTask;
 
         // Asynchronously, because MudBlazor registers services that only
@@ -51,6 +55,7 @@ public sealed class AccountsTests
             Context.Services.AddSingleton(new AccountOverviewReader(Balances));
             Context.Services.AddSingleton(new AccountGroupEditor(Balances, Groups));
             Context.Services.AddSingleton<IBookingReader>(Bookings);
+            Context.Services.AddSingleton(new AccountFlowReader(Bookings, new FakeCashFlowReader(CurrentTo)));
             Context.Services.AddSingleton<IClock>(new FixedClock(new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero)));
             Context.Services.GetRequiredService<NavigationManager>().NavigateTo(uri);
 
@@ -62,6 +67,10 @@ public sealed class AccountsTests
             Balances.Add("Girokonto", 460_373, Giro);
             Balances.Add("Tagesgeld", 2_084_227, Savings);
         }
+
+        /// <summary>Picks the bookings tab of the selected account.</summary>
+        protected static void ShowBookings(IRenderedComponent<AccountsPage> page)
+            => page.FindAll(".cp-account-tabs [role=tab]")[1].Click();
 
         /// <summary>The group names as the page shows them, the topmost first.</summary>
         protected static IEnumerable<string> GroupNames(IRenderedComponent<AccountsPage> page)
@@ -237,7 +246,8 @@ public sealed class AccountsTests
 
             Render($"/accounts?account={Giro}");
 
-            var request = Assert.Single(Bookings.Requests);
+            // The first request is the list's; the overview asks for its own.
+            var request = Bookings.Requests[0];
             Assert.Equal((Giro, 0, AccountsPage.BookingsShown), (request.Filter.AccountReference, request.Skip, request.Take));
         }
 
@@ -247,6 +257,7 @@ public sealed class AccountsTests
             AddTwoAccounts();
 
             var page = Render($"/accounts?account={Giro}");
+            ShowBookings(page);
 
             // Relative, as every link into the booking list is.
             Assert.Equal($"bookings?account={Giro}", page.Find(".cp-account-bookings__all").GetAttribute("href"));
@@ -262,6 +273,48 @@ public sealed class AccountsTests
             page.Find(".cp-txlist button.cp-tx").Click();
 
             Assert.Equal("Deutsche Bahn", page.Find(".cp-sheet__head .cp-h2").TextContent);
+        }
+
+        [Fact]
+        public void Selects_The_Overview_When_The_Page_Opens()
+        {
+            AddTwoAccounts();
+
+            var page = Render();
+
+            var overview = page.FindAll(".cp-account-tabs [role=tab]")[0];
+            Assert.Equal(("Überblick", "true"), (overview.TextContent.Trim(), overview.GetAttribute("aria-selected")));
+            Assert.NotNull(page.Find(".cp-account-flows"));
+            Assert.Empty(page.FindAll(".cp-account-bookings"));
+        }
+
+        [Fact]
+        public void Shows_The_Bookings_Of_The_Account_When_Their_Tab_Is_Picked()
+        {
+            Balances.Add("Girokonto", 460_373, Giro);
+            Bookings.Add(new DateTime(2026, 10, 1), counterparty: "Deutsche Bahn");
+
+            var page = Render();
+            ShowBookings(page);
+
+            Assert.Equal("Deutsche Bahn", page.Find(".cp-account-bookings .cp-tx__title").TextContent);
+            Assert.Empty(page.FindAll(".cp-account-flows"));
+        }
+
+        [Fact]
+        public void Lists_At_Most_Four_Bookings_Of_The_Last_Thirty_Days()
+        {
+            Balances.Add("Girokonto", 460_373, Giro);
+            Bookings.Add(new DateTime(2026, 10, 1));
+            Bookings.Add(new DateTime(2026, 9, 30));
+            Bookings.Add(new DateTime(2026, 9, 29));
+            Bookings.Add(new DateTime(2026, 9, 28));
+            Bookings.Add(new DateTime(2026, 9, 27));
+            Bookings.Add(new DateTime(2026, 9, 26));
+
+            var page = Render();
+
+            Assert.Equal(4, page.FindAll(".cp-account-recent .cp-tx").Count);
         }
     }
 

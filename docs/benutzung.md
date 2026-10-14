@@ -561,7 +561,7 @@ Filtern und steht wie sie in der Adresse, etwa `/bookings?q=rewe`.
 
 ## Die Konten
 
-![Die Konten: links die Kontokarten in zwei Gruppen, jede mit ihrer Summe, das ausgewählte Konto blau, rechts sein Kontostand und seine letzten Buchungen](images/benutzung/konten.png)
+![Die Konten: links die Kontokarten in zwei Gruppen, jede mit ihrer Summe, das ausgewählte Konto blau, rechts sein Kontostand, darunter Rein und raus über sechs Monate und die letzten 30 Tage](images/benutzung/konten.png)
 
 *Konten* zeigt jedes Konto aus deinem Finanzguru-Export mit seinem Kontostand.
 Darüber steht, wo deine Konten zusammen stehen, etwa *Deine 7 Konten stehen
@@ -578,9 +578,23 @@ also negativ sein.
   Adresse, ein Lesezeichen öffnet also dasselbe Konto. Ohne Auswahl ist das
   Konto mit dem höchsten Guthaben ausgewählt.
 - **Das ausgewählte Konto:** rechts, mit Kontostand und dem Tag der letzten
-  Buchung. Darunter stehen seine 30 neuesten Buchungen nach Tagen; ein Klick
-  öffnet die [Details einer Buchung](#die-buchungsliste). *Alle Buchungen
-  dieses Kontos* öffnet die Buchungsliste auf dieses Konto gefiltert.
+  Buchung. Darunter wechselst du zwischen zwei Ansichten, *Überblick* und
+  *Buchungen*. Beim Öffnen der Seite ist *Überblick* gewählt.
+- ***Überblick*:** zwei Karten unter dem Konto.
+  - *Rein und raus* zeigt für die letzten sechs abgeschlossenen Monate, was
+    auf das Konto kam und was es verließ, als Balken nebeneinander.
+  - *Letzte 30 Tage* zählt die *Eingänge* und *Ausgänge* der 30 Tage bis zum
+    neuesten Export zusammen und zeigt die vier neuesten dieser Buchungen; ein
+    Klick öffnet die [Details einer Buchung](#die-buchungsliste).
+
+  Anders als in der Übersicht und der Analyse zählen hier **Umbuchungen** mit:
+  Zwischen deinen eigenen Konten bewegen sie insgesamt kein Geld, auf diesem
+  Konto aber schon. Jede Buchung zählt nach ihrem Vorzeichen, eine Erstattung
+  also als Eingang. Eine geteilte Buchung zählt einmal.
+- ***Buchungen*:** die 30 neuesten Buchungen des Kontos nach Tagen, ihre
+  Gesamtzahl steht am Reiter; ein Klick öffnet die [Details einer
+  Buchung](#die-buchungsliste). *Alle Buchungen dieses Kontos* öffnet die
+  Buchungsliste auf dieses Konto gefiltert.
 
 **Woher der Kontostand kommt:** aus dem Export, so wie Finanzguru ihn am Tag
 des Exports zeigt. CashPrism rechnet nichts nach und nimmt den Stand des

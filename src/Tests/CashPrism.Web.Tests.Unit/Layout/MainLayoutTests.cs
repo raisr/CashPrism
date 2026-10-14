@@ -1,7 +1,7 @@
 using Bunit;
+using CashPrism.TestSupport.Bookings;
 using CashPrism.Web.Layout;
 using CashPrism.Web.Localisation;
-using CashPrism.Web.Tests.Unit.Bookings;
 using CashPrism.Web.Tests.Unit.Imports;
 using CashPrism.Web.Theme;
 using Microsoft.Extensions.DependencyInjection;

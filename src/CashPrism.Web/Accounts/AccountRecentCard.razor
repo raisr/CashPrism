@@ -1,0 +1,41 @@
+@using CashPrism.Application.Accounts
+@using CashPrism.Domain.Bookings
+@using CashPrism.Web.Bookings
+@using CashPrism.Web.Overview
+@inject IStringLocalizer<Strings> text
+
+@* What happened on an account lately: what came in and went out over the
+   last days, and its latest bookings. A booking opens its sheet. *@
+<section class="cp-card cp-card--flush cp-account-recent">
+  <div class="cp-card__head cp-account-recent__head">
+    <h3 class="cp-h3">@text["AccountRecentTitle", AccountFlowReader.RecentDays]</h3>
+  </div>
+  <div class="cp-account-recent__sums">
+    <div>
+      <div class="cp-account-recent__label">@text["AccountRecentIncome"]</div>
+      <Sum AmountInCents="Flows.RecentSummary.IncomeInCents" />
+    </div>
+    <div>
+      <div class="cp-account-recent__label">@text["AccountRecentSpending"]</div>
+      <Sum AmountInCents="Flows.RecentSummary.SpendingInCents" />
+    </div>
+  </div>
+  @if (Flows.RecentBookings.Count == 0)
+  {
+    <p class="cp-account-recent__empty">@text["AccountRecentEmpty"]</p>
+  }
+  else
+  {
+    <BookingDayList Bookings="Flows.RecentBookings" OnSelect="OnSelect" />
+  }
+</section>
+
+@code {
+    /// <summary>The account's flows, of which the recent part is shown.</summary>
+    [Parameter, EditorRequired]
+    public AccountFlows Flows { get; set; } = null!;
+
+    /// <summary>Raised with the booking a person picked.</summary>
+    [Parameter]
+    public EventCallback<Booking> OnSelect { get; set; }
+}

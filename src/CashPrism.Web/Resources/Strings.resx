@@ -633,11 +633,55 @@
   </data>
   <data name="AccountsBookings" xml:space="preserve">
     <value>Buchungen</value>
-    <comment>Accounts page: heading of the selected account's latest bookings, followed by their count.</comment>
+    <comment>Accounts page: tab with the selected account's latest bookings, beside their count.</comment>
   </data>
   <data name="AccountsAllBookings" xml:space="preserve">
     <value>Alle Buchungen dieses Kontos</value>
     <comment>Accounts page: link to the booking list filtered to the selected account.</comment>
+  </data>
+  <data name="AccountsTabs" xml:space="preserve">
+    <value>Ansicht des Kontos</value>
+    <comment>Accounts page: accessible name of the tabs that switch the selected account between overview and bookings.</comment>
+  </data>
+  <data name="AccountsTabOverview" xml:space="preserve">
+    <value>Überblick</value>
+    <comment>Accounts page: tab with the selected account's money flows.</comment>
+  </data>
+  <data name="AccountFlowsTitle" xml:space="preserve">
+    <value>Rein und raus</value>
+    <comment>Accounts page: heading of the chart of what came into and went out of the account per month.</comment>
+  </data>
+  <data name="AccountFlowsSubtitle" xml:space="preserve">
+    <value>Letzte {0} Monate</value>
+    <comment>Accounts page: line under the money flows heading. {0} is the number of complete months shown.</comment>
+  </data>
+  <data name="AccountFlowsIn" xml:space="preserve">
+    <value>Rein</value>
+    <comment>Accounts page: legend and series name of the money that came into the account.</comment>
+  </data>
+  <data name="AccountFlowsOut" xml:space="preserve">
+    <value>Raus</value>
+    <comment>Accounts page: legend and series name of the money that went out of the account.</comment>
+  </data>
+  <data name="AccountFlowsTip" xml:space="preserve">
+    <value>{0} · {1}</value>
+    <comment>Accounts page: title of the box over a bar. {0} is Rein or Raus, {1} the month.</comment>
+  </data>
+  <data name="AccountRecentTitle" xml:space="preserve">
+    <value>Letzte {0} Tage</value>
+    <comment>Accounts page: heading of the card with the account's recent bookings. {0} is the number of days, counted back from the latest export.</comment>
+  </data>
+  <data name="AccountRecentIncome" xml:space="preserve">
+    <value>Eingänge</value>
+    <comment>Accounts page: label of what came into the account over the recent days.</comment>
+  </data>
+  <data name="AccountRecentSpending" xml:space="preserve">
+    <value>Ausgänge</value>
+    <comment>Accounts page: label of what went out of the account over the recent days.</comment>
+  </data>
+  <data name="AccountRecentEmpty" xml:space="preserve">
+    <value>In diesen Tagen hat das Konto keine Buchung.</value>
+    <comment>Accounts page: shown in the recent card when the account has no booking in the recent days.</comment>
   </data>
   <data name="AccountGroupsEdit" xml:space="preserve">
     <value>Gruppen bearbeiten</value>

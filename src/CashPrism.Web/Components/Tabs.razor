@@ -1,0 +1,40 @@
+@typeparam TValue
+
+@* Underlined tabs inside a card, as the design draws them: each switches the
+   panel beneath to another view of the same thing. The panel is the page's,
+   so this row only says which one is selected. *@
+<div class="cp-tabs" role="tablist" aria-label="@Label">
+  @foreach (var tab in Options)
+  {
+    var selected = EqualityComparer<TValue>.Default.Equals(tab.Value, Value);
+    <button type="button"
+            role="tab"
+            class="@(selected ? "cp-tab cp-tab--on" : "cp-tab")"
+            aria-selected="@(selected ? "true" : "false")"
+            @onclick="() => ValueChanged.InvokeAsync(tab.Value)">
+      @tab.Label
+      @if (tab.Count is { } count)
+      {
+        <span class="cp-tab__count">@count</span>
+      }
+    </button>
+  }
+</div>
+
+@code {
+    /// <summary>The tabs, in the order they are shown.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<TabOption<TValue>> Options { get; set; } = [];
+
+    /// <summary>The value of the selected tab.</summary>
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    /// <summary>Raised with the value of the tab a person picked.</summary>
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    /// <summary>What the tabs switch between, for assistive technology; already localised.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+}

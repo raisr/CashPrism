@@ -1,10 +1,10 @@
 using Bunit;
 using CashPrism.Application.Bookings;
 using CashPrism.Application.Imports;
+using CashPrism.TestSupport.Bookings;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
 using CashPrism.Web.StoredData;
-using CashPrism.Web.Tests.Unit.Bookings;
 using CashPrism.Web.Tests.Unit.Imports;
 using Microsoft.Extensions.DependencyInjection;
 

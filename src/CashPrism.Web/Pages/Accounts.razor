@@ -12,6 +12,7 @@
 @inject AccountOverviewReader accounts
 @inject AccountGroupEditor groupEditor
 @inject IBookingReader bookingReader
+@inject AccountFlowReader flowReader
 
 @if (overview is null)
 {
@@ -92,32 +93,45 @@ else
 
         @if (selected is { } shown)
         {
-          <section class="cp-card cp-card--flush cp-accounts__detail">
-            <div class="cp-account-head">
-              <IconTile Icon="wallet" Colour="var(--cp-primary)" Size="52" Round="true" />
-              <div class="cp-account-head__text">
-                <h2 class="cp-h2">@shown.AccountName</h2>
-                <div class="cp-account-head__meta">
-                  <span class="cp-account-head__number">@IbanMask.Mask(shown.AccountReference)</span>
-                  · @text["AccountsLatestBooking", BookingFormat.Date(shown.LatestBookedOn)]
+          <div class="cp-accounts__detail">
+            <section class="cp-card cp-card--flush">
+              <div class="cp-account-head">
+                <IconTile Icon="wallet" Colour="var(--cp-primary)" Size="52" Round="true" />
+                <div class="cp-account-head__text">
+                  <h2 class="cp-h2">@shown.AccountName</h2>
+                  <div class="cp-account-head__meta">
+                    <span class="cp-account-head__number">@IbanMask.Mask(shown.AccountReference)</span>
+                    · @text["AccountsLatestBooking", BookingFormat.Date(shown.LatestBookedOn)]
+                  </div>
+                </div>
+                <div class="cp-account-head__balance">
+                  <div class="cp-label">@text["AccountsBalance"]</div>
+                  <Sum AmountInCents="shown.BalanceInCents" />
                 </div>
               </div>
-              <div class="cp-account-head__balance">
-                <div class="cp-label">@text["AccountsBalance"]</div>
-                <Sum AmountInCents="shown.BalanceInCents" />
+              <div class="cp-account-tabs">
+                <Tabs TValue="AccountView" Options="Views" @bind-Value="view" Label="@text["AccountsTabs"]" />
               </div>
-            </div>
-            @if (bookings is not null)
+              @if (view == AccountView.Bookings && bookings is not null)
+              {
+                <div role="tabpanel" class="cp-account-bookings">
+                  <div class="cp-account-bookings__head">
+                    <a class="cp-account-bookings__all" href="@BookingListQuery.LinkFor(new BookingFilter(AccountReference: shown.AccountReference))">
+                      @text["AccountsAllBookings"]
+                    </a>
+                  </div>
+                  <BookingDayList Bookings="bookings.Items" OnSelect="Open" />
+                </div>
+              }
+            </section>
+            @if (view == AccountView.Overview && flows is not null)
             {
-              <div class="cp-account-bookings__head">
-                <h3 class="cp-h3">@text["AccountsBookings"] · @BookingFormat.Count(bookings.TotalCount)</h3>
-                <a class="cp-account-bookings__all" href="@BookingListQuery.LinkFor(new BookingFilter(AccountReference: shown.AccountReference))">
-                  @text["AccountsAllBookings"]
-                </a>
+              <div role="tabpanel" class="cp-account-overview">
+                <AccountFlowChart Months="flows.Months" />
+                <AccountRecentCard Flows="flows" OnSelect="Open" />
               </div>
-              <BookingDayList Bookings="bookings.Items" OnSelect="Open" />
             }
-          </section>
+          </div>
         }
       </div>
     </ChildContent>
@@ -137,7 +151,9 @@ else
     private bool loaded;
 
     private AccountBalance? selected;
+    private AccountView view = AccountView.Overview;
     private Page<Booking>? bookings;
+    private AccountFlows? flows;
     private Booking? opened;
 
     /// <summary>The reference of the account to show; the highest balance when absent or unknown.</summary>
@@ -182,7 +198,23 @@ else
             Skip: 0,
             Take: BookingsShown,
             Filter: new BookingFilter(AccountReference: asked.AccountReference)));
+        flows = await flowReader.ReadAsync(asked.AccountReference);
     }
+
+    /// <summary>The two views of the selected account the tabs switch between.</summary>
+    private enum AccountView
+    {
+        Overview,
+        Bookings,
+    }
+
+    // The overview first and selected, as in the design; the bookings tab
+    // carries their count, as the heading above the list did.
+    private IReadOnlyList<TabOption<AccountView>> Views =>
+    [
+        new(AccountView.Overview, text["AccountsTabOverview"]),
+        new(AccountView.Bookings, text["AccountsBookings"], bookings is null ? null : BookingFormat.Count(bookings.TotalCount)),
+    ];
 
     private async Task ReadGroupsAsync()
     {

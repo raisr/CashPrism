@@ -1,9 +1,9 @@
 using CashPrism.Application.Bookings;
+using CashPrism.Application.CashFlow;
 using CashPrism.Application.Paging;
 using CashPrism.Domain.Bookings;
-using CashPrism.TestSupport.Bookings;
 
-namespace CashPrism.Web.Tests.Unit.Bookings;
+namespace CashPrism.TestSupport.Bookings;
 
 /// <summary>
 /// Stands in for the stored bookings. It answers a page with the bookings it
@@ -51,6 +51,23 @@ public sealed class FakeBookingReader : IBookingReader
         SummaryFilters.Add(filter);
 
         return Task.FromResult(Summary);
+    }
+
+    /// <summary>What the fake answers when asked for the months, whatever the filter and range.</summary>
+    public List<MonthlyCashFlow> MonthlyFlows { get; } = [];
+
+    /// <summary>What the last call for the months asked for, or nothing before the first.</summary>
+    public (BookingFilter Filter, DateOnly First, DateOnly Last)? MonthlyFlowsAskedFor { get; private set; }
+
+    public Task<IReadOnlyList<MonthlyCashFlow>> ReadMonthlyFlowsAsync(
+        BookingFilter filter,
+        DateOnly firstMonth,
+        DateOnly lastMonth,
+        CancellationToken cancellationToken = default)
+    {
+        MonthlyFlowsAskedFor = (filter, firstMonth, lastMonth);
+
+        return Task.FromResult<IReadOnlyList<MonthlyCashFlow>>(MonthlyFlows);
     }
 
     public Task<BookingFilterOptions> ReadFilterOptionsAsync(CancellationToken cancellationToken = default)
