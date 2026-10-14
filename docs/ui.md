@@ -603,21 +603,21 @@ On an empty database the button is disabled and says why.
 
 ## MudBlazor's own strings
 
-The component library ships its user-visible text — dialog buttons, the table
-pager, the data-grid menus — in English.
+The component library ships its user-visible text — a dialog's close button,
+an input's clear button — in English.
 `Localisation/ResourceMudLocalizer.cs` feeds it from `Strings.resx`, the same
 file the application's own text comes from.
 
 Two details decide whether this works:
 
 - **The keys are MudBlazor's, written with an underscore**:
-  `MudDataGridPager_RowsPerPage`, `MudDataGrid_Filter`. They are the names in
+  `MudDialog_Close`, `MudInput_Clear`. They are the names in
   the library's own resource set, not a scheme CashPrism chose.
 - **A key the resource file does not carry must report itself as not found.**
   MudBlazor reads `LocalizedString.ResourceNotFound` and only then falls back to
   its English default. A localiser that answered for every key — with the key
   itself, as a naive implementation does — would render raw identifiers such as
-  `MudDataGrid_Sort` in the UI.
+  `MudSnackbar_Close` in the UI.
 
 `IStringLocalizer` already reports a miss that way, so the lookup is passed
 straight through. The consequence is that `Strings.resx` may stay as short as
