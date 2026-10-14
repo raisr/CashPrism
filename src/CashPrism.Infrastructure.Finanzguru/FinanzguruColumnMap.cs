@@ -1,7 +1,7 @@
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Resolves a FinanzGuru header row to the column index of every known column.
+/// Resolves a Finanzguru header row to the column index of every known column.
 /// </summary>
 /// <remarks>
 /// <para>

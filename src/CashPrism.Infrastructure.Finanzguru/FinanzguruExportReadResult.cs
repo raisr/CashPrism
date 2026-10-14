@@ -3,8 +3,8 @@ using CashPrism.Application.Imports;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// The outcome of reading a FinanzGuru export: either the export, or the reasons
-/// the file could not be read. Being handed a file that is not a FinanzGuru
+/// The outcome of reading a Finanzguru export: either the export, or the reasons
+/// the file could not be read. Being handed a file that is not a Finanzguru
 /// export is an expected outcome of letting a person pick one, so it is reported
 /// as a result rather than thrown.
 /// </summary>

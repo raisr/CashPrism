@@ -1,7 +1,7 @@
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// One data row of a FinanzGuru export.
+/// One data row of a Finanzguru export.
 /// </summary>
 /// <remarks>
 /// <para>

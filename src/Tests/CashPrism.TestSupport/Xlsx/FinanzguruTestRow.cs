@@ -3,7 +3,7 @@ using CashPrism.Infrastructure.Finanzguru;
 namespace CashPrism.TestSupport.Xlsx;
 
 /// <summary>
-/// Builds one data row of a FinanzGuru export, filled in every column a booking
+/// Builds one data row of a Finanzguru export, filled in every column a booking
 /// is projected from, so a test only states the value it is actually about.
 /// </summary>
 /// <remarks>

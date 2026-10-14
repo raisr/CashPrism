@@ -1,7 +1,7 @@
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// A FinanzGuru export that was read successfully: when it was taken, what it
+/// A Finanzguru export that was read successfully: when it was taken, what it
 /// said, and which columns this version of CashPrism does not know about.
 /// </summary>
 /// <param name="SheetName">

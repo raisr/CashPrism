@@ -4,7 +4,7 @@ using CashPrism.Application.Imports;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Reads the money columns of a FinanzGuru export. The export stores them as
+/// Reads the money columns of a Finanzguru export. The export stores them as
 /// ordinary numeric cells and only the number format makes them read as money,
 /// so something has to turn that number into the whole cents the rest of
 /// CashPrism holds money in — and it is this layer, because a spreadsheet cell

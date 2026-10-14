@@ -45,7 +45,7 @@ public static class XlsxTestWorkbook
     /// a value under <see cref="FinanzguruColumns.BookingDate"/> is written as a
     /// styled numeric date cell (<c>dd.MM.yyyy</c>) rather than an inline
     /// string, and a missing key or an empty value leaves the cell out
-    /// entirely, matching how FinanzGuru itself leaves a booking's unused
+    /// entirely, matching how Finanzguru itself leaves a booking's unused
     /// columns blank.
     /// </summary>
     /// <param name="headerNames">The header row, one entry per column, in sheet order.</param>

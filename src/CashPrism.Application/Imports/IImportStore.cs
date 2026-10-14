@@ -6,7 +6,7 @@ namespace CashPrism.Application.Imports;
 /// <summary>
 /// The stored side of an import. Everything here is deliberately shaped around
 /// one export at a time and a batch of bookings at a time, rather than around
-/// single rows: FinanzGuru re-exports the complete history on every export, so a
+/// single rows: Finanzguru re-exports the complete history on every export, so a
 /// per-row round trip would multiply by tens of thousands.
 /// </summary>
 public interface IImportStore

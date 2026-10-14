@@ -3,7 +3,7 @@ using CashPrism.Application.Imports;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// The FinanzGuru side of an import: reads the export with
+/// The Finanzguru side of an import: reads the export with
 /// <see cref="FinanzguruExportReader"/> and hands the use case bookings it can
 /// store, so that nothing above this layer has to know a German column name.
 /// </summary>

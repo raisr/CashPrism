@@ -4,7 +4,7 @@ using CashPrism.Domain.Bookings;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Reads the <c>Split-Typ</c> column of a FinanzGuru export. The export names the
+/// Reads the <c>Split-Typ</c> column of a Finanzguru export. The export names the
 /// roles in German, so something has to translate — and it is this layer, because
 /// a German word in a spreadsheet is a property of the export, not of a booking.
 /// </summary>

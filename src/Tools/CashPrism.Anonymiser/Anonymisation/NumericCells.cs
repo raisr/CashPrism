@@ -5,7 +5,7 @@ namespace CashPrism.Anonymiser.Anonymisation;
 
 /// <summary>
 /// Reads and rewrites the other cell shape this tool touches: a plain numeric
-/// cell, <c>&lt;c r="D2" s="2"&gt;&lt;v&gt;123.45&lt;/v&gt;&lt;/c&gt;</c> — the shape FinanzGuru
+/// cell, <c>&lt;c r="D2" s="2"&gt;&lt;v&gt;123.45&lt;/v&gt;&lt;/c&gt;</c> — the shape Finanzguru
 /// (via Apache POI) uses for the two money columns, see
 /// <c>docs/finanzguru-export.md</c>. Unlike <see cref="InlineStringCells"/>,
 /// this tool never reads a numeric cell's value except to scale it, so there is

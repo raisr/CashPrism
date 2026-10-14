@@ -4,7 +4,7 @@ using CashPrism.Domain.Bookings;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Projects one row of a FinanzGuru export onto a <see cref="Booking"/>: 23 of
+/// Projects one row of a Finanzguru export onto a <see cref="Booking"/>: 23 of
 /// the export's 29 columns, with the German yes/no and split words translated.
 /// </summary>
 /// <remarks>

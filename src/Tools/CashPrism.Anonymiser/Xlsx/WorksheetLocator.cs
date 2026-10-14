@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace CashPrism.Anonymiser.Xlsx;
 
 /// <summary>
-/// Finds the zip entry name of the workbook's worksheet part. The FinanzGuru
+/// Finds the zip entry name of the workbook's worksheet part. The Finanzguru
 /// export carries exactly one worksheet, but its entry is never named
 /// <c>sheet1.xml</c> by convention alone — <c>workbook.xml</c> and its
 /// relationships part are the only reliable source, so this reads those rather
