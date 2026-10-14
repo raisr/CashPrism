@@ -37,6 +37,8 @@ public sealed class AccountsTests
 
         protected FakeAccountGroupStore Groups { get; } = new();
 
+        protected FakeBalanceMovementReader Movements { get; } = new();
+
         /// <summary>The date the stored data is current to; nothing imported when <see langword="null"/>.</summary>
         protected DateOnly? CurrentTo { get; set; } = new(2026, 10, 1);
 
@@ -56,6 +58,7 @@ public sealed class AccountsTests
             Context.Services.AddSingleton(new AccountGroupEditor(Balances, Groups));
             Context.Services.AddSingleton<IBookingReader>(Bookings);
             Context.Services.AddSingleton(new AccountFlowReader(Bookings, new FakeCashFlowReader(CurrentTo)));
+            Context.Services.AddSingleton(new AccountBalanceHistoryReader(Balances, Movements, new FakeCashFlowReader(CurrentTo)));
             Context.Services.AddSingleton<IClock>(new FixedClock(new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero)));
             Context.Services.GetRequiredService<NavigationManager>().NavigateTo(uri);
 
@@ -299,6 +302,47 @@ public sealed class AccountsTests
 
             Assert.Equal("Deutsche Bahn", page.Find(".cp-account-bookings .cp-tx__title").TextContent);
             Assert.Empty(page.FindAll(".cp-account-flows"));
+        }
+
+        [Fact]
+        public void Draws_The_Balance_History_Of_The_Selected_Account_In_The_Overview()
+        {
+            Balances.Add("Girokonto", 100000, Giro);
+            Movements.Add(Giro, new DateOnly(2026, 9, 30), -20000, 100000);
+            Movements.Add(Giro, new DateOnly(2026, 8, 10), 120000, 120000);
+
+            var page = Render();
+
+            Assert.NotNull(page.Find(".cp-account-balance .cp-account-balance__chart"));
+        }
+
+        [Fact]
+        public void Explains_Instead_Of_A_Line_When_The_History_Does_Not_Hold()
+        {
+            Balances.Add("Girokonto", 100000, Giro);
+            Movements.Add(Giro, new DateOnly(2026, 9, 30), -20000, 100000);
+            Movements.Add(Giro, new DateOnly(2026, 8, 10), 120000, 99999);
+
+            var page = Render();
+
+            Assert.Empty(page.FindAll(".cp-account-balance__chart"));
+            Assert.StartsWith("Für dieses Konto lässt sich kein Verlauf berechnen", page.Find(".cp-account-balance__note").TextContent);
+        }
+
+        [Fact]
+        public void Draws_A_Sparkline_Only_On_The_Card_Of_An_Account_Whose_History_Holds()
+        {
+            AddTwoAccounts();
+            Movements.Add(Giro, new DateOnly(2026, 9, 30), 60373, 460373);
+            Movements.Add(Giro, new DateOnly(2026, 8, 10), 400000, 400000);
+            Movements.Add(Savings, new DateOnly(2026, 8, 10), 2084227, 1);
+
+            var page = Render();
+
+            var cards = page.FindAll(".cp-account-card").Select(card => (
+                card.QuerySelector(".cp-account-card__name")!.TextContent,
+                card.QuerySelector(".cp-sparkline") is not null));
+            Assert.Equal([("Tagesgeld", false), ("Girokonto", true)], cards);
         }
 
         [Fact]

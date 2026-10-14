@@ -1,0 +1,113 @@
+@using CashPrism.Application.Accounts
+@using CashPrism.Web.Overview
+@using MudBlazor.Charts
+@inject IStringLocalizer<Strings> text
+
+@* An account's balance at the end of each month and on the day of the latest
+   export, as a line drawn by MudChart, filled beneath while no point is below
+   zero. Where the history does not hold, or is too short to draw, a sentence
+   says so instead: a wrong line would be read as the truth. *@
+<div class="cp-account-balance">
+  <h3 class="cp-h3">@text["AccountBalanceHistoryTitle"]</h3>
+  @if (!History.Holds)
+  {
+    <p class="cp-account-balance__note">@text["AccountBalanceHistoryMissing"]</p>
+  }
+  else if (History.Points.Count < 2)
+  {
+    <p class="cp-account-balance__note">@text["AccountBalanceHistoryTooShort"]</p>
+  }
+  else
+  {
+    <MudChart T="double"
+              ChartType="ChartType.Line"
+              ChartSeries="@series"
+              ChartLabels="@labels"
+              ChartOptions="@options"
+              Width="100%"
+              Height="240px"
+              MatchBoundsToSize="true"
+              Class="cp-account-balance__chart">
+      <TooltipTemplate>
+        @if (Tip(context.Item1) is { } tip)
+        {
+          <ChartTip Title="@tip.Title" Value="@tip.Value" Colour="@tip.Colour" Anchor="@tip.Anchor" />
+        }
+      </TooltipTemplate>
+    </MudChart>
+  }
+</div>
+
+@code {
+    private const double FillOpacity = 0.15;
+
+    private const string Colour = "var(--cp-primary)";
+
+    private readonly LineChartOptions options = new()
+    {
+        ShowLegend = false,
+        InterpolationOption = InterpolationOption.Straight,
+        ChartPalette = [Colour],
+        YAxisTicks = 1000,
+        MaxNumYAxisTicks = 5,
+        YAxisToStringFunc = value => OverviewFormat.WholeEuros((long)(value * 100)),
+    };
+
+    private List<ChartSeries<double>> series = [];
+    private string[] labels = [];
+
+    /// <summary>The account's history.</summary>
+    [Parameter, EditorRequired]
+    public AccountBalanceHistory History { get; set; } = null!;
+
+    protected override void OnParametersSet()
+    {
+        // MudChart closes the fill at a fixed edge rather than at zero, so
+        // below zero it spills out of the chart and turns the whole area
+        // negative. A balance that dips below zero is drawn as a line alone.
+        options.LineDisplayType = History.Points.Any(point => point.BalanceInCents < 0)
+            ? LineDisplayType.Line
+            : LineDisplayType.Area;
+
+        series =
+        [
+            new()
+            {
+                Name = text["AccountsBalance"],
+                Data = History.Points.Select(point => point.BalanceInCents / 100d).ToArray(),
+            },
+        ];
+
+        options.SeriesDisplayOverrides = series.ToDictionary(
+            IChartSeries (line) => line,
+            _ => new SeriesDisplayOverride { FillOpacity = FillOpacity });
+
+        labels = History.Points.Select(point => OverviewFormat.MonthShort(point.Day)).ToArray();
+    }
+
+    /// <summary>
+    /// What the box over a point says: the end of its month, or the day of the
+    /// latest export for the last point, and the balance in whole euros, as
+    /// every chart's box gives it.
+    /// </summary>
+    private ChartTipContent? Tip(SvgPath point)
+    {
+        var index = Array.IndexOf(labels, point.LabelXValue);
+
+        if (index < 0)
+        {
+            return null;
+        }
+
+        var day = History.Points[index].Day;
+        var title = index == History.Points.Count - 1
+            ? text["AccountBalanceHistoryTipLatest", day.ToString("d", CultureInfo.CurrentCulture)]
+            : text["AccountBalanceHistoryTipMonthEnd", OverviewFormat.MonthLong(day)];
+
+        return new ChartTipContent(
+            title,
+            OverviewFormat.WholeEuros(History.Points[index].BalanceInCents),
+            Colour,
+            ChartTipContent.AnchorAt(index, labels.Length));
+    }
+}

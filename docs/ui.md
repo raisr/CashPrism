@@ -422,8 +422,21 @@ negative.
   delete button says why in a tooltip on its wrapper, because a disabled button
   receives no hover. No drag and drop: arrows work with a keyboard and on a
   phone alike.
-- **No balance history yet.** The design's *Kontostand im Verlauf* in the
-  *Überblick* tab and the sparkline on each card need a measurement first.
+- **The balance history** is walked back from the balance taken at import by
+  `BalanceHistoryRule`, read through `AccountBalanceHistoryReader`: the end of
+  each of the twelve complete months before the running one, and the day of
+  the latest export. *Überblick* draws all of them inside the detail card as
+  *Kontostand im Verlauf* (`Accounts/AccountBalanceChart.razor`, a MudChart
+  line, filled beneath only while no point is below zero — MudChart closes the
+  fill at a fixed edge rather than at zero, so below zero it spills out of the
+  chart); each account card draws the last six as a 56×24 sparkline
+  without fill (`Components/Sparkline.razor`, shared with the analysis), in
+  the card's text colour when it is selected. A month before the account's
+  first booking has no point, so a young account's line starts later. Where
+  the walk disagrees with the export at one month end, the account has no
+  line at all: the card leaves the sparkline out and the chart's place says
+  why. The measurement is in
+  [`finanzguru-export.md`](finanzguru-export.md#a-balance-history-walked-back-from-the-import).
 
 The balances are what the latest export reports, taken at import — see
 [`finanzguru-export.md`](finanzguru-export.md#where-kontostand-does-give-the-balance).

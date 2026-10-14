@@ -13,6 +13,7 @@
 @inject AccountGroupEditor groupEditor
 @inject IBookingReader bookingReader
 @inject AccountFlowReader flowReader
+@inject AccountBalanceHistoryReader historyReader
 
 @if (overview is null)
 {
@@ -77,6 +78,10 @@ else
                         <span class="cp-account-card__name">@account.AccountName</span>
                         <span class="cp-account-card__number">@IbanMask.Mask(account.AccountReference)</span>
                       </span>
+                      @if (Trend(account) is { } trend)
+                      {
+                        <Sparkline Values="trend" Colour="@(on ? "currentColor" : "var(--cp-primary)")" Area="false" Width="56" Height="24" />
+                      }
                     </span>
                     <span class="cp-account-card__balance"><Sum AmountInCents="account.BalanceInCents" /></span>
                   </a>
@@ -112,6 +117,10 @@ else
               <div class="cp-account-tabs">
                 <Tabs TValue="AccountView" Options="Views" @bind-Value="view" Label="@text["AccountsTabs"]" />
               </div>
+              @if (view == AccountView.Overview && histories.TryGetValue(shown.AccountReference, out var history))
+              {
+                <AccountBalanceChart History="history" />
+              }
               @if (view == AccountView.Bookings && bookings is not null)
               {
                 <div role="tabpanel" class="cp-account-bookings">
@@ -154,6 +163,7 @@ else
     private AccountView view = AccountView.Overview;
     private Page<Booking>? bookings;
     private AccountFlows? flows;
+    private Dictionary<string, AccountBalanceHistory> histories = [];
     private Booking? opened;
 
     /// <summary>The reference of the account to show; the highest balance when absent or unknown.</summary>
@@ -169,6 +179,8 @@ else
         if (overview is not null)
         {
             await ReadGroupsAsync();
+            histories = (await historyReader.ReadAsync())
+                .ToDictionary(history => history.AccountReference, StringComparer.Ordinal);
         }
 
         loaded = true;
@@ -230,6 +242,16 @@ else
         await groupEditor.ChangeAsync(change);
         await ReadGroupsAsync();
     }
+
+    /// <summary>How many of the latest points of a history the sparkline on a card draws.</summary>
+    public const int TrendPoints = 6;
+
+    // The card's sparkline: the last points of a history that holds, or none
+    // where there is no line worth drawing.
+    private IReadOnlyList<long>? Trend(AccountBalance account)
+        => histories.TryGetValue(account.AccountReference, out var history) && history.Holds && history.Points.Count >= 2
+            ? [.. history.Points.TakeLast(TrendPoints).Select(point => point.BalanceInCents)]
+            : null;
 
     private static string LinkTo(AccountBalance account)
         => "accounts?account=" + Uri.EscapeDataString(account.AccountReference);

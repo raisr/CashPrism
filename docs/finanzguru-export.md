@@ -143,9 +143,10 @@ happen](#a-split-booking-is-double-counting-waiting-to-happen).
 | 6 | 59 | 5.2 % | 5.2 % |
 
 Sorting by date helps on some accounts and not at all on others, and no account
-comes close to holding. The column can be shown as what the export claims, but
-nothing may be **derived** from it: not a balance history, not a plausibility
-check on `Betrag`, not a way to detect missing rows.
+comes close to holding. Row by row, the column can be shown as what the export
+claims, but nothing may be **derived** from it: not a plausibility check on
+`Betrag`, not a way to detect missing rows. At the end of a day it does hold —
+see [A balance history walked back from the import](#a-balance-history-walked-back-from-the-import).
 
 ### Where `Kontostand` does give the balance
 
@@ -165,6 +166,55 @@ Two consequences:
 
 This is one snapshot, not a specification. A second export that breaks it is
 worth a measurement of its own rather than a patch to the rule.
+
+### A balance history walked back from the import
+
+The balance at the end of an earlier day follows from the balance taken at
+import: subtract every booking dated after that day, up to the export date.
+Transfers count, because they move the account's money; a split booking counts
+once, through its parts; a row dated after the export date does not count,
+because the balance taken at import does not contain it yet.
+
+Measured on the export of 2026-10-13 (6,454 rows, seven accounts), against the
+balance the export itself reports for each of the last 13 month ends — the
+`Kontostand` of the account's topmost row not dated after it, the rule above:
+
+| Account (by size) | Rows | First booking | Month ends | Matched to the cent |
+|---|---|---|---|---|
+| 1 | 4,352 | 2024-05 | 13 | 13 |
+| 2 | 1,665 | 2020-09 | 13 | 13 |
+| 3 | 238 | 2024-03 | 13 | 13 |
+| 4 | 130 | 2026-02 | 8 | 8 |
+| 5 | 65 | 2024-05 | 13 | 13 |
+| 6 | 3 | 2026-09 | 1 | 1 |
+| 7 | 1 | 2025-12 | 10 | 10 |
+
+A month end before an account's first booking is not counted. Accounts 6 and 7
+carry too few bookings for their match to say much.
+
+- **Transfers have to count.** Left out, the walk matches 12 of 71 month ends,
+  11 of them on the two accounts with hardly any bookings.
+- **The split booking lies inside the window**, on account 1. Counting its
+  parts or its original gives the same result.
+- **Before the first booking the walk is not zero** for six of the seven
+  accounts. They held money before Finanzguru recorded them, and nothing in the
+  export says how much at which time, so the history starts with the first
+  booking.
+
+Checked against the app's balances — the balances the five earlier exports
+(2026-09-06 to 2026-10-12) were taken with, the rule above having matched the
+app on 2026-10-05 — the walk from the latest export matched every account but
+one or two per export. Every difference is explained to the cent by a booking
+the later export knows and the earlier one did not: bookings dated before the
+earlier export date that arrived only afterwards, and once a booking dated after
+that date that later moved three days earlier. The walk gives the history as the
+latest export knows it, which is what CashPrism mirrors.
+
+The topmost-row rule needs the order of the file, and the stored bookings do not
+keep it. **An order-free check** holds just as well: the walked balance at a
+month end is one of the `Kontostand` values the account's rows carry on its last
+booking day up to that month end. It held at every month end of every account in
+all six exports above, 470 in total, and in `samples/demo-export.xlsx`.
 
 ### The category catalogue
 

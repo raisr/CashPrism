@@ -142,6 +142,7 @@ public sealed class Program
         builder.Services.AddScoped<SpendingAnalysisReader>();
         builder.Services.AddScoped<AccountOverviewReader>();
         builder.Services.AddScoped<AccountFlowReader>();
+        builder.Services.AddScoped<AccountBalanceHistoryReader>();
         builder.Services.AddScoped<AccountGroupEditor>();
         builder.Services.AddScoped<ContractForecastReader>();
         builder.Services.AddScoped<ContractOverviewReader>();

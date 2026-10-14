@@ -11,6 +11,12 @@ releases and the minor version is bumped for every notable change.
 
 ### Added
 
+- The accounts page shows how each balance developed: *Kontostand im Verlauf*
+  in the *Überblick* tab, over the last twelve month ends and the day of the
+  latest export, and a small line on every account card. CashPrism walks the
+  balance back from the latest export, booking by booking, and checks it
+  against the balance the export reports at each month end; an account where
+  the two disagree shows no line and says why instead of drawing a wrong one.
 - The accounts page has the tabs *Überblick* and *Buchungen* for the selected
   account. *Überblick* is open by default: *Rein und raus* shows what came
   into and went out of the account in each of the last six complete months,
