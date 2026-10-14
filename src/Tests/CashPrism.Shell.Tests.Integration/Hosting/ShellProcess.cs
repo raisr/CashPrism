@@ -18,6 +18,15 @@ internal sealed class ShellProcess : IDisposable
     /// <summary>What the host logs in front of its content root on start.</summary>
     private const string ContentRootMarker = "Content root path: ";
 
+    /// <summary>
+    /// How long a killed process may keep its files open after it was reported
+    /// exited. Windows closes the handles of a dead process a moment after the
+    /// exit is signalled — measured at up to 23 ms, in about half of 90 kills —
+    /// so the files are free soon after, not at once. A ceiling, not an expected
+    /// duration.
+    /// </summary>
+    private static readonly TimeSpan ReleasePatience = TimeSpan.FromSeconds(5);
+
     private readonly TaskCompletionSource listening =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -30,9 +39,12 @@ internal sealed class ShellProcess : IDisposable
 
     private readonly Process process;
 
-    private ShellProcess(Process process)
+    private readonly string dataDirectory;
+
+    private ShellProcess(Process process, string dataDirectory)
     {
         this.process = process;
+        this.dataDirectory = dataDirectory;
     }
 
     /// <summary>Completes once the process has printed that it is listening.</summary>
@@ -114,7 +126,7 @@ internal sealed class ShellProcess : IDisposable
         }
 
         var process = new Process { StartInfo = startInfo };
-        var started = new ShellProcess(process);
+        var started = new ShellProcess(process, dataDirectory);
 
         // Both streams are drained: a process whose output nobody reads blocks on
         // a full pipe, and the banner is longer than one.
@@ -138,13 +150,16 @@ internal sealed class ShellProcess : IDisposable
 
     /// <summary>
     /// Ends the process the way a crash would: no shutdown, no chance to clean
-    /// anything up.
+    /// anything up. Returns once the files in the data directory are free again,
+    /// or once <see cref="ReleasePatience"/> has passed — whatever then still
+    /// holds them is left for the test to find.
     /// </summary>
     public async Task KillAsync(TimeSpan patience)
     {
         process.Kill(entireProcessTree: true);
 
         await WaitForExitAsync(patience);
+        await WaitForFilesReleasedAsync();
     }
 
     public void Dispose()
@@ -156,6 +171,40 @@ internal sealed class ShellProcess : IDisposable
         }
 
         process.Dispose();
+    }
+
+    private async Task WaitForFilesReleasedAsync()
+    {
+        var deadline = DateTime.UtcNow + ReleasePatience;
+
+        while (AnyFileHeld() && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(10));
+        }
+    }
+
+    private bool AnyFileHeld()
+    {
+        if (!Directory.Exists(dataDirectory))
+        {
+            return false;
+        }
+
+        return Directory.EnumerateFiles(dataDirectory).Any(IsHeld);
+    }
+
+    private static bool IsHeld(string file)
+    {
+        try
+        {
+            using var stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+
+            return false;
+        }
+        catch (IOException)
+        {
+            return true;
+        }
     }
 
     private static string Executable()
