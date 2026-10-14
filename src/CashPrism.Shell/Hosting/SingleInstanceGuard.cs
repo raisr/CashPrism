@@ -8,10 +8,12 @@ namespace CashPrism.Shell.Hosting;
 /// <remarks>
 /// The guard is an exclusively opened lock file next to the database, not a
 /// named mutex: an operating system closes the handles of a process that dies,
-/// whichever way it died, so a crash leaves nothing behind to clean up. A named
-/// mutex would need the abandoned-mutex case handled, and handles it differently
-/// on each platform. The database file itself cannot carry the lock — SQLite has
-/// to be able to open it.
+/// whichever way it died, so a crash leaves nothing behind to clean up. Windows
+/// does so a few milliseconds after the process is reported exited, so the
+/// guard is refused for that moment and free right after. A named mutex would
+/// need the abandoned-mutex case handled, and handles it differently on each
+/// platform. The database file itself cannot carry the lock — SQLite has to be
+/// able to open it.
 /// </remarks>
 public sealed class SingleInstanceGuard : IDisposable
 {
