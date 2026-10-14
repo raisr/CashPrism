@@ -4,7 +4,7 @@ namespace CashPrism.Anonymiser.Xlsx;
 
 /// <summary>
 /// Keeps the header row plus the newest <c>n</c> data rows of a worksheet part,
-/// dropping the rest — a plain prefix, because a FinanzGuru export's row order
+/// dropping the rest — a plain prefix, because a Finanzguru export's row order
 /// is already newest first. Applied before any value is read out of the
 /// worksheet, so a value that only occurred in a dropped row never claims a
 /// dictionary entry.

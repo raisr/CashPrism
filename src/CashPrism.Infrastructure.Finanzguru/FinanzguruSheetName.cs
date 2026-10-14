@@ -3,7 +3,7 @@ using System.Globalization;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Reads the export date out of a FinanzGuru worksheet name. The name is shaped
+/// Reads the export date out of a Finanzguru worksheet name. The name is shaped
 /// <c>YYYYMMDD_Export_Alle_Buchungen</c> and therefore changes with every
 /// export, which is why a reader takes the worksheet by position — and why the
 /// name is worth parsing at all: it is the only place the export says when it

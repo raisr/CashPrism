@@ -5,7 +5,7 @@ namespace CashPrism.Anonymiser.Anonymisation;
 /// <summary>
 /// Reads and rewrites the one cell shape this tool ever touches:
 /// <c>&lt;c r="G2" t="inlineStr"&gt;&lt;is&gt;&lt;t&gt;…&lt;/t&gt;&lt;/is&gt;&lt;/c&gt;&gt;</c>. Measured on a
-/// real export, this is the only attribute order and the only wrapper FinanzGuru
+/// real export, this is the only attribute order and the only wrapper Finanzguru
 /// (via Apache POI) ever emits for a text cell; a blank cell is
 /// <c>&lt;c r="H2"&gt;&lt;/c&gt;</c> with no <c>t</c> attribute at all, so it never matches
 /// and is left untouched by construction — "an empty cell stays empty" needs no

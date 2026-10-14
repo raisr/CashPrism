@@ -19,7 +19,7 @@ public enum BookingSortColumn
     /// <summary>The payment reference.</summary>
     PaymentReference = 3,
 
-    /// <summary>FinanzGuru's top-level category.</summary>
+    /// <summary>Finanzguru's top-level category.</summary>
     Category = 4,
 
     /// <summary>The signed amount.</summary>

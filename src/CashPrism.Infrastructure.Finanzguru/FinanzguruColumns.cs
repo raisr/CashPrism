@@ -1,7 +1,7 @@
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// The columns a FinanzGuru export is known to carry, in the order the export
+/// The columns a Finanzguru export is known to carry, in the order the export
 /// writes them. The order is documentation only — nothing resolves a column by
 /// its position, see <see cref="FinanzguruColumnMap"/> for why.
 /// </summary>
@@ -16,7 +16,7 @@ public static class FinanzguruColumns
     /// <summary>The IBAN or provider handle of the account the booking belongs to.</summary>
     public const string AccountReference = "Referenzkonto";
 
-    /// <summary>The display name the account carries in FinanzGuru.</summary>
+    /// <summary>The display name the account carries in Finanzguru.</summary>
     public const string AccountName = "Name Referenzkonto";
 
     /// <summary>The signed booking amount.</summary>
@@ -46,19 +46,19 @@ public static class FinanzguruColumns
     /// <summary>The creditor identifier of a direct debit.</summary>
     public const string CreditorId = "Glaeubiger-ID";
 
-    /// <summary>The top-level category FinanzGuru assigned.</summary>
+    /// <summary>The top-level category Finanzguru assigned.</summary>
     public const string MainCategory = "Analyse-Hauptkategorie";
 
-    /// <summary>The sub-category FinanzGuru assigned.</summary>
+    /// <summary>The sub-category Finanzguru assigned.</summary>
     public const string SubCategory = "Analyse-Unterkategorie";
 
-    /// <summary>Whether FinanzGuru recognised the booking as belonging to a contract.</summary>
+    /// <summary>Whether Finanzguru recognised the booking as belonging to a contract.</summary>
     public const string IsContract = "Analyse-Vertrag";
 
     /// <summary>How often the recognised contract recurs.</summary>
     public const string ContractInterval = "Analyse-Vertragsturnus";
 
-    /// <summary>FinanzGuru's identifier of the recognised contract.</summary>
+    /// <summary>Finanzguru's identifier of the recognised contract.</summary>
     public const string ContractId = "Analyse-Vertrags-ID";
 
     /// <summary>Whether the booking is a transfer between two of your own accounts.</summary>
@@ -67,7 +67,7 @@ public static class FinanzguruColumns
     /// <summary>Whether the booking is excluded from the freely disposable income.</summary>
     public const string ExcludedFromDisposableIncome = "Analyse-Vom frei verfuegbaren Einkommen ausgeschlossen";
 
-    /// <summary>How the booking was paid, as classified by FinanzGuru.</summary>
+    /// <summary>How the booking was paid, as classified by Finanzguru.</summary>
     public const string TransactionKind = "Analyse-Umsatzart";
 
     /// <summary>Whether the booking counts as income or as spending.</summary>
@@ -85,7 +85,7 @@ public static class FinanzguruColumns
     /// <summary>The year the booking falls into.</summary>
     public const string Year = "Analyse-Jahr";
 
-    /// <summary>FinanzGuru's identifier of the booking.</summary>
+    /// <summary>Finanzguru's identifier of the booking.</summary>
     public const string BookingId = "Buchungs-ID";
 
     /// <summary>The booking a split part points back to.</summary>

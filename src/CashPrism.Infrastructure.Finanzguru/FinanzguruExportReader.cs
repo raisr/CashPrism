@@ -5,7 +5,7 @@ using ClosedXML.Excel;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Reads a FinanzGuru "Alle Buchungen" export out of an <c>.xlsx</c> stream.
+/// Reads a Finanzguru "Alle Buchungen" export out of an <c>.xlsx</c> stream.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -37,7 +37,7 @@ public sealed class FinanzguruExportReader
     private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 
     /// <summary>
-    /// Reads <paramref name="stream"/> as a FinanzGuru export.
+    /// Reads <paramref name="stream"/> as a Finanzguru export.
     /// </summary>
     /// <param name="stream">The <c>.xlsx</c> to read. Has to be readable and seekable.</param>
     /// <returns>

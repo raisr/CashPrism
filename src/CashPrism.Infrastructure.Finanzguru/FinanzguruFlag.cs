@@ -3,13 +3,13 @@ using CashPrism.Application.Imports;
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// Reads the yes/no columns of a FinanzGuru export. The export writes them as
+/// Reads the yes/no columns of a Finanzguru export. The export writes them as
 /// German words rather than as booleans, so something has to translate — and it
 /// is this layer, because a German word in a spreadsheet is a property of the
 /// export, not of a booking.
 /// </summary>
 /// <remarks>
-/// The conversion is strict on purpose. A column that FinanzGuru starts filling
+/// The conversion is strict on purpose. A column that Finanzguru starts filling
 /// with a third word is a change we want to be told about, and defaulting an
 /// unreadable value to <c>false</c> would instead turn it into a silently wrong
 /// total: <c>Analyse-Umbuchung</c> alone decides for 916 of 6,327 measured rows

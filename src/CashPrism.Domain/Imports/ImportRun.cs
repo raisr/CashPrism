@@ -144,7 +144,7 @@ public sealed class ImportRun
     /// same booking.
     /// </summary>
     /// <remarks>
-    /// The export date decides, because that is when FinanzGuru described the
+    /// The export date decides, because that is when Finanzguru described the
     /// booking — not when we happened to import the file. Where either run has no
     /// readable export date, the more recent import run decides instead, which is
     /// the best that is left.

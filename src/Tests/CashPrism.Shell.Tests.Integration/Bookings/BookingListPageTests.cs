@@ -36,7 +36,7 @@ public sealed class BookingListPageTests
 
     /// <summary>
     /// Puts two bookings in the database the way a person would: through the
-    /// real import, from a workbook shaped like a FinanzGuru export.
+    /// real import, from a workbook shaped like a Finanzguru export.
     /// </summary>
     private static async Task ImportTwoBookingsAsync(CashPrismWebApplicationFactory factory)
     {

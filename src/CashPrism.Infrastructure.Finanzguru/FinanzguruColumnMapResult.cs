@@ -1,7 +1,7 @@
 namespace CashPrism.Infrastructure.Finanzguru;
 
 /// <summary>
-/// The outcome of resolving a FinanzGuru header row: either the assignment from
+/// The outcome of resolving a Finanzguru header row: either the assignment from
 /// column name to column index, or the reasons the header row does not fit.
 /// "This file does not fit" is an expected outcome of reading a foreign export,
 /// so it is reported as a result rather than thrown.

@@ -27,7 +27,7 @@ namespace CashPrism.Application.Imports;
 /// </para>
 /// <para>
 /// It works in batches rather than a file at a time. An export carries the
-/// owner's complete history — always, because that is the only export FinanzGuru
+/// owner's complete history — always, because that is the only export Finanzguru
 /// offers — so the number of rows grows without bound while the number that has
 /// to be in memory at once does not have to.
 /// </para>

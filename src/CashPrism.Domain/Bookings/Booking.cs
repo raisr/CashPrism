@@ -28,10 +28,10 @@ public sealed class Booking
     /// Creates a booking. The guard clauses reject what cannot be a booking at
     /// all; they deliberately do not police the shape of the values, because the
     /// shapes we know are measurements of two export files rather than anything
-    /// FinanzGuru guarantees.
+    /// Finanzguru guarantees.
     /// </summary>
     /// <param name="fingerprint">
-    /// The FinanzGuru <c>Buchungs-ID</c>, the identity of the booking. Required.
+    /// The Finanzguru <c>Buchungs-ID</c>, the identity of the booking. Required.
     /// </param>
     /// <param name="bookedOn">
     /// The date the booking was posted. Keeps the time component the export
@@ -50,15 +50,15 @@ public sealed class Booking
     /// The account the booking belongs to — an IBAN, or the handle a provider
     /// account is identified by. Required.
     /// </param>
-    /// <param name="accountName">The display name that account carries in FinanzGuru.</param>
+    /// <param name="accountName">The display name that account carries in Finanzguru.</param>
     /// <param name="counterparty">The other party of the booking, as the bank transmitted it.</param>
     /// <param name="counterpartyAccount">
     /// The other party's account. Not always an IBAN: it may also be a UUID, an
     /// email address or a short opaque code. Empty where the export has no value.
     /// </param>
     /// <param name="paymentReference">The payment reference. Empty where the export has none.</param>
-    /// <param name="category">FinanzGuru's top-level category. Free text from our point of view.</param>
-    /// <param name="subCategory">FinanzGuru's sub-category. Same caveat.</param>
+    /// <param name="category">Finanzguru's top-level category. Free text from our point of view.</param>
+    /// <param name="subCategory">Finanzguru's sub-category. Same caveat.</param>
     /// <param name="isTransfer">
     /// Whether the booking moves money between two of the owner's own accounts.
     /// A total that counts a transfer as income or as spending is wrong.
@@ -197,7 +197,7 @@ public sealed class Booking
         SourceImportRunId = sourceImportRunId;
     }
 
-    /// <summary>The FinanzGuru <c>Buchungs-ID</c>: the identity of the booking.</summary>
+    /// <summary>The Finanzguru <c>Buchungs-ID</c>: the identity of the booking.</summary>
     public string Fingerprint { get; }
 
     /// <summary>The date the booking was posted, time component included where the export carries one.</summary>
@@ -212,7 +212,7 @@ public sealed class Booking
     /// <summary>The account the booking belongs to.</summary>
     public string AccountReference { get; }
 
-    /// <summary>The display name that account carries in FinanzGuru.</summary>
+    /// <summary>The display name that account carries in Finanzguru.</summary>
     public string AccountName { get; }
 
     /// <summary>The other party of the booking.</summary>
@@ -224,10 +224,10 @@ public sealed class Booking
     /// <summary>The payment reference.</summary>
     public string PaymentReference { get; }
 
-    /// <summary>FinanzGuru's top-level category.</summary>
+    /// <summary>Finanzguru's top-level category.</summary>
     public string Category { get; }
 
-    /// <summary>FinanzGuru's sub-category.</summary>
+    /// <summary>Finanzguru's sub-category.</summary>
     public string SubCategory { get; }
 
     /// <summary>Whether the booking moves money between two of the owner's own accounts.</summary>
