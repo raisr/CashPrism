@@ -1082,66 +1082,11 @@
     Anything left out keeps MudBlazor's English default rather than rendering
     the key, so this list may stay as short as the components in use.
   -->
-  <data name="MudDataGrid_Clear" xml:space="preserve">
-    <value>Zurücksetzen</value>
-  </data>
-  <data name="MudDataGrid_Filter" xml:space="preserve">
-    <value>Filter</value>
-  </data>
-  <data name="MudDataGrid_Loading" xml:space="preserve">
-    <value>Wird geladen …</value>
-  </data>
-  <data name="MudDataGrid_Sort" xml:space="preserve">
-    <value>Sortieren</value>
-  </data>
-  <data name="MudDataGrid_Unsort" xml:space="preserve">
-    <value>Sortierung aufheben</value>
-  </data>
-  <data name="MudDataGridPager_AllItems" xml:space="preserve">
-    <value>Alle</value>
-  </data>
-  <data name="MudDataGridPager_FirstPage" xml:space="preserve">
-    <value>Erste Seite</value>
-  </data>
-  <data name="MudDataGridPager_InfoFormat" xml:space="preserve">
-    <value>{0:N0}–{1:N0} von {2:N0}</value>
-    <comment>The booking list formats this line itself, so the placeholders carry .NET numeric specifiers. MudBlazor substitutes pre-formatted strings and ignores them.</comment>
-  </data>
-  <data name="MudDataGridPager_LastPage" xml:space="preserve">
-    <value>Letzte Seite</value>
-  </data>
-  <data name="MudDataGridPager_NextPage" xml:space="preserve">
-    <value>Nächste Seite</value>
-  </data>
-  <data name="MudDataGridPager_PreviousPage" xml:space="preserve">
-    <value>Vorherige Seite</value>
-  </data>
-  <data name="MudDataGridPager_RowsPerPage" xml:space="preserve">
-    <value>Zeilen pro Seite:</value>
-  </data>
   <data name="MudDialog_Close" xml:space="preserve">
     <value>Schließen</value>
   </data>
-  <data name="MudFileUpload_Button" xml:space="preserve">
-    <value>Datei auswählen</value>
-  </data>
-  <data name="MudFileUpload_DragAndDrop" xml:space="preserve">
-    <value>Datei hierher ziehen oder klicken, um sie auszuwählen</value>
-  </data>
   <data name="MudInput_Clear" xml:space="preserve">
     <value>Leeren</value>
-  </data>
-  <data name="MudTable_Loading" xml:space="preserve">
-    <value>Wird geladen …</value>
-  </data>
-  <data name="MudTablePager_FirstPage" xml:space="preserve">
-    <value>Erste Seite</value>
-  </data>
-  <data name="MudTablePager_LastPage" xml:space="preserve">
-    <value>Letzte Seite</value>
-  </data>
-  <data name="MudTablePager_NextPage" xml:space="preserve">
-    <value>Nächste Seite</value>
   </data>
   <data name="CategoryHousing" xml:space="preserve">
     <value>Wohnen</value>
@@ -1186,9 +1131,6 @@
   <data name="CategoryIncome" xml:space="preserve">
     <value>Einkommen</value>
     <comment>Name of the design category for money coming in.</comment>
-  </data>
-  <data name="MudTablePager_PreviousPage" xml:space="preserve">
-    <value>Vorherige Seite</value>
   </data>
   <data name="LoginTitle" xml:space="preserve">
     <value>Anmelden</value>

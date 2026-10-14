@@ -257,7 +257,7 @@ is cheap now and expensive to retrofit.
 - **The component library reads the same resource file.** MudBlazor ships its
   own English text; a `MudLocalizer` feeds it from `Strings.resx` under
   MudBlazor's own keys, which are written with an underscore
-  (`MudDataGrid_Filter`). A key the file does not carry **must** report itself
+  (`MudDialog_Close`). A key the file does not carry **must** report itself
   as not found, so MudBlazor falls back to its English default — a localiser
   that answers for every key renders raw identifiers in the UI. Leaving a key
   out is therefore a decision, not a defect; answering wrongly is a defect.

@@ -19,8 +19,8 @@ public static class PagerInfo
     /// Writes the info line.
     /// </summary>
     /// <param name="format">
-    /// The localised format, with three numeric placeholders — the
-    /// <c>MudDataGridPager_InfoFormat</c> entry of <c>Strings.resx</c>.
+    /// The localised format, with three numeric placeholders — an entry of
+    /// <c>Strings.resx</c> such as <c>BookingsPagerInfo</c>.
     /// </param>
     /// <param name="first">The first entry on the page, counted from one. Zero when the page is empty.</param>
     /// <param name="last">The last entry on the page, counted from one. Zero when the page is empty.</param>

@@ -5,13 +5,13 @@ using MudBlazor;
 namespace CashPrism.Web.Localisation;
 
 /// <summary>
-/// Feeds MudBlazor's own user-visible strings — dialog buttons, the table
-/// pager, the data-grid menus — from <c>Strings.resx</c>, so the component
-/// library speaks the same German as everything around it.
+/// Feeds MudBlazor's own user-visible strings — a dialog's close button, an
+/// input's clear button — from <c>Strings.resx</c>, so the component library
+/// speaks the same German as everything around it.
 /// </summary>
 /// <remarks>
 /// The keys are MudBlazor's own, written with an underscore:
-/// <c>MudDataGrid_Filter</c>, <c>MudDataGridPager_RowsPerPage</c>. A key the
+/// <c>MudDialog_Close</c>, <c>MudInput_Clear</c>. A key the
 /// resource file does not carry must come back with
 /// <see cref="LocalizedString.ResourceNotFound"/> set — that is the signal
 /// MudBlazor falls back to its built-in English default on. Answering for every

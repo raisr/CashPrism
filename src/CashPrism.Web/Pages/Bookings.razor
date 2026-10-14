@@ -33,10 +33,10 @@
   }
   else
   {
-    @* A table of our own rather than MudDataGrid: the design groups a page's
-       rows under a header per day and numbers the pages, and the grid offers
-       neither without being argued with. Filtering, sorting and paging still
-       happen in the database — every change asks the reader for one page. *@
+    @* A table of our own rather than MudBlazor's data grid: the design groups
+       a page's rows under a header per day and numbers the pages, and the grid
+       offers neither without being argued with. Filtering, sorting and paging
+       still happen in the database — every change asks the reader for one page. *@
     <div class="cp-card cp-card--flush">
       <BookingFilterBar Filter="query.Filter" Options="options" CurrentTo="currentTo" FilterChanged="Filter" />
       <BookingSummaryLine Summary="summary" />

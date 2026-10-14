@@ -10,7 +10,7 @@ namespace CashPrism.Web.Tests.Unit.Localisation;
 /// Every list writes its pager's info line itself, because MudBlazor formats
 /// the three counts with a culture of its own and would put an English
 /// thousands separator into a German page. That only works while
-/// <c>MudDataGridPager_InfoFormat</c> stays a .NET format string with three
+/// <c>BookingsPagerInfo</c> stays a .NET format string with three
 /// numeric placeholders — this is the test that says so.
 /// </summary>
 public sealed class PagerInfoTests
@@ -28,7 +28,7 @@ public sealed class PagerInfoTests
             .AddLocalization()
             .BuildServiceProvider();
 
-        return provider.GetRequiredService<IStringLocalizer<Strings>>()["MudDataGridPager_InfoFormat"];
+        return provider.GetRequiredService<IStringLocalizer<Strings>>()["BookingsPagerInfo"];
     }
 
     public sealed class Compose
@@ -38,7 +38,7 @@ public sealed class PagerInfoTests
         {
             var info = PagerInfo.Compose(InfoFormat(), 1, 25, 6327, German);
 
-            Assert.Equal("1–25 von 6.327", info);
+            Assert.Equal("1–25 von 6.327 Buchungen", info);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ public sealed class PagerInfoTests
         {
             var info = PagerInfo.Compose(InfoFormat(), 6301, 6325, 6327, German);
 
-            Assert.Equal("6.301–6.325 von 6.327", info);
+            Assert.Equal("6.301–6.325 von 6.327 Buchungen", info);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ public sealed class PagerInfoTests
         {
             var info = PagerInfo.Compose(InfoFormat(), 1, 2, 2, German);
 
-            Assert.Equal("1–2 von 2", info);
+            Assert.Equal("1–2 von 2 Buchungen", info);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ public sealed class PagerInfoTests
         {
             var info = PagerInfo.Compose(InfoFormat(), 1, 25, 6327, CultureInfo.GetCultureInfo("en-GB"));
 
-            Assert.Equal("1–25 von 6,327", info);
+            Assert.Equal("1–25 von 6,327 Buchungen", info);
         }
 
         [Fact]

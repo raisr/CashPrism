@@ -31,9 +31,9 @@ public sealed class ResourceMudLocalizerTests
         {
             var localizer = Create();
 
-            var localised = localizer["MudDataGridPager_RowsPerPage"];
+            var localised = localizer["MudDialog_Close"];
 
-            Assert.Equal("Zeilen pro Seite:", localised.Value);
+            Assert.Equal("Schließen", localised.Value);
             Assert.False(localised.ResourceNotFound);
         }
 
