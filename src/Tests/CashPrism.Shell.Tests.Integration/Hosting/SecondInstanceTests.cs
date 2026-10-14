@@ -18,6 +18,15 @@ public sealed class SecondInstanceTests
         /// </summary>
         private static readonly TimeSpan Patience = TimeSpan.FromSeconds(120);
 
+        /// <summary>
+        /// How long a killed process may keep its lock file open after it was
+        /// reported exited. Windows closes the handles of a dead process a moment
+        /// after the exit is signalled — measured at up to 23 ms, in about half of
+        /// 90 kills — so the guard is free soon after, not at once. A ceiling, not
+        /// an expected duration.
+        /// </summary>
+        private static readonly TimeSpan ReleasePatience = TimeSpan.FromSeconds(5);
+
         private readonly List<string> directories = [];
 
         private readonly List<ShellProcess> started = [];
@@ -128,8 +137,22 @@ public sealed class SecondInstanceTests
 
             await first.KillAsync(Patience);
 
-            using var guard = SingleInstanceGuard.TryAcquire(DatabaseFile);
+            using var guard = await AcquireWithinAsync(DatabaseFile, ReleasePatience);
             Assert.NotNull(guard);
+        }
+
+        private static async Task<SingleInstanceGuard?> AcquireWithinAsync(string databaseFile, TimeSpan patience)
+        {
+            var deadline = DateTime.UtcNow + patience;
+            var guard = SingleInstanceGuard.TryAcquire(databaseFile);
+
+            while (guard is null && DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
+                guard = SingleInstanceGuard.TryAcquire(databaseFile);
+            }
+
+            return guard;
         }
     }
 }
