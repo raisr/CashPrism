@@ -647,6 +647,26 @@
     <value>Überblick</value>
     <comment>Accounts page: tab with the selected account's money flows.</comment>
   </data>
+  <data name="AccountBalanceHistoryTitle" xml:space="preserve">
+    <value>Kontostand im Verlauf</value>
+    <comment>Accounts page: heading of the chart of the selected account's balance over the last months.</comment>
+  </data>
+  <data name="AccountBalanceHistoryMissing" xml:space="preserve">
+    <value>Für dieses Konto lässt sich kein Verlauf berechnen: Rückwärts gerechnet ergeben seine Buchungen nicht an jedem Monatsende den Kontostand, den der Export dort nennt.</value>
+    <comment>Accounts page: shown instead of the balance chart when walking the account's bookings back does not match the export.</comment>
+  </data>
+  <data name="AccountBalanceHistoryTooShort" xml:space="preserve">
+    <value>Für einen Verlauf hat dieses Konto noch zu wenige Monate.</value>
+    <comment>Accounts page: shown instead of the balance chart when the account's first booking is in the running month.</comment>
+  </data>
+  <data name="AccountBalanceHistoryTipMonthEnd" xml:space="preserve">
+    <value>Ende {0}</value>
+    <comment>Accounts page: title of the box over a point of the balance chart. {0} is the month and year written out.</comment>
+  </data>
+  <data name="AccountBalanceHistoryTipLatest" xml:space="preserve">
+    <value>Stand {0}</value>
+    <comment>Accounts page: title of the box over the last point of the balance chart. {0} is the date of the latest export.</comment>
+  </data>
   <data name="AccountFlowsTitle" xml:space="preserve">
     <value>Rein und raus</value>
     <comment>Accounts page: heading of the chart of what came into and went out of the account per month.</comment>

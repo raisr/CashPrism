@@ -1,7 +1,7 @@
 using Bunit;
-using CashPrism.Web.Analysis;
+using CashPrism.Web.Components;
 
-namespace CashPrism.Web.Tests.Unit.Analysis;
+namespace CashPrism.Web.Tests.Unit.Components;
 
 public sealed class SparklineTests
 {
@@ -43,6 +43,17 @@ public sealed class SparklineTests
 
             var dot = sparkline.Find(".cp-sparkline__dot");
             Assert.Equal(("102", "12"), (dot.GetAttribute("cx"), dot.GetAttribute("cy")));
+        }
+
+        [Fact]
+        public void Leaves_The_Fill_Out_When_Asked_To()
+        {
+            var sparkline = context.Render<Sparkline>(parameters => parameters
+                .Add(p => p.Values, [0L, 100L])
+                .Add(p => p.Colour, "var(--cp-primary)")
+                .Add(p => p.Area, false));
+
+            Assert.Empty(sparkline.FindAll(".cp-sparkline__area"));
         }
 
         [Fact]

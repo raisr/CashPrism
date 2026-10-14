@@ -1,12 +1,15 @@
-@* A small trend line for a table cell, drawn as SVG: the values scaled to
-   the box between their own lowest and highest, a light fill beneath, and a
-   dot on the latest. No axis — it shows the shape, the figures stand beside
+@* A small trend line for a table cell or a card, drawn as SVG: the values
+   scaled to the box between their own lowest and highest, a light fill
+   beneath unless left out, and a dot on the latest. No axis — it shows the shape, the figures stand beside
    it. The design fades the fill out; an even, light fill needs no gradient
    and so no id that would have to be unique on the page. *@
 <svg class="cp-sparkline" width="@Width" height="@Height" viewBox="0 0 @Width @Height" aria-hidden="true" style="--c:@Colour">
   @if (points.Count > 0)
   {
-    <path class="cp-sparkline__area" d="@area" />
+    @if (Area)
+    {
+      <path class="cp-sparkline__area" d="@area" />
+    }
     <path class="cp-sparkline__line" d="@line" />
     <circle class="cp-sparkline__dot" cx="@Coordinate(points[^1].X)" cy="@Coordinate(points[^1].Y)" r="2.5" />
   }
@@ -27,6 +30,10 @@
     /// <summary>A CSS colour, usually one of the design system's custom properties.</summary>
     [Parameter, EditorRequired]
     public string Colour { get; set; } = string.Empty;
+
+    /// <summary>Whether the light fill beneath the line is drawn.</summary>
+    [Parameter]
+    public bool Area { get; set; } = true;
 
     /// <summary>The width in pixels.</summary>
     [Parameter]

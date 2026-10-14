@@ -2191,7 +2191,8 @@
 }
 
 .cp-category-chart__chart text,
-.cp-account-flows__chart text {
+.cp-account-flows__chart text,
+.cp-account-balance__chart text {
   font-family: var(--cp-font-sans);
   font-size: 11px;
   font-weight: 600;
@@ -2200,7 +2201,8 @@
 }
 
 .cp-category-chart__chart .mud-charts-gridlines-yaxis path,
-.cp-account-flows__chart .mud-charts-gridlines-yaxis path {
+.cp-account-flows__chart .mud-charts-gridlines-yaxis path,
+.cp-account-balance__chart .mud-charts-gridlines-yaxis path {
   stroke: var(--cp-chart-grid);
   stroke-dasharray: 3 4;
 }
@@ -2666,6 +2668,20 @@ button.cp-tx {
 
 .cp-account-tabs {
   padding: 16px var(--cp-card-padding) 0;
+}
+
+.cp-account-balance {
+  padding: var(--cp-card-padding);
+}
+
+.cp-account-balance .cp-h3 {
+  margin-bottom: 12px;
+}
+
+.cp-account-balance__note {
+  margin: 0;
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
 }
 
 /* Below the header card, the overview's cards side by side, one above the

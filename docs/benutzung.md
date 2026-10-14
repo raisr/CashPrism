@@ -561,7 +561,7 @@ Filtern und steht wie sie in der Adresse, etwa `/bookings?q=rewe`.
 
 ## Die Konten
 
-![Die Konten: links die Kontokarten in zwei Gruppen, jede mit ihrer Summe, das ausgewählte Konto blau, rechts sein Kontostand, darunter Rein und raus über sechs Monate und die letzten 30 Tage](images/benutzung/konten.png)
+![Die Konten: links die Kontokarten in zwei Gruppen, jede mit ihrer Summe und einer kleinen Verlaufslinie, das ausgewählte Konto blau, rechts sein Kontostand und sein Verlauf über zwölf Monate, darunter Rein und raus und die letzten 30 Tage](images/benutzung/konten.png)
 
 *Konten* zeigt jedes Konto aus deinem Finanzguru-Export mit seinem Kontostand.
 Darüber steht, wo deine Konten zusammen stehen, etwa *Deine 7 Konten stehen
@@ -573,14 +573,17 @@ also negativ sein.
   wie du weitere anlegst, steht unter [Kontogruppen](#kontogruppen).
 - **Kontokarten:** in jeder Gruppe in der Reihenfolge, die du festgelegt hast.
   Jede Karte zeigt den Namen des Kontos, wie Finanzguru ihn führt, die letzten
-  vier Stellen der IBAN, etwa `•••• 2051`, und den Kontostand. Ein Klick wählt
-  das Konto aus; die ausgewählte Karte ist blau. Die Auswahl steht in der
-  Adresse, ein Lesezeichen öffnet also dasselbe Konto. Ohne Auswahl ist das
-  Konto mit dem höchsten Guthaben ausgewählt.
+  vier Stellen der IBAN, etwa `•••• 2051`, den Kontostand und eine kleine
+  Linie, wie er sich über die letzten fünf Monatsenden bis zum neuesten Export
+  entwickelt hat. Ein Klick wählt das Konto aus; die ausgewählte Karte ist
+  blau. Die Auswahl steht in der Adresse, ein Lesezeichen öffnet also dasselbe
+  Konto. Ohne Auswahl ist das Konto mit dem höchsten Guthaben ausgewählt.
 - **Das ausgewählte Konto:** rechts, mit Kontostand und dem Tag der letzten
   Buchung. Darunter wechselst du zwischen zwei Ansichten, *Überblick* und
   *Buchungen*. Beim Öffnen der Seite ist *Überblick* gewählt.
-- ***Überblick*:** zwei Karten unter dem Konto.
+- ***Überblick*:** *Kontostand im Verlauf* zeigt den Kontostand am Ende der
+  letzten zwölf Monate und am Tag des neuesten Exports; zeigst du auf einen
+  Punkt, steht der Stand dabei. Darunter zwei Karten:
   - *Rein und raus* zeigt für die letzten sechs abgeschlossenen Monate, was
     auf das Konto kam und was es verließ, als Balken nebeneinander.
   - *Letzte 30 Tage* zählt die *Eingänge* und *Ausgänge* der 30 Tage bis zum
@@ -599,6 +602,17 @@ also negativ sein.
 **Woher der Kontostand kommt:** aus dem Export, so wie Finanzguru ihn am Tag
 des Exports zeigt. CashPrism rechnet nichts nach und nimmt den Stand des
 neuesten Exports, auch wenn du danach einen älteren importierst.
+
+**Woher der Verlauf kommt:** CashPrism rechnet vom Kontostand des neuesten
+Exports rückwärts und zieht jede spätere Buchung wieder ab, Umbuchungen
+eingeschlossen. Das Ergebnis vergleicht es an jedem Monatsende mit dem
+Kontostand, den der Export dort selbst nennt. Passt es auch nur an einem
+Monatsende nicht, zeigt das Konto keinen Verlauf und keine Linie auf der
+Karte, sondern einen Satz, warum — ein falscher Verlauf wäre schlimmer als
+keiner. Vor der ersten Buchung eines Kontos weiß der Export nicht, was darauf
+lag; dort beginnt die Linie erst später. Bucht Finanzguru eine Buchung
+nachträglich mit einem früheren Datum, ändert sich mit dem nächsten Import auch
+der Verlauf davor.
 
 **Was fehlt:**
 
