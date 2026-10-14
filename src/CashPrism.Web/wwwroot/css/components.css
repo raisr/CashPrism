@@ -1751,6 +1751,67 @@
   font-weight: 600;
 }
 
+/* ---------- tabs ---------- */
+
+.cp-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--cp-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.cp-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: 700 14px/1 var(--cp-font-sans);
+  color: var(--cp-text-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cp-tab:hover {
+  color: var(--cp-text);
+}
+
+.cp-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--cp-focus);
+}
+
+.cp-tab--on {
+  color: var(--cp-primary);
+}
+
+.cp-tab--on::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cp-primary);
+}
+
+.cp-tab__count {
+  padding: 2px 7px;
+  border-radius: var(--cp-radius-pill);
+  background: var(--cp-surface-3);
+  font-size: 11px;
+  color: var(--cp-text-2);
+}
+
 /* ---------- segmented control ---------- */
 
 .cp-seg {
@@ -2129,7 +2190,8 @@
   margin-top: 16px;
 }
 
-.cp-category-chart__chart text {
+.cp-category-chart__chart text,
+.cp-account-flows__chart text {
   font-family: var(--cp-font-sans);
   font-size: 11px;
   font-weight: 600;
@@ -2137,7 +2199,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.cp-category-chart__chart .mud-charts-gridlines-yaxis path {
+.cp-category-chart__chart .mud-charts-gridlines-yaxis path,
+.cp-account-flows__chart .mud-charts-gridlines-yaxis path {
   stroke: var(--cp-chart-grid);
   stroke-dasharray: 3 4;
 }
@@ -2381,6 +2444,9 @@ button.cp-tx {
 }
 
 .cp-accounts__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cp-grid-gap);
   grid-column: span 2;
   min-width: 0;
 }
@@ -2595,8 +2661,40 @@ button.cp-tx {
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  padding: 20px var(--cp-card-padding);
-  border-bottom: 1px solid var(--cp-line);
+  padding: 20px var(--cp-card-padding) 0;
+}
+
+.cp-account-tabs {
+  padding: 16px var(--cp-card-padding) 0;
+}
+
+/* Below the header card, the overview's cards side by side, one above the
+   other where two do not fit. */
+.cp-account-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--cp-grid-gap);
+  align-items: start;
+}
+
+.cp-account-recent__sums {
+  display: flex;
+  gap: 24px;
+  padding: 14px var(--cp-card-padding) 6px;
+  font-size: 18px;
+}
+
+.cp-account-recent__label {
+  font-size: var(--cp-fs-caption);
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-account-recent__empty {
+  margin: 0;
+  padding: 8px var(--cp-card-padding) var(--cp-card-padding);
+  font-size: var(--cp-fs-small);
+  color: var(--cp-text-2);
 }
 
 .cp-account-head__text {

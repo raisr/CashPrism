@@ -1,6 +1,7 @@
 using Bunit;
 using CashPrism.Application.Time;
 using CashPrism.Domain.Bookings;
+using CashPrism.TestSupport.Bookings;
 using CashPrism.TestSupport.Imports;
 using CashPrism.Web.Bookings;
 using Microsoft.Extensions.DependencyInjection;

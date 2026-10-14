@@ -11,6 +11,13 @@ releases and the minor version is bumped for every notable change.
 
 ### Added
 
+- The accounts page has the tabs *Überblick* and *Buchungen* for the selected
+  account. *Überblick* is open by default: *Rein und raus* shows what came
+  into and went out of the account in each of the last six complete months,
+  and *Letzte 30 Tage* sums its income and spending up to the latest export
+  and lists its four newest bookings. Transfers between your own accounts
+  count here, because they do move this account's money; a split booking
+  counts once.
 - The booking list can be narrowed by account, Finanzguru main category and
   sub-category, period, income or spending, and counterparty, and transfers
   between your own accounts can be hidden. The period offers presets counted

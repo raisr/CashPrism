@@ -104,10 +104,20 @@ public static class OverviewFormat
     public static string MonthShort(DateOnly month, IFormatProvider? formatProvider = null)
     {
         var provider = formatProvider ?? CultureInfo.CurrentCulture;
-        var name = DateTimeFormatInfo.GetInstance(provider).GetAbbreviatedMonthName(month.Month).TrimEnd('.');
 
-        return name + " " + month.ToString("yy", provider);
+        return MonthAbbreviation(month, provider) + " " + month.ToString("yy", provider);
     }
+
+    /// <summary>
+    /// A month's abbreviation alone, for an axis too narrow for the year:
+    /// <c>Okt</c>. Without the culture's full stop, as in <see cref="MonthShort"/>.
+    /// </summary>
+    /// <param name="month">Any day of the month.</param>
+    /// <param name="formatProvider">The culture to format in.</param>
+    public static string MonthAbbreviation(DateOnly month, IFormatProvider? formatProvider = null)
+        => DateTimeFormatInfo.GetInstance(formatProvider ?? CultureInfo.CurrentCulture)
+            .GetAbbreviatedMonthName(month.Month)
+            .TrimEnd('.');
 
     /// <summary>A month written out: <c>September 2026</c>.</summary>
     /// <param name="month">Any day of the month.</param>

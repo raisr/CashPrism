@@ -385,12 +385,28 @@ negative.
   account number (`IbanMask`): `•••• 2051`, a short handle such as `Paynet` as
   it stands.
 - **The detail card** carries the name, the masked number, the day of the
-  newest booking and the balance, and under them the account's 30 newest
-  bookings with a link to the [booking list](#the-booking-list) filtered to the
-  account. The list is `Bookings/BookingDayList.razor`, the design's short
-  transaction list: tile, party, payment reference and amount under a header
-  per day, a row opening the [booking sheet](#the-booking-sheet). It is not the
-  booking list's table — no columns, no sorting, no pages.
+  newest booking and the balance, and under them the tabs *Überblick* and
+  *Buchungen* (`Components/Tabs.razor`, the design's underlined tabs).
+  *Überblick* is first and selected when the page opens; the tab is not part
+  of the address and stays when another account is picked.
+- ***Buchungen*** lists the account's 30 newest bookings, with their total
+  count on the tab, and links to the [booking list](#the-booking-list)
+  filtered to the account. The list is `Bookings/BookingDayList.razor`, the
+  design's short transaction list: tile, party, payment reference and amount
+  under a header per day, a row opening the [booking sheet](#the-booking-sheet).
+  It is not the booking list's table — no columns, no sorting, no pages.
+- ***Überblick*** puts two cards under the detail card, read through
+  `AccountFlowReader`. *Rein und raus* (`Accounts/AccountFlowChart.razor`)
+  draws what came in and went out per month over the last six complete months
+  as grouped bars. *Letzte 30 Tage* (`Accounts/AccountRecentCard.razor`) sums
+  what came in and went out over the 30 days up to the latest export and lists
+  the four newest of those bookings, again through `BookingDayList`. Both
+  count back from the latest export, not from today. Unlike the overview and
+  the analysis, they **leave transfers in** — between the owner's own accounts
+  they move no money in total, but they do move this account's — and take
+  each booking as income or spending **by its own sign** rather than netting
+  it against its category: a refund is money that came in. A split booking is
+  counted once, through its parts, as the booking list's sums count it.
 - **The cards stand in groups**, each under its name and the sum of its
   balances. The groups are CashPrism's own state — the export carries none —
   read and changed through `AccountGroupEditor`; a fresh database starts with
@@ -406,9 +422,8 @@ negative.
   delete button says why in a tooltip on its wrapper, because a disabled button
   receives no hover. No drag and drop: arrows work with a keyboard and on a
   phone alike.
-- **No tab bar yet.** The design's *Überblick* tab needs the account's flows,
-  and its balance history needs a measurement first; with *Buchungen* the only
-  tab, a plain heading takes its place.
+- **No balance history yet.** The design's *Kontostand im Verlauf* in the
+  *Überblick* tab and the sparkline on each card need a measurement first.
 
 The balances are what the latest export reports, taken at import — see
 [`finanzguru-export.md`](finanzguru-export.md#where-kontostand-does-give-the-balance).

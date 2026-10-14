@@ -1,4 +1,5 @@
 using CashPrism.Application.Bookings;
+using CashPrism.Application.CashFlow;
 using CashPrism.Application.Paging;
 using CashPrism.Domain.Bookings;
 using CashPrism.Domain.CashFlow;
@@ -70,6 +71,42 @@ public sealed class BookingReader : IBookingReader
             .SumAsync(booking => booking.AmountInCents, cancellationToken);
 
         return new BookingSummary(count, income, -spending);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The range is half-open on the day after the last month, for the reason
+    /// the period filter gives.
+    /// </remarks>
+    public async Task<IReadOnlyList<MonthlyCashFlow>> ReadMonthlyFlowsAsync(
+        BookingFilter filter,
+        DateOnly firstMonth,
+        DateOnly lastMonth,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        var from = firstMonth.ToDateTime(TimeOnly.MinValue);
+        var until = lastMonth.AddMonths(1).ToDateTime(TimeOnly.MinValue);
+
+        var months = await Filter(context.Bookings.AsNoTracking(), filter)
+            .Where(CashFlowRule.SumsInList)
+            .Where(booking => booking.BookedOn >= from && booking.BookedOn < until)
+            .GroupBy(booking => new { booking.BookedOn.Year, booking.BookedOn.Month })
+            .Select(group => new
+            {
+                group.Key.Year,
+                group.Key.Month,
+                IncomeInCents = group.Where(booking => booking.AmountInCents > 0).Sum(booking => booking.AmountInCents),
+                SpendingInCents = -group.Where(booking => booking.AmountInCents < 0).Sum(booking => booking.AmountInCents),
+            })
+            .OrderBy(month => month.Year)
+            .ThenBy(month => month.Month)
+            .ToListAsync(cancellationToken);
+
+        return months
+            .Select(month => new MonthlyCashFlow(new DateOnly(month.Year, month.Month, 1), month.IncomeInCents, month.SpendingInCents))
+            .ToList();
     }
 
     /// <inheritdoc />

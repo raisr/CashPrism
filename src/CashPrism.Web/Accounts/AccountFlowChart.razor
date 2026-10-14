@@ -1,0 +1,93 @@
+@using CashPrism.Application.CashFlow
+@using CashPrism.Web.Overview
+@using MudBlazor.Charts
+@inject IStringLocalizer<Strings> text
+
+@* What came into an account and what went out of it per month, as bars side
+   by side, drawn by MudChart. Only complete months: the account's flows are
+   compared month by month, and a running month would read as a slump. *@
+<section class="cp-card cp-account-flows">
+  <div class="cp-card__head">
+    <div class="cp-card__title">
+      <h3 class="cp-h3">@text["AccountFlowsTitle"]</h3>
+      <div class="cp-card__sub">@text["AccountFlowsSubtitle", Months.Count]</div>
+    </div>
+    <div class="cp-legend">
+      <span class="cp-legend__item"><span class="cp-legend__swatch" style="--c:var(--cp-income)"></span>@text["AccountFlowsIn"]</span>
+      <span class="cp-legend__item"><span class="cp-legend__swatch" style="--c:var(--cp-expense)"></span>@text["AccountFlowsOut"]</span>
+    </div>
+  </div>
+  <div class="cp-card__body">
+    <MudChart T="double"
+              ChartType="ChartType.Bar"
+              ChartSeries="@series"
+              ChartLabels="@labels"
+              ChartOptions="@options"
+              Width="100%"
+              Height="200px"
+              MatchBoundsToSize="true"
+              Class="cp-account-flows__chart">
+      <TooltipTemplate>
+        @if (Tip(context.Item1) is { } tip)
+        {
+          <ChartTip Title="@tip.Title" Value="@tip.Value" Colour="@tip.Colour" Anchor="@tip.Anchor" />
+        }
+      </TooltipTemplate>
+    </MudChart>
+  </div>
+</section>
+
+@code {
+    private readonly BarChartOptions options = new()
+    {
+        ShowLegend = false,
+        ChartPalette = ["var(--cp-income)", "var(--cp-expense)"],
+        YAxisTicks = 1000,
+        MaxNumYAxisTicks = 5,
+        YAxisToStringFunc = value => OverviewFormat.WholeEuros((long)(value * 100)),
+    };
+
+    private List<ChartSeries<double>> series = [];
+    private string[] labels = [];
+
+    /// <summary>The months to draw, oldest first, all of them complete.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<MonthlyCashFlow> Months { get; set; } = [];
+
+    protected override void OnParametersSet()
+    {
+        series =
+        [
+            new() { Name = text["AccountFlowsIn"], Data = Months.Select(month => month.IncomeInCents / 100d).ToArray() },
+            new() { Name = text["AccountFlowsOut"], Data = Months.Select(month => month.SpendingInCents / 100d).ToArray() },
+        ];
+
+        // Six months fit a card only without the year; the box over a bar
+        // names it.
+        labels = Months.Select(month => OverviewFormat.MonthAbbreviation(month.Month)).ToArray();
+    }
+
+    /// <summary>
+    /// What the box over a bar says: its series, its month and the amount,
+    /// taken from the month itself to the cent rather than read back from the
+    /// text MudChart made of it.
+    /// </summary>
+    private ChartTipContent? Tip(SvgPath bar)
+    {
+        var index = Array.IndexOf(labels, bar.LabelXValue);
+
+        if (bar.Index < 0 || bar.Index >= series.Count || index < 0)
+        {
+            return null;
+        }
+
+        var month = Months[index];
+        var cents = bar.Index == 0 ? month.IncomeInCents : month.SpendingInCents;
+
+        return new ChartTipContent(
+            text["AccountFlowsTip", series[bar.Index].Name, OverviewFormat.MonthShort(month.Month)],
+            OverviewFormat.WholeEuros(cents),
+            options.ChartPalette[bar.Index],
+            ChartTipContent.AnchorAt(index, labels.Length));
+    }
+}

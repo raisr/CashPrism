@@ -1,4 +1,5 @@
 using CashPrism.Application.Bookings;
+using CashPrism.Application.CashFlow;
 using CashPrism.Domain.Bookings;
 using CashPrism.Infrastructure.Persistence;
 using CashPrism.TestSupport.Bookings;
@@ -630,6 +631,80 @@ public sealed class BookingReaderTests
                 Search: BookingSearch.Parse("gruenkorb >50")));
 
             Assert.Equal(new BookingSummary(4, 0, 31135), summary);
+        }
+    }
+
+    public sealed class ReadMonthlyFlowsAsync
+    {
+        private const string Giro = "DE98999500006166400707";
+        private const string Savings = "DE33999500006361627181";
+
+        private static readonly DateOnly March = new(2026, 3, 1);
+        private static readonly DateOnly April = new(2026, 4, 1);
+
+        private static async Task<IReadOnlyList<MonthlyCashFlow>> ReadAsync(
+            BookingFilter filter,
+            DateOnly firstMonth,
+            DateOnly lastMonth,
+            params Booking[] bookings)
+        {
+            await using var database = await ThrowawayDatabase.CreateAsync();
+            await SeedAsync(database, bookings);
+            var reader = CreateReader(database, out var context);
+            await using var _ = context;
+
+            return await reader.ReadMonthlyFlowsAsync(filter, firstMonth, lastMonth);
+        }
+
+        private static Booking On(int ordinal, DateTime bookedOn, long amountInCents, string account = Giro, bool isTransfer = false)
+            => TestBookings.Create(Fingerprint(ordinal), bookedOn, amountInCents, accountReference: account, isTransfer: isTransfer, sourceImportRunId: ARun);
+
+        [Fact]
+        public async Task Adds_Up_Income_And_Spending_Of_Each_Month_By_Their_Own_Sign()
+        {
+            var months = await ReadAsync(
+                new BookingFilter(),
+                March,
+                April,
+                On(1, new DateTime(2026, 3, 2), 250000),
+                On(2, new DateTime(2026, 3, 9), -6317),
+                On(3, new DateTime(2026, 3, 20), 1999),
+                On(4, new DateTime(2026, 4, 30, 23, 15, 0), -1200));
+
+            Assert.Equal([new MonthlyCashFlow(March, 251999, 6317), new MonthlyCashFlow(April, 0, 1200)], months);
+        }
+
+        [Fact]
+        public async Task Counts_A_Transfer_And_A_Split_Booking_Once_For_One_Account()
+        {
+            var months = await ReadAsync(
+                new BookingFilter(AccountReference: Giro),
+                March,
+                March,
+                On(1, new DateTime(2026, 3, 2), 250000),
+                On(2, new DateTime(2026, 3, 3), -50000, isTransfer: true),
+                On(3, new DateTime(2026, 3, 4), 20000, isTransfer: true),
+                TestBookings.Create(Fingerprint(4), new DateTime(2026, 3, 5), -10000, accountReference: Giro, splitRole: SplitRole.Original, sourceImportRunId: ARun),
+                TestBookings.Create(Fingerprint(5), new DateTime(2026, 3, 5), -6000, accountReference: Giro, splitRole: SplitRole.Part, originalFingerprint: Fingerprint(4), sourceImportRunId: ARun),
+                TestBookings.Create(Fingerprint(6), new DateTime(2026, 3, 5), -4000, accountReference: Giro, splitRole: SplitRole.Remainder, originalFingerprint: Fingerprint(4), sourceImportRunId: ARun),
+                On(7, new DateTime(2026, 3, 6), -99999, account: Savings));
+
+            Assert.Equal([new MonthlyCashFlow(March, 270000, 60000)], months);
+        }
+
+        [Fact]
+        public async Task Leaves_Out_A_Month_Without_A_Booking_And_The_Months_Outside_The_Range()
+        {
+            var months = await ReadAsync(
+                new BookingFilter(),
+                March,
+                new DateOnly(2026, 5, 1),
+                On(1, new DateTime(2026, 2, 28, 23, 59, 0), -500),
+                On(2, new DateTime(2026, 3, 1), -6317),
+                On(3, new DateTime(2026, 5, 31), -1200),
+                On(4, new DateTime(2026, 6, 1), -700));
+
+            Assert.Equal([new MonthlyCashFlow(March, 0, 6317), new MonthlyCashFlow(new DateOnly(2026, 5, 1), 0, 1200)], months);
         }
     }
 

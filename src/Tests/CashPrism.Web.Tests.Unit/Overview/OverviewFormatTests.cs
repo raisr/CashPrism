@@ -66,6 +66,13 @@ public sealed class OverviewFormatTests
             => Assert.Equal("Okt 26", OverviewFormat.MonthShort(new DateOnly(2026, 10, 1)));
     }
 
+    public sealed class MonthAbbreviation
+    {
+        [Fact]
+        public void Drops_The_Full_Stop_And_The_Year()
+            => Assert.Equal("Okt", OverviewFormat.MonthAbbreviation(new DateOnly(2026, 10, 1)));
+    }
+
     public sealed class MonthLong
     {
         [Fact]
