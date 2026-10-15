@@ -1,0 +1,54 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@implements IDisposable
+@inject AuthenticationStateProvider authentication
+@inject NavigationManager navigation
+
+@* Shows what it wraps until the login of this page stops counting. Then nothing
+   of it stays on screen, and the page is loaded again from the server: that is
+   an HTTP request, the cookie is checked on it, and the person ends up wherever
+   a request without a valid login is sent. *@
+@if (!ended)
+{
+  @ChildContent
+}
+
+@code {
+    private bool ended;
+
+    /// <summary>What is shown while the login counts: the whole application.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+        => authentication.AuthenticationStateChanged += OnAuthenticationStateChanged;
+
+    public void Dispose()
+        => authentication.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> state)
+    {
+        // async void, because an event handler is the only way to hear about
+        // the change.
+        try
+        {
+            if ((await state).User.Identity?.IsAuthenticated == true)
+            {
+                return;
+            }
+
+            await InvokeAsync(() =>
+            {
+                ended = true;
+                StateHasChanged();
+
+                // The current address rather than the login page, so the login
+                // returns here — or, after a reset, the request lands on setup.
+                navigation.NavigateTo(navigation.Uri, forceLoad: true);
+            });
+        }
+        catch (ObjectDisposedException)
+        {
+            // The page closed while the check ran; there is nothing left to end.
+        }
+    }
+}

@@ -132,9 +132,10 @@ in is in [`benutzung.md`](benutzung.md#passwort-festlegen).
   generation that every change and every reset raises, and each login cookie
   carries the generation it was issued under. A cookie with an older one is
   turned away on its next request — the device that changed the password
-  included. A page already open on another device keeps its connection until it
-  is reloaded, because nothing on that connection is a request the cookie is
-  checked on.
+  included. A page already open on another device sends no request the cookie
+  is checked on, so it asks again every 10 seconds whether its login still
+  counts. Within 10 seconds of a change or a reset it clears the screen and
+  loads again, which lands on the login — or, after a reset, on the setup.
 - **A forgotten password is reset by starting with `--reset-password`.** The
   start drops the hash, keeps the generation counting, and prints a setup code
   as on the very first start; bookings and imports stay. It is a start switch

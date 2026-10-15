@@ -86,6 +86,12 @@ releases and the minor version is bumped for every notable change.
 - The overview lists under *Demnächst* the contract bookings expected in the
   30 days after the export, overdue ones first.
 
+### Changed
+
+- A page left open on another device now notices a password change or reset
+  within 10 seconds: it clears the screen and sends you to the login. Before,
+  it kept showing your data until it was reloaded.
+
 ### Fixed
 
 - A booking the latest export no longer carries — for instance because an
