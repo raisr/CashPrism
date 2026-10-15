@@ -26,6 +26,7 @@ public sealed class HostBootTests
         { "_content/CashPrism.Web/css/tokens.css", "--cp-prism-violet" },
         { "_content/CashPrism.Web/css/components.css", ".cp-icon" },
         { "_content/CashPrism.Web/Theme/ThemeAttribute.razor.js", "export function applyTheme" },
+        { "_content/CashPrism.Web/js/preferences.js", "export function writeCookie" },
         { "_content/CashPrism.Web/icons/lucide.css", ".icon-wallet:before" },
         { "_content/CashPrism.Web/icons/Lucide-ISC.txt", "ISC License" },
         { "_content/CashPrism.Web/fonts/Manrope-OFL.txt", "SIL OPEN FONT LICENSE" },
