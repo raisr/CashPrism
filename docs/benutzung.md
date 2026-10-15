@@ -187,8 +187,8 @@ Anmelden, auch für die Sperre.
 
 Nach der Änderung ist **jedes Gerät abgemeldet**, auch das, auf dem geändert
 wurde: Es landet auf *Anmelden* und meldet sich mit dem neuen Passwort an.
-Eine Seite, die auf einem anderen Gerät gerade offen ist, merkt das erst, wenn
-sie neu geladen wird.
+Eine Seite, die auf einem anderen Gerät gerade offen ist, merkt das innerhalb
+von 10 Sekunden, leert sich und wechselt ebenfalls zu *Anmelden*.
 
 ## Passwort vergessen
 
