@@ -236,7 +236,9 @@ wechselt ein Schalter zwischen hellem und dunklem Design, und die Schaltfläche
 *Import* führt von jeder Seite direkt zum Einlesen. Unten in der Navigation
 steht, welche Version von CashPrism läuft. Auf einem breiten Bildschirm klappt
 das Symbol neben dem Schriftzug die Navigation zu einer schmalen Leiste aus
-Symbolen ein und wieder auf.
+Symbolen ein und wieder auf. Design und eingeklappte Navigation merkt sich dein
+Browser, auch über ein Neuladen hinweg. Bis du das Design einmal wechselst,
+folgt es der Einstellung deines Betriebssystems.
 
 | Ziel | Adresse | Was dort ist |
 |---|---|---|

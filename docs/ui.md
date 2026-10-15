@@ -46,7 +46,8 @@ section label where it does not.
 Where the drawer is permanent, a quiet button beside the wordmark collapses it
 to a 72 px rail of icons: the wordmark becomes the "CP" monogram, labels move
 into tooltips, section headings become hairlines and the privacy note a lock.
-The choice lasts for the session; remembering it across a reload is issue #92.
+The choice is kept in the preference cookie (see below), so a reload opens the
+drawer the way it was left; without a stored choice it is expanded.
 On the rail the toggle is set as a control of its own — as large as the
 monogram, outlined and a step darker — where the design keeps it as quiet as
 beside the full wordmark: without the wordmark next to it, a faint glyph under
@@ -152,24 +153,44 @@ the product, and only the light/dark switch changes at runtime.
 
 ### Dark mode in the stylesheet
 
-`tokens.css` puts the light values on `:root` and the dark ones on
-`[data-theme="dark"]`. MudBlazor switches its palette but leaves no mark on the
-document a stylesheet could select on, so `Theme/ThemeAttribute.razor` mirrors
-the layout's dark-mode flag onto `<html data-theme>` through a one-function
-JavaScript module beside it. The light theme is the absence of the attribute.
-
-The attribute is written after the first interactive render. A prerendered page
-therefore arrives light, and someone whose system is set to dark sees it switch
-a moment later — as MudBlazor's own palette does, which learns the system
-setting the same way.
+`tokens.css` gives every colour that differs between the palettes both values,
+as `light-dark(light, dark)`, and `color-scheme` picks one: `:root` declares
+`light dark`, so without an attribute the operating system decides, and
+`<html data-theme="light">` or `"dark"` pins it. One declaration per token, so
+the two palettes cannot drift apart, and a shadow that only one palette has is
+a layer that is transparent in the other. MudBlazor switches its palette but
+leaves no mark on the document a stylesheet could select on, so
+`Theme/ThemeAttribute.razor` mirrors the layout's dark-mode flag onto
+`<html data-theme>` through a one-function JavaScript module beside it.
 
 The switch in the app bar follows the operating system's setting until it is
-used; from then on the choice stands for the rest of the session. MudBlazor
-only reports a *change* of that setting, so the layout asks for the starting
-value once, after its first render — a click that comes before the answer
-wins. It is not
-remembered across a reload — that needs browser storage, and the baseline does
-not reach for it.
+used. MudBlazor only reports a *change* of that setting, so the layout asks for
+the starting value once, after its first render — a click that comes before the
+answer wins.
+
+### Remembered choices
+
+The theme chosen with the switch and the collapsed drawer outlast a reload.
+Components read and write them through `Preferences/IPreferenceStore`;
+`CookiePreferenceStore` keeps them in the cookie `CashPrism.Preferences`, and
+`AddCashPrismWeb` is the one place that says so.
+
+A cookie and not browser storage, because the server needs the choice before
+the browser runs anything: `App.razor` renders it into `<html data-theme>` and
+the layout draws the drawer from it, so the first response is already right.
+That covers the static pages — login, setup and *Passwort ändern*, which have
+no circuit to set the attribute — and the prerender of every interactive page,
+which no longer arrives light and switches.
+
+- **Read** from the request while there is one, and carried into the circuit
+  as persisted state (`[PersistentState]`), since a circuit has no request.
+- **Written** from the browser through `wwwroot/js/preferences.js`, since a
+  circuit has no response to set a cookie on. It is not `HttpOnly` for that
+  reason; it carries the two choices and nothing about the person or the login.
+- **Without a stored choice** the theme follows the operating system. The
+  static pages get it from `color-scheme` alone. An interactive page then
+  shows the design system's classes in the system's palette at once and
+  MudBlazor's components a moment later, once the layout has asked.
 
 Nothing in the interface loads from an external host. The component library's
 CSS and JavaScript are served by the application itself out of the package's
