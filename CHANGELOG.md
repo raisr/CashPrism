@@ -11,6 +11,12 @@ releases and the minor version is bumped for every notable change.
 
 ### Added
 
+- `CashPrism.AppHost`, an Aspire AppHost for development:
+  `dotnet run --project src/Tools/CashPrism.AppHost` builds the container image
+  from the repository's `Dockerfile` and starts it on port 5080 with a
+  persistent volume, and the Aspire dashboard shows the running container, its
+  log and a link to the site. See
+  [`docs/hosting.md`](docs/hosting.md#through-the-apphost-while-developing).
 - The theme you pick and the collapsed sidebar are remembered across a reload,
   kept in a cookie in your browser. The pages open in the chosen theme straight
   away, without a light flash first, and the login, setup and *Passwort ändern*

@@ -23,6 +23,7 @@ centre.
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
 | `src/Tools/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real Finanzguru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
 | `src/Tools/CashPrism.DemoData` | The third composition root: a standalone console tool that writes a fully synthetic Finanzguru export to try CashPrism on | Infrastructure.Finanzguru |
+| `src/Tools/CashPrism.AppHost` | An Aspire AppHost that builds the container image from the `Dockerfile` and starts it, with the Aspire dashboard beside it | nothing |
 
 `Shell`, `Anonymiser` and `DemoData` are the only projects that reference an
 Infrastructure project — all three are composition roots, so all three are
@@ -95,6 +96,7 @@ src/
   Tools/
     CashPrism.Anonymiser/
     CashPrism.DemoData/
+    CashPrism.AppHost/
 ```
 
 The solution file is `src/CashPrism.slnx`. `src/Core` holds the application
@@ -142,6 +144,11 @@ and is not part of the build.
   brings, and takes the column names from `Infrastructure.Finanzguru` so the
   file it writes and the reader that reads it cannot drift apart. See
   [`demo-data.md`](demo-data.md).
+- **`AppHost` starts the image, not the code.** It references no project and
+  holds declarations only, so what runs in development is the image exactly as
+  it ships. It has no test project: the `image` job of the gates covers the
+  image, and `CashPrism.Architecture.Tests` asserts that the AppHost stays
+  without project references. See [`hosting.md`](hosting.md#through-the-apphost-while-developing).
 - **The migrations live with the schema they describe.** They sit in
   `CashPrism.Infrastructure/Persistence/Migrations`, next to the context and the
   entity configurations, and an `IDesignTimeDbContextFactory` lets
@@ -158,4 +165,4 @@ and is not part of the build.
   above are not a gentleman's agreement: the build fails if a project outside
   `Shell`, `Anonymiser` and `DemoData` takes a dependency on an Infrastructure
   project. It also fails when a production project other than `Shell` lies
-  outside `src/Core` and `src/Tools`.
+  outside `src/Core` and `src/Tools`, and when `AppHost` references a project.
