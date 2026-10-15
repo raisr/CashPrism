@@ -1,4 +1,11 @@
 <Solution>
+  <Folder Name="/Core/">
+    <Project Path="Core/CashPrism.Application/CashPrism.Application.csproj" />
+    <Project Path="Core/CashPrism.Domain/CashPrism.Domain.csproj" />
+    <Project Path="Core/CashPrism.Infrastructure/CashPrism.Infrastructure.csproj" />
+    <Project Path="Core/CashPrism.Infrastructure.Finanzguru/CashPrism.Infrastructure.Finanzguru.csproj" />
+    <Project Path="Core/CashPrism.Web/CashPrism.Web.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/CashPrism.Anonymiser.Tests.Integration/CashPrism.Anonymiser.Tests.Integration.csproj" />
     <Project Path="Tests/CashPrism.Anonymiser.Tests.Unit/CashPrism.Anonymiser.Tests.Unit.csproj" />
@@ -19,10 +26,5 @@
     <Project Path="Tools/CashPrism.Anonymiser/CashPrism.Anonymiser.csproj" />
     <Project Path="Tools/CashPrism.DemoData/CashPrism.DemoData.csproj" />
   </Folder>
-  <Project Path="CashPrism.Application/CashPrism.Application.csproj" />
-  <Project Path="CashPrism.Domain/CashPrism.Domain.csproj" />
-  <Project Path="CashPrism.Infrastructure.Finanzguru/CashPrism.Infrastructure.Finanzguru.csproj" />
-  <Project Path="CashPrism.Infrastructure/CashPrism.Infrastructure.csproj" />
   <Project Path="CashPrism.Shell/CashPrism.Shell.csproj" />
-  <Project Path="CashPrism.Web/CashPrism.Web.csproj" />
 </Solution>

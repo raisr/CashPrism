@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
+    <ProjectReference Include="..\..\Core\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
   </ItemGroup>
 
 </Project>
