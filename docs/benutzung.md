@@ -83,7 +83,7 @@ Beim Start öffnet CashPrism den Browser auf diesem Rechner und schreibt ins
 Konsolenfenster, unter welchen Adressen es erreichbar ist:
 
 ```
-CashPrism 0.1.0
+CashPrism 0.2.0
 
 On this machine:
   http://localhost:5080

@@ -9,6 +9,8 @@ releases and the minor version is bumped for every notable change.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-15
+
 ### Added
 
 - `CashPrism.AppHost`, an Aspire AppHost for development:
@@ -400,5 +402,6 @@ releases and the minor version is bumped for every notable change.
   script empty and ignored `appsettings.json`. It now finds both next to the
   executable, wherever it is started from.
 
-[Unreleased]: https://github.com/raisr/CashPrism/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/raisr/CashPrism/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/raisr/CashPrism/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/raisr/CashPrism/releases/tag/v0.1.0
