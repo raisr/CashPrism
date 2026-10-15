@@ -68,7 +68,7 @@ Either way, CashPrism opens your browser and prints every address it can be
 reached at:
 
 ```
-CashPrism 0.1.0
+CashPrism 0.2.0
 
 On this machine:
   http://localhost:5080
