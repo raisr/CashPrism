@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject IStringLocalizer<Strings> text
 @inject NavigationManager navigation
+@inject IPreferenceStore preferences
 
 @* The document title is built here rather than in every page: the navigation
    list already names each destination, so repeating it per page would give the
@@ -69,8 +70,6 @@
 @code {
     private bool drawerOpen = true;
 
-    // Lasts for the session; remembering it across a reload is a separate
-    // concern (issue #92).
     private bool sidebarCollapsed;
 
     private bool isDarkMode;
@@ -84,8 +83,15 @@
 
     private string DocumentTitle => Current is { } item ? $"CashPrism — {text[item.TitleKey]}" : "CashPrism";
 
+    // Taken from the store before the first render, so the prerender already
+    // draws the stored theme and drawer rather than switching a moment later.
     protected override void OnInitialized()
-        => navigation.LocationChanged += OnLocationChanged;
+    {
+        sidebarCollapsed = preferences.SidebarCollapsed;
+        isDarkMode = preferences.Theme == ThemePreference.Dark;
+        themeChosenByUser = preferences.Theme != ThemePreference.System;
+        navigation.LocationChanged += OnLocationChanged;
+    }
 
     // The app bar reads the route, so it has to re-render when the route changes.
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -111,15 +117,20 @@
 
     private void ToggleDrawer() => drawerOpen = !drawerOpen;
 
-    private void ToggleSidebar() => sidebarCollapsed = !sidebarCollapsed;
+    private async Task ToggleSidebar()
+    {
+        sidebarCollapsed = !sidebarCollapsed;
+        await preferences.SetSidebarCollapsedAsync(sidebarCollapsed);
+    }
 
-    private void ToggleTheme()
+    private async Task ToggleTheme()
     {
         isDarkMode = !isDarkMode;
 
         // From here on the person has said which theme they want, so the system
-        // preference stops overriding the choice for the rest of the session.
+        // preference stops overriding the choice, in this session and the next.
         themeChosenByUser = true;
+        await preferences.SetThemeAsync(isDarkMode ? ThemePreference.Dark : ThemePreference.Light);
     }
 
     public void Dispose()

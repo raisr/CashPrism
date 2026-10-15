@@ -1,7 +1,10 @@
 /* The design tokens of the design system (design/tokens/*.css): every --cp-*
-   custom property, light values on :root and dark ones on [data-theme="dark"].
-   The layout sets data-theme on <html> whenever MudBlazor's dark mode changes,
-   because MudBlazor itself marks the document in no way a selector could read.
+   custom property. A colour that differs between the palettes holds both, as
+   light-dark(light, dark), and color-scheme picks one. Without data-theme on
+   <html> that is the operating system's setting; the server renders the stored
+   choice into the attribute, and the layout sets it whenever MudBlazor's dark
+   mode changes, because MudBlazor itself marks the document in no way a
+   selector could read.
 
    The colours repeat what Theme/CashPrismTheme.cs gives MudBlazor. Both have to
    exist: MudBlazor's components read its palette, the design system's own
@@ -64,62 +67,44 @@
 /* ---------- colour: semantic ---------- */
 
 :root {
-  --cp-primary: var(--cp-blue-500);
-  --cp-primary-hover: var(--cp-blue-600);
-  --cp-primary-press: var(--cp-blue-700);
-  --cp-primary-soft: var(--cp-blue-50);
-  --cp-primary-soft-hover: var(--cp-blue-100);
-  --cp-on-primary: #ffffff;
-  --cp-bg: var(--cp-gray-50);
-  --cp-surface: var(--cp-gray-0);
-  --cp-surface-2: var(--cp-gray-25);
-  --cp-surface-3: var(--cp-gray-100);
-  --cp-sidebar: var(--cp-gray-0);
-  --cp-line: var(--cp-gray-200);
-  --cp-line-strong: var(--cp-gray-300);
-  --cp-text: var(--cp-gray-900);
-  --cp-text-2: var(--cp-gray-500);
-  --cp-text-3: var(--cp-gray-400);
-  --cp-income: var(--cp-green-600);
-  --cp-expense: var(--cp-red-600);
-  --cp-success: var(--cp-green-600);
-  --cp-danger: var(--cp-red-600);
-  --cp-warning: var(--cp-amber-600);
-  --cp-info: var(--cp-blue-500);
-  --cp-hover: rgba(19, 26, 42, 0.04);
-  --cp-press: rgba(19, 26, 42, 0.08);
-  --cp-scrim: rgba(10, 13, 22, 0.42);
+  --cp-primary: light-dark(var(--cp-blue-500), var(--cp-blue-400));
+  --cp-primary-hover: light-dark(var(--cp-blue-600), #93a6ff);
+  --cp-primary-press: light-dark(var(--cp-blue-700), #a9b8ff);
+  --cp-primary-soft: light-dark(var(--cp-blue-50), color-mix(in srgb, var(--cp-blue-400) 16%, var(--cp-night-900)));
+  --cp-primary-soft-hover: light-dark(var(--cp-blue-100), color-mix(in srgb, var(--cp-blue-400) 24%, var(--cp-night-900)));
+  --cp-on-primary: light-dark(#ffffff, #0a0d16);
+  --cp-bg: light-dark(var(--cp-gray-50), var(--cp-night-950));
+  --cp-surface: light-dark(var(--cp-gray-0), var(--cp-night-900));
+  --cp-surface-2: light-dark(var(--cp-gray-25), var(--cp-night-850));
+  --cp-surface-3: light-dark(var(--cp-gray-100), var(--cp-night-800));
+  --cp-sidebar: light-dark(var(--cp-gray-0), var(--cp-night-900));
+  --cp-line: light-dark(var(--cp-gray-200), var(--cp-night-700));
+  --cp-line-strong: light-dark(var(--cp-gray-300), var(--cp-night-600));
+  --cp-text: light-dark(var(--cp-gray-900), var(--cp-night-50));
+  --cp-text-2: light-dark(var(--cp-gray-500), var(--cp-night-200));
+  --cp-text-3: light-dark(var(--cp-gray-400), var(--cp-night-300));
+  --cp-income: light-dark(var(--cp-green-600), var(--cp-green-400));
+  --cp-expense: light-dark(var(--cp-red-600), var(--cp-red-400));
+  --cp-success: light-dark(var(--cp-green-600), var(--cp-green-400));
+  --cp-danger: light-dark(var(--cp-red-600), var(--cp-red-400));
+  --cp-warning: light-dark(var(--cp-amber-600), var(--cp-amber-400));
+  --cp-info: light-dark(var(--cp-blue-500), var(--cp-blue-400));
+  --cp-hover: light-dark(rgba(19, 26, 42, 0.04), rgba(255, 255, 255, 0.05));
+  --cp-press: light-dark(rgba(19, 26, 42, 0.08), rgba(255, 255, 255, 0.09));
+  --cp-scrim: light-dark(rgba(10, 13, 22, 0.42), rgba(0, 0, 0, 0.6));
   --cp-focus: color-mix(in srgb, var(--cp-primary) 40%, transparent);
-  --cp-chart-grid: var(--cp-gray-100);
+  --cp-chart-grid: light-dark(var(--cp-gray-100), var(--cp-night-800));
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --cp-primary: var(--cp-blue-400);
-  --cp-primary-hover: #93a6ff;
-  --cp-primary-press: #a9b8ff;
-  --cp-primary-soft: color-mix(in srgb, var(--cp-blue-400) 16%, var(--cp-night-900));
-  --cp-primary-soft-hover: color-mix(in srgb, var(--cp-blue-400) 24%, var(--cp-night-900));
-  --cp-on-primary: #0a0d16;
-  --cp-bg: var(--cp-night-950);
-  --cp-surface: var(--cp-night-900);
-  --cp-surface-2: var(--cp-night-850);
-  --cp-surface-3: var(--cp-night-800);
-  --cp-sidebar: var(--cp-night-900);
-  --cp-line: var(--cp-night-700);
-  --cp-line-strong: var(--cp-night-600);
-  --cp-text: var(--cp-night-50);
-  --cp-text-2: var(--cp-night-200);
-  --cp-text-3: var(--cp-night-300);
-  --cp-income: var(--cp-green-400);
-  --cp-expense: var(--cp-red-400);
-  --cp-success: var(--cp-green-400);
-  --cp-danger: var(--cp-red-400);
-  --cp-warning: var(--cp-amber-400);
-  --cp-info: var(--cp-blue-400);
-  --cp-hover: rgba(255, 255, 255, 0.05);
-  --cp-press: rgba(255, 255, 255, 0.09);
-  --cp-scrim: rgba(0, 0, 0, 0.6);
-  --cp-chart-grid: var(--cp-night-800);
   color-scheme: dark;
 }
 
@@ -193,20 +178,22 @@
   --cp-radius-xl: 20px;
   --cp-radius-pill: 999px;
 
-  --cp-shadow-card: 0 1px 2px rgba(19, 26, 42, 0.04), 0 4px 16px -6px rgba(19, 26, 42, 0.08);
-  --cp-shadow-pop: 0 16px 40px -12px rgba(19, 26, 42, 0.22), 0 2px 6px rgba(19, 26, 42, 0.06);
-  --cp-shadow-button: 0 1px 2px rgba(19, 26, 42, 0.12);
+  /* In the dark palette a surface is set apart by its border, not its shadow.
+     Each layer belongs to one palette and is transparent in the other, so
+     both palettes live in one declaration. */
+  --cp-shadow-card:
+    0 1px 2px light-dark(rgba(19, 26, 42, 0.04), transparent),
+    0 4px 16px -6px light-dark(rgba(19, 26, 42, 0.08), transparent),
+    0 0 0 1px light-dark(transparent, rgba(255, 255, 255, 0.02));
+  --cp-shadow-pop:
+    0 16px 40px -12px light-dark(rgba(19, 26, 42, 0.22), transparent),
+    0 2px 6px light-dark(rgba(19, 26, 42, 0.06), transparent),
+    0 20px 48px -12px light-dark(transparent, rgba(0, 0, 0, 0.7));
+  --cp-shadow-button: 0 1px 2px light-dark(rgba(19, 26, 42, 0.12), transparent);
 
   --cp-ease: cubic-bezier(0.2, 0, 0, 1);
   --cp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --cp-dur-fast: 120ms;
   --cp-dur: 200ms;
   --cp-dur-slow: 320ms;
-}
-
-/* In the dark palette a surface is set apart by its border, not its shadow. */
-[data-theme="dark"] {
-  --cp-shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.02);
-  --cp-shadow-pop: 0 20px 48px -12px rgba(0, 0, 0, 0.7);
-  --cp-shadow-button: none;
 }

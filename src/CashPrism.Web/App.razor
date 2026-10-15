@@ -1,8 +1,12 @@
 @* The root component: the whole HTML document is rendered by Blazor. *@
+@inject IPreferenceStore preferences
 <!DOCTYPE html>
 @* The language comes from the culture the host set, so the document never claims
    a language the UI is not written in. *@
-<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+@* The stored theme is in the first response, so neither a static page nor a
+   prerendered one arrives light and switches. Without a choice the attribute
+   is left out, and the stylesheet follows the operating system. *@
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-theme="@DataTheme">
 
 <head>
   <meta charset="utf-8" />
@@ -41,6 +45,14 @@
     // Interactive everywhere except the pages that log a person in: a cookie
     // can only be set on an HTTP response, and a page running in a circuit
     // has none. Those pages opt out with [ExcludeFromInteractiveRouting].
+    private string? DataTheme
+        => preferences.Theme switch
+        {
+            ThemePreference.Dark => "dark",
+            ThemePreference.Light => "light",
+            _ => null,
+        };
+
     private IComponentRenderMode? PageRenderMode
         => HttpContext.AcceptsInteractiveRouting() ? InteractiveServer : null;
 }

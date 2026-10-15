@@ -2,9 +2,11 @@ using CashPrism.Web.Access;
 using CashPrism.Web.Imports;
 using CashPrism.Web.Layout;
 using CashPrism.Web.Localisation;
+using CashPrism.Web.Preferences;
 using CashPrism.Web.StoredData;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
@@ -50,6 +52,13 @@ public static class CashPrismWebServiceCollectionExtensions
         // scope of its own, so it never shares a database context with a page.
         services.AddScoped<LibrarySummaryReader>();
 
+        // Read from the request on a static page and during the prerender, and
+        // carried into the circuit as persisted state; the one place the cookie
+        // stands behind the store.
+        services.AddHttpContextAccessor();
+        services.AddScoped<CookiePreferenceStore>();
+        services.AddScoped<IPreferenceStore>(provider => provider.GetRequiredService<CookiePreferenceStore>());
+
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(AccessCookie.Configure);
 
@@ -60,7 +69,8 @@ public static class CashPrismWebServiceCollectionExtensions
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
         services.AddRazorComponents()
-            .AddInteractiveServerComponents();
+            .AddInteractiveServerComponents()
+            .RegisterPersistentService<CookiePreferenceStore>(RenderMode.InteractiveServer);
 
         return services;
     }

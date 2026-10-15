@@ -11,6 +11,11 @@ releases and the minor version is bumped for every notable change.
 
 ### Added
 
+- The theme you pick and the collapsed sidebar are remembered across a reload,
+  kept in a cookie in your browser. The pages open in the chosen theme straight
+  away, without a light flash first, and the login, setup and *Passwort ändern*
+  pages follow it too — or, until you pick one, your operating system's
+  setting.
 - The accounts page shows how each balance developed: *Kontostand im Verlauf*
   in the *Überblick* tab, over the last twelve month ends and the day of the
   latest export, and a small line on every account card. CashPrism walks the
