@@ -122,6 +122,10 @@ Consequences worth stating, because they are where it usually goes wrong:
 - `DemoData` is a development tool, not part of the shipped application. What it
   writes is synthetic from end to end: no value from a real export enters the
   generator, not even as a seed or a template.
+- **An application project lives under `src/Core/`** and in the `/Core/`
+  solution folder. `CashPrism.Shell` is the one production project outside it:
+  it stays at the root of `src/` and of the solution, because it only starts
+  the application. `CashPrism.Architecture.Tests` fails the build otherwise.
 - **A development tool lives under `src/Tools/`** and in the `/Tools/` solution
   folder, apart from the application it serves. Its test projects stay under
   `src/Tests/` like every other.
@@ -245,7 +249,7 @@ is cheap now and expensive to retrofit.
 
 - **No translatable text as a literal in markup or code.** Every user-visible
   string comes from `IStringLocalizer<Strings>`, backed by
-  `src/CashPrism.Web/Resources/Strings.resx`. Product names — "CashPrism" — are
+  `src/Core/CashPrism.Web/Resources/Strings.resx`. Product names — "CashPrism" — are
   not translatable and stay literals.
 - **Keys are English, values are German.** Everything else in the repository
   stays English: identifiers, comments, XML docs, tests, commits. The deviation
