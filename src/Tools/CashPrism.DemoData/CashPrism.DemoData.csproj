@@ -10,7 +10,7 @@
     is meant for that reader, so the two share one version.
   -->
   <ItemGroup>
-    <ProjectReference Include="..\..\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
+    <ProjectReference Include="..\..\Core\CashPrism.Infrastructure.Finanzguru\CashPrism.Infrastructure.Finanzguru.csproj" />
   </ItemGroup>
 
 </Project>

@@ -396,7 +396,7 @@ those bookings new.
 ## What CashPrism does with this
 
 Columns are resolved **by header name, never by index** — see
-`FinanzguruColumnMap` in `src/CashPrism.Infrastructure.Finanzguru`. The export
+`FinanzguruColumnMap` in `src/Core/CashPrism.Infrastructure.Finanzguru`. The export
 comes from a third party we do not control, and a column silently shifting by one
 would make a writer overwrite the wrong column, which is the most expensive way a
 tool like this can fail.

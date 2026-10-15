@@ -37,8 +37,8 @@
       "copyright": "Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)",
       "source": "https://github.com/google/fonts/tree/main/ofl/jetbrainsmono",
       "files": [
-        "src/CashPrism.Web/wwwroot/fonts/JetBrainsMono-Variable.ttf",
-        "src/CashPrism.Web/wwwroot/fonts/JetBrainsMono-OFL.txt"
+        "src/Core/CashPrism.Web/wwwroot/fonts/JetBrainsMono-Variable.ttf",
+        "src/Core/CashPrism.Web/wwwroot/fonts/JetBrainsMono-OFL.txt"
       ]
     },
     {
@@ -48,9 +48,9 @@
       "copyright": "Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2022.",
       "source": "https://github.com/lucide-icons/lucide/blob/main/LICENSE",
       "files": [
-        "src/CashPrism.Web/wwwroot/icons/lucide.css",
-        "src/CashPrism.Web/wwwroot/icons/lucide.woff2",
-        "src/CashPrism.Web/wwwroot/icons/Lucide-ISC.txt"
+        "src/Core/CashPrism.Web/wwwroot/icons/lucide.css",
+        "src/Core/CashPrism.Web/wwwroot/icons/lucide.woff2",
+        "src/Core/CashPrism.Web/wwwroot/icons/Lucide-ISC.txt"
       ]
     },
     {
@@ -60,8 +60,8 @@
       "copyright": "Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)",
       "source": "https://github.com/google/fonts/tree/main/ofl/manrope",
       "files": [
-        "src/CashPrism.Web/wwwroot/fonts/Manrope-Variable.ttf",
-        "src/CashPrism.Web/wwwroot/fonts/Manrope-OFL.txt"
+        "src/Core/CashPrism.Web/wwwroot/fonts/Manrope-Variable.ttf",
+        "src/Core/CashPrism.Web/wwwroot/fonts/Manrope-OFL.txt"
       ]
     }
   ]

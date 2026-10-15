@@ -15,11 +15,11 @@ centre.
 
 | Project | Role | May depend on |
 |---|---|---|
-| `src/CashPrism.Domain` | Models and business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
-| `src/CashPrism.Application` | Use cases, orchestration, DTOs, **interfaces** for anything external | Domain |
-| `src/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, the import store, migrations, clock | Application, Domain |
-| `src/CashPrism.Infrastructure.Finanzguru` | Reads the Finanzguru xlsx with ClosedXML and projects its rows onto bookings. Keeps both the ClosedXML dependency and the German column names out of everything else | Application, Domain |
-| `src/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
+| `src/Core/CashPrism.Domain` | Models and business rules | nothing — no EF Core, no ASP.NET, no NuGet beyond the BCL |
+| `src/Core/CashPrism.Application` | Use cases, orchestration, DTOs, **interfaces** for anything external | Domain |
+| `src/Core/CashPrism.Infrastructure` | Implements the Application interfaces: DbContext, the import store, migrations, clock | Application, Domain |
+| `src/Core/CashPrism.Infrastructure.Finanzguru` | Reads the Finanzguru xlsx with ClosedXML and projects its rows onto bookings. Keeps both the ClosedXML dependency and the German column names out of everything else | Application, Domain |
+| `src/Core/CashPrism.Web` | Razor Class Library: Blazor components, routing, auth UI, endpoint mapping. Exposes `AddCashPrismWeb()` / `MapCashPrismWeb()` | Application, Domain |
 | `src/CashPrism.Shell` | The executable and the composition root: Kestrel setup, port and binding, startup migrations, LAN URL, browser launch, single-instance guard | everything |
 | `src/Tools/CashPrism.Anonymiser` | The second composition root: a standalone console tool that turns a real Finanzguru export into one safe to share | Application, Domain, Infrastructure.Finanzguru |
 | `src/Tools/CashPrism.DemoData` | The third composition root: a standalone console tool that writes a fully synthetic Finanzguru export to try CashPrism on | Infrastructure.Finanzguru |
@@ -32,7 +32,7 @@ allowed to wire concrete infrastructure to a use case.
 
 | Project | Covers |
 |---|---|
-| `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which |
+| `src/Tests/CashPrism.Architecture.Tests` | Solution-wide rules: which project may reference which, and where a production project lives |
 | `src/Tests/CashPrism.Application.Tests.Unit` | The use cases against test doubles: what an import inserts, updates, leaves alone and refuses, and which months the overview and the analysis read |
 | `src/Tests/CashPrism.Domain.Tests.Unit` | The models and the rules on them: identity, split roles, which import run is the later one, what counts as income and spending |
 | `src/Tests/CashPrism.Infrastructure.Finanzguru.Tests.Unit` | `Infrastructure.Finanzguru` in isolation, without a workbook |
@@ -71,11 +71,12 @@ design/
 samples/
 src/
   CashPrism.slnx
-  CashPrism.Domain/
-  CashPrism.Application/
-  CashPrism.Infrastructure/
-  CashPrism.Infrastructure.Finanzguru/
-  CashPrism.Web/
+  Core/
+    CashPrism.Domain/
+    CashPrism.Application/
+    CashPrism.Infrastructure/
+    CashPrism.Infrastructure.Finanzguru/
+    CashPrism.Web/
   CashPrism.Shell/
   Tests/
     CashPrism.Architecture.Tests/
@@ -96,9 +97,11 @@ src/
     CashPrism.DemoData/
 ```
 
-The solution file is `src/CashPrism.slnx`. `src/Tests` and `src/Tools` are
-plain folders inside the solution root, and the `/Tests/` and `/Tools/`
-solution folders in the `.slnx` list the same projects.
+The solution file is `src/CashPrism.slnx`. `src/Core` holds the application
+itself; `CashPrism.Shell` sits beside it, because it only starts the
+application. `src/Core`, `src/Tests` and `src/Tools` are plain folders inside
+the solution root, and the `/Core/`, `/Tests/` and `/Tools/` solution folders in
+the `.slnx` list the same projects.
 
 `samples/` holds the demo export a person without data of their own tries
 CashPrism on; see [`demo-data.md`](demo-data.md).
@@ -154,4 +157,5 @@ and is not part of the build.
 - **`CashPrism.Architecture.Tests` enforces the reference graph.** The rules
   above are not a gentleman's agreement: the build fails if a project outside
   `Shell`, `Anonymiser` and `DemoData` takes a dependency on an Infrastructure
-  project.
+  project. It also fails when a production project other than `Shell` lies
+  outside `src/Core` and `src/Tools`.
