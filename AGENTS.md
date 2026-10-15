@@ -126,6 +126,10 @@ Consequences worth stating, because they are where it usually goes wrong:
   solution folder. `CashPrism.Shell` is the one production project outside it:
   it stays at the root of `src/` and of the solution, because it only starts
   the application. `CashPrism.Architecture.Tests` fails the build otherwise.
+- `AppHost` is a development tool, not part of the shipped application. It
+  starts the container image built from the `Dockerfile` and references no
+  project, so it never runs `Shell`'s build output in place of the image.
+  `CashPrism.Architecture.Tests` fails the build otherwise.
 - **A development tool lives under `src/Tools/`** and in the `/Tools/` solution
   folder, apart from the application it serves. Its test projects stay under
   `src/Tests/` like every other.

@@ -207,6 +207,29 @@ the machine it runs on. Inside, it is a portable `dotnet publish -c Release`,
 started through `dotnet` rather than the native launcher next to it, so the
 build stage never has to target the architecture of the image.
 
+### Through the AppHost, while developing
+
+`src/Tools/CashPrism.AppHost` is an [Aspire](https://aspire.dev) AppHost that
+does the `docker build` and `docker run` above in one step. It needs Docker
+running, and nothing else beyond the .NET SDK:
+
+```sh
+dotnet run --project src/Tools/CashPrism.AppHost
+```
+
+It builds the image from the repository root, starts it with port 5080
+published, the volume `cashprism-data` on `/data` and `TZ=Europe/Berlin`, and
+opens the Aspire dashboard. The dashboard lists the container as `cashprism`,
+links to `http://localhost:5080` and shows its log, setup code included.
+Stopping the AppHost with `Ctrl+C` removes the container; the volume and with
+it every import stays. It is the same volume the `docker run` above uses, so
+the two never run at the same time — the second one is refused like any second
+instance.
+
+The AppHost references no project and never starts `CashPrism.Shell`'s build
+output: what runs is the image, exactly as it ships. A native start stays
+`dotnet run --project src/CashPrism.Shell`.
+
 ## One instance per database
 
 Only one CashPrism at a time may use a database file. SQLite tolerates
