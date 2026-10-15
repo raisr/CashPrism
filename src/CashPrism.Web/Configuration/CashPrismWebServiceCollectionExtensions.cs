@@ -6,6 +6,7 @@ using CashPrism.Web.Preferences;
 using CashPrism.Web.StoredData;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -61,6 +62,10 @@ public static class CashPrismWebServiceCollectionExtensions
 
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(AccessCookie.Configure);
+
+        // The cookie is checked per request; this checks an open page, which
+        // sends none, against the same rule.
+        services.AddScoped<AuthenticationStateProvider, LoginRevalidation>();
 
         // Every endpoint needs a login unless it says otherwise. The exceptions
         // are declared where they are mapped, each with its reason: the login

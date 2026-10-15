@@ -70,6 +70,17 @@ public static class AccessCookie
     }
 
     /// <summary>
+    /// The generation a login was issued under, or <c>null</c> when it carries
+    /// none — a login from before they did, or no login at all.
+    /// </summary>
+    /// <param name="principal">What the login says about the person holding it.</param>
+    public static int? ReadGeneration(ClaimsPrincipal? principal)
+        => principal?.FindFirst(GenerationClaim)?.Value is { } value
+            && int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var generation)
+                ? generation
+                : null;
+
+    /// <summary>
     /// Turns away a login issued under a password that has since been changed
     /// or reset — and one without a generation at all, issued before logins
     /// carried one. Asked on every request, so a change reaches every device
@@ -79,8 +90,7 @@ public static class AccessCookie
     {
         var validation = context.HttpContext.RequestServices.GetRequiredService<LoginValidation>();
 
-        if (context.Principal?.FindFirst(GenerationClaim)?.Value is { } value
-            && int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var generation)
+        if (ReadGeneration(context.Principal) is { } generation
             && await validation.IsCurrentAsync(generation, context.HttpContext.RequestAborted))
         {
             return;
