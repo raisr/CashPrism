@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!--
+      The dashboard and the orchestrator come as NuGet packages rather than from
+      the Aspire CLI bundle, so `dotnet run` is all it takes and nobody has to
+      install the Aspire CLI. ASPIRE010 only says that the bundle is off.
+    -->
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    No project reference, on purpose: the AppHost starts the container image
+    built from the repository's Dockerfile, not CashPrism.Shell's build output.
+    CashPrism.Architecture.Tests fails the build otherwise.
+  -->
+
+</Project>

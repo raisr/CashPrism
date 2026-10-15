@@ -24,6 +24,7 @@ internal static class ProjectAssemblies
         "CashPrism.Shell",
         "CashPrism.Anonymiser",
         "CashPrism.DemoData",
+        "CashPrism.AppHost",
     ];
 
     /// <summary>

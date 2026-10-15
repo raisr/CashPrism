@@ -24,6 +24,7 @@
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/CashPrism.Anonymiser/CashPrism.Anonymiser.csproj" />
+    <Project Path="Tools/CashPrism.AppHost/CashPrism.AppHost.csproj" />
     <Project Path="Tools/CashPrism.DemoData/CashPrism.DemoData.csproj" />
   </Folder>
   <Project Path="CashPrism.Shell/CashPrism.Shell.csproj" />
