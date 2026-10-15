@@ -17,8 +17,8 @@ namespace CashPrism.Architecture.Tests;
 /// the reference itself is the harm, not the use of it.
 /// </para>
 /// <para>
-/// Production projects are the ones directly under <c>src/</c>; everything
-/// below <c>src/Tests/</c> is test-side and may reference it freely.
+/// Production projects are every project outside <c>src/Tests/</c>; everything
+/// below it is test-side and may reference it freely.
 /// </para>
 /// </remarks>
 public sealed class TestSupportBoundaryTests
@@ -26,7 +26,7 @@ public sealed class TestSupportBoundaryTests
     private const string TestSupportProject = "CashPrism.TestSupport";
 
     public static IEnumerable<object[]> ProductionProjectFiles()
-        => ProductionProjects().Select(path => new object[] { path });
+        => SourceTree.ProductionProjects().Select(path => new object[] { path });
 
     [Theory]
     [MemberData(nameof(ProductionProjectFiles))]
@@ -46,7 +46,7 @@ public sealed class TestSupportBoundaryTests
     [Fact]
     public void Every_Production_Project_Is_Actually_Examined()
     {
-        var examined = ProductionProjects()
+        var examined = SourceTree.ProductionProjects()
             .Select(Path.GetFileNameWithoutExtension)
             .ToArray();
 
@@ -60,26 +60,11 @@ public sealed class TestSupportBoundaryTests
     [Fact]
     public void The_Shared_Fixtures_Are_Referenced_By_A_Test_Project()
     {
-        var referencing = TestProjects()
+        var referencing = SourceTree.TestProjects()
             .Where(path => ReferencedProjectNames(path).Contains(TestSupportProject, StringComparer.Ordinal))
             .ToArray();
 
         Assert.NotEmpty(referencing);
-    }
-
-    private static IEnumerable<string> ProductionProjects()
-        => Directory.EnumerateFiles(SourceRoot(), "*.csproj", SearchOption.AllDirectories)
-            .Where(path => !IsUnderTests(path))
-            .Order(StringComparer.Ordinal);
-
-    private static IEnumerable<string> TestProjects()
-        => Directory.EnumerateFiles(Path.Combine(SourceRoot(), "Tests"), "*.csproj", SearchOption.AllDirectories);
-
-    private static bool IsUnderTests(string projectFile)
-    {
-        var testsRoot = Path.Combine(SourceRoot(), "Tests") + Path.DirectorySeparatorChar;
-
-        return projectFile.StartsWith(testsRoot, StringComparison.OrdinalIgnoreCase);
     }
 
     private static IEnumerable<string> ReferencedProjectNames(string projectFile)
@@ -89,30 +74,4 @@ public sealed class TestSupportBoundaryTests
             .Where(include => !string.IsNullOrEmpty(include))
             .Select(include => Path.GetFileNameWithoutExtension(include!.Replace('\\', Path.DirectorySeparatorChar)))
             .ToArray();
-
-    /// <summary>
-    /// Walks up from the test binary to the <c>src</c> directory that holds the
-    /// solution file. The test binary sits several levels deep under
-    /// <c>bin/</c>, and its depth is a build detail rather than something to
-    /// hard-code.
-    /// </summary>
-    private static string SourceRoot()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-
-        while (directory is not null)
-        {
-            var candidate = Path.Combine(directory.FullName, "CashPrism.slnx");
-
-            if (File.Exists(candidate))
-            {
-                return directory.FullName;
-            }
-
-            directory = directory.Parent;
-        }
-
-        throw new InvalidOperationException(
-            $"No directory containing 'CashPrism.slnx' above '{AppContext.BaseDirectory}'.");
-    }
 }
