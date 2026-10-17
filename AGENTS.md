@@ -214,6 +214,12 @@ keeps one code path for both.
 pull request from a `feature/` or `fix/` branch (`forge.branches`); `main` is
 protected so that no other way in exists, for the maintainer included.
 
+**Dependabot proposes every dependency update** — NuGet packages and tools,
+GitHub Actions and the base images in the `Dockerfile` — as configured in
+`.github/dependabot.yml`. Its pull requests come from `dependabot/` branches
+and are the one exception to the branch prefixes, recorded under
+[Deviations](#deviations-from-the-shared-rules).
+
 **The gates run in CI on every pull request against `main`.**
 `.github/workflows/gates.yml` runs `bash .devkit/gates.sh` on Ubuntu and on
 Windows, and a merge needs both green. This adds to `core.gates`, it does not
@@ -305,3 +311,4 @@ Every row was decided once and is recorded in `devkit.lock.json`, so
 | `dotnet.tests` | A second project under `src/Tests/` carries no `.Unit`/`.Integration` suffix and belongs to no production project: `CashPrism.TestSupport`, described under [Test projects](#test-projects) | `XlsxTestWorkbook` builds a Finanzguru-shaped workbook in code. The anonymiser's round-trip tests need it and the export reader's tests need the same thing, so the alternatives are a second copy or a binary fixture in the repository. The rule itself asks for a ticket arguing the case; that is issue #26 |
 | `core.tests` | A maintenance script under `.devkit/` carries no unit tests. It ships in nothing, and a gate that runs it end to end on every commit covers it instead. Logic that is not a maintenance script is not covered by this row, wherever it lives | `.devkit/generate-third-party-notices.cs` is checked by the `notices` gate, which runs the whole generator and diffs its output against the committed `THIRD-PARTY-NOTICES.md` — a golden-file test of the real pipeline, including the publish and the licence metadata lookup that unit tests would have to fake. A second project to make three string functions unit-testable would buy less coverage than the gate already gives |
 | `core.security` | The setup code that allows setting the first password is printed in the start banner, and the console of a container is its log, so the code reaches `docker logs`. It is the only secret that does; it is random per start and worthless once a password is set | Whoever reads the console or the container's log has the machine, and proving that is what the code is for. Every other way to hand over a first password — an environment variable, a file, a default — either needs a step a person double-clicking does not take, or leaves a known password standing. Recorded in issue #123 |
+| `forge.branches`, `forge.issues`, `forge.requests` | A pull request Dependabot opens comes from a `dependabot/` branch, has no issue and carries no evidence block, changelog line or signature. It is merged as it is once the gates are green; where it changes a NuGet package, `THIRD-PARTY-NOTICES.md` is regenerated and committed on its branch first (`dotnet run --file .devkit/generate-third-party-notices.cs`). Its commit prefix is `chore:`, its label `chore`, its assignee `raisr`. A pull request made by hand is not covered by this row | Dependabot fixes the branch prefix and writes its own description, so the conventions cannot be met without closing each pull request and redoing it under a ticket — twice the work per update, for a change that is a version number. Without it, a newer release goes unnoticed until someone looks; issue #214 |
