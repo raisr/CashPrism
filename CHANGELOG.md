@@ -9,6 +9,12 @@ releases and the minor version is bumped for every notable change.
 
 ## [Unreleased]
 
+### Security
+
+- The development AppHost no longer pulls in MessagePack 2.5.302, which is
+  affected by [GHSA-qhrr-8q5h-9q3h](https://github.com/advisories/GHSA-qhrr-8q5h-9q3h);
+  it now uses 2.5.307. The shipped application never contained MessagePack.
+
 ## [0.2.0] - 2026-10-15
 
 ### Added
