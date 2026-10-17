@@ -4,7 +4,8 @@ version: 2
 
 updates:
   - package-ecosystem: nuget
-    directory: "/"
+    # NuGet discovery starts from the solution, not from a recursive search.
+    directory: "/src"
     schedule:
       interval: weekly
     commit-message:
