@@ -16,4 +16,14 @@
     CashPrism.Architecture.Tests fails the build otherwise.
   -->
 
+  <ItemGroup>
+    <!--
+      Aspire.Hosting.AppHost 13.6.1 brings MessagePack 2.5.302, which carries
+      GHSA-qhrr-8q5h-9q3h, and the NuGet audit fails the build on it. 2.5.307
+      is the version microsoft/aspire#21051 pins. Remove this reference once an
+      Aspire release after 13.6.1 carries that pin itself.
+    -->
+    <PackageReference Include="MessagePack" Version="2.5.307" />
+  </ItemGroup>
+
 </Project>
