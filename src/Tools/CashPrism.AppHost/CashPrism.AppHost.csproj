@@ -23,7 +23,7 @@
       is the version microsoft/aspire#21051 pins. Remove this reference once an
       Aspire release after 13.6.1 carries that pin itself.
     -->
-    <PackageReference Include="MessagePack" Version="2.5.307" />
+    <PackageReference Include="MessagePack" Version="3.1.12" />
   </ItemGroup>
 
 </Project>
