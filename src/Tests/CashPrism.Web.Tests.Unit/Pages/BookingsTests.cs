@@ -333,7 +333,9 @@ public sealed class BookingsTests
 
             page.FindAll("tr.cp-table__row")[1].Click();
 
-            Assert.Equal("Deutsche Bahn", page.Find(".cp-sheet .cp-h2").TextContent);
+            // The row hands the click on asynchronously, so the sheet may render
+            // after Click returns; finding it at once failed under load.
+            Assert.Equal("Deutsche Bahn", page.WaitForElement(".cp-sheet .cp-h2").TextContent);
         }
 
         [Fact]
@@ -344,7 +346,7 @@ public sealed class BookingsTests
 
             page.Find("tr.cp-table__row").KeyDown("Enter");
 
-            Assert.NotNull(page.Find(".cp-sheet"));
+            Assert.NotNull(page.WaitForElement(".cp-sheet"));
         }
     }
 
@@ -357,9 +359,9 @@ public sealed class BookingsTests
             var page = Context.Render<BookingsPage>();
             page.Find("tr.cp-table__row").Click();
 
-            page.Find(".cp-sheet").KeyDown("Escape");
+            page.WaitForElement(".cp-sheet").KeyDown("Escape");
 
-            Assert.Empty(page.FindAll(".cp-sheet"));
+            page.WaitForAssertion(() => Assert.Empty(page.FindAll(".cp-sheet")));
         }
 
         [Fact]
@@ -374,7 +376,7 @@ public sealed class BookingsTests
             var clicked = page.FindAll("tr.cp-table__row")[1].GetAttribute("blazor:elementReference");
             page.FindAll("tr.cp-table__row")[1].Click();
 
-            page.Find(".cp-sheet").KeyDown("Escape");
+            page.WaitForElement(".cp-sheet").KeyDown("Escape");
 
             // The sheet took the focus when it opened; the second call is the
             // way back, and it has to land on the row that was clicked.
