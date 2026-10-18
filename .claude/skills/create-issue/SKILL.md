@@ -20,9 +20,9 @@ Paths below are relative to the repository root.
 bash .claude/skills/create-issue/context.sh
 ```
 
-You get the forge and workflow mode, that the CLI is authenticated and against
-which project, which of the five type labels exist, and the open tickets so a
-near-duplicate can be spotted before filing.
+You get the forge and workflow mode, who a new ticket is assigned to, that the
+CLI is authenticated and against which project, which of the six type labels
+exist, and the open tickets so a near-duplicate can be spotted before filing.
 
 Under `WORKFLOW: light` a ticket is not required. Say so once, and ask whether
 the user wants one anyway — sometimes they do, and that is fine.
@@ -38,7 +38,23 @@ The three that get skipped and should not be:
 
 - **English**, even when the conversation is in another language.
 - **Only up-front knowledge.** What you find out while working the ticket goes
-  in a comment or a follow-up ticket, never back into the description.
+  in a comment or a follow-up ticket, never back into the description:
+
+  ```bash
+  forge_issue_reply <n> /path/to/note.md
+  ```
+
+  A ticket that was already wrong when it was filed — a mistake in the draft,
+  or an acceptance criterion the user agrees to change before work starts — is
+  corrected in place instead, with the whole approved body:
+
+  ```bash
+  forge_issue_edit <n> /path/to/body.md
+  ```
+
+  Once work has started, a change of mind is a finding, and it goes into
+  `forge_issue_reply`. The one later edit is ticking the Definition of Done
+  after the merge, which `implement-feature` does (`forge.review`).
 - **Verifiable acceptance criteria.** A concrete command and its expected
   result beats a sentence about things being set up correctly.
 
@@ -53,8 +69,13 @@ Write the approved body to a temporary file, then:
 
 ```bash
 . .devkit/config.sh && . .devkit/forge.sh
-forge_issue_create "<type>: <summary>" "<type>" /path/to/body.md
+forge_issue_create "<type>: <summary>" "<type>" /path/to/body.md [<assignee>]
 ```
+
+The fourth argument is the `ISSUE_ASSIGNEE` that `context.sh` printed. When it
+printed `none`, leave the argument off: the ticket stays unassigned, as
+`forge.issues` prescribes. It is `DEVKIT_ASSIGN_ISSUES` in `.devkit/config.sh`
+that turns assignment on, never a guess made while filing.
 
 Never call `gh` or `glab` directly — `forge.sh` is what makes this skill work
 on both.
@@ -80,7 +101,7 @@ out of the branch name. A `chore`, `docs` or `refactor` ticket still gets a
 ## Gotchas
 
 - `context.sh` needs a network round-trip. It is not offline-safe.
-- The five type labels are created for this workflow. A forge's stock labels
+- The six type labels are created for this workflow. A forge's stock labels
   (`enhancement`, `bug`, `documentation`) carry no conventional-commit meaning
   here — do not use them for the type.
 - Passing a body on stdin is fragile once the Markdown contains backticks.

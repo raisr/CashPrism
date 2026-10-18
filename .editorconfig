@@ -60,6 +60,16 @@ csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
+
+# EF writes these files and rewrites them whenever the model changes, so
+# formatting or style rules would fight the tool rather than help a reader.
+[**/Migrations/*.cs]
+generated_code = true
+
+# EF6 generates this one once and a human then maintains its Seed method, so it
+# stays ordinary source. It must follow the section above: the later one wins.
+[**/Migrations/Configuration.cs]
+generated_code = false
 # <<< devkit:shared/dotnet <<<
 
 # >>> devkit:stack/dotnet-core >>>
@@ -70,12 +80,3 @@ csharp_style_namespace_declarations = file_scoped:warning
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_prefer_switch_expression = true:suggestion
 # <<< devkit:stack/dotnet-core <<<
-
-# Project-owned, outside every devkit block: EF Core writes the migrations and
-# rewrites them whenever the model changes, so they are generated code rather
-# than something to hand-format. Without this, `dotnet format` reports every
-# migration as a violation of the line endings, the encoding and the
-# file-scoped-namespace rule — none of which we would fix by editing a file the
-# tool owns.
-[**/Migrations/*.cs]
-generated_code = true
