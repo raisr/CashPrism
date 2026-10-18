@@ -1,6 +1,9 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.6.1">
 
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
     <!--
       The dashboard and the orchestrator come as NuGet packages rather than from

@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <!--
       The Blazor components live in CashPrism.Web, so this project has no .razor
       files and the Web SDK would not pull in the framework's browser assets.
