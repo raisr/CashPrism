@@ -94,13 +94,23 @@ stop in this lifecycle. Repo commits carry no AI footer.
 ```bash
 . .devkit/config.sh && . .devkit/forge.sh
 forge_pr_create "${DEVKIT_MAIN_BRANCH}" "<branch>" \
-  "<type>: <summary> (#<issue>)" "<type>" "${DEVKIT_ASSIGNEE}" /path/to/body.md
+  "<type>: <summary> (#<issue>)" "<type>" "${DEVKIT_ASSIGNEE}" /path/to/body.md \
+  "$(forge_issue_milestone <issue>)"
 ```
 
+The last argument gives the request the issue's milestone (`forge.requests`).
+An issue without one prints nothing, and the request is created without one.
+
 The body follows `forge.requests`: what and why, an **Evidence** block with the
-gate output, a **Changelog** line naming the category or `n. a.` with the
-reason, any deviation from the Definition of Done, `Closes #<issue>`, and the
-signature from `core.signature`.
+gate output, the **Definition of Done** copied from the issue as checkboxes and
+ticked box by box, a **Changelog** line naming the category or `n. a.` with the
+reason, a **Documentation** line naming the document that was updated or `n. a.`
+with the reason none needed it, `Closes #<issue>`, and the signature from
+`core.signature`.
+
+The documentation line is where step 3 is answered for. `core.docs` is not
+satisfied by intending to update a document, and `n. a.` is a claim the
+maintainer reads — so write the reason, not the abbreviation alone.
 
 Never call `gh` or `glab` directly.
 
@@ -115,14 +125,46 @@ forge_pr_line_comments <n>
 ```
 
 Address **every** point, re-run the gates, commit through `commit-message`,
-push. Reply on the request naming the commit that resolved each point, signed
-with the same block. Nothing is waved away silently; where you disagree, say so
-in the reply.
+push. Then reply on the request, naming the commit that resolved each point and
+signed with the same block:
+
+```bash
+forge_pr_reply <n> /path/to/reply.md
+```
+
+Nothing is waved away silently; where you disagree, say so in the reply. Where
+a point makes the request body itself wrong — a changed Evidence block, a
+Definition of Done that now reads differently — replace it rather than
+correcting it in a comment:
+
+```bash
+forge_pr_edit <n> /path/to/body.md
+```
+
+Both take a file, like every other body in these skills: the text is full of
+backticks and does not survive being passed as a string.
 
 ## 9. Done — `full` only
 
 The work is finished when **the user accepts or merges the request** — not when
-the gates pass. After the merge:
+the gates pass. After the merge, bring the ticket in line with the request
+(`forge.review`):
+
+```bash
+. .devkit/config.sh && . .devkit/forge.sh
+forge_issue_body <issue> > /path/to/issue.md
+# tick every box in /path/to/issue.md that the request body ticked -
+# the state only, never the wording of a criterion
+forge_issue_edit <issue> /path/to/issue.md
+forge_issue_reply <issue> /path/to/open-boxes.md   # only when a box stayed open
+```
+
+The request body is the source, as you last wrote it through `forge_pr_create`
+or `forge_pr_edit`: you tick it, the maintainer comments. The comment lists
+each open box with the reason the request gave, and carries the signature from
+`core.signature`. When every box holds, there is no comment.
+
+Then:
 
 ```bash
 git checkout "${DEVKIT_MAIN_BRANCH}" && git pull && git branch -d <branch>
