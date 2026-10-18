@@ -7,7 +7,7 @@ on a local disk only, no DDD — are binding and live in
 
 | Area | Choice | Why |
 |---|---|---|
-| Runtime | .NET 10 (LTS) | Long-term support, and the only runtime the project targets. Set once in `src/Directory.Build.props` |
+| Runtime | .NET 10 (LTS) | Long-term support, and the only runtime the project targets. Every project file sets it as its target framework |
 | UI | Blazor Web App, render mode `InteractiveServer` | One language for server and browser. The state lives on the hosting machine, so the phone in the kitchen renders the same session without a separate API |
 | UI components | MudBlazor | Layout, navigation, theming and the data components a booking list needs, without writing them. It targets `net10.0` and depends on nothing but `Microsoft.AspNetCore.Components`, `.Web` and `Microsoft.Extensions.Localization`. Its own English strings are fed from `Strings.resx`, and its default Roboto is replaced by a system font stack so no page asks an external host for anything — see [ui.md](ui.md) |
 | Web server | Kestrel, built in | Already part of ASP.NET Core. A reverse proxy would be one more thing to install on a home machine for no gain |
