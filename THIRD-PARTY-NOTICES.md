@@ -19,21 +19,21 @@ a package or asset change; the `notices` gate fails while it is stale.
 | DocumentFormat.OpenXml.Framework | 3.1.1 | MIT | © Microsoft Corporation. All rights reserved. |
 | ExcelNumberFormat | 1.1.0 | MIT | Copyright (c) 2017 andersnm |
 | Microsoft.AspNetCore.App.Runtime | 10.0 | MIT | Copyright (c) .NET Foundation and Contributors |
-| Microsoft.Data.Sqlite.Core | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
-| Microsoft.EntityFrameworkCore | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
-| Microsoft.EntityFrameworkCore.Abstractions | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
-| Microsoft.EntityFrameworkCore.Relational | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
-| Microsoft.EntityFrameworkCore.Sqlite | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
-| Microsoft.EntityFrameworkCore.Sqlite.Core | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
-| Microsoft.Extensions.DependencyModel | 10.0.11 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.Data.Sqlite.Core | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.EntityFrameworkCore | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.EntityFrameworkCore.Abstractions | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.EntityFrameworkCore.Relational | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.EntityFrameworkCore.Sqlite | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.EntityFrameworkCore.Sqlite.Core | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
+| Microsoft.Extensions.DependencyModel | 10.0.13 | MIT | © Microsoft Corporation. All rights reserved. |
 | Microsoft.NETCore.App.Runtime | 10.0 | MIT | Copyright (c) .NET Foundation and Contributors |
-| MudBlazor | 9.9.0 | MIT | Copyright 2026 MudBlazor |
+| MudBlazor | 9.11.0 | MIT | Copyright 2026 MudBlazor |
 | RBush.Signed | 4.0.0 | MIT | Copyright © 2017-2024 Turning Code, LLC (and others) |
 | SixLabors.Fonts | 1.0.0 | Apache-2.0 | Copyright © Six Labors |
-| SQLitePCLRaw.bundle_e_sqlite3 | 2.1.12 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
-| SQLitePCLRaw.core | 2.1.12 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
-| SQLitePCLRaw.lib.e_sqlite3 | 2.1.12 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
-| SQLitePCLRaw.provider.e_sqlite3 | 2.1.12 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
+| SQLitePCLRaw.bundle_e_sqlite3 | 2.1.13 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
+| SQLitePCLRaw.core | 2.1.13 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
+| SQLitePCLRaw.lib.e_sqlite3 | 2.1.13 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
+| SQLitePCLRaw.provider.e_sqlite3 | 2.1.13 | Apache-2.0 | Copyright 2014-2024 SourceGear, LLC |
 | System.IO.Packaging | 8.0.1 | MIT | © Microsoft Corporation. All rights reserved. |
 
 The `.App.Runtime` rows are the .NET runtime, which the builds for a platform
