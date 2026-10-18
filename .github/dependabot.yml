@@ -12,6 +12,14 @@ updates:
       prefix: chore
     labels: [chore]
     assignees: [raisr]
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # MessagePack is pinned to the 2.x line Aspire pins (#213), and the pin
+      # is to be removed once Aspire ships it, not raised to a new major.
+      - dependency-name: MessagePack
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: "/"
