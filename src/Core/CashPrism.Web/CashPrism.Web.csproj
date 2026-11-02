@@ -14,7 +14,7 @@
     <!-- Pinned to the exact version: the component library decides how every
          screen looks, so an unattended minor bump is a visual change nobody
          reviewed. -->
-    <PackageReference Include="MudBlazor" Version="[9.11.0]" />
+    <PackageReference Include="MudBlazor" Version="[9.12.0]" />
   </ItemGroup>
 
   <ItemGroup>
